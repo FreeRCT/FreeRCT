@@ -2,6 +2,7 @@
 FGTR {
 	internal_name: "ship_swing";
 	category: "thrill";
+	build_cost: 43000;
 	ride_width_x: 5;
 	ride_width_y: 2;
 	height_0_0: 6;

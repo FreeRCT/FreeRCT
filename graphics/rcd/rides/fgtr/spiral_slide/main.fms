@@ -2,6 +2,7 @@
 FGTR {
 	internal_name: "spiral_slide";
 	category: "gentle";
+	build_cost: 33000;
 	ride_width_x: 2;
 	ride_width_y: 2;
 	height_0_0: 10;

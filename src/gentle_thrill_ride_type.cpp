@@ -41,7 +41,7 @@ RideInstance *GentleThrillRideType::CreateInstance() const
  */
 void GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
-	rcd_file->CheckVersion(5);
+	rcd_file->CheckVersion(6);
 	int length = rcd_file->size;
 	rcd_file->CheckMinLength(length, 3, "header");
 
@@ -142,7 +142,10 @@ void GentleThrillRideType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 			GENTLE_THRILL_RIDES_NAME_TYPE, GENTLE_THRILL_RIDES_DESCRIPTION_TYPE);
 
 	this->internal_name = rcd_file->GetText();
-	rcd_file->CheckExactLength(length, this->internal_name.size() + 1, "end of block");
+	this->build_cost = rcd_file->GetUInt32();
+	length -= this->internal_name.size() + 1 + 4;
+
+	rcd_file->CheckExactLength(length, 0, "end of block");
 }
 
 FixedRideType::RideCapacity GentleThrillRideType::GetRideCapacity() const

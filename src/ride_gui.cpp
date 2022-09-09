@@ -238,7 +238,7 @@ void RideSelectGui::OnClick(WidgetNumber wid_num, const Point16 &pos)
 					case RTK_SHOP:
 					case RTK_GENTLE:
 					case RTK_THRILL:
-						ShowRideBuildGui(ri);
+						ShowRideBuildGui(static_cast<FixedRideInstance*>(ri));
 						break;
 					case RTK_COASTER:
 						_rides_manager.NewInstanceAdded(instance);

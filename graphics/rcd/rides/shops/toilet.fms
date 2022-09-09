@@ -1,6 +1,7 @@
 // Toilet.
 SHOP {
 	internal_name: "toilet";
+	build_cost: 20000;
 	height: 2;
 
 	images: FSET {

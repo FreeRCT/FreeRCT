@@ -1,6 +1,7 @@
 // Ice cream stall.
 SHOP {
 	internal_name: "ice_cream_stall";
+	build_cost: 27000;
 	height: 3;
 
 	images: FSET {

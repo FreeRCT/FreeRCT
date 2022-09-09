@@ -655,6 +655,7 @@ public:
 	int ownership_cost;   ///< Monthly cost of having the shop.
 	int opened_cost;      ///< Additional monthly cost of having an opened shop.
 	int item_type[2];     ///< Item type of both items at sale.
+	int build_cost;       ///< Shop construction cost.
 
 	std::shared_ptr<FSETBlock> views;
 	std::shared_ptr<StringBundle> shop_text;   ///< Texts of the shop.
@@ -674,6 +675,7 @@ public:
 	int8 ride_width_y;    ///< The number of voxels the ride occupies in y direction.
 	std::unique_ptr<int8[]> heights; ///< Heights of the ride in voxels.
 	Recolouring recol[3]; ///< Recolour definitions of the ride.
+	int build_cost;       ///< Ride construction cost.
 	int entrance_fee;     ///< Cost of the ride.
 	int ownership_cost;   ///< Monthly cost of having the ride.
 	int opened_cost;      ///< Additional monthly cost of having an opened ride.
