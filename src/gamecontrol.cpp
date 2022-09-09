@@ -51,7 +51,6 @@ void OnNewDay()
 	_weather.OnNewDay();
 	_finances_manager.OnNewDay();
 	_game_observer.OnNewDay();
-	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
 }
 
 /**
@@ -319,7 +318,6 @@ GameModeManager::~GameModeManager()
 void GameModeManager::SetGameMode(GameMode new_mode)
 {
 	this->game_mode = new_mode;
-	NotifyChange(WC_TOOLBAR, 0, CHG_UPDATE_BUTTONS, 0);
 }
 
 /**

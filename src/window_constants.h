@@ -54,12 +54,8 @@ enum WindowTypes {
 
 /** Codes of the #NotifyChange function, which gets forwarded through the #Window::OnChange method. */
 enum ChangeCode {
-	CHG_UPDATE_BUTTONS,   ///< Recompute the state of the buttons.
-	CHG_VIEWPORT_ROTATED, ///< Viewport rotated.
-	CHG_DISPLAY_OLD,      ///< Displayed data is old.
-	CHG_PIECE_POSITIONED, ///< The track piece is at the correct position.
-	CHG_DROPDOWN_RESULT,  ///< The selection of a dropdown window.
-	CHG_GUEST_COUNT,      ///< Number of guests in the park has changed.
+	CHG_VIEWPORT_ROTATED,    ///< Viewport rotated.
+	CHG_DROPDOWN_RESULT,     ///< The selection of a dropdown window.
 	CHG_RESOLUTION_CHANGED,  ///< The size of the FreeRCT window was changed.
 	CHG_PERSON_DELETED,      ///< A person has been deleted from the world.
 };

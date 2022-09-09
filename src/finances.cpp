@@ -214,14 +214,6 @@ void FinancesManager::SetScenario(const Scenario &s)
 void FinancesManager::DoTransaction(const Money &income)
 {
 	this->cash += income;
-	this->NotifyGui();
-}
-
-/** Let the Gui know the financial data has changed. */
-void FinancesManager::NotifyGui()
-{
-	NotifyChange(WC_BOTTOM_TOOLBAR, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
-	NotifyChange(WC_FINANCES, ALL_WINDOWS_OF_TYPE, CHG_DISPLAY_OLD, 0);
 }
 
 /**
@@ -243,7 +235,6 @@ void FinancesManager::Load(Loader &ldr)
 		for (int i = 0; i < this->num_used; i++) this->finances[i].Load(ldr);
 	}
 	ldr.ClosePattern();
-	this->NotifyGui();
 }
 
 /**

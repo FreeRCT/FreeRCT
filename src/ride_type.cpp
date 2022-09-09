@@ -392,10 +392,8 @@ void RideInstance::SellItem(int item_index)
 	if (this->GetKind() == RTK_SHOP) {
 		_finances_manager.PayShopStock(cost);
 		_finances_manager.EarnShopSales(price);
-		NotifyChange(WC_SHOP_MANAGER, this->GetIndex(), CHG_DISPLAY_OLD, 0);
 	} else {
 		_finances_manager.EarnRideTickets(price);
-		NotifyChange(this->GetKind() == RTK_COASTER ? WC_COASTER_MANAGER : WC_GENTLE_THRILL_RIDE_MANAGER, this->GetIndex(), CHG_DISPLAY_OLD, 0);
 	}
 }
 
@@ -501,8 +499,6 @@ void RideInstance::OnNewMonth()
 
 	this->max_reliability = (RELIABILITY_RANGE - type->reliability_decrease_monthly) * this->max_reliability / RELIABILITY_RANGE;
 	this->reliability = std::min(this->reliability, this->max_reliability);
-
-	NotifyChange(WC_SHOP_MANAGER, this->GetIndex(), CHG_DISPLAY_OLD, 0);
 }
 
 /** Daily update of reliability and breakages. */
@@ -568,20 +564,16 @@ void RideInstance::OpenRide()
 	this->time_since_last_long_queue_message = 0;
 
 	/* Perform payments if they have not been done this month. */
-	bool money_paid = false;
 	if (GB(this->flags, RIF_MONTHLY_PAID, 1) == 0) {
 		this->total_profit -= this->type->monthly_cost;
 		_finances_manager.PayStaffWages(this->type->monthly_cost);
 		SB(this->flags, RIF_MONTHLY_PAID, 1, 1);
-		money_paid = true;
 	}
 	if (GB(this->flags, RIF_OPENED_PAID, 1) == 0) {
 		this->total_profit -= this->type->monthly_open_cost;
 		_finances_manager.PayStaffWages(this->type->monthly_open_cost);
 		SB(this->flags, RIF_OPENED_PAID, 1, 1);
-		money_paid = true;
 	}
-	if (money_paid) NotifyChange(WC_SHOP_MANAGER, this->GetIndex(), CHG_DISPLAY_OLD, 0);
 }
 
 /**
