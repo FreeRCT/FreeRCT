@@ -77,8 +77,10 @@ enum ShopManagerWidgets {
 	SMW_SELL_PROFIT,      ///< Total selling profit.
 	SMW_SHOP_COST,        ///< Shop maintenance/personnel costs.
 	SMW_TOTAL_PROFIT,     ///< Total shop profit.
-	SMW_SHOP_OPEN,        ///< Radio button of 'shop is open'.
-	SMW_SHOP_CLOSE,       ///< Radio button of 'shop is closed'.
+	SMW_OPEN_SHOP_PANEL,  ///< Open shop button.
+	SMW_CLOSE_SHOP_PANEL, ///< Close shop button.
+	SMW_OPEN_SHOP_LIGHT,  ///< Open shop light.
+	SMW_CLOSE_SHOP_LIGHT, ///< Close shop light.
 	SMW_RECOLOUR1,        ///< First recolour dropdown.
 	SMW_RECOLOUR2,        ///< Second recolour dropdown.
 	SMW_RECOLOUR3,        ///< Third recolour dropdown.
@@ -135,8 +137,10 @@ static const WidgetPart _shop_manager_gui_parts[] = {
 				Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
 					Intermediate(0, 1),
 						Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(0, 1),
-						Widget(WT_RADIOBUTTON, SMW_SHOP_CLOSE, COL_RANGE_RED),     SetPadding(0, 2, 0, 0),
-						Widget(WT_RADIOBUTTON, SMW_SHOP_OPEN, COL_RANGE_GREEN),    SetPadding(0, 2, 0, 0),
+						Widget(WT_PANEL, SMW_CLOSE_SHOP_PANEL, COL_RANGE_DARK_RED),
+							Widget(WT_RADIOBUTTON, SMW_CLOSE_SHOP_LIGHT, COL_RANGE_RED  ), SetPadding(0, 2, 0, 0),
+						Widget(WT_PANEL, SMW_OPEN_SHOP_PANEL, COL_RANGE_DARK_RED),
+							Widget(WT_RADIOBUTTON, SMW_OPEN_SHOP_LIGHT , COL_RANGE_GREEN), SetPadding(0, 2, 0, 0),
 						Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(0, 1),
 				EndContainer(),
 
@@ -182,8 +186,8 @@ assert_compile(MAX_RECOLOUR >= MAX_RIDE_RECOLOURS); ///< Check that the 3 recolo
 /** Update the radio buttons of the window. */
 void ShopManagerWindow::SetShopToggleButtons()
 {
-	this->SetWidgetChecked(SMW_SHOP_OPEN, this->shop->state == RIS_OPEN);
-	this->SetWidgetChecked(SMW_SHOP_CLOSE, this->shop->state == RIS_CLOSED);
+	this->GetWidget<LeafWidget>(SMW_OPEN_SHOP_LIGHT )->shift = this->shop->state == RIS_OPEN   ? GS_LIGHT : GS_NIGHT;
+	this->GetWidget<LeafWidget>(SMW_CLOSE_SHOP_LIGHT)->shift = this->shop->state == RIS_CLOSED ? GS_LIGHT : GS_NIGHT;
 }
 
 void ShopManagerWindow::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
@@ -246,14 +250,16 @@ void ShopManagerWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 void ShopManagerWindow::OnClick(WidgetNumber wid_num, [[maybe_unused]] const Point16 &pos)
 {
 	switch (wid_num) {
-		case SMW_SHOP_OPEN:
+		case SMW_OPEN_SHOP_LIGHT:
+		case SMW_OPEN_SHOP_PANEL:
 			if (this->shop->state != RIS_OPEN) {
 				this->shop->OpenRide();
 				this->SetShopToggleButtons();
 			}
 			break;
 
-		case SMW_SHOP_CLOSE:
+		case SMW_CLOSE_SHOP_LIGHT:
+		case SMW_CLOSE_SHOP_PANEL:
 			if (this->shop->state != RIS_CLOSED) {
 				this->shop->CloseRide();
 				this->SetShopToggleButtons();

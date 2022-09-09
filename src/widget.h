@@ -197,6 +197,7 @@ public:
 
 	uint8 flags;          ///< Flags of the leaf widget. @see LeafWidgetFlags
 	ColourRange colour;   ///< Colour of the widget.
+	GradientShift shift;  ///< Gradient shift for the widget colour.
 };
 
 /**
