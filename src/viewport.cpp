@@ -935,10 +935,11 @@ void Viewport::ToggleUndergroundMode()
  */
 void Viewport::AddFloatawayMoneyAmount(const Money &money, const XYZPoint16 &voxel)
 {
+	if (money == 0) return;
 	_str_params.SetMoney(1, -money);
 	this->floataway_texts.emplace_back(DrawText(STR_ARG1),
 			XYZPoint32(voxel.x * 256 + 128, voxel.y * 256 + 128, voxel.z * 256 + 128),
-			money < 0 ? 0x00ff0000 : money > 0 ? 0xff000000 : 0x00000000);
+			money < 0 ? 0x00ff0000 : 0xff000000);
 }
 
 /**
