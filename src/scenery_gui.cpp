@@ -300,6 +300,7 @@ void SceneryGui::SelectorMouseButtonEvent(const MouseButtons state)
 							return;
 						}
 						_finances_manager.PayLandscaping(cost);
+						_window_manager.GetViewport()->AddFloatawayMoneyAmount(cost, i->vox_pos);
 						_scenery.RemoveItem(i->vox_pos);
 					}
 				}
@@ -324,6 +325,7 @@ void SceneryGui::SelectorMouseButtonEvent(const MouseButtons state)
 
 	this->instance->RemoveFromWorld();  // The scenery manager will want to re-insert it, so we must unlink it first.
 	_finances_manager.PayLandscaping(cost);
+	_window_manager.GetViewport()->AddFloatawayMoneyAmount(cost, this->instance->vox_pos);
 	_scenery.AddItem(this->instance.release());
 
 	this->SetType(this->selected_type);  // Prepare to place another instance.

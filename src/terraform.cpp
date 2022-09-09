@@ -517,6 +517,8 @@ bool TerrainChanges::ModifyWorld(const int direction)
 		return true;
 	}
 	_finances_manager.PayLandscaping(total_cost);
+	_window_manager.GetViewport()->AddFloatawayMoneyAmount(total_cost, XYZPoint16(
+			this->changes.begin()->first.x, this->changes.begin()->first.y, this->changes.begin()->second.height));
 
 	/* Second iteration: Change the ground of the tiles. */
 	for (auto &iter : this->changes) {

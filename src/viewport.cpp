@@ -861,6 +861,17 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 }
 
 /**
+ * Constructor with default speed and fade settings.
+ * @param text Text to show.
+ * @param pos Pixel position in the world.
+ * @param col RGB colour of the text.
+ */
+FloatawayText::FloatawayText(std::string text, XYZPoint32 pos, uint32 col)
+: FloatawayText(text, pos, XYZPoint32(3, -6, 0), col | 0xff, 3)
+{
+}
+
+/**
  * %Viewport constructor.
  * @param init_view_pos Pixel position of the center viewpoint of the main display.
  */
@@ -918,6 +929,20 @@ void Viewport::ToggleUndergroundMode()
 }
 
 /**
+ * Draw a floataway amount of money.
+ * @param money Amount of money paid.
+ * @param voxel Voxel coordinate where to draw the text.
+ */
+void Viewport::AddFloatawayMoneyAmount(const Money &money, const XYZPoint16 &voxel)
+{
+	if (money == 0) return;
+	_str_params.SetMoney(1, -money);
+	this->floataway_texts.emplace_back(DrawText(STR_ARG1),
+			XYZPoint32(voxel.x * 256 + 128, voxel.y * 256 + 128, voxel.z * 256 + 128),
+			money < 0 ? 0x00ff0000 : 0xff000000);
+}
+
+/**
  * Get relative X position of a point in the world (used for marking window parts dirty).
  * @param xpos X world position.
  * @param ypos Y world position.
@@ -940,10 +965,30 @@ int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
 	return ComputeYFunction(xpos, ypos, zpos, this->orientation, this->tile_width, this->tile_height);
 }
 
+/**
+ * Compute the absolute screen coordinate of a given world coordinate.
+ * @param pixel Pixel world position.
+ * @return Screen coordinate after orientation and offset.
+ */
+Point32 Viewport::ComputeScreenCoordinate(const XYZPoint32 &pixel) const
+{
+	int32 dx = pixel.x - this->view_pos.x;
+	int32 dy = pixel.y - this->view_pos.y;
+	int32 dz = pixel.z - this->view_pos.z;
+
+	Point32 pos(this->rect.base.x + this->rect.width / 2, this->rect.base.y + this->rect.height / 2);
+	pos.x -= _orientation_signum_dy[this->orientation] * dx * this->tile_width / 512;
+	pos.x += _orientation_signum_dx[this->orientation] * dy * this->tile_width / 512;
+	pos.y += _orientation_signum_dy[this->orientation] * dx * this->tile_height / 256 * (this->orientation % 2 == 0 ? 1 : -1);
+	pos.y += _orientation_signum_dx[this->orientation] * dy * this->tile_height / 256 * (this->orientation % 2 == 0 ? 1 : -1);
+	pos.y -= this->tile_height * dz / 256;
+	return pos;
+}
+
 void Viewport::OnDraw(MouseModeSelector *selector)
 {
 	SpriteCollector collector(this);
-	collector.SetWindowSize(-(int16)this->rect.width / 2, -(int16)this->rect.height / 2, this->rect.width, this->rect.height);
+	collector.SetWindowSize(-static_cast<int>(this->rect.width / 2), -static_cast<int>(this->rect.height / 2), this->rect.width, this->rect.height);
 	collector.SetSelector(selector);
 	collector.Collect();
 
@@ -957,6 +1002,22 @@ void Viewport::OnDraw(MouseModeSelector *selector)
 		const DrawData &dd = iter;
 		const Recolouring &rec = (dd.recolour == nullptr) ? _no_recolour : *dd.recolour;
 		_video.BlitImage(dd.base, dd.sprite, rec, dd.highlight ? GS_SEMI_TRANSPARENT : gs);
+	}
+
+	for (uint i = 0; i < this->floataway_texts.size();) {
+		FloatawayText &f = this->floataway_texts.at(i);
+		int a = GetA(f.colour);
+		a -= f.fade;
+		if (a > 0) {
+			f.colour = SetA(f.colour, a);
+			f.pos += f.speed;
+			Point32 pos = ComputeScreenCoordinate(f.pos);
+			_video.BlitText(f.text, f.colour, pos.x, pos.y);
+			++i;
+		} else {
+			this->floataway_texts.at(i) = this->floataway_texts.back();
+			this->floataway_texts.pop_back();
+		}
 	}
 
 	if (this->draw_fps) {

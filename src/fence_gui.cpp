@@ -291,6 +291,7 @@ void FenceGui::SelectorMouseButtonEvent(MouseButtons state)
 		return;
 	}
 	_finances_manager.PayLandscaping(cost);
+	_window_manager.GetViewport()->AddFloatawayMoneyAmount(cost, this->fence_base);
 
 	AddGroundFencesToMap(fences, vs, this->fence_base.z);
 }

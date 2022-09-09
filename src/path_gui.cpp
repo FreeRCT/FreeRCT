@@ -246,7 +246,7 @@ void PathBuildGui::TryAddRemovePath(uint8 m_state)
 	if ((m_state & MB_LEFT) != 0) {
 		this->BuildSinglePath(this->mouse_pos); // Build new path or change type of path.
 	} else if (instance == SRI_PATH && (m_state & MB_RIGHT) != 0) {
-		RemovePath(this->mouse_pos, false);
+		RemovePath(this->mouse_pos, false, true);
 	}
 }
 
@@ -373,21 +373,21 @@ void PathBuildGui::BuildSinglePath(const XYZPoint16 &pos)
 		/* Rebuilding the same path type can be useful for queue paths after their neighbours have
 		 * changed, as queue paths prefer to connect to other queue paths.
 		 */
-		ChangePath(pos, this->path_type, false);
+		ChangePath(pos, this->path_type, false, true);
 		return;
 	}
 	if (sri != SRI_FREE) return; // Some other ride here.
 
 	TileSlope ts = ExpandTileSlope(v->GetGroundSlope());
 	if (ts == SL_FLAT) {
-		BuildFlatPath(pos, this->path_type, false);
+		BuildFlatPath(pos, this->path_type, false, true);
 		return;
 	}
 
 	ts ^= TSB_NORTH | TSB_EAST | TSB_SOUTH | TSB_WEST; // Swap raised and not raised corners.
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
 		if (ts == _corners_at_edge[edge]) { // 'edge' is at the low end due to swapping.
-			BuildUpwardPath(pos, edge, this->path_type, false);
+			BuildUpwardPath(pos, edge, this->path_type, false, true);
 			return;
 		}
 	}
@@ -705,16 +705,16 @@ void PathBuildGui::BuyPathTile()
 	switch (this->sel_slope) {
 		case TSL_UP: {
 			TileEdge start_edge = static_cast<TileEdge>((this->build_direction + 2) % 4);
-			BuildUpwardPath(path_pos, start_edge, this->path_type, false);
+			BuildUpwardPath(path_pos, start_edge, this->path_type, false, true);
 			break;
 		}
 		case TSL_FLAT:
-			BuildFlatPath(path_pos, this->path_type, false);
+			BuildFlatPath(path_pos, this->path_type, false, true);
 			break;
 
 		case TSL_DOWN: {
 			TileEdge start_edge = static_cast<TileEdge>((this->build_direction + 2) % 4);
-			BuildDownwardPath(path_pos, start_edge, this->path_type, false);
+			BuildDownwardPath(path_pos, start_edge, this->path_type, false, true);
 			path_pos.z--;
 			break;
 		}
@@ -737,11 +737,11 @@ void PathBuildGui::RemovePathTile()
 	if (this->build_direction == INVALID_EDGE) return;
 
 	XYZPoint16 remove_pos = this->build_pos;
-	if (RemovePath(remove_pos, true)) {
+	if (RemovePath(remove_pos, true, true)) {
 		if (!this->MoveSelection(false)) {
 			this->build_pos.x = -1; // Moving failed, let the user select a new tile.
 		}
-		RemovePath(remove_pos, false);
+		RemovePath(remove_pos, false, true);
 		this->SetButtons();
 		this->SetupSelector();
 	}

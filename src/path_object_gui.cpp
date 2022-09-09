@@ -186,6 +186,7 @@ void PathObjectGui::SelectorMouseButtonEvent(MouseButtons state)
 	}
 
 	_finances_manager.PayLandscaping(cost);
+	_window_manager.GetViewport()->AddFloatawayMoneyAmount(cost, this->object->vox_pos);
 	_scenery.SetPathObjectInstance(this->object->vox_pos, this->type);
 	this->object.reset();
 }
