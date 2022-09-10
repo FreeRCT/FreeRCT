@@ -221,8 +221,6 @@ Money FixedRideInstance::ComputeBuildCost() const
 			const XYZPoint16 pos = this->vox_pos + OrientatedOffset(this->orientation, x, y);
 			const int ground_height = _world.GetBaseGroundHeight(pos.x, pos.y);
 			assert(this->vox_pos.z >= ground_height);
-			// Voxel *voxel = _world.GetVoxel(pos);
-			// if (voxel == nullptr || voxel->GetGroundType() == GTP_INVALID) cost += CONSTRUCTION_COST_SUPPORT * (this->vox_pos.z - ground_height + 1);
 			cost += CONSTRUCTION_COST_SUPPORT * (this->vox_pos.z - ground_height);
 		}
 	}
