@@ -262,6 +262,9 @@ public:
 	bool PathEdgeWanted(const XYZPoint16 &vox, TileEdge edge) const override;
 	const Recolouring *GetRecolours(const XYZPoint16 &pos) const override;
 	void InitializeItemPricesAndStatistics() override;
+	void OnNewMonth() override;
+	XYZPoint16 RepresentativeLocation() const override;
+	Money ComputeReturnCost() const override;
 
 	bool MakePositionedPiecesLooping(bool *modified);
 	int GetFirstPlacedTrackPiece() const;

@@ -70,6 +70,7 @@ public:
 	void OpenRide() override;
 	void CloseRide() override;
 	void OnNewDay() override;
+	void OnNewMonth() override;
 
 	void Load(Loader &ldr) override;
 	void Save(Saver &svr) override;
@@ -77,9 +78,18 @@ public:
 	void InsertIntoWorld() override;
 	void RemoveFromWorld() override;
 	Money ComputeBuildCost() const;
+	inline Money ComputeReturnCost() const override
+	{
+		return this->return_cost;
+	}
+	inline XYZPoint16 RepresentativeLocation() const override
+	{
+		return this->vox_pos;
+	}
 
 	int EntranceExitRotation(const XYZPoint16& vox) const;
 
+	Money return_cost;      ///< Money returned by removing this ride.
 	uint8 orientation;      ///< Orientation of the shop.
 	XYZPoint16 vox_pos;     ///< Position of the shop base voxel.
 	int16 working_cycles;   ///< Number of working cycles.

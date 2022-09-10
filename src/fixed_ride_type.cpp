@@ -50,6 +50,7 @@ const ImageData *FixedRideType::GetView(uint8 orientation) const
  * @param type Kind of fixed ride.
  */
 FixedRideInstance::FixedRideInstance(const FixedRideType *type) : RideInstance(type),
+	return_cost(-type->build_cost),
 	orientation(0),
 	working_cycles(1),
 	max_idle_duration(type->default_idle_duration),
@@ -84,6 +85,12 @@ void FixedRideInstance::OpenRide() {
 	RideInstance::OpenRide();
 	is_working = false;
 	this->time_left_in_phase = this->max_idle_duration;
+}
+
+void FixedRideInstance::OnNewMonth()
+{
+	RideInstance::OnNewMonth();
+	this->return_cost = this->return_cost * (10000 - RIDE_DEPRECIATION) / 10000;
 }
 
 /**
@@ -339,12 +346,12 @@ void FixedRideInstance::OnAnimate(const int delay)
 	}
 }
 
-static const uint32 CURRENT_VERSION_FixedRideInstance = 1;   ///< Currently supported version of %FixedRideInstance.
+static const uint32 CURRENT_VERSION_FixedRideInstance = 2;   ///< Currently supported version of %FixedRideInstance.
 
 void FixedRideInstance::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("fxri");
-	if (version != CURRENT_VERSION_FixedRideInstance) ldr.VersionMismatch(version, CURRENT_VERSION_FixedRideInstance);
+	if (version < 1 || version > CURRENT_VERSION_FixedRideInstance) ldr.VersionMismatch(version, CURRENT_VERSION_FixedRideInstance);
 	this->RideInstance::Load(ldr);
 
 	this->orientation = ldr.GetByte();
@@ -358,6 +365,7 @@ void FixedRideInstance::Load(Loader &ldr)
 	this->time_left_in_phase = ldr.GetLong();
 	this->is_working = ldr.GetByte() == 1;
 	this->onride_guests.Load(ldr);
+	this->return_cost = (version < 2) ? 0 : ldr.GetLongLong();
 
 	InsertIntoWorld();
 	ldr.ClosePattern();
@@ -378,5 +386,6 @@ void FixedRideInstance::Save(Saver &svr)
 	svr.PutLong(this->time_left_in_phase);
 	svr.PutByte(this->is_working ? 1 : 0);
 	this->onride_guests.Save(svr);
+	svr.PutLongLong(this->return_cost);
 	svr.EndPattern();
 }

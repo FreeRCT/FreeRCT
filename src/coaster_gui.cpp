@@ -44,7 +44,12 @@ CoasterRemoveWindow::CoasterRemoveWindow(CoasterInstance *instance) : EntityRemo
 void CoasterRemoveWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)
 {
 	if (number == ERW_YES) {
+		const Money cost = this->ci->ComputeReturnCost();
+		_finances_manager.PayRideConstruct(cost);
+		_window_manager.GetViewport()->AddFloatawayMoneyAmount(cost, this->ci->RepresentativeLocation());
+
 		delete GetWindowByType(WC_COASTER_MANAGER, this->ci->GetIndex());
+
 		_rides_manager.DeleteInstance(this->ci->GetIndex());
 	}
 	delete this;
@@ -1079,6 +1084,10 @@ void CoasterBuildWindow::OnClick(WidgetNumber widget, [[maybe_unused]] const Poi
 			break;
 		}
 		case CCW_REMOVE: {
+			const Money cost = this->cur_piece->return_cost;
+			_finances_manager.PayRideConstruct(cost);
+			_window_manager.GetViewport()->AddFloatawayMoneyAmount(cost, this->cur_piece->base_voxel);
+
 			int pred_index = this->ci->FindPredecessorPiece(*this->cur_piece);
 			this->ci->RemovePositionedPiece(*this->cur_piece);
 
@@ -1368,6 +1377,7 @@ void CoasterBuildWindow::BuildTrackPiece()
 	/* Add the piece to the coaster instance. */
 	int ptp_index = this->ci->AddPositionedPiece(this->piece_selector.pos_piece);
 	if (ptp_index >= 0) {
+		this->piece_selector.pos_piece.return_cost = -this->piece_selector.pos_piece.piece->cost;
 		this->ci->PlaceTrackPieceInWorld(this->piece_selector.pos_piece); // Add the piece to the world.
 
 		_finances_manager.PayRideConstruct(this->piece_selector.pos_piece.piece->cost);

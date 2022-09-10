@@ -17,13 +17,10 @@
 #include "money.h"
 #include "random.h"
 
-static const uint16 INVALID_RIDE_INSTANCE = 0xFFFF; ///< Value representing 'no ride instance found'.
-
-static const int MAX_RIDE_RECOLOURS = 3;  ///< Maximum number of entries in a RideInstance's recolour map.
-
-static const int NUMBER_ITEM_TYPES_SOLD = 2; ///< Number of different items that a ride can sell.
-
-static const int BREAKDOWN_GRACE_PERIOD = 30; ///< Number of days to wait before random breakdowns after first time opening ride.
+constexpr uint16 INVALID_RIDE_INSTANCE = 0xFFFF;  ///< Value representing 'no ride instance found'.
+constexpr int MAX_RIDE_RECOLOURS = 3;             ///< Maximum number of entries in a RideInstance's recolour map.
+constexpr int NUMBER_ITEM_TYPES_SOLD = 2;         ///< Number of different items that a ride can sell.
+constexpr int BREAKDOWN_GRACE_PERIOD = 30;        ///< Number of days to wait before random breakdowns after first time opening ride.
 
 class RideInstance;
 
@@ -89,12 +86,12 @@ public:
 	static uint8 exit_height;     ///< The height of all rides' exits in voxels.
 };
 
-static const int RIDE_ENTRANCE_FEE_STEP_SIZE = 10;                ///< Step size of changing a ride's entrance fee in the GUI.
-static const int MAINTENANCE_INTERVAL_STEP_SIZE = 5 * 60 * 1000;  ///< Step size of changing a ride's maintenance interval in the GUI, in milliseconds.
-static const int IDLE_DURATION_STEP_SIZE = 5 * 1000;              ///< Step size of changing a ride's idle duration in the GUI, in milliseconds.
+constexpr int RIDE_ENTRANCE_FEE_STEP_SIZE = 10;                ///< Step size of changing a ride's entrance fee in the GUI.
+constexpr int MAINTENANCE_INTERVAL_STEP_SIZE = 5 * 60 * 1000;  ///< Step size of changing a ride's maintenance interval in the GUI, in milliseconds.
+constexpr int IDLE_DURATION_STEP_SIZE = 5 * 1000;              ///< Step size of changing a ride's idle duration in the GUI, in milliseconds.
 
-static const int16 RELIABILITY_RANGE = 10000;                ///< Reliability parameters are in range 0..10000.
-static const uint32 RATING_NOT_YET_CALCULATED = 0xffffffff;  ///< Excitement/intensity/nausea rating was not calculated yet.
+constexpr int16 RELIABILITY_RANGE = 10000;                ///< Reliability parameters are in range 0..10000.
+constexpr uint32 RATING_NOT_YET_CALCULATED = 0xffffffff;  ///< Excitement/intensity/nausea rating was not calculated yet.
 
 /** Base class of ride types. */
 class RideType {
@@ -184,6 +181,7 @@ public:
 	virtual void InsertIntoWorld() = 0;
 	virtual bool CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const;
 	virtual bool PathEdgeWanted(const XYZPoint16 &vox, TileEdge edge) const;
+	virtual XYZPoint16 RepresentativeLocation() const = 0;
 
 	void SellItem(int item_index);
 	ItemType GetSaleItemType(int item_index) const;
@@ -191,6 +189,7 @@ public:
 	virtual Money GetSaleItemCost(int item_index) const;
 	virtual void InitializeItemPricesAndStatistics();
 	void NotifyLongQueue();
+	virtual Money ComputeReturnCost() const = 0;
 
 	RideTypeKind GetKind() const;
 	const RideType *GetRideType() const;

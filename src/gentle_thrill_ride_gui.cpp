@@ -15,6 +15,7 @@
 #include "sprite_store.h"
 #include "gentle_thrill_ride_type.h"
 #include "entity_gui.h"
+#include "finances.h"
 #include "mouse_mode.h"
 #include "viewport.h"
 #include "generated/entrance_exit_strings.h"
@@ -43,7 +44,12 @@ GentleThrillRideRemoveWindow::GentleThrillRideRemoveWindow(GentleThrillRideInsta
 void GentleThrillRideRemoveWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)
 {
 	if (number == ERW_YES) {
+		const Money cost = this->si->ComputeReturnCost();
+		_finances_manager.PayRideConstruct(cost);
+		_window_manager.GetViewport()->AddFloatawayMoneyAmount(cost, this->si->RepresentativeLocation());
+
 		delete GetWindowByType(WC_GENTLE_THRILL_RIDE_MANAGER, this->si->GetIndex());
+
 		_rides_manager.DeleteInstance(this->si->GetIndex());
 	}
 	delete this;

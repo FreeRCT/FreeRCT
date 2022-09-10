@@ -17,6 +17,7 @@
 #include "ride_type.h"
 #include "bitmath.h"
 #include "gamelevel.h"
+#include "viewport.h"
 #include "window.h"
 #include "finances.h"
 #include "messages.h"
@@ -482,6 +483,18 @@ void RideInstance::OnAnimate(const int delay)
 	this->time_since_last_long_queue_message += delay;
 	if (this->maintenance_interval > 0 && this->time_since_last_maintenance > this->maintenance_interval) this->CallMechanic();
 }
+
+/**
+ * \fn XYZPoint16 RideInstance::RepresentativeLocation() const
+ * Get an arbitrary coordinate where this ride is located.
+ * @return The coordinate.
+ */
+
+/**
+ * \fn Money RideInstance::ComputeReturnCost() const
+ * Calculate how much money the player would receive for removing this ride.
+ * @return The money to receive.
+ */
 
 /** Monthly update of the shop administration and ride reliability. */
 void RideInstance::OnNewMonth()
@@ -974,12 +987,15 @@ void RidesManager::DeleteInstance(uint16 num)
 {
 	assert(num >= SRI_FULL_RIDES && num < SRI_LAST);
 	num -= SRI_FULL_RIDES;
+
 	auto it = this->instances.find(num);
 	assert(it != this->instances.end());
 	it->second->RemoveAllPeople();
+
 	_inbox.NotifyRideDeletion(num + SRI_FULL_RIDES);
 	_guests.NotifyRideDeletion(it->second.get());
 	_staff.NotifyRideDeletion(it->second.get());
+
 	it->second->RemoveFromWorld();
 	this->instances.erase(it);  // Deletes the instance.
 }

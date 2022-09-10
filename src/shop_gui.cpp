@@ -15,6 +15,8 @@
 #include "sprite_store.h"
 #include "shop_type.h"
 #include "entity_gui.h"
+#include "finances.h"
+#include "viewport.h"
 
 /** Window to prompt for removing a shop. */
 class ShopRemoveWindow : public EntityRemoveWindow  {
@@ -39,7 +41,12 @@ ShopRemoveWindow::ShopRemoveWindow(ShopInstance *instance) : EntityRemoveWindow(
 void ShopRemoveWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)
 {
 	if (number == ERW_YES) {
+		const Money cost = this->si->ComputeReturnCost();
+		_finances_manager.PayRideConstruct(cost);
+		_window_manager.GetViewport()->AddFloatawayMoneyAmount(cost, this->si->RepresentativeLocation());
+
 		delete GetWindowByType(WC_SHOP_MANAGER, this->si->GetIndex());
+
 		_rides_manager.DeleteInstance(this->si->GetIndex());
 	}
 	delete this;

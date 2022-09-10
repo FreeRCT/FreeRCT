@@ -12,6 +12,7 @@
 #include "fileio.h"
 #include "gamecontrol.h"
 #include "track_piece.h"
+#include "finances.h"
 #include "map.h"
 
 TrackVoxel::TrackVoxel()
@@ -251,6 +252,12 @@ PositionedTrackPiece::PositionedTrackPiece(const XYZPoint16 &vox_pos, ConstTrack
 	this->piece = piece;
 }
 
+/** Monthly depreciation of the piece's value. */
+void PositionedTrackPiece::OnNewMonth()
+{
+	this->return_cost = this->return_cost * (10000 - RIDE_DEPRECIATION) / 10000;
+}
+
 /**
  * Verify that all voxels of this track piece are within world boundaries.
  * @return The positioned track piece is entirely within the world boundaries.
@@ -315,12 +322,12 @@ void PositionedTrackPiece::RemoveFromWorld(const uint16 ride_index) {
 	this->piece->RemoveFromWorld(ride_index, base_voxel);
 }
 
-static const uint32 CURRENT_VERSION_PositionedTrackPiece = 1;   ///< Currently supported version of %PositionedTrackPiece.
+static const uint32 CURRENT_VERSION_PositionedTrackPiece = 2;   ///< Currently supported version of %PositionedTrackPiece.
 
 void PositionedTrackPiece::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("pstp");
-	if (version != CURRENT_VERSION_PositionedTrackPiece) ldr.VersionMismatch(version, CURRENT_VERSION_PositionedTrackPiece);
+	if (version < 1 || version > CURRENT_VERSION_PositionedTrackPiece) ldr.VersionMismatch(version, CURRENT_VERSION_PositionedTrackPiece);
 
 	uint16 x = ldr.GetWord();
 	uint16 y = ldr.GetWord();
@@ -328,6 +335,7 @@ void PositionedTrackPiece::Load(Loader &ldr)
 
 	this->base_voxel = XYZPoint16(x, y, z);
 	this->distance_base = ldr.GetLong();
+	this->return_cost = (version < 2) ? 0 : ldr.GetLongLong();
 	ldr.ClosePattern();
 }
 
@@ -338,5 +346,6 @@ void PositionedTrackPiece::Save(Saver &svr)
 	svr.PutWord(this->base_voxel.y);
 	svr.PutWord(this->base_voxel.z);
 	svr.PutLong(this->distance_base);
+	svr.PutLongLong(this->return_cost);
 	svr.EndPattern();
 }

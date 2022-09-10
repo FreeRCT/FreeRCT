@@ -595,6 +595,30 @@ Version history
 - 1 (20210402) Initial version.
 
 
+Positioned Track Pieces
+~~~~~~~~~~~~~~~~~~~~~~~
+A positioned track piece of a coaster instance.
+
+======  ======  =======  ======================================================
+Offset  Length  Version  Description
+======  ======  =======  ======================================================
+   0       4      1-     "pstp".
+   4       4      1-     Version number.
+   8       2      1-     Base X coordinate.
+  10       2      1-     Base Y coordinate.
+  12       2      1-     Base Z coordinate.
+  14       4      1-     Base distance to the coaster.
+  18       8      2-     Removal return cost.
+  26       4      1-     "ptsp".
+======  ======  =======  ======================================================
+
+Version history
+...............
+
+- 1 (20210402) Initial version.
+- 2 (20220910) Add removal return cost.
+
+
 Coaster intensity statistics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 A single coaster intensity statistics data point.
@@ -632,7 +656,7 @@ Offset  Length  Version  Description
    ?       4      1-     Number of positioned track pieces.
    ?       4      1-     Total length of the roller coaster (in 1/256 pixels).
    ?       2      1-     Number of placed track pieces.
-   ?       ?      1-     Contents of "number" placed track pieces.
+   ?       ?      1-     Contents of "number" `positioned track pieces`_.
    ?       4      1-     Number of trains in this coaster.
    ?       4      1-     Number of cars in a single train.
    ?       ?      1-     Data of each train
@@ -671,6 +695,7 @@ Offset  Length  Version  Description
    ?       4      1-     Time left in the current working phase.
    ?       1      1-     1 if the ride is working; otherwise 0.
    ?       ?      1-     `Onride guests`_ data.
+   ?       8      2-     The ride's removal return cost.
    ?       4      1-     "irxf".
 ======  ======  =======  ======================================================
 
@@ -678,6 +703,7 @@ Version history
 ...............
 
 - 1 (20210402) Initial version.
+- 2 (20220910) Add ride removal return cost.
 
 
 Onride guests
