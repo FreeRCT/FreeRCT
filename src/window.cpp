@@ -475,8 +475,8 @@ WmMouseEvent GuiWindow::OnMouseButtonEvent(MouseButtons state, WmMouseEventMode 
 
 	BaseWidget *bw = this->tree->GetWidgetByPosition(Point32(this->GetRelativeMouseX(), this->GetRelativeMouseY()));
 	if (bw == nullptr) return WMME_NONE;
-	if (bw->wtype == WT_TITLEBAR) return WMME_MOVE_WINDOW;
-	if (bw->wtype == WT_CLOSEBOX) return WMME_CLOSE_WINDOW;
+	if (bw->wtype == WT_TITLEBAR) return mode == WMEM_PRESS ? WMME_MOVE_WINDOW : WMME_NONE;
+	if (bw->wtype == WT_CLOSEBOX) return mode == WMEM_PRESS ? WMME_CLOSE_WINDOW : WMME_NONE;
 
 	Point16 widget_pos(static_cast<int16>(this->GetRelativeMouseX() - bw->pos.base.x), static_cast<int16>(this->GetRelativeMouseY() - bw->pos.base.y));
 	LeafWidget *lw = dynamic_cast<LeafWidget *>(bw);
@@ -962,12 +962,12 @@ void WindowManager::MouseButtonEvent(MouseButtons button, WmMouseEventMode mode)
 
 	/* Close dropdown window if click is not inside it. */
 	Window *w = GetWindowByType(WC_DROPDOWN, ALL_WINDOWS_OF_TYPE);
-	if (mode != WMEM_RELEASE && w != nullptr && !w->rect.IsPointInside(_video.GetMousePosition())) {
+	if (mode == WMEM_PRESS && w != nullptr && !w->rect.IsPointInside(_video.GetMousePosition())) {
 		delete w;
 		return; // Don't handle click any further.
 	}
 
-	if (button == MB_LEFT && mode != WMEM_RELEASE) this->RaiseWindow(this->current_window);
+	if (button == MB_LEFT && mode == WMEM_PRESS) this->RaiseWindow(this->current_window);
 
 	if ((_video.GetMouseDragging() & button) != MB_NONE) {
 		if (mode == WMEM_RELEASE) _video.SetMouseDragging(button, false, false);
