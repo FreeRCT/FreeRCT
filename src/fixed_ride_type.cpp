@@ -12,6 +12,7 @@
 #include "fixed_ride_type.h"
 #include "person.h"
 #include "people.h"
+#include "finances.h"
 #include "fileio.h"
 #include "math_func.h"
 #include "viewport.h"
@@ -198,14 +199,38 @@ void FixedRideInstance::RemoveAllPeople()
 	}
 }
 
+/**
+ * Calculate how much it would cost to build this ride at its current location.
+ * @return The build cost.
+ */
+Money FixedRideInstance::ComputeBuildCost() const
+{
+	const FixedRideType *t = this->GetFixedRideType();
+	Money cost = t->build_cost;
+	const int8 wx = t->width_x;
+	const int8 wy = t->width_y;
+	for (int8 x = 0; x < wx; ++x) {
+		for (int8 y = 0; y < wy; ++y) {
+			const XYZPoint16 pos = this->vox_pos + OrientatedOffset(this->orientation, x, y);
+			const int ground_height = _world.GetBaseGroundHeight(pos.x, pos.y);
+			assert(this->vox_pos.z >= ground_height);
+			// Voxel *voxel = _world.GetVoxel(pos);
+			// if (voxel == nullptr || voxel->GetGroundType() == GTP_INVALID) cost += CONSTRUCTION_COST_SUPPORT * (this->vox_pos.z - ground_height + 1);
+			cost += CONSTRUCTION_COST_SUPPORT * (this->vox_pos.z - ground_height);
+		}
+	}
+	return cost;
+}
+
 void FixedRideInstance::InsertIntoWorld()
 {
 	const SmallRideInstance index = static_cast<SmallRideInstance>(this->GetIndex());
-	const int8 wx = this->GetFixedRideType()->width_x;
-	const int8 wy = this->GetFixedRideType()->width_y;
+	const FixedRideType *t = this->GetFixedRideType();
+	const int8 wx = t->width_x;
+	const int8 wy = t->width_y;
 	for (int8 x = 0; x < wx; ++x) {
 		for (int8 y = 0; y < wy; ++y) {
-			const int8 height = this->GetFixedRideType()->GetHeight(x, y);
+			const int8 height = t->GetHeight(x, y);
 			const XYZPoint16 location = OrientatedOffset(this->orientation, x, y);
 			for (int16 h = 0; h < height; ++h) {
 				const XYZPoint16 p = this->vox_pos + XYZPoint16(location.x, location.y, h);

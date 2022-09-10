@@ -13,6 +13,11 @@
 #include "language.h"
 #include "gamelevel.h"
 
+static const Money CONSTRUCTION_COST_SUPPORT    ( 200);  ///< How much it costs to build one voxel of supports.
+static const Money CONSTRUCTION_COST_PATH       (1200);  ///< How much it costs to build a single section of path.
+static const Money CONSTRUCTION_COST_PATH_CHANGE( 400);  ///< How much it costs to change the type of a single existing path segment.
+static const Money CONSTRUCTION_COST_PATH_RETURN(-800);  ///< How much it costs to delete a single path segment.
+
 static const int NUM_FINANCE_HISTORY = 4; ///< Number of finance objects to keep for history.
 
 /**

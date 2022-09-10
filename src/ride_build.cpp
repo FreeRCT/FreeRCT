@@ -145,7 +145,7 @@ void RideBuildWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 			break;
 
 		case RBW_COST:
-			_str_params.SetMoney(1, this->instance->GetFixedRideType()->build_cost);
+			_str_params.SetMoney(1, (this->selector.area.width < 1 || this->selector.area.height < 1) ? Money(0) : this->instance->ComputeBuildCost());
 			break;
 	}
 }
@@ -394,15 +394,16 @@ void RideBuildWindow::SelectorMouseButtonEvent(MouseButtons state)
 		this->build_forbidden_reason.ShowErrorMessage();
 		return;
 	}
-	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, this->instance->GetFixedRideType()->build_cost)) return;
+	const Money build_cost = this->instance->ComputeBuildCost();
+	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, build_cost)) return;
 
 	const SmallRideInstance inst_number = static_cast<SmallRideInstance>(this->instance->GetIndex());
 	const RideTypeKind kind = this->instance->GetKind();
 
 	_rides_manager.NewInstanceAdded(inst_number);
 	AddRemovePathEdges(this->instance->vox_pos, PATH_EMPTY, this->instance->GetEntranceDirections(this->instance->vox_pos), PAS_QUEUE_PATH);
-	_finances_manager.PayRideConstruct(this->instance->GetFixedRideType()->build_cost);
-	_window_manager.GetViewport()->AddFloatawayMoneyAmount(this->instance->GetFixedRideType()->build_cost, this->instance->vox_pos);
+	_finances_manager.PayRideConstruct(build_cost);
+	_window_manager.GetViewport()->AddFloatawayMoneyAmount(build_cost, this->instance->vox_pos);
 
 	this->instance = nullptr;  // Delete this window.
 	delete this;

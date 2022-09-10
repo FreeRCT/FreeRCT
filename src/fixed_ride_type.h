@@ -76,6 +76,7 @@ public:
 
 	void InsertIntoWorld() override;
 	void RemoveFromWorld() override;
+	Money ComputeBuildCost() const;
 
 	int EntranceExitRotation(const XYZPoint16& vox) const;
 
