@@ -24,7 +24,7 @@ public:
 	MainMenuGui();
 	~MainMenuGui();
 
-	WmMouseEvent OnMouseButtonEvent(MouseButtons state) override;
+	WmMouseEvent OnMouseButtonEvent(MouseButtons state, WmMouseEventMode mode) override;
 	void OnDraw(MouseModeSelector *selector) override;
 	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 
@@ -76,8 +76,10 @@ bool MainMenuGui::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string
 	return Window::OnKeyEvent(key_code, mod, symbol);
 }
 
-WmMouseEvent MainMenuGui::OnMouseButtonEvent(const MouseButtons state)
+WmMouseEvent MainMenuGui::OnMouseButtonEvent(const MouseButtons state, WmMouseEventMode mode)
 {
+	if (mode != WMEM_PRESS) return WMME_NONE;
+
 	if (is_splash_screen) {
 		is_splash_screen = false;
 		this->animstart = Time();

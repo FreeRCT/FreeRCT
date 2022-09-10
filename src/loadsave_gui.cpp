@@ -207,6 +207,7 @@ LoadSaveGui::LoadSaveGui(const Type t) : GuiWindow(WC_LOADSAVE, ALL_WINDOWS_OF_T
 	this->SetScrolledWidget(LSW_LIST, LSW_SCROLLBAR);
 	this->GetWidget<ScrollbarWidget>(LSW_SCROLLBAR)->SetItemCount(this->all_files.size());
 	this->Sort(SortByTimestamp);
+	this->GetWidget<TextInputWidget>(LSW_TEXTFIELD)->SetFocus(true);
 }
 
 /**

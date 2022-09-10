@@ -44,6 +44,7 @@ BaseWidget::BaseWidget(WidgetType wtype)
 	fill_y(0),
 	resize_x(0),
 	resize_y(0),
+	repeating_events(false),
 	tooltip(STR_NULL)
 {
 	for (int i = 0; i < PAD_COUNT; i++) this->paddings[i] = 0;
@@ -263,6 +264,17 @@ BaseWidget *BaseWidget::GetWidgetByPosition(const Point16 &pt)
  */
 void BaseWidget::AutoRaiseButtons([[maybe_unused]] const Point32 &base)
 {
+}
+
+/**
+ * Widget was clicked.
+ * @param base Base-coordinate of the window.
+ * @param pos Position of the click in the window.
+ * @return Mouse event has been processed.
+ */
+bool BaseWidget::OnClick([[maybe_unused]] const Point32 &base, [[maybe_unused]] const Point16 &pos)
+{
+	return false;
 }
 
 /**
@@ -659,7 +671,7 @@ void DataWidget::DoDraw(const GuiWindow *w)
 
 static const int TEXT_INPUT_MARGIN = 2;  ///< Margin around a text input field.
 
-TextInputWidget::TextInputWidget(WidgetType wtype) : LeafWidget(wtype), cursor_pos(0)
+TextInputWidget::TextInputWidget(WidgetType wtype) : LeafWidget(wtype), cursor_pos(0), has_focus(false)
 {
 	this->SetText("");
 }
@@ -694,10 +706,44 @@ void TextInputWidget::SetText(const std::string &text)
 	if (this->text_changed) this->text_changed();
 }
 
+/**
+ * Grab or release the keyboard focus.
+ * @param focus Widget should be focused.
+ */
+void TextInputWidget::SetFocus(bool focus)
+{
+	this->has_focus = focus;
+}
+
+bool TextInputWidget::OnClick([[maybe_unused]] const Point32 &base, const Point16 &pos)
+{
+	this->has_focus = true;
+
+	/* Find clicked cursor pos. \todo We might be able to use a more efficient logarithmic search. */
+	int w;
+	int text_len = this->buffer.size();
+	int best_x = INT_MAX;
+	for (int p = text_len; p >= 0; --p) {
+		_video.GetTextSize(this->buffer.substr(0, p), &w, nullptr, false);
+		if (abs(w - pos.x) <= abs(best_x - pos.x)) {
+			best_x = w;
+			this->cursor_pos = p;
+		} else {
+			break;
+		}
+	}
+
+	return true;
+}
+
 bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
 {
-	if (!this->visible) return false;
+	if (!this->visible || !this->has_focus) return false;
 	switch (key_code) {
+		case WMKC_CANCEL:
+			this->has_focus = false;
+			return true;
+
 		case WMKC_CURSOR_LEFT:
 			if (this->cursor_pos > 0) {
 				this->cursor_pos = GetPrevChar(this->buffer, this->cursor_pos);
@@ -753,7 +799,7 @@ void TextInputWidget::DoDraw(const GuiWindow *w)
 {
 	Rectangle32 r = this->pos;
 	r.base += w->rect.base;
-	_video.FillRectangle(r, _palette[COL_SERIES_START + (this->colour - 1) * COL_SERIES_LENGTH + 2]);
+	_video.FillRectangle(r, _palette[COL_SERIES_START + (this->colour - 1) * COL_SERIES_LENGTH + (this->has_focus ? 2 : 4)]);
 
 	/* Update text dimensions. */
 	_video.GetTextSize(this->buffer, &this->value_width, &this->value_height);
@@ -763,7 +809,7 @@ void TextInputWidget::DoDraw(const GuiWindow *w)
 	} else if (this->cursor_pos == this->buffer.size()) {
 		cursor_offset = this->value_width;
 	} else {
-		_video.GetTextSize(this->buffer.substr(0, this->cursor_pos), &cursor_offset, nullptr);
+		_video.GetTextSize(this->buffer.substr(0, this->cursor_pos), &cursor_offset, nullptr, false);
 	}
 
 	r.base.x += TEXT_INPUT_MARGIN;
@@ -771,11 +817,14 @@ void TextInputWidget::DoDraw(const GuiWindow *w)
 	r.width -= 2 * TEXT_INPUT_MARGIN;
 	r.height -= 2 * TEXT_INPUT_MARGIN;
 	if (!this->buffer.empty()) {
-		_video.BlitText(this->buffer, _palette[COL_SERIES_START + this->colour * COL_SERIES_LENGTH - 2],
+		_video.BlitText(this->buffer, _palette[COL_SERIES_START + this->colour * COL_SERIES_LENGTH - (this->has_focus ? 2 : 4)],
 				r.base.x, r.base.y, r.width, ALG_LEFT);
 	}
-	_video.DrawLine(Point16(r.base.x + cursor_offset, r.base.y), Point16(r.base.x + cursor_offset, r.base.y + r.height),
-			_palette[COL_SERIES_START + this->colour * COL_SERIES_LENGTH - 1]);
+
+	if (this->has_focus) {
+		_video.DrawLine(Point16(r.base.x + cursor_offset, r.base.y), Point16(r.base.x + cursor_offset, r.base.y + r.height),
+				_palette[COL_SERIES_START + this->colour * COL_SERIES_LENGTH - 1]);
+	}
 }
 
 void TextInputWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
@@ -805,6 +854,7 @@ void TextInputWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
  */
 ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype), item_count(0), start(0), item_size(0), canvas(nullptr)
 {
+	this->repeating_events = true;
 }
 
 /**
@@ -968,12 +1018,7 @@ ScrollbarComponent ScrollbarWidget::GetClickedComponent(const Point16 &pos)
 	return SBC_INCREMENT_BUTTON;
 }
 
-/**
- * Scrollbar got clicked, update its counters, and mark the associated scrolled widget as dirty.
- * @param base Base-coordinate of the window.
- * @param pos %Position of the click in the scrollbar.
- */
-void ScrollbarWidget::OnClick([[maybe_unused]] const Point32 &base, const Point16 &pos)
+bool ScrollbarWidget::OnClick([[maybe_unused]] const Point32 &base, const Point16 &pos)
 {
 	switch (this->GetClickedComponent(pos)) {
 		case SBC_INCREMENT_BUTTON:
@@ -998,6 +1043,7 @@ void ScrollbarWidget::OnClick([[maybe_unused]] const Point32 &base, const Point1
 			/// \todo Implement clicking above at the slider.
 			break;
 	}
+	return true;
 }
 
 bool ScrollbarWidget::OnMouseWheelEvent(int direction)
@@ -1711,6 +1757,20 @@ WidgetPart SetMinimalSize(int16 x, int16 y)
 }
 
 /**
+ * Set whether the widget will receive repeating mouse events.
+ * @param repeat Receive repeating events.
+ * @return Widget part containing the provided data for storage in an array.
+ * @ingroup widget_parts_group
+ */
+WidgetPart SetRepeating(bool repeat)
+{
+	WidgetPart part;
+	part.type = WPT_REPEATING;
+	part.data.flags = repeat ? 1 : 0;
+	return part;
+}
+
+/**
  * Set fill step.
  * @param x Horizontal fill step.
  * @param y Vertical fill step.
@@ -1930,6 +1990,15 @@ static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 				if (bw != nullptr) {
 					bw->smallest_x = parts->data.size.x;
 					bw->smallest_y = parts->data.size.y;
+				}
+				break;
+			}
+
+			case WPT_REPEATING: {
+				if (*dest == nullptr) break;
+				BaseWidget *bw = dynamic_cast<BaseWidget *>(*dest);
+				if (bw != nullptr) {
+					bw->repeating_events = parts->data.flags != 0;
 				}
 				break;
 			}

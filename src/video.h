@@ -57,7 +57,7 @@ public:
 	void LoadFont(const std::string &font_path, GLuint font_size);
 
 	GLuint GetTextHeight() const;
-	PointF EstimateBounds(const std::string &text, float scale = 1.0f) const;
+	PointF EstimateBounds(const std::string &text, bool padding = true, float scale = 1.0f) const;
 
 	void Draw(const std::string &text, float x, float y, float max_width, uint32 colour, float scale = 1.0f);
 
@@ -178,7 +178,7 @@ public:
 	}
 
 	void BlitText(const std::string &text, uint32 colour, int xpos, int ypos, int width = 0x7FFF, Alignment align = ALG_LEFT);
-	void GetTextSize(const std::string &text, int *width, int *height);
+	void GetTextSize(const std::string &text, int *width, int *height, bool padding = true);
 	void GetNumberRangeSize(int64 smallest, int64 biggest, int *width, int *height);
 
 	/**

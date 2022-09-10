@@ -82,7 +82,7 @@ public:
 
 	virtual void OnDraw(MouseModeSelector *selector);
 	virtual void OnMouseMoveEvent(const Point16 &pos);
-	virtual WmMouseEvent OnMouseButtonEvent(MouseButtons state);
+	virtual WmMouseEvent OnMouseButtonEvent(MouseButtons state, WmMouseEventMode mode);
 	virtual void OnMouseWheelEvent(int direction);
 	virtual void OnMouseEnterEvent();
 	virtual void OnMouseLeaveEvent();
@@ -114,7 +114,7 @@ public:
 	StringID TranslateStringNumber(StringID str_id) const;
 	virtual void ResetSize() override;
 
-	virtual WmMouseEvent OnMouseButtonEvent(MouseButtons state) override;
+	virtual WmMouseEvent OnMouseButtonEvent(MouseButtons state, WmMouseEventMode mode) override;
 	virtual void OnMouseWheelEvent(int direction) override;
 	virtual bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 	virtual void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos);
@@ -251,7 +251,7 @@ public:
 
 	bool HasWindow(Window *w);
 	void AddToStack(Window *w);
-	void RemoveFromStack(Window *w);
+	void RemoveFromStack(Window *w, bool about_to_be_deleted);
 	void RaiseWindow(Window *w);
 	void SetSelector(GuiWindow *w, MouseModeSelector *selector);
 
@@ -260,7 +260,7 @@ public:
 	void RepositionAllWindows(uint new_width, uint new_height);
 
 	void MouseMoveEvent();
-	void MouseButtonEvent(MouseButtons button, bool pressed);
+	void MouseButtonEvent(MouseButtons button, WmMouseEventMode mode);
 	void MouseWheelEvent(int direction);
 	bool KeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol);
 	void Tick();
@@ -337,6 +337,9 @@ private:
 	bool select_valid;        ///< State of the #select_window cache.
 
 	Point16 move_offset;      ///< Offset from the top-left of the #current_window being moved in #WMMM_MOVE_WINDOW mode to the mouse position.
+
+	MouseButtons held_mouse_buttons;   ///< Mouse buttons currently held down.
+	int mouse_buttons_repeat_counter;  ///< Ticks since last repeated mouse button event.
 };
 
 extern WindowManager _window_manager;

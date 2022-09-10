@@ -1303,8 +1303,9 @@ void Viewport::OnMouseMoveEvent(const Point16 &pos)
 	}
 }
 
-WmMouseEvent Viewport::OnMouseButtonEvent(MouseButtons state)
+WmMouseEvent Viewport::OnMouseButtonEvent(MouseButtons state, WmMouseEventMode mode)
 {
+	if (mode != WMEM_PRESS) return WMME_NONE;  // Repeated buttons should be ignored for all actions below.
 	if (_game_control.main_menu) return WMME_NONE;
 	if (_window_manager.SelectorMouseButtonEvent(state)) return WMME_NONE;
 

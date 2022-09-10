@@ -52,7 +52,7 @@ Window::Window(WindowTypes wtype, WindowNumber wnumber)
 /** Destructor. */
 Window::~Window()
 {
-	_window_manager.RemoveFromStack(this);
+	_window_manager.RemoveFromStack(this, true);
 }
 
 /**
@@ -221,9 +221,10 @@ void Window::OnMouseMoveEvent([[maybe_unused]] const Point16 &pos)
 /**
  * Mouse buttons changed state.
  * @param state Updated state. @see MouseButtons
+ * @param mode The event mode.
  * @return Action to perform as a result of the event (use #WMME_NONE if no special action needed).
  */
-WmMouseEvent Window::OnMouseButtonEvent([[maybe_unused]] MouseButtons state)
+WmMouseEvent Window::OnMouseButtonEvent([[maybe_unused]] MouseButtons state, [[maybe_unused]] WmMouseEventMode mode)
 {
 	return WMME_NONE;
 }
@@ -468,9 +469,9 @@ void GuiWindow::OnMouseWheelEvent(int direction)
 	this->tree->OnMouseWheelEvent(direction);
 }
 
-WmMouseEvent GuiWindow::OnMouseButtonEvent(MouseButtons state)
+WmMouseEvent GuiWindow::OnMouseButtonEvent(MouseButtons state, WmMouseEventMode mode)
 {
-	if (state != MB_LEFT || this->GetRelativeMouseX() < 0) return WMME_NONE;
+	if (state != MB_LEFT || mode == WMEM_RELEASE || this->GetRelativeMouseX() < 0) return WMME_NONE;
 
 	BaseWidget *bw = this->tree->GetWidgetByPosition(Point32(this->GetRelativeMouseX(), this->GetRelativeMouseY()));
 	if (bw == nullptr) return WMME_NONE;
@@ -487,13 +488,9 @@ WmMouseEvent GuiWindow::OnMouseButtonEvent(MouseButtons state)
 			lw->SetPressed(true);
 			this->timeout = 4;
 		}
-		ScrollbarWidget *sw = dynamic_cast<ScrollbarWidget *>(bw);
-		if (sw != nullptr) {
-			sw->OnClick(this->rect.base, widget_pos);
-			return WMME_NONE;
-		}
+		if ((mode != WMEM_REPEAT || bw->repeating_events) && bw->OnClick(this->rect.base, widget_pos)) return WMME_NONE;
 	}
-	if (bw->number >= 0) this->OnClick(bw->number, widget_pos);
+	if (bw->number >= 0 && (mode != WMEM_REPEAT || bw->repeating_events)) this->OnClick(bw->number, widget_pos);
 	return WMME_NONE;
 }
 
@@ -669,7 +666,9 @@ WindowManager::WindowManager()
 	bottom(nullptr),
 	current_window(nullptr),
 	select_window(nullptr),
-	select_valid(true)
+	select_valid(true),
+	held_mouse_buttons(MB_NONE),
+	mouse_buttons_repeat_counter(0)
 {
 }
 
@@ -775,15 +774,16 @@ void WindowManager::AddToStack(Window *w)
 /**
  * Remove a window from the list.
  * @param w Window to remove.
+ * @param about_to_be_deleted The window will be deleted soon after.
  */
-void WindowManager::RemoveFromStack(Window *w)
+void WindowManager::RemoveFromStack(Window *w, bool about_to_be_deleted)
 {
 	assert(this->HasWindow(w));
 
 	if (w == this->viewport) this->viewport = nullptr;
 
 	this->select_valid = false;
-	if (w == this->current_window) this->current_window = nullptr;
+	if (about_to_be_deleted && w == this->current_window) this->current_window = nullptr;
 
 	if (w->higher == nullptr) {
 		this->top = w->lower;
@@ -808,7 +808,7 @@ void WindowManager::RemoveFromStack(Window *w)
 void WindowManager::RaiseWindow(Window *w)
 {
 	if (w != this->top && GetWindowZPriority(w->wtype) >= GetWindowZPriority(w->higher->wtype)) {
-		this->RemoveFromStack(w);
+		this->RemoveFromStack(w, false);
 		this->AddToStack(w);
 	}
 }
@@ -943,38 +943,43 @@ void WindowManager::UpdateCurrentWindow()
 /**
  * A mouse button was pressed or released.
  * @param button The button that changed state.
- * @param pressed The button was pressed (\c false means it was released instead).
+ * @param mode The event mode.
  */
-void WindowManager::MouseButtonEvent(MouseButtons button, bool pressed)
+void WindowManager::MouseButtonEvent(MouseButtons button, WmMouseEventMode mode)
 {
 	assert(button == MB_LEFT || button == MB_MIDDLE || button == MB_RIGHT);
+	if (mode == WMEM_PRESS) {
+		this->held_mouse_buttons |= button;
+	} else if (mode == WMEM_RELEASE) {
+		this->held_mouse_buttons &= ~button;
+	}
 
 	this->UpdateCurrentWindow();
 	if (this->current_window == nullptr) {
-		_video.SetMouseDragging(button, pressed, false);
+		_video.SetMouseDragging(button, mode != WMEM_RELEASE, false);
 		return;
 	}
 
 	/* Close dropdown window if click is not inside it. */
 	Window *w = GetWindowByType(WC_DROPDOWN, ALL_WINDOWS_OF_TYPE);
-	if (pressed && w != nullptr && !w->rect.IsPointInside(_video.GetMousePosition())) {
+	if (mode != WMEM_RELEASE && w != nullptr && !w->rect.IsPointInside(_video.GetMousePosition())) {
 		delete w;
 		return; // Don't handle click any further.
 	}
 
-	if (button == MB_LEFT && pressed) this->RaiseWindow(this->current_window);
+	if (button == MB_LEFT && mode != WMEM_RELEASE) this->RaiseWindow(this->current_window);
 
 	if ((_video.GetMouseDragging() & button) != MB_NONE) {
-		if (!pressed) _video.SetMouseDragging(button, false, false);
-	} else if (pressed && this->current_window != nullptr) {
-		WmMouseEvent me = this->current_window->OnMouseButtonEvent(button);
+		if (mode == WMEM_RELEASE) _video.SetMouseDragging(button, false, false);
+	} else if (this->current_window != nullptr) {
+		WmMouseEvent me = this->current_window->OnMouseButtonEvent(button, mode);
 		switch (me) {
 			case WMME_NONE:
 				break;
 
 			case WMME_MOVE_WINDOW:
 				if (this->current_window != nullptr && this->current_window->rect.IsPointInside(_video.GetMousePosition())) {
-					_video.SetMouseDragging(button, pressed, false);
+					_video.SetMouseDragging(button, mode != WMEM_RELEASE, false);
 					this->move_offset.x = this->current_window->GetRelativeMouseX();
 					this->move_offset.y = this->current_window->GetRelativeMouseY();
 				}
@@ -1050,6 +1055,7 @@ void WindowManager::UpdateWindows()
 /** A tick has passed, update whatever must be updated. */
 void WindowManager::Tick()
 {
+	/* Decrease timeout timers. */
 	Window *w = _window_manager.top;
 	while (w != nullptr) {
 		Window *next = w->lower;
@@ -1060,6 +1066,19 @@ void WindowManager::Tick()
 		w = next;
 	}
 
+	/* Dispatch repeated mouse events. */
+	++mouse_buttons_repeat_counter;
+	constexpr int MOUSE_BUTTONS_REPEAT_THRESHOLD = 4;  ///< How many ticks must pass between dispatching repeated mouse events.
+	if (mouse_buttons_repeat_counter >= MOUSE_BUTTONS_REPEAT_THRESHOLD) {
+		mouse_buttons_repeat_counter -= MOUSE_BUTTONS_REPEAT_THRESHOLD;
+		for (MouseButtons b : {MB_LEFT, MB_RIGHT, MB_MIDDLE}) {
+			if ((this->held_mouse_buttons & b) != 0) {
+				this->MouseButtonEvent(b, WMEM_REPEAT);
+			}
+		}
+	}
+
+	/* Repaint the screen. */
 	this->UpdateWindows();
 }
 

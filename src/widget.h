@@ -86,6 +86,7 @@ public:
 	virtual void DoDraw(const GuiWindow *w);
 	virtual BaseWidget *GetWidgetByPosition(const Point16 &pt);
 	virtual void AutoRaiseButtons(const Point32 &base);
+	virtual bool OnClick(const Point32 &base, const Point16 &pos);
 	virtual bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol);
 	virtual bool OnMouseWheelEvent(int direction);
 	void SetVisible(GuiWindow *w, bool v);
@@ -104,6 +105,7 @@ public:
 	uint16 fill_y;             ///< Vertical fill step.
 	uint16 resize_x;           ///< Horizontal resize step.
 	uint16 resize_y;           ///< Vertical resize step.
+	bool repeating_events;     ///< Receive repeating events.
 	uint8 paddings[PAD_COUNT]; ///< Padding.
 	StringID tooltip;          ///< Tool-tip of the widget.
 
@@ -230,7 +232,9 @@ public:
 	const std::string &GetText() const;
 	void SetText(const std::string &text);
 	void SetCursorPos(size_t pos);
+	void SetFocus(bool focus);
 
+	bool OnClick(const Point32 &base, const Point16 &pos) override;
 	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 	void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
 	void DoDraw(const GuiWindow *w) override;
@@ -242,6 +246,7 @@ private:
 	size_t cursor_pos;                ///< Position of the cursor in the text.
 	int value_width;                  ///< Width of the image or the string.
 	int value_height;                 ///< Height of the image or the string.
+	bool has_focus;                   ///< The widget currently owns the keyboard focus.
 };
 
 /**
@@ -269,7 +274,7 @@ public:
 	void SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array) override;
 	void DoDraw(const GuiWindow *w) override;
 
-	void OnClick(const Point32 &base, const Point16 &pos);
+	bool OnClick(const Point32 &base, const Point16 &pos) override;
 	bool OnMouseWheelEvent(int direction) override;
 
 	void SetItemSize(uint size);
@@ -376,6 +381,7 @@ enum WidgetPartType {
 	WPT_PADDING,          ///< Set padding.
 	WPT_HOR_PIP,          ///< Set horizontal PIP.
 	WPT_VERT_PIP,         ///< Set vertical PIP.
+	WPT_REPEATING,        ///< Set repeated click target.
 	WPT_DATA,             ///< Additional data values.
 	WPT_EQUAL_SIZE,       ///< Define how sizing of child widgets behaves.
 	WPT_END_CON,          ///< End of container or row.
@@ -416,6 +422,7 @@ WidgetPart SetResize(uint8 x, uint8 y);
 WidgetPart SetPadding(uint8 top, uint8 right, uint8 bottom, uint8 left);
 WidgetPart SetHorPIP(uint8 pre, uint8 inter, uint8 post);
 WidgetPart SetVertPIP(uint8 pre, uint8 inter, uint8 post);
+WidgetPart SetRepeating(bool repeat);
 WidgetPart SetData(uint16 data, uint16 tip);
 WidgetPart SetEqualSize(bool hor_equal, bool vert_equal);
 WidgetPart EndContainer();
