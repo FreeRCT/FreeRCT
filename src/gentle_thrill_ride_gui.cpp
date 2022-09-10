@@ -231,7 +231,6 @@ GentleThrillRideManagerWindow::GentleThrillRideManagerWindow(GentleThrillRideIns
 	this->UpdateRecolourButtons();
 
 	SetSelector(nullptr);
-	entrance_exit_placement.cur_cursor = CUR_TYPE_INVALID;
 
 	/* When opening the window of a newly built ride immediately prompt the user to place the entrance or exit. */
 	if (this->ride->entrance_pos == XYZPoint16::invalid()) {
@@ -514,7 +513,7 @@ void GentleThrillRideManagerWindow::SelectorMouseMoveEvent(Viewport *vp, const P
 		entrance_exit_placement.SetSize(1, 1);
 		entrance_exit_placement.AddVoxel(location);
 		entrance_exit_placement.SetupRideInfoSpace();
-		entrance_exit_placement.SetRideData(location, static_cast<SmallRideInstance>(this->ride->GetIndex()), SHF_ENTRANCE_BITS);
+		entrance_exit_placement.SetRideData(location, static_cast<SmallRideInstance>(this->ride->GetIndex()), SHF_ENTRANCE_BITS, -1);
 	} else {
 		if (this->is_placing_entrance) {
 			this->ride->temp_entrance_pos = XYZPoint16::invalid();

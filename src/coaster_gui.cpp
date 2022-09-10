@@ -259,7 +259,6 @@ CoasterInstanceWindow::CoasterInstanceWindow(CoasterInstance *instance) : GuiWin
 	this->UpdateRecolourButtons();
 	this->SetGraphMode(GM_SPEED);
 
-	entrance_exit_placement.cur_cursor = CUR_TYPE_INVALID;
 	/* When opening the window of a newly built ride immediately prompt the user to place the entrance or exit. */
 	if (this->ci->NeedsEntrance()) {
 		ChooseEntranceExitClicked(true);
@@ -685,7 +684,7 @@ void CoasterInstanceWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &
 		this->entrance_exit_placement.SetPosition(location.x, location.y);
 		this->entrance_exit_placement.AddVoxel(location);
 		this->entrance_exit_placement.SetupRideInfoSpace();
-		this->entrance_exit_placement.SetRideData(location, static_cast<SmallRideInstance>(this->ci->GetIndex()), SHF_ENTRANCE_BITS);
+		this->entrance_exit_placement.SetRideData(location, static_cast<SmallRideInstance>(this->ci->GetIndex()), SHF_ENTRANCE_BITS, -1);
 		placed = true;
 		break;
 	}
@@ -763,6 +762,7 @@ public:
 	~TrackPieceMouseMode();
 
 	void SetTrackPiece(const XYZPoint16 &pos, ConstTrackPiecePtr &piece);
+	void UpdateTileData();
 
 	CoasterInstance *ci;            ///< Roller coaster instance to build or edit.
 	PositionedTrackPiece pos_piece; ///< Piece to display, actual piece may be \c nullptr if nothing to display.
@@ -792,19 +792,27 @@ void TrackPieceMouseMode::SetTrackPiece(const XYZPoint16 &pos, ConstTrackPiecePt
 	this->pos_piece.piece = piece;
 	if (this->pos_piece.piece != nullptr) {
 		this->pos_piece.base_voxel = pos;
+		this->UpdateTileData();
+	}
+}
 
-		this->area = piece->GetArea();
-		this->area.base.x += pos.x; // Set new cursor area, origin may be different from piece_pos due to negative extent of a piece.
-		this->area.base.y += pos.y;
-		this->InitTileData();
+/** Update the selector's tile data. */
+void TrackPieceMouseMode::UpdateTileData()
+{
+	if (this->pos_piece.piece == nullptr) return;
 
-		for (const auto &tv : this->pos_piece.piece->track_voxels) this->AddVoxel(this->pos_piece.base_voxel + tv->dxyz);
+	this->area = this->pos_piece.piece->GetArea();
+	this->area.base.x += this->pos_piece.base_voxel.x;  // Set new cursor area, origin may be different from piece_pos due to negative extent of a piece.
+	this->area.base.y += this->pos_piece.base_voxel.y;
+	this->InitTileData();
 
-		this->SetupRideInfoSpace();
-		for (const auto &tv : this->pos_piece.piece->track_voxels) {
-			XYZPoint16 p(this->pos_piece.base_voxel + tv->dxyz);
-			this->SetRideData(p, this->ci->GetRideNumber(), this->ci->GetInstanceData(tv.get()));
-		}
+	for (const auto &tv : this->pos_piece.piece->track_voxels) this->AddVoxel(this->pos_piece.base_voxel + tv->dxyz);
+
+	this->SetupRideInfoSpace();
+	for (const auto &tv : this->pos_piece.piece->track_voxels) {
+		XYZPoint16 p(this->pos_piece.base_voxel + tv->dxyz);
+		this->SetRideData(p, this->ci->GetRideNumber(), this->ci->GetInstanceData(tv.get()), (tv->dxyz.x == 0 && tv->dxyz.y == 0 && tv->dxyz.z == 0) ?
+				SPR_GUI_BUILDARROW_START + (4 + this->pos_piece.piece->entry_connect - _window_manager.GetViewport()->orientation) % 4 : -1);
 	}
 }
 
@@ -943,6 +951,7 @@ public:
 
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 	void OnClick(WidgetNumber widget, const Point16 &pos) override;
+	void OnChange(ChangeCode code, uint32 parameter) override;
 
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
 	void SelectorMouseButtonEvent(MouseButtons state) override;
@@ -1015,6 +1024,17 @@ void CoasterBuildWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 	switch (wid_num) {
 		case CCW_TITLEBAR:
 			_str_params.SetText(1, this->ci->name);
+			break;
+	}
+}
+
+void CoasterBuildWindow::OnChange(ChangeCode code, [[maybe_unused]] uint32 parameter)
+{
+	switch (code) {
+		case CHG_VIEWPORT_ROTATED:
+			this->piece_selector.UpdateTileData();
+			break;
+		default:
 			break;
 	}
 }

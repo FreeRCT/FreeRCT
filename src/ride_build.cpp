@@ -117,7 +117,6 @@ RideBuildWindow::RideBuildWindow(FixedRideInstance *ri)
 	}
 
 	this->SetupWidgetTree(_simple_ride_construction_gui_parts, lengthof(_simple_ride_construction_gui_parts));
-	this->selector.cur_cursor = CUR_TYPE_INVALID;
 	this->selector.SetSize(0, 0); // Disable the selector.
 	this->SetSelector(&this->selector);
 }
@@ -376,7 +375,8 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 			for (int8 x = 0; x < type->width_x; ++x) {
 				for (int8 y = 0; y < type->width_y; ++y) {
 					const XYZPoint16 pos = this->instance->vox_pos + OrientatedOffset(this->instance->orientation, x, y);
-					this->selector.SetRideData(pos, inst_number, this->instance->GetEntranceDirections(pos));
+					this->selector.SetRideData(pos, inst_number, this->instance->GetEntranceDirections(pos),
+							(x == 0 && y == 0) ? (SPR_GUI_BUILDARROW_START + (4 + this->instance->orientation - vp->orientation) % 4) : -1);
 				}
 			}
 			return;
