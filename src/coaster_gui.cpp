@@ -966,6 +966,7 @@ public:
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 	void OnClick(WidgetNumber widget, const Point16 &pos) override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
+	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
 
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
 	void SelectorMouseButtonEvent(MouseButtons state) override;
@@ -1142,6 +1143,56 @@ void CoasterBuildWindow::OnClick(WidgetNumber widget, [[maybe_unused]] const Poi
 		}
 	}
 	this->SetupSelection();
+}
+
+void CoasterBuildWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
+{
+	if (wid_num != CCW_DISPLAY_PIECE || this->piece_selector.pos_piece.piece == nullptr) return GuiWindow::DrawWidget(wid_num, wid);
+
+	int x = this->GetWidgetScreenX(wid);
+	int y = this->GetWidgetScreenY(wid);
+	const Viewport *vp = _window_manager.GetViewport();
+	const int orient = vp->orientation;
+
+	/* Render the track piece's preview. \todo Needs testing with a multi-voxel track piece. */
+	std::map<XYZPoint16, std::vector<const ImageData*>> sprites;
+	for (const auto &tv : this->piece_selector.pos_piece.piece->track_voxels) {
+		if (tv->back [orient] != nullptr) sprites[tv->dxyz].push_back(tv->back [orient]);
+		if (tv->front[orient] != nullptr) sprites[tv->dxyz].push_back(tv->front[orient]);
+
+		if (tv->HasPlatform()) {
+			const CoasterPlatform &platform = _coaster_platforms[this->ci->GetCoasterType()->platform_type];
+			switch ((tv->GetPlatformDirection() + 4 - orient) % 4) {
+				case EDGE_NE:
+					sprites[tv->dxyz].push_back(platform.ne_sw_back);
+					sprites[tv->dxyz].push_back(platform.ne_sw_front);
+					break;
+				case EDGE_SE:
+					sprites[tv->dxyz].push_back(platform.se_nw_back);
+					sprites[tv->dxyz].push_back(platform.se_nw_front);
+					break;
+				case EDGE_SW:
+					sprites[tv->dxyz].push_back(platform.sw_ne_back);
+					sprites[tv->dxyz].push_back(platform.sw_ne_front);
+					break;
+				case EDGE_NW:
+					sprites[tv->dxyz].push_back(platform.nw_se_back);
+					sprites[tv->dxyz].push_back(platform.nw_se_front);
+					break;
+				default: NOT_REACHED();
+			}
+		}
+	}
+	for (const auto &pair : sprites) {
+		const Point32 p(
+				x + wid->pos.width  / 2 + (pair.first.y - pair.first.x               ) * vp->tile_width,
+				y + wid->pos.height / 2 + (pair.first.x + pair.first.y - pair.first.z) * vp->tile_height);
+		for (const ImageData *i : pair.second) _video.BlitImage(p, i);
+	}
+
+	/* Render build cost. */
+	_str_params.SetMoney(1, this->piece_selector.pos_piece.piece->cost);
+	_video.BlitText(DrawText(STR_ARG1), _palette[TEXT_WHITE], x, y + wid->pos.height - _video.GetTextHeight(), wid->pos.width, ALG_CENTER);
 }
 
 /**

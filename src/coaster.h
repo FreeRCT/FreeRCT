@@ -125,6 +125,8 @@ public:
 	ImageData *nw_se_front;   ///< Foreground sprite for the NW_SE direction.
 };
 
+extern CoasterPlatform _coaster_platforms[];
+
 class CoasterCar;
 class CoasterTrain;
 
