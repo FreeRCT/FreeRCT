@@ -57,7 +57,16 @@ void GentleThrillRideRemoveWindow::OnClick(WidgetNumber number, [[maybe_unused]]
 
 void GentleThrillRideRemoveWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
-	if (wid_num == ERW_MESSAGE) _str_params.SetText(1, this->si->name);
+	switch (wid_num) {
+		case ERW_MESSAGE:
+			_str_params.SetText(1, this->si->name);
+			break;
+		case ERW_COST:
+			_str_params.SetMoney(1, -this->si->ComputeReturnCost());
+			break;
+		default:
+			break;
+	}
 }
 
 /**

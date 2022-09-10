@@ -376,6 +376,7 @@ strings:
 		# Entity remove window strings.
 		ENTITY_REMOVE_CAPTION: "Abreißen"
 		ENTITY_REMOVE_MESSAGE: "%1% abreißen?"
+		ENTITY_REMOVE_COST:    "Rückerstattung: %1%"
 		ENTITY_REMOVE_YES:     "Ja"
 		ENTITY_REMOVE_NO:      "Nein"
 

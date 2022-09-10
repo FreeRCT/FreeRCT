@@ -57,7 +57,16 @@ void CoasterRemoveWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Po
 
 void CoasterRemoveWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
-	if (wid_num == ERW_MESSAGE) _str_params.SetText(1, this->ci->name);
+	switch (wid_num) {
+		case ERW_MESSAGE:
+			_str_params.SetText(1, this->ci->name);
+			break;
+		case ERW_COST:
+			_str_params.SetMoney(1, -this->ci->ComputeReturnCost());
+			break;
+		default:
+			break;
+	}
 }
 
 /**
