@@ -93,7 +93,7 @@ enum WmMouseEvent {
  */
 enum WmMouseEventMode {
 	WMEM_PRESS,    ///< Mouse button was pressed.
-	WMEM_REPEAT,   ///< Mouse button was held down.
+	WMEM_REPEAT,   ///< Mouse button is held down.
 	WMEM_RELEASE,  ///< Mouse button was released.
 };
 

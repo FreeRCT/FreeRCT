@@ -251,7 +251,8 @@ public:
 
 	bool HasWindow(Window *w);
 	void AddToStack(Window *w);
-	void RemoveFromStack(Window *w, bool about_to_be_deleted);
+	void RemoveFromStack(Window *w);
+	void PreRemove(Window *w);
 	void RaiseWindow(Window *w);
 	void SetSelector(GuiWindow *w, MouseModeSelector *selector);
 

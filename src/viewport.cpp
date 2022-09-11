@@ -1311,7 +1311,7 @@ void Viewport::OnMouseMoveEvent(const Point16 &pos)
 
 WmMouseEvent Viewport::OnMouseButtonEvent(MouseButtons state, WmMouseEventMode mode)
 {
-	if (mode != WMEM_PRESS) return WMME_NONE;  // Avoid processing multiple events for the same click for all actions below.
+	if (mode != WMEM_PRESS) return WMME_NONE;  // Avoid processing auto-repeat events for the same click for all actions below.
 	if (_game_control.main_menu) return WMME_NONE;
 	if (_window_manager.SelectorMouseButtonEvent(state)) return WMME_NONE;
 

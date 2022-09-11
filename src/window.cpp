@@ -52,7 +52,7 @@ Window::Window(WindowTypes wtype, WindowNumber wnumber)
 /** Destructor. */
 Window::~Window()
 {
-	_window_manager.RemoveFromStack(this, true);
+	_window_manager.PreRemove(this);
 }
 
 /**
@@ -772,18 +772,26 @@ void WindowManager::AddToStack(Window *w)
 }
 
 /**
+ * Called by a window prior to its deletion.
+ * @param w Window being deleted.
+ */
+void WindowManager::PreRemove(Window *w)
+{
+	if (this->current_window) this->current_window = nullptr;
+	this->RemoveFromStack(w);
+}
+
+/**
  * Remove a window from the list.
  * @param w Window to remove.
- * @param about_to_be_deleted The window will be deleted soon after.
  */
-void WindowManager::RemoveFromStack(Window *w, bool about_to_be_deleted)
+void WindowManager::RemoveFromStack(Window *w)
 {
 	assert(this->HasWindow(w));
 
 	if (w == this->viewport) this->viewport = nullptr;
 
 	this->select_valid = false;
-	if (about_to_be_deleted && w == this->current_window) this->current_window = nullptr;
 
 	if (w->higher == nullptr) {
 		this->top = w->lower;
@@ -808,7 +816,7 @@ void WindowManager::RemoveFromStack(Window *w, bool about_to_be_deleted)
 void WindowManager::RaiseWindow(Window *w)
 {
 	if (w != this->top && GetWindowZPriority(w->wtype) >= GetWindowZPriority(w->higher->wtype)) {
-		this->RemoveFromStack(w, false);
+		this->RemoveFromStack(w);
 		this->AddToStack(w);
 	}
 }

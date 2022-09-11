@@ -105,7 +105,7 @@ public:
 	uint16 fill_y;             ///< Vertical fill step.
 	uint16 resize_x;           ///< Horizontal resize step.
 	uint16 resize_y;           ///< Vertical resize step.
-	bool receive_repeated_events;  ///< Repeatingly receive events when a mouse button is pressed and held.
+	bool receive_repeated_events;  ///< Receive auto-repeat events when a mouse button is pressed and held.
 	uint8 paddings[PAD_COUNT]; ///< Padding.
 	StringID tooltip;          ///< Tool-tip of the widget.
 
@@ -381,7 +381,7 @@ enum WidgetPartType {
 	WPT_PADDING,          ///< Set padding.
 	WPT_HOR_PIP,          ///< Set horizontal PIP.
 	WPT_VERT_PIP,         ///< Set vertical PIP.
-	WPT_REPEATING,        ///< Set repeated click target.
+	WPT_REPEATING,        ///< Set auto-repeat click target.
 	WPT_DATA,             ///< Additional data values.
 	WPT_EQUAL_SIZE,       ///< Define how sizing of child widgets behaves.
 	WPT_END_CON,          ///< End of container or row.
