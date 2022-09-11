@@ -44,7 +44,7 @@ BaseWidget::BaseWidget(WidgetType wtype)
 	fill_y(0),
 	resize_x(0),
 	resize_y(0),
-	repeating_events(false),
+	receive_repeated_events(false),
 	tooltip(STR_NULL)
 {
 	for (int i = 0; i < PAD_COUNT; i++) this->paddings[i] = 0;
@@ -719,15 +719,18 @@ bool TextInputWidget::OnClick([[maybe_unused]] const Point32 &base, const Point1
 {
 	this->has_focus = true;
 
-	/* Find clicked cursor pos. \todo We might be able to use a more efficient logarithmic search. */
-	int w;
-	int text_len = this->buffer.size();
-	int best_x = INT_MAX;
-	for (int p = text_len; p >= 0; --p) {
-		_video.GetTextSize(this->buffer.substr(0, p), &w, nullptr, false);
-		if (abs(w - pos.x) <= abs(best_x - pos.x)) {
-			best_x = w;
+	/* Find clicked cursor pos. */
+	const int text_len = this->buffer.size();
+	int w = 0;
+	int xpos = pos.x;
+	int smallest_distance = INT_MAX;
+	for (int p = 0; p <= text_len; ++p) {
+		if (p < text_len) _video.GetTextSize({this->buffer.at(p)}, &w, nullptr, false);
+		int distance = abs(w / 2 - xpos);
+		if (distance < smallest_distance) {
+			smallest_distance = distance;
 			this->cursor_pos = p;
+			xpos -= w;
 		} else {
 			break;
 		}
@@ -741,6 +744,7 @@ bool TextInputWidget::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::st
 	if (!this->visible || !this->has_focus) return false;
 	switch (key_code) {
 		case WMKC_CANCEL:
+		case WMKC_CONFIRM:
 			this->has_focus = false;
 			return true;
 
@@ -854,7 +858,7 @@ void TextInputWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
  */
 ScrollbarWidget::ScrollbarWidget(WidgetType wtype) : LeafWidget(wtype), item_count(0), start(0), item_size(0), canvas(nullptr)
 {
-	this->repeating_events = true;
+	this->receive_repeated_events = true;
 }
 
 /**
@@ -1998,7 +2002,7 @@ static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 				if (*dest == nullptr) break;
 				BaseWidget *bw = dynamic_cast<BaseWidget *>(*dest);
 				if (bw != nullptr) {
-					bw->repeating_events = parts->data.flags != 0;
+					bw->receive_repeated_events = parts->data.flags != 0;
 				}
 				break;
 			}

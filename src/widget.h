@@ -105,7 +105,7 @@ public:
 	uint16 fill_y;             ///< Vertical fill step.
 	uint16 resize_x;           ///< Horizontal resize step.
 	uint16 resize_y;           ///< Vertical resize step.
-	bool repeating_events;     ///< Receive repeating events.
+	bool receive_repeated_events;  ///< Repeatingly receive events when a mouse button is pressed and held.
 	uint8 paddings[PAD_COUNT]; ///< Padding.
 	StringID tooltip;          ///< Tool-tip of the widget.
 
@@ -242,11 +242,11 @@ public:
 	std::function<void()> text_changed;  ///< Called when the text has been modified.
 
 private:
-	std::string buffer;               ///< Currently held text.
-	size_t cursor_pos;                ///< Position of the cursor in the text.
-	int value_width;                  ///< Width of the image or the string.
-	int value_height;                 ///< Height of the image or the string.
-	bool has_focus;                   ///< The widget currently owns the keyboard focus.
+	std::string buffer;  ///< Currently held text.
+	size_t cursor_pos;   ///< Position of the cursor in the text.
+	int value_width;     ///< Width of the current text.
+	int value_height;    ///< Height of the current text.
+	bool has_focus;      ///< The widget receives and processes keyboard events.
 };
 
 /**

@@ -488,9 +488,9 @@ WmMouseEvent GuiWindow::OnMouseButtonEvent(MouseButtons state, WmMouseEventMode 
 			lw->SetPressed(true);
 			this->timeout = 4;
 		}
-		if ((mode != WMEM_REPEAT || bw->repeating_events) && bw->OnClick(this->rect.base, widget_pos)) return WMME_NONE;
+		if ((mode != WMEM_REPEAT || bw->receive_repeated_events) && bw->OnClick(this->rect.base, widget_pos)) return WMME_NONE;
 	}
-	if (bw->number >= 0 && (mode != WMEM_REPEAT || bw->repeating_events)) this->OnClick(bw->number, widget_pos);
+	if (bw->number >= 0 && (mode != WMEM_REPEAT || bw->receive_repeated_events)) this->OnClick(bw->number, widget_pos);
 	return WMME_NONE;
 }
 
