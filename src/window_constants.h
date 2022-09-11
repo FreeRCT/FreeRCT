@@ -88,6 +88,16 @@ enum WmMouseEvent {
 };
 
 /**
+ * Mouse event modes of the window manager.
+ * @ingroup window_group
+ */
+enum WmMouseEventMode {
+	WMEM_PRESS,    ///< Mouse button was pressed.
+	WMEM_REPEAT,   ///< Mouse button is held down.
+	WMEM_RELEASE,  ///< Mouse button was released.
+};
+
+/**
  * Key codes of the window manager.
  * @ingroup window_group
  */

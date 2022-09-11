@@ -260,13 +260,14 @@ void TextRenderer::Draw(const std::string &text, float x, float y, float max_wid
 /**
  * Estimate the bounding rectangle of a string.
  * @param text Text to estimate.
+ * @param add_padding Include text padding in the result.
  * @param scale Scaling factor for the text size.
  */
-PointF TextRenderer::EstimateBounds(const std::string &text, float scale) const
+PointF TextRenderer::EstimateBounds(const std::string &text, bool add_padding, float scale) const
 {
 	float x = 0;
 	float width = 0;
-	float height = this->font_size * scale;
+	float height = add_padding ? this->font_size * scale : 0;
 	size_t text_length = text.size();
 	for (const char *c = text.c_str(); *c != '\0';) {
 		const FontGlyph &fg = this->GetFontGlyph(&c, text_length);
@@ -278,7 +279,11 @@ PointF TextRenderer::EstimateBounds(const std::string &text, float scale) const
 		height = std::max(height, ypos + h);
 		x += (fg.advance >> 6) * scale;
 	}
-	return PointF(width + FONT_PADDING_H * this->font_size * scale, height + FONT_PADDING_V * this->font_size * scale);
+	if (add_padding) {
+		width += FONT_PADDING_H * this->font_size * scale;
+		height += FONT_PADDING_V * this->font_size * scale;
+	}
+	return PointF(width, height);
 }
 
 /**
@@ -489,19 +494,16 @@ void VideoSystem::ScrollCallback([[maybe_unused]] GLFWwindow *window, [[maybe_un
 void VideoSystem::MouseClickCallback([[maybe_unused]] GLFWwindow *window, int button, int action, [[maybe_unused]] int mods) {
 	assert(window == _video.window);
 
+	MouseButtons mouse_button;
 	switch (button) {
-		case GLFW_MOUSE_BUTTON_RIGHT:
-			_window_manager.MouseButtonEvent(MB_RIGHT, action == GLFW_PRESS);
-			break;
-		case GLFW_MOUSE_BUTTON_LEFT:
-			_window_manager.MouseButtonEvent(MB_LEFT, action == GLFW_PRESS);
-			break;
-		case GLFW_MOUSE_BUTTON_MIDDLE:
-			_window_manager.MouseButtonEvent(MB_MIDDLE, action == GLFW_PRESS);
-			break;
+		case GLFW_MOUSE_BUTTON_RIGHT : mouse_button = MB_RIGHT ; break;
+		case GLFW_MOUSE_BUTTON_LEFT  : mouse_button = MB_LEFT  ; break;
+		case GLFW_MOUSE_BUTTON_MIDDLE: mouse_button = MB_MIDDLE; break;
 		default:
-			break;
+			return;
 	}
+
+	_window_manager.MouseButtonEvent(mouse_button, action == GLFW_PRESS ? WMEM_PRESS : WMEM_RELEASE);
 }
 
 /**
@@ -945,11 +947,12 @@ void VideoSystem::GetNumberRangeSize(int64 smallest, int64 biggest, int *width, 
  * @param text Text to calculate.
  * @param width [out] Resulting width.
  * @param height [out] Resulting height.
+ * @param add_padding Include text padding in the result.
  */
-void VideoSystem::GetTextSize(const std::string &text, int *width, int *height)
+void VideoSystem::GetTextSize(const std::string &text, int *width, int *height, bool add_padding)
 {
 	if (width == nullptr && height == nullptr) return;
-	PointF vec = _text_renderer.EstimateBounds(text);
+	PointF vec = _text_renderer.EstimateBounds(text, add_padding);
 	if (width != nullptr) *width = vec.x;
 	if (height != nullptr) *height = vec.y;
 }

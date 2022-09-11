@@ -152,7 +152,7 @@ public:
 protected:
 	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
 	void OnMouseMoveEvent(const Point16 &pos) override;
-	WmMouseEvent OnMouseButtonEvent(MouseButtons state) override;
+	WmMouseEvent OnMouseButtonEvent(MouseButtons state, WmMouseEventMode mode) override;
 	void OnMouseWheelEvent(int direction) override;
 };
 
