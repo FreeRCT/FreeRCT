@@ -252,7 +252,7 @@ public:
 	bool HasWindow(Window *w);
 	void AddToStack(Window *w);
 	void RemoveFromStack(Window *w);
-	void PreRemove(Window *w);
+	void PreDelete(Window *w);
 	void RaiseWindow(Window *w);
 	void SetSelector(GuiWindow *w, MouseModeSelector *selector);
 

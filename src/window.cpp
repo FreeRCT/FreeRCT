@@ -52,7 +52,7 @@ Window::Window(WindowTypes wtype, WindowNumber wnumber)
 /** Destructor. */
 Window::~Window()
 {
-	_window_manager.PreRemove(this);
+	_window_manager.PreDelete(this);
 }
 
 /**
@@ -775,9 +775,9 @@ void WindowManager::AddToStack(Window *w)
  * Called by a window prior to its deletion.
  * @param w Window being deleted.
  */
-void WindowManager::PreRemove(Window *w)
+void WindowManager::PreDelete(Window *w)
 {
-	if (this->current_window) this->current_window = nullptr;
+	if (this->current_window == w) this->current_window = nullptr;
 	this->RemoveFromStack(w);
 }
 
