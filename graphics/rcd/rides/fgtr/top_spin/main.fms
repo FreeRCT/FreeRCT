@@ -2,6 +2,7 @@
 FGTR {
 	internal_name: "top_spin";
 	category: "thrill";
+	build_cost: 56000;
 	ride_width_x: 3;
 	ride_width_y: 3;
 	height_0_0: 10;

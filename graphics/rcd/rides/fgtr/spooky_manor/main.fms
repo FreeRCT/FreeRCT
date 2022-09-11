@@ -2,6 +2,7 @@
 FGTR {
 	internal_name: "spooky_manor";
 	category: "gentle";
+	build_cost: 30000;
 	ride_width_x: 3;
 	ride_width_y: 4;
 	height_0_0: 5;

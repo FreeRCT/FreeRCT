@@ -69,7 +69,7 @@ static bool IsValidItemType(uint8 val)
  */
 void ShopType::Load(RcdFileReader *rcd_file, [[maybe_unused]] const ImageMap &sprites, const TextMap &texts)
 {
-	rcd_file->CheckVersion(7);
+	rcd_file->CheckVersion(8);
 	int length = rcd_file->size;
 	length -= 40;
 	rcd_file->CheckMinLength(length, 0, "header");
@@ -112,7 +112,10 @@ void ShopType::Load(RcdFileReader *rcd_file, [[maybe_unused]] const ImageMap &sp
 	this->SetupStrings(text_data, base, STR_GENERIC_SHOP_START, SHOPS_STRING_TABLE_END, SHOPS_NAME_TYPE, SHOPS_DESCRIPTION_TYPE);
 
 	this->internal_name = rcd_file->GetText();
-	rcd_file->CheckExactLength(length, this->internal_name.size() + 1, "end of block");
+	this->build_cost = rcd_file->GetUInt32();
+	length -= this->internal_name.size() + 1 + 4;
+
+	rcd_file->CheckExactLength(length, 0, "end of block");
 }
 
 FixedRideType::RideCapacity ShopType::GetRideCapacity() const

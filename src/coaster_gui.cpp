@@ -18,6 +18,8 @@
 #include "map.h"
 #include "gui_sprites.h"
 #include "entity_gui.h"
+#include "finances.h"
+#include "gamecontrol.h"
 
 /** Window to prompt for removing a roller coaster. */
 class CoasterRemoveWindow : public EntityRemoveWindow  {
@@ -42,7 +44,12 @@ CoasterRemoveWindow::CoasterRemoveWindow(CoasterInstance *instance) : EntityRemo
 void CoasterRemoveWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)
 {
 	if (number == ERW_YES) {
+		const Money cost = this->ci->ComputeReturnCost();
+		_finances_manager.PayRideConstruct(cost);
+		_window_manager.GetViewport()->AddFloatawayMoneyAmount(cost, this->ci->RepresentativeLocation());
+
 		delete GetWindowByType(WC_COASTER_MANAGER, this->ci->GetIndex());
+
 		_rides_manager.DeleteInstance(this->ci->GetIndex());
 	}
 	delete this;
@@ -50,7 +57,16 @@ void CoasterRemoveWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Po
 
 void CoasterRemoveWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
-	if (wid_num == ERW_MESSAGE) _str_params.SetText(1, this->ci->name);
+	switch (wid_num) {
+		case ERW_MESSAGE:
+			_str_params.SetText(1, this->ci->name);
+			break;
+		case ERW_COST:
+			_str_params.SetMoney(1, -this->ci->ComputeReturnCost());
+			break;
+		default:
+			break;
+	}
 }
 
 /**
@@ -257,7 +273,6 @@ CoasterInstanceWindow::CoasterInstanceWindow(CoasterInstance *instance) : GuiWin
 	this->UpdateRecolourButtons();
 	this->SetGraphMode(GM_SPEED);
 
-	entrance_exit_placement.cur_cursor = CUR_TYPE_INVALID;
 	/* When opening the window of a newly built ride immediately prompt the user to place the entrance or exit. */
 	if (this->ci->NeedsEntrance()) {
 		ChooseEntranceExitClicked(true);
@@ -683,7 +698,7 @@ void CoasterInstanceWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &
 		this->entrance_exit_placement.SetPosition(location.x, location.y);
 		this->entrance_exit_placement.AddVoxel(location);
 		this->entrance_exit_placement.SetupRideInfoSpace();
-		this->entrance_exit_placement.SetRideData(location, static_cast<SmallRideInstance>(this->ci->GetIndex()), SHF_ENTRANCE_BITS);
+		this->entrance_exit_placement.SetRideData(location, static_cast<SmallRideInstance>(this->ci->GetIndex()), SHF_ENTRANCE_BITS, -1);
 		placed = true;
 		break;
 	}
@@ -761,6 +776,7 @@ public:
 	~TrackPieceMouseMode();
 
 	void SetTrackPiece(const XYZPoint16 &pos, ConstTrackPiecePtr &piece);
+	void UpdateTileData();
 
 	CoasterInstance *ci;            ///< Roller coaster instance to build or edit.
 	PositionedTrackPiece pos_piece; ///< Piece to display, actual piece may be \c nullptr if nothing to display.
@@ -790,19 +806,27 @@ void TrackPieceMouseMode::SetTrackPiece(const XYZPoint16 &pos, ConstTrackPiecePt
 	this->pos_piece.piece = piece;
 	if (this->pos_piece.piece != nullptr) {
 		this->pos_piece.base_voxel = pos;
+		this->UpdateTileData();
+	}
+}
 
-		this->area = piece->GetArea();
-		this->area.base.x += pos.x; // Set new cursor area, origin may be different from piece_pos due to negative extent of a piece.
-		this->area.base.y += pos.y;
-		this->InitTileData();
+/** Update the selector's tile data. */
+void TrackPieceMouseMode::UpdateTileData()
+{
+	if (this->pos_piece.piece == nullptr) return;
 
-		for (const auto &tv : this->pos_piece.piece->track_voxels) this->AddVoxel(this->pos_piece.base_voxel + tv->dxyz);
+	this->area = this->pos_piece.piece->GetArea();
+	this->area.base.x += this->pos_piece.base_voxel.x;  // Set new cursor area, origin may be different from piece_pos due to negative extent of a piece.
+	this->area.base.y += this->pos_piece.base_voxel.y;
+	this->InitTileData();
 
-		this->SetupRideInfoSpace();
-		for (const auto &tv : this->pos_piece.piece->track_voxels) {
-			XYZPoint16 p(this->pos_piece.base_voxel + tv->dxyz);
-			this->SetRideData(p, this->ci->GetRideNumber(), this->ci->GetInstanceData(tv.get()));
-		}
+	for (const auto &tv : this->pos_piece.piece->track_voxels) this->AddVoxel(this->pos_piece.base_voxel + tv->dxyz);
+
+	this->SetupRideInfoSpace();
+	for (const auto &tv : this->pos_piece.piece->track_voxels) {
+		XYZPoint16 p(this->pos_piece.base_voxel + tv->dxyz);
+		this->SetRideData(p, this->ci->GetRideNumber(), this->ci->GetInstanceData(tv.get()), (tv->dxyz.x == 0 && tv->dxyz.y == 0 && tv->dxyz.z == 0) ?
+				SPR_GUI_BUILDARROW_START + (4 + this->pos_piece.piece->entry_connect - _window_manager.GetViewport()->orientation) % 4 : -1);
 	}
 }
 
@@ -941,6 +965,8 @@ public:
 
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 	void OnClick(WidgetNumber widget, const Point16 &pos) override;
+	void OnChange(ChangeCode code, uint32 parameter) override;
+	void DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const override;
 
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
 	void SelectorMouseButtonEvent(MouseButtons state) override;
@@ -1017,6 +1043,17 @@ void CoasterBuildWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 	}
 }
 
+void CoasterBuildWindow::OnChange(ChangeCode code, [[maybe_unused]] uint32 parameter)
+{
+	switch (code) {
+		case CHG_VIEWPORT_ROTATED:
+			this->piece_selector.UpdateTileData();
+			break;
+		default:
+			break;
+	}
+}
+
 void CoasterBuildWindow::OnClick(WidgetNumber widget, [[maybe_unused]] const Point16 &pos)
 {
 	switch (widget) {
@@ -1057,6 +1094,10 @@ void CoasterBuildWindow::OnClick(WidgetNumber widget, [[maybe_unused]] const Poi
 			break;
 		}
 		case CCW_REMOVE: {
+			const Money cost = this->cur_piece->return_cost;
+			_finances_manager.PayRideConstruct(cost);
+			_window_manager.GetViewport()->AddFloatawayMoneyAmount(cost, this->cur_piece->base_voxel);
+
 			int pred_index = this->ci->FindPredecessorPiece(*this->cur_piece);
 			this->ci->RemovePositionedPiece(*this->cur_piece);
 
@@ -1102,6 +1143,56 @@ void CoasterBuildWindow::OnClick(WidgetNumber widget, [[maybe_unused]] const Poi
 		}
 	}
 	this->SetupSelection();
+}
+
+void CoasterBuildWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
+{
+	if (wid_num != CCW_DISPLAY_PIECE || this->piece_selector.pos_piece.piece == nullptr) return GuiWindow::DrawWidget(wid_num, wid);
+
+	int x = this->GetWidgetScreenX(wid);
+	int y = this->GetWidgetScreenY(wid);
+	const Viewport *vp = _window_manager.GetViewport();
+	const int orient = vp->orientation;
+
+	/* Render the track piece's preview. \todo Needs testing with a multi-voxel track piece. */
+	std::map<XYZPoint16, std::vector<const ImageData*>> sprites;
+	for (const auto &tv : this->piece_selector.pos_piece.piece->track_voxels) {
+		if (tv->back [orient] != nullptr) sprites[tv->dxyz].push_back(tv->back [orient]);
+		if (tv->front[orient] != nullptr) sprites[tv->dxyz].push_back(tv->front[orient]);
+
+		if (tv->HasPlatform()) {
+			const CoasterPlatform &platform = _coaster_platforms[this->ci->GetCoasterType()->platform_type];
+			switch ((tv->GetPlatformDirection() + 4 - orient) % 4) {
+				case EDGE_NE:
+					sprites[tv->dxyz].push_back(platform.ne_sw_back);
+					sprites[tv->dxyz].push_back(platform.ne_sw_front);
+					break;
+				case EDGE_SE:
+					sprites[tv->dxyz].push_back(platform.se_nw_back);
+					sprites[tv->dxyz].push_back(platform.se_nw_front);
+					break;
+				case EDGE_SW:
+					sprites[tv->dxyz].push_back(platform.sw_ne_back);
+					sprites[tv->dxyz].push_back(platform.sw_ne_front);
+					break;
+				case EDGE_NW:
+					sprites[tv->dxyz].push_back(platform.nw_se_back);
+					sprites[tv->dxyz].push_back(platform.nw_se_front);
+					break;
+				default: NOT_REACHED();
+			}
+		}
+	}
+	for (const auto &pair : sprites) {
+		const Point32 p(
+				x + wid->pos.width  / 2 + (pair.first.y - pair.first.x               ) * vp->tile_width,
+				y + wid->pos.height / 2 + (pair.first.x + pair.first.y - pair.first.z) * vp->tile_height);
+		for (const ImageData *i : pair.second) _video.BlitImage(p, i);
+	}
+
+	/* Render build cost. */
+	_str_params.SetMoney(1, this->piece_selector.pos_piece.piece->cost);
+	_video.BlitText(DrawText(STR_ARG1), _palette[TEXT_WHITE], x, y + wid->pos.height - _video.GetTextHeight(), wid->pos.width, ALG_CENTER);
 }
 
 /**
@@ -1335,14 +1426,22 @@ void CoasterBuildWindow::BuildTrackPiece()
 	if (this->selector == nullptr || this->piece_selector.pos_piece.piece == nullptr) return; // No active selector.
 	if (this->sel_piece == nullptr) return; // No piece.
 
-	if (!this->piece_selector.pos_piece.CanBePlaced()) {
-		return; /// \todo Display error message.
+	/* Are we allowed to build here? */
+	StringID err = this->piece_selector.pos_piece.CanBePlaced();
+	if (err != STR_NULL) {
+		BestErrorMessageReason::ShowActionErrorMessage(BestErrorMessageReason::ACT_BUILD, err);
+		return;
 	}
+	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, this->piece_selector.pos_piece.piece->cost)) return;
 
 	/* Add the piece to the coaster instance. */
 	int ptp_index = this->ci->AddPositionedPiece(this->piece_selector.pos_piece);
 	if (ptp_index >= 0) {
+		this->piece_selector.pos_piece.return_cost = -this->piece_selector.pos_piece.piece->cost;
 		this->ci->PlaceTrackPieceInWorld(this->piece_selector.pos_piece); // Add the piece to the world.
+
+		_finances_manager.PayRideConstruct(this->piece_selector.pos_piece.piece->cost);
+		_window_manager.GetViewport()->AddFloatawayMoneyAmount(this->piece_selector.pos_piece.piece->cost, this->piece_selector.pos_piece.base_voxel);
 
 		/* Piece was added, change the setup for the next piece. */
 		this->cur_piece = &this->ci->pieces[ptp_index];

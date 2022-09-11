@@ -1850,6 +1850,7 @@ static std::shared_ptr<SHOPBlock> ConvertSHOPNode(std::shared_ptr<NodeGroup> ng)
 	vals.PrepareNamedValues(ng->values, true, true, _shop_symbols);
 
 	sb->internal_name = vals.GetString("internal_name");
+	sb->build_cost = vals.GetNumber("build_cost");
 	sb->height = vals.GetNumber("height");
 	sb->flags = vals.GetNumber("flags");
 	sb->views = vals.GetFrameSet("images");
@@ -2102,6 +2103,7 @@ static std::shared_ptr<FGTRBlock> ConvertFGTRNode(std::shared_ptr<NodeGroup> ng)
 		fprintf(stderr, "Error at %s: Invalid category '%s' (expected 'gentle' or 'thrill').\n", ng->pos.ToString(), category.c_str());
 		return nullptr;
 	}
+	block->build_cost = vals.GetNumber("build_cost");
 	block->ride_width_x = vals.GetNumber("ride_width_x");
 	block->ride_width_y = vals.GetNumber("ride_width_y");
 	block->heights.reset(new int8[block->ride_width_x * block->ride_width_y]);

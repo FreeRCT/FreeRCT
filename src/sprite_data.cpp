@@ -326,6 +326,7 @@ const uint8 *ImageData::GetRecoloured(GradientShift shift, const Recolouring &re
 					*(ptr++) = rgba_ptr[3];
 					rgba_ptr += 4;
 				}
+				if (shift == GS_SEMI_TRANSPARENT) *(ptr - 1) = *(ptr - 1) * OPACITY_SEMI_TRANSPARENT / 255;
 				recol_ptr += 2;
 			}
 		}

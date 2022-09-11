@@ -10,7 +10,9 @@
 #include "stdafx.h"
 #include "sprite_store.h"
 #include "fileio.h"
+#include "gamecontrol.h"
 #include "track_piece.h"
+#include "finances.h"
 #include "map.h"
 
 TrackVoxel::TrackVoxel()
@@ -250,6 +252,12 @@ PositionedTrackPiece::PositionedTrackPiece(const XYZPoint16 &vox_pos, ConstTrack
 	this->piece = piece;
 }
 
+/** Monthly depreciation of the piece's value. */
+void PositionedTrackPiece::OnNewMonth()
+{
+	this->return_cost = this->return_cost * (10000 - RIDE_DEPRECIATION) / 10000;
+}
+
 /**
  * Verify that all voxels of this track piece are within world boundaries.
  * @return The positioned track piece is entirely within the world boundaries.
@@ -267,20 +275,21 @@ bool PositionedTrackPiece::IsOnWorld() const
 
 /**
  * Can this positioned track piece be placed in the world?
- * @return Positioned track piece can be placed.
+ * @return \c STR_NULL if the item can be placed here; otherwise the reason why it can't.
  * @pre Positioned track piece must have a piece.
  */
-bool PositionedTrackPiece::CanBePlaced() const
+StringID PositionedTrackPiece::CanBePlaced() const
 {
-	if (!this->IsOnWorld()) return false;
+	if (!this->IsOnWorld()) return GUI_ERROR_MESSAGE_BAD_LOCATION;
 	for (const auto &tvx : this->piece->track_voxels) {
 		/* Is the voxel above ground level? */
 		const XYZPoint16 part_pos = this->base_voxel + tvx->dxyz;
-		if (_world.GetBaseGroundHeight(part_pos.x, part_pos.y) > part_pos.z) return false;
+		if (_world.GetBaseGroundHeight(part_pos.x, part_pos.y) > part_pos.z) return GUI_ERROR_MESSAGE_UNDERGROUND;
 		const Voxel *vx = _world.GetVoxel(part_pos);
-		if (vx != nullptr && !vx->CanPlaceInstance()) return false;
+		if (vx != nullptr && !vx->CanPlaceInstance()) return GUI_ERROR_MESSAGE_OCCUPIED;
+		if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(part_pos.x, part_pos.y) != OWN_PARK) return GUI_ERROR_MESSAGE_UNOWNED_LAND;
 	}
-	return true;
+	return STR_NULL;
 }
 
 /**
@@ -313,12 +322,12 @@ void PositionedTrackPiece::RemoveFromWorld(const uint16 ride_index) {
 	this->piece->RemoveFromWorld(ride_index, base_voxel);
 }
 
-static const uint32 CURRENT_VERSION_PositionedTrackPiece = 1;   ///< Currently supported version of %PositionedTrackPiece.
+static const uint32 CURRENT_VERSION_PositionedTrackPiece = 2;   ///< Currently supported version of %PositionedTrackPiece.
 
 void PositionedTrackPiece::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("pstp");
-	if (version != CURRENT_VERSION_PositionedTrackPiece) ldr.VersionMismatch(version, CURRENT_VERSION_PositionedTrackPiece);
+	if (version < 1 || version > CURRENT_VERSION_PositionedTrackPiece) ldr.VersionMismatch(version, CURRENT_VERSION_PositionedTrackPiece);
 
 	uint16 x = ldr.GetWord();
 	uint16 y = ldr.GetWord();
@@ -326,6 +335,7 @@ void PositionedTrackPiece::Load(Loader &ldr)
 
 	this->base_voxel = XYZPoint16(x, y, z);
 	this->distance_base = ldr.GetLong();
+	this->return_cost = (version < 2) ? 0 : ldr.GetLongLong();
 	ldr.ClosePattern();
 }
 
@@ -336,5 +346,6 @@ void PositionedTrackPiece::Save(Saver &svr)
 	svr.PutWord(this->base_voxel.y);
 	svr.PutWord(this->base_voxel.z);
 	svr.PutLong(this->distance_base);
+	svr.PutLongLong(this->return_cost);
 	svr.EndPattern();
 }
