@@ -1,6 +1,7 @@
 // ATM.
 SHOP {
 	internal_name: "atm";
+	build_cost: 40000;
 	height: 3;
 
 	images: FSET {

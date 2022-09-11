@@ -1,6 +1,7 @@
 // Snack shop.
 SHOP {
 	internal_name: "snack_shop";
+	build_cost: 32000;
 	height: 2;
 
 	images: FSET {

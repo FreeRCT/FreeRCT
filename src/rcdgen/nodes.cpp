@@ -933,14 +933,14 @@ int StringBundle::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-SHOPBlock::SHOPBlock() : GameBlock("SHOP", 7)
+SHOPBlock::SHOPBlock() : GameBlock("SHOP", 8)
 {
 }
 
 int SHOPBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 52 + this->internal_name.size() + 1 - 12);
+	fb->StartSave(this->blk_name, this->version, 56 + this->internal_name.size() + 1 - 12);
 	fb->SaveUInt8(this->height);
 	fb->SaveUInt8(this->flags);
 	fb->SaveUInt32(this->views->Write(fw));
@@ -955,6 +955,7 @@ int SHOPBlock::Write(FileWriter *fw)
 	fb->SaveUInt8(this->item_type[1]);
 	fb->SaveUInt32(this->shop_text->Write(fw));
 	fb->SaveText(this->internal_name);
+	fb->SaveUInt32(this->build_cost);
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }
@@ -1045,14 +1046,14 @@ int RIEEBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-FGTRBlock::FGTRBlock() : GameBlock("FGTR", 5)
+FGTRBlock::FGTRBlock() : GameBlock("FGTR", 6)
 {
 }
 
 int FGTRBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 123 + (this->ride_width_x * this->ride_width_y) + this->internal_name.size() + 1 - 12);
+	fb->StartSave(this->blk_name, this->version, 123 + 4 + (this->ride_width_x * this->ride_width_y) + this->internal_name.size() + 1 - 12);
 	fb->SaveUInt8(this->is_thrill_ride ? 1 : 0);
 	fb->SaveUInt8(this->ride_width_x);
 	fb->SaveUInt8(this->ride_width_y);
@@ -1089,6 +1090,7 @@ int FGTRBlock::Write(FileWriter *fw)
 	fb->SaveUInt32(this->excitement_increase_scenery);
 	fb->SaveUInt32(this->ride_text->Write(fw));
 	fb->SaveText(this->internal_name);
+	fb->SaveUInt32(this->build_cost);
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }

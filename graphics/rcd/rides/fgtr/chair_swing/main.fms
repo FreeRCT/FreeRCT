@@ -2,6 +2,7 @@
 FGTR {
 	internal_name: "chair_swing";
 	category: "thrill";
+	build_cost: 39000;
 	ride_width_x: 3;
 	ride_width_y: 3;
 	height_0_0: 10;

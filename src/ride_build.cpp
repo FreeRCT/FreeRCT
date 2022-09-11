@@ -14,6 +14,7 @@
 #include "gentle_thrill_ride_type.h"
 #include "mouse_mode.h"
 #include "gamecontrol.h"
+#include "finances.h"
 
 #include "gui_sprites.h"
 
@@ -68,7 +69,7 @@ enum RidePlacementResult {
  */
 class RideBuildWindow : public GuiWindow {
 public:
-	RideBuildWindow(RideInstance *instance);
+	RideBuildWindow(FixedRideInstance *instance);
 	~RideBuildWindow();
 
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
@@ -81,7 +82,7 @@ public:
 	RideMouseMode selector; ///< Mouse mode displaying the new ride.
 private:
 	StringID str_titlebar;  ///< String to use for the titlebar of the window.
-	RideInstance *instance; ///< Instance to build, set to \c nullptr after build to prevent deletion of the instance.
+	FixedRideInstance *instance; ///< Instance to build, set to \c nullptr after build to prevent deletion of the instance.
 	TileEdge orientation;   ///< Orientation of the simple ride.
 	BestErrorMessageReason build_forbidden_reason;  ///< Reason why we may not place the instance at the given location, if any.
 
@@ -93,7 +94,7 @@ private:
  * Constructor of the #RideBuildWindow, for 'plopping down' a ride.
  * @param ri Ride to 'plop down'.
  */
-RideBuildWindow::RideBuildWindow(RideInstance *ri)
+RideBuildWindow::RideBuildWindow(FixedRideInstance *ri)
 : GuiWindow(WC_RIDE_BUILD,
   ri->GetIndex()),
   instance(ri),
@@ -116,7 +117,6 @@ RideBuildWindow::RideBuildWindow(RideInstance *ri)
 	}
 
 	this->SetupWidgetTree(_simple_ride_construction_gui_parts, lengthof(_simple_ride_construction_gui_parts));
-	this->selector.cur_cursor = CUR_TYPE_INVALID;
 	this->selector.SetSize(0, 0); // Disable the selector.
 	this->SetSelector(&this->selector);
 }
@@ -136,7 +136,7 @@ void RideBuildWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 
 		case RBW_TYPE_NAME:
 			if (this->instance != nullptr) {
-				const RideType *ride_type = this->instance->GetRideType();
+				const FixedRideType *ride_type = this->instance->GetFixedRideType();
 				_str_params.SetStrID(1, ride_type->GetString(ride_type->GetTypeName()));
 			} else {
 				_str_params.SetText(1, "Unknown");
@@ -144,7 +144,7 @@ void RideBuildWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 			break;
 
 		case RBW_COST:
-			_str_params.SetMoney(1, 0);
+			_str_params.SetMoney(1, (this->selector.area.width < 1 || this->selector.area.height < 1) ? Money(0) : this->instance->ComputeBuildCost());
 			break;
 	}
 }
@@ -155,7 +155,7 @@ void RideBuildWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) co
 		case RBW_DISPLAY_RIDE:
 			if (this->instance == nullptr) return;
 
-			const RideType *ride_type = this->instance->GetRideType();
+			const RideType *ride_type = this->instance->GetFixedRideType();
 			if (ride_type->kind != RTK_SHOP && ride_type->kind != RTK_GENTLE && ride_type->kind != RTK_THRILL) return;
 
 			Point32 pt(this->GetWidgetScreenX(wid) + wid->pos.width / 2, this->GetWidgetScreenY(wid) + wid->pos.height - 40);
@@ -296,10 +296,7 @@ RidePlacementResult RideBuildWindow::ComputeFixedRideVoxel(XYZPoint32 world_pos,
 {
 	this->build_forbidden_reason.Reset();
 	this->build_forbidden_reason.UpdateReason(GUI_ERROR_MESSAGE_BAD_LOCATION);
-	FixedRideInstance *si = static_cast<FixedRideInstance *>(this->instance);
-	assert(si != nullptr);
-	const FixedRideType *st = si->GetFixedRideType();
-	assert(st != nullptr);
+	assert(this->instance != nullptr);
 
 	/* Change of xworld and yworld for every (zworld / 2) change. */
 	const int8 dx = _orientation_signum_dx[vp_orient];
@@ -315,10 +312,11 @@ RidePlacementResult RideBuildWindow::ComputeFixedRideVoxel(XYZPoint32 world_pos,
 	while (vox_pos.z >= 0) {
 		vox_pos.x = world_pos.x / 256;
 		vox_pos.y = world_pos.y / 256;
-		if (IsVoxelstackInsideWorld(vox_pos.x, vox_pos.y) && this->CanPlaceFixedRide(st, vox_pos, this->orientation + vp_orient, vp_orient)) {
+		if (IsVoxelstackInsideWorld(vox_pos.x, vox_pos.y) && this->CanPlaceFixedRide(
+				this->instance->GetFixedRideType(), vox_pos, this->orientation + vp_orient, vp_orient)) {
 			/* Position of the ride the same as previously? */
-			if (si->vox_pos != vox_pos || si->orientation != this->orientation) {
-				si->SetRide((this->orientation + vp_orient) & 3, vox_pos);
+			if (this->instance->vox_pos != vox_pos || this->instance->orientation != this->orientation) {
+				this->instance->SetRide((this->orientation + vp_orient) & 3, vox_pos);
 				return RPR_CHANGED;
 			}
 			return RPR_SAMEPOS;
@@ -349,13 +347,12 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 		case RPR_SAMEPOS:
 		case RPR_CHANGED: {
 			/// \todo Let the ride do this.
-			FixedRideInstance *si = static_cast<FixedRideInstance *>(this->instance);
-			assert(si != nullptr);
+			assert(this->instance != nullptr);
 
-			const FixedRideType* type = si->GetFixedRideType();
+			const FixedRideType* type = this->instance->GetFixedRideType();
 			{
-				XYZPoint16 location = si->vox_pos;
-				XYZPoint16 extent = OrientatedOffset(si->orientation, type->width_x, type->width_y);
+				XYZPoint16 location = this->instance->vox_pos;
+				XYZPoint16 extent = OrientatedOffset(this->instance->orientation, type->width_x, type->width_y);
 				if (extent.x < 0) {
 					location.x += extent.x + 1;
 					extent.x *= -1;
@@ -369,7 +366,7 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 			}
 			for (int8 x = 0; x < type->width_x; ++x) {
 				for (int8 y = 0; y < type->width_y; ++y) {
-					this->selector.AddVoxel(si->vox_pos + OrientatedOffset(si->orientation, x, y));
+					this->selector.AddVoxel(this->instance->vox_pos + OrientatedOffset(this->instance->orientation, x, y));
 				}
 			}
 			this->selector.SetupRideInfoSpace();
@@ -377,8 +374,9 @@ void RideBuildWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 			SmallRideInstance inst_number = static_cast<SmallRideInstance>(this->instance->GetIndex());
 			for (int8 x = 0; x < type->width_x; ++x) {
 				for (int8 y = 0; y < type->width_y; ++y) {
-					const XYZPoint16 pos = si->vox_pos + OrientatedOffset(si->orientation, x, y);
-					this->selector.SetRideData(pos, inst_number, si->GetEntranceDirections(pos));
+					const XYZPoint16 pos = this->instance->vox_pos + OrientatedOffset(this->instance->orientation, x, y);
+					this->selector.SetRideData(pos, inst_number, this->instance->GetEntranceDirections(pos),
+							(x == 0 && y == 0) ? (SPR_GUI_BUILDARROW_START + (4 + this->instance->orientation - vp->orientation) % 4) : -1);
 				}
 			}
 			return;
@@ -396,17 +394,18 @@ void RideBuildWindow::SelectorMouseButtonEvent(MouseButtons state)
 		this->build_forbidden_reason.ShowErrorMessage();
 		return;
 	}
-	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, Money(0))) return;  // \todo Check if we have enough money.
+	const Money build_cost = this->instance->ComputeBuildCost();
+	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, build_cost)) return;
 
-	FixedRideInstance *si = static_cast<FixedRideInstance *>(this->instance);
 	const SmallRideInstance inst_number = static_cast<SmallRideInstance>(this->instance->GetIndex());
-	const RideTypeKind kind = si->GetKind();
+	const RideTypeKind kind = this->instance->GetKind();
 
 	_rides_manager.NewInstanceAdded(inst_number);
-	AddRemovePathEdges(si->vox_pos, PATH_EMPTY, si->GetEntranceDirections(si->vox_pos), PAS_QUEUE_PATH);
+	AddRemovePathEdges(this->instance->vox_pos, PATH_EMPTY, this->instance->GetEntranceDirections(this->instance->vox_pos), PAS_QUEUE_PATH);
+	_finances_manager.PayRideConstruct(build_cost);
+	_window_manager.GetViewport()->AddFloatawayMoneyAmount(build_cost, this->instance->vox_pos);
 
-	this->instance = nullptr; // Delete this window, and
-	si = nullptr; // (Also clean the copy of the pointer.)
+	this->instance = nullptr;  // Delete this window.
 	delete this;
 
 	/* Open GUI for the new ride or shop. */
@@ -426,7 +425,7 @@ void RideBuildWindow::SelectorMouseButtonEvent(MouseButtons state)
  * Open a builder for simple (plop down) rides.
  * @param ri Instance to place.
  */
-void ShowRideBuildGui(RideInstance *ri)
+void ShowRideBuildGui(FixedRideInstance *ri)
 {
 	if (HighlightWindowByType(WC_RIDE_BUILD, ri->GetIndex()) != nullptr) return;
 

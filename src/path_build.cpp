@@ -30,21 +30,23 @@ static void BuildPathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, uin
 	VoxelStack *avs = _world.GetModifyStack(voxel_pos.x, voxel_pos.y);
 
 	Voxel *av = avs->GetCreate(voxel_pos.z, true);
-	const bool is_elevated = (av->GetGroundType() == GTP_INVALID);
-	const Money *cost;
-	if (is_elevated) {
-		cost = (path_spr >= PATH_FLAT_COUNT) ? &PATH_CONSTRUCT_COST_ELEVATED_RAMP : &PATH_CONSTRUCT_COST_ELEVATED_FLAT;
-	} else {
-		cost = (path_spr >= PATH_FLAT_COUNT) ? &PATH_CONSTRUCT_COST_RAMP : &PATH_CONSTRUCT_COST_FLAT;
+	const int ground_height = _world.GetBaseGroundHeight(voxel_pos.x, voxel_pos.y);
+	Money cost = CONSTRUCTION_COST_PATH;
+	assert(voxel_pos.z >= ground_height);  // \todo Allow building underground.
+	if (av->GetGroundType() == GTP_INVALID) {
+		cost += CONSTRUCTION_COST_SUPPORT * (voxel_pos.z - ground_height + 1);
+	} else if (path_spr >= PATH_FLAT_COUNT) {
+		cost += CONSTRUCTION_COST_SUPPORT;
 	}
-	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, *cost)) return;
+
+	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, cost)) return;
 	if (_game_control.action_test_mode) {
-		ShowCostOrReturnEstimate(*cost);
+		ShowCostOrReturnEstimate(cost);
 		return;
 	}
 	if (pay) {
-		_finances_manager.PayRideConstruct(*cost);
-		_window_manager.GetViewport()->AddFloatawayMoneyAmount(*cost, voxel_pos);
+		_finances_manager.PayRideConstruct(cost);
+		_window_manager.GetViewport()->AddFloatawayMoneyAmount(cost, voxel_pos);
 	}
 
 	av->SetInstance(SRI_PATH);
@@ -73,9 +75,9 @@ static void BuildPathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, uin
  */
 static void RemovePathAtTile(const XYZPoint16 &voxel_pos, uint8 path_spr, bool pay)
 {
-	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, PATH_CONSTRUCT_COST_RETURN)) return;
+	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, CONSTRUCTION_COST_PATH_RETURN)) return;
 	if (_game_control.action_test_mode) {
-		ShowCostOrReturnEstimate(PATH_CONSTRUCT_COST_RETURN);
+		ShowCostOrReturnEstimate(CONSTRUCTION_COST_PATH_RETURN);
 		return;
 	}
 
@@ -97,8 +99,8 @@ static void RemovePathAtTile(const XYZPoint16 &voxel_pos, uint8 path_spr, bool p
 	}
 
 	if (pay) {
-		_finances_manager.PayRideConstruct(PATH_CONSTRUCT_COST_RETURN);
-		_window_manager.GetViewport()->AddFloatawayMoneyAmount(PATH_CONSTRUCT_COST_RETURN, voxel_pos);
+		_finances_manager.PayRideConstruct(CONSTRUCTION_COST_PATH_RETURN);
+		_window_manager.GetViewport()->AddFloatawayMoneyAmount(CONSTRUCTION_COST_PATH_RETURN, voxel_pos);
 	}
 }
 
@@ -111,9 +113,9 @@ static void RemovePathAtTile(const XYZPoint16 &voxel_pos, uint8 path_spr, bool p
  */
 static void ChangePathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, uint8 path_spr, bool pay)
 {
-	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, PATH_CONSTRUCT_COST_CHANGE)) return;
+	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, CONSTRUCTION_COST_PATH_CHANGE)) return;
 	if (_game_control.action_test_mode) {
-		ShowCostOrReturnEstimate(PATH_CONSTRUCT_COST_CHANGE);
+		ShowCostOrReturnEstimate(CONSTRUCTION_COST_PATH_CHANGE);
 		return;
 	}
 
@@ -130,8 +132,8 @@ static void ChangePathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, ui
 	av->SetInstanceData(MakePathInstanceData(slope, path_type));
 
 	if (pay) {
-		_finances_manager.PayRideConstruct(PATH_CONSTRUCT_COST_CHANGE);
-		_window_manager.GetViewport()->AddFloatawayMoneyAmount(PATH_CONSTRUCT_COST_CHANGE, voxel_pos);
+		_finances_manager.PayRideConstruct(CONSTRUCTION_COST_PATH_CHANGE);
+		_window_manager.GetViewport()->AddFloatawayMoneyAmount(CONSTRUCTION_COST_PATH_CHANGE, voxel_pos);
 	}
 }
 

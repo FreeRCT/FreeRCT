@@ -54,9 +54,10 @@ public:
 	 * @param voxel_pos Position of the voxel in the world.
 	 * @param [inout] sri Ride instance that should be rendered.
 	 * @param [inout] instance_data Instance data that should be rendered.
+	 * @param [inout] gui_sprite Gui sprite that should be rendered (\c -1 for none).
 	 * @return Whether to highlight returned ride.
 	 */
-	virtual bool GetRide([[maybe_unused]] const Voxel *voxel, [[maybe_unused]] const XYZPoint16 &voxel_pos, [[maybe_unused]] SmallRideInstance *sri, [[maybe_unused]] uint16 *instance_data)
+	virtual bool GetRide([[maybe_unused]] const Voxel *voxel, [[maybe_unused]] const XYZPoint16 &voxel_pos, [[maybe_unused]] SmallRideInstance *sri, [[maybe_unused]] uint16 *instance_data, [[maybe_unused]] int16 *gui_sprite)
 	{
 		return false;
 	}
@@ -160,7 +161,7 @@ struct CursorTileData {
 template <typename TileData>
 class TileDataMouseMode : public MouseModeSelector {
 public:
-	TileDataMouseMode() : MouseModeSelector()
+	TileDataMouseMode() : MouseModeSelector(CUR_TYPE_TILE)
 	{
 	}
 
@@ -238,10 +239,12 @@ public:
 struct VoxelRideData {
 	SmallRideInstance sri; ///< Instance using the voxel.
 	uint16 instance_data;  ///< Data of the instance.
+	int16 gui_sprite;      ///< Gui sprite to render.
 
 	/** Initialization of the voxel ride data. */
 	inline void Setup() {
 		this->sri = SRI_FREE;
+		this->gui_sprite = -1;
 	}
 };
 
@@ -399,7 +402,7 @@ public:
 	{
 	}
 
-	bool GetRide([[maybe_unused]] const Voxel *voxel, const XYZPoint16 &voxel_pos, SmallRideInstance *sri, uint16 *instance_data) override
+	bool GetRide([[maybe_unused]] const Voxel *voxel, const XYZPoint16 &voxel_pos, SmallRideInstance *sri, uint16 *instance_data, int16 *gui_sprite) override
 	{
 		uint32 index = this->GetTileIndex(voxel_pos.x, voxel_pos.y);
 		if (index == INVALID_TILE_INDEX) return false;
@@ -410,6 +413,7 @@ public:
 		const VoxelRideData &vrd = td.ride_info[voxel_pos.z - td.lowest];
 		*sri = vrd.sri;
 		*instance_data = vrd.instance_data;
+		*gui_sprite = vrd.gui_sprite;
 		return true;
 	}
 
@@ -418,14 +422,16 @@ public:
 	 * @param pos World position.
 	 * @param sri Ride instance number.
 	 * @param instance_data Instance data.
+	 * @param gui_sprite Gui sprite.
 	 */
-	void SetRideData(const XYZPoint16 &pos, SmallRideInstance sri, uint16 instance_data)
+	void SetRideData(const XYZPoint16 &pos, SmallRideInstance sri, uint16 instance_data, int16 gui_sprite)
 	{
 		VoxelTileData<VoxelRideData> &td = this->GetTileData(pos);
 		if (!td.cursor_enabled) return;
 		VoxelRideData &vrd = td.ride_info[pos.z - td.lowest];
 		vrd.sri = sri;
 		vrd.instance_data = instance_data;
+		vrd.gui_sprite = gui_sprite;
 	}
 };
 

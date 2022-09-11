@@ -856,6 +856,34 @@ void CoasterInstance::CloseRide()
 	this->RecalculateRatings();
 }
 
+void CoasterInstance::OnNewMonth()
+{
+	RideInstance::OnNewMonth();
+	for (int i = 0; i < this->capacity; ++i) {
+		if (this->pieces[i].piece != nullptr) {
+			this->pieces[i].OnNewMonth();
+		}
+	}
+}
+
+Money CoasterInstance::ComputeReturnCost() const
+{
+	Money m(0);
+	for (int i = 0; i < this->capacity; ++i) {
+		if (this->pieces[i].piece != nullptr) {
+			m += this->pieces[i].return_cost;
+		}
+	}
+	return m;
+}
+
+XYZPoint16 CoasterInstance::RepresentativeLocation() const
+{
+	const int start_piece = GetFirstPlacedTrackPiece();
+	if (start_piece < 0) return XYZPoint16::invalid();
+	return this->pieces[start_piece].base_voxel;
+}
+
 void CoasterInstance::InitializeItemPricesAndStatistics()
 {
 	RideInstance::InitializeItemPricesAndStatistics();
@@ -1262,7 +1290,7 @@ uint16 CoasterInstance::GetInstanceData(const TrackVoxel *tv) const
  */
 void CoasterInstance::PlaceTrackPieceInWorld(const PositionedTrackPiece &placed)
 {
-	assert(placed.CanBePlaced());
+	assert(placed.CanBePlaced() == STR_NULL);
 	SmallRideInstance ride_number = this->GetRideNumber();
 
 	for (const auto& tvx : placed.piece->track_voxels) {

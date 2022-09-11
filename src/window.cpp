@@ -1094,6 +1094,20 @@ void NotifyChange(WindowTypes wtype, WindowNumber wnumber, ChangeCode code, uint
 }
 
 /**
+ * Notify all windows of the change with the specified number.
+ * @param code Unique change number.
+ * @param parameter Parameter of the change number
+ */
+void NotifyChange(ChangeCode code, uint32 parameter)
+{
+	for (Window *w = _window_manager.top; w != nullptr;) {
+		Window *next = w->lower;  // Make a copy in case the window deletes itself.
+		w->OnChange(code, parameter);
+		w = next;
+	}
+}
+
+/**
  * Highlight and raise a window of a given type.
  * @param wtype %Window type to look for.
  * @param wnumber %Window number to look for (use #ALL_WINDOWS_OF_TYPE for any window of type \a wtype).

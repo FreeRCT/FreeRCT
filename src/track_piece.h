@@ -275,11 +275,12 @@ public:
 	PositionedTrackPiece(const XYZPoint16 &vox_pos, ConstTrackPiecePtr piece);
 
 	bool IsOnWorld() const;
-	bool CanBePlaced() const;
+	StringID CanBePlaced() const;
 	bool CanBeSuccessor(const XYZPoint16 &vox, uint8 connect) const;
 	bool CanBeSuccessor(const PositionedTrackPiece &pred) const;
 
 	void RemoveFromWorld(uint16 ride_index);
+	void OnNewMonth();
 
 	/**
 	 * Get the position of the exit voxel.
@@ -293,8 +294,9 @@ public:
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
 
-	XYZPoint16 base_voxel; ///< Position (in voxels) of the entry point of the track piece.
-	uint32 distance_base; ///< Base distance of this track piece in its roller coaster.
+	Money return_cost;      ///< Money returned by removing this ride.
+	XYZPoint16 base_voxel;  ///< Position (in voxels) of the entry point of the track piece.
+	uint32 distance_base;   ///< Base distance of this track piece in its roller coaster.
 
 	ConstTrackPiecePtr piece; ///< Track piece placed at the given position, may be \c nullptr.
 };

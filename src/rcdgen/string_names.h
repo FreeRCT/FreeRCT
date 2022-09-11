@@ -369,6 +369,7 @@ static const char *_gui_string_names[] = {
 	"ENTITY_REMOVE_YES",
 	"ENTITY_REMOVE_NO",
 	"ENTITY_REMOVE_MESSAGE",
+	"ENTITY_REMOVE_COST",
 
 	/* Ride entrance/exit placement buttons. */
 	"PLACE_ENTRANCE",

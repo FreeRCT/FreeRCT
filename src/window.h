@@ -353,8 +353,10 @@ inline void GuiWindow::SetSelector(MouseModeSelector *selector)
 Window *GetWindowByType(WindowTypes wtype, WindowNumber wnumber);
 Window *HighlightWindowByType(WindowTypes wtype, WindowNumber wnumber);
 void NotifyChange(WindowTypes wtype, WindowNumber wnumber, ChangeCode code, uint32 parameter);
+void NotifyChange(ChangeCode code, uint32 parameter);
 
 class RideInstance;
+class FixedRideInstance;
 class CoasterInstance;
 
 void ShowMainMenu();
@@ -379,7 +381,7 @@ void ShowFinancesGui();
 void ShowParkManagementGui(ParkManagementGuiTabs tab);
 void ShowCoasterManagementGui(RideInstance *coaster);
 void ShowCoasterBuildGui(CoasterInstance *coaster);
-void ShowRideBuildGui(RideInstance *instance);
+void ShowRideBuildGui(FixedRideInstance *instance);
 void ShowSettingGui();
 void ShowInboxGui();
 void ShowMinimap();

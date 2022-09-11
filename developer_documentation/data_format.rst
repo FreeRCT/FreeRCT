@@ -1,5 +1,5 @@
 :Author: Alberth
-:Version: 2021-05-03
+:Version: 2022-09-09
 
 .. contents::
    :depth: 3
@@ -571,6 +571,7 @@ Offset  Length  Version  Description
   47       1      4-     Item type of the second item.
   48       4      3-     Text of the shop (reference to a TEXT block).
   52       ?      7-     Characters of the ride's internal name, nul-terminated.
+   ?       4      8-     Ride construction cost.
    ?                     Total length.
 ======  ======  =======  ===================================================================================
 
@@ -606,6 +607,7 @@ Version history
 - 5 (20141010) Added more items.
 - 6 (20210131) Use an FSET block instead of saving the sprites directly.
 - 7 (20220829) Added internal name.
+- 6 (20220909) Added ride construction cost.
 
 
 Frame Sets
@@ -740,6 +742,7 @@ Offset     Length  Version  Description
  115+s      4       4-      Absolute excitement rating increase per nearby scenery item (must be >= 0).
  119+s      4       1-      Text of the ride (reference to a TEXT block).
  123+s      ?       5-      Characters of the ride's internal name, nul-terminated.
+    ?       4       6-      Ride construction cost.
     ?                       Total length.
 =========  ======  =======  ========================================================================================
 
@@ -767,6 +770,7 @@ Version history
 - 3 (20210227) Added minimum and maximum number of working cycles and reliability parameters.
 - 4 (20210317) Added excitement, intensity, nausea parameters.
 - 5 (20220829) Added internal name.
+- 6 (20220909) Added ride construction cost.
 
 
 Scenery items

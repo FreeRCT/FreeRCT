@@ -125,6 +125,8 @@ public:
 	ImageData *nw_se_front;   ///< Foreground sprite for the NW_SE direction.
 };
 
+extern CoasterPlatform _coaster_platforms[];
+
 class CoasterCar;
 class CoasterTrain;
 
@@ -262,6 +264,9 @@ public:
 	bool PathEdgeWanted(const XYZPoint16 &vox, TileEdge edge) const override;
 	const Recolouring *GetRecolours(const XYZPoint16 &pos) const override;
 	void InitializeItemPricesAndStatistics() override;
+	void OnNewMonth() override;
+	XYZPoint16 RepresentativeLocation() const override;
+	Money ComputeReturnCost() const override;
 
 	bool MakePositionedPiecesLooping(bool *modified);
 	int GetFirstPlacedTrackPiece() const;

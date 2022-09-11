@@ -1,5 +1,5 @@
 :Author: The FreeRCT Team
-:Version: 2022-09-03
+:Version: 2022-09-09
 
 .. contents::
    :depth: 3
@@ -626,6 +626,7 @@ FGTR
 Attributes:
 
 - ``internal_name`` - Internal name of the ride.
+- ``build_cost`` - Ride construction cost.
 - ``ride_width_x`` - Number of voxels occupied by this ride in X direction.
 - ``ride_width_y`` - Number of voxels occupied by this ride in Y direction.
 - ``height_X_Y`` - Number of voxels occupied by this ride in Z direction, for each value of X and Y from 0 to the ride's X/Y width minus 1.
@@ -633,8 +634,8 @@ Attributes:
 - ``reliability_max`` - Initial maximum reliability.
 - ``reliability_decrease_daily`` - Daily reliability decrease.
 - ``reliability_decrease_monthly`` - Monthly reliability decrease.
-- ``cost_ownership`` - Monthly base cost of owning a shop of this type.
-- ``cost_opened`` - Additional monthly base cost of owning an open shop of this type.
+- ``cost_ownership`` - Monthly base cost of owning a ride of this type.
+- ``cost_opened`` - Additional monthly base cost of owning an open ride of this type.
 - ``entrance_fee`` - Default entrance fee in cents.
 - ``guests_per_batch`` - Maximum number of guests per guest batch.
 - ``number_of_batches`` - Maximum number of guest batches who can use the ride at the same time.
@@ -1000,6 +1001,7 @@ SHOP
 Attributes:
 
 - ``internal_name`` - Internal name of the shop.
+- ``build_cost`` - Shop construction cost.
 - ``height`` - Height of the shop in voxels.
 - ``flags`` - Bitset of the shop's entrance directions.
 - ``cost_item1`` - Cost of the first sold item in cents.

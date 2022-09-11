@@ -19,6 +19,7 @@
  */
 enum EntityRemoveWidgets {
 	ERW_MESSAGE, ///< Displayed message.
+	ERW_COST,    ///< Removal cost display.
 	ERW_YES,     ///< 'yes' button.
 	ERW_NO,      ///< 'no' button.
 };

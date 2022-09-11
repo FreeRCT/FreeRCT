@@ -18,7 +18,7 @@ RCST {
 		banking: none;
 		slope: 0;
 		bend: 0;
-		cost: 100000;
+		cost: 3500;
 		entry: connection { name: "flat"; direction: ne; }
 		exit:  connection { name: "flat"; direction: ne; }
 		exit_dx: -1; exit_dy: 0; exit_dz: 0;
@@ -55,7 +55,7 @@ RCST {
 		banking: none;
 		slope: 0;
 		bend: 0;
-		cost: 150000;
+		cost: 5500;
 		entry: connection { name: "flat"; direction: ne; }
 		exit:  connection { name: "flat"; direction: ne; }
 		exit_dx: -1; exit_dy: 0; exit_dz: 0;
@@ -91,7 +91,7 @@ RCST {
 		banking: none;
 		slope: 0;
 		bend: -1;
-		cost: 200000;
+		cost: 10000;
 		entry: connection { name: "flat"; direction: ne; }
 		exit:  connection { name: "flat"; direction: nw; }
 		exit_dx: 0; exit_dy: -1; exit_dz: 0;
@@ -120,7 +120,7 @@ RCST {
 		banking: none;
 		slope: 0;
 		bend: 1;
-		cost: 200000;
+		cost: 10000;
 		entry: connection { name: "flat"; direction: ne; }
 		exit:  connection { name: "flat"; direction: se; }
 		exit_dx: 0; exit_dy: 1; exit_dz: 0;
@@ -151,7 +151,7 @@ RCST {
 		banking: none;
 		slope: 1;
 		bend: 0;
-		cost: 200000;
+		cost: 4500;
 		entry: connection { name: "flat";       direction: ne; }
 		exit:  connection { name: "shallow_up"; direction: ne; }
 		exit_dx: -1; exit_dy: 0; exit_dz: 1;
@@ -180,7 +180,7 @@ RCST {
 		banking: none;
 		slope: -1;
 		bend: 0;
-		cost: 200000;
+		cost: 4500;
 		entry: connection { name: "flat";         direction: ne; }
 		exit:  connection { name: "shallow_down"; direction: ne; }
 		exit_dx: -1; exit_dy: 0; exit_dz: -1;
@@ -212,7 +212,7 @@ RCST {
 		banking: none;
 		slope: 1;
 		bend: 0;
-		cost: 200000;
+		cost: 5000;
 		entry: connection { name: "shallow_up"; direction: ne; }
 		exit:  connection { name: "shallow_up"; direction: ne; }
 		exit_dx: -1; exit_dy: 0; exit_dz: 1;
@@ -244,7 +244,7 @@ RCST {
 		banking: none;
 		slope: -1;
 		bend: 0;
-		cost: 200000;
+		cost: 5000;
 		entry: connection { name: "shallow_down"; direction: ne; }
 		exit:  connection { name: "shallow_down"; direction: ne; }
 		exit_dx: -1; exit_dy: 0; exit_dz: -1;
@@ -276,7 +276,7 @@ RCST {
 		banking: none;
 		slope: 0;
 		bend: 0;
-		cost: 200000;
+		cost: 4500;
 		entry: connection { name: "shallow_up"; direction: ne; }
 		exit:  connection { name: "flat";       direction: ne; }
 		exit_dx: -1; exit_dy: 0; exit_dz: 0;
@@ -308,7 +308,7 @@ RCST {
 		banking: none;
 		slope: 0;
 		bend: 0;
-		cost: 200000;
+		cost: 4500;
 		entry: connection { name: "shallow_down"; direction: ne; }
 		exit:  connection { name: "flat";         direction: ne; }
 		exit_dx: -1; exit_dy: 0; exit_dz: 0;
@@ -340,7 +340,7 @@ RCST {
 		slope: 1;
 		bend: 0;
 		speed: 5;
-		cost: 200000;
+		cost: 5000;
 		entry: connection { name: "flat";       direction: ne; }
 		exit:  connection { name: "shallow_up"; direction: ne; }
 		exit_dx: -1; exit_dy: 0; exit_dz: 1;
@@ -370,7 +370,7 @@ RCST {
 		slope: 1;
 		bend: 0;
 		speed: 5;
-		cost: 200000;
+		cost: 5500;
 		entry: connection { name: "shallow_up"; direction: ne; }
 		exit:  connection { name: "shallow_up"; direction: ne; }
 		exit_dx: -1; exit_dy: 0; exit_dz: 1;
@@ -403,7 +403,7 @@ RCST {
 		slope: 0;
 		bend: 0;
 		speed: 5;
-		cost: 200000;
+		cost: 5000;
 		entry: connection { name: "shallow_up"; direction: ne; }
 		exit:  connection { name: "flat";       direction: ne; }
 		exit_dx: -1; exit_dy: 0; exit_dz: 0;

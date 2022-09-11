@@ -15,6 +15,7 @@
 #include "sprite_store.h"
 #include "gentle_thrill_ride_type.h"
 #include "entity_gui.h"
+#include "finances.h"
 #include "mouse_mode.h"
 #include "viewport.h"
 #include "generated/entrance_exit_strings.h"
@@ -43,7 +44,12 @@ GentleThrillRideRemoveWindow::GentleThrillRideRemoveWindow(GentleThrillRideInsta
 void GentleThrillRideRemoveWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)
 {
 	if (number == ERW_YES) {
+		const Money cost = this->si->ComputeReturnCost();
+		_finances_manager.PayRideConstruct(cost);
+		_window_manager.GetViewport()->AddFloatawayMoneyAmount(cost, this->si->RepresentativeLocation());
+
 		delete GetWindowByType(WC_GENTLE_THRILL_RIDE_MANAGER, this->si->GetIndex());
+
 		_rides_manager.DeleteInstance(this->si->GetIndex());
 	}
 	delete this;
@@ -51,7 +57,16 @@ void GentleThrillRideRemoveWindow::OnClick(WidgetNumber number, [[maybe_unused]]
 
 void GentleThrillRideRemoveWindow::SetWidgetStringParameters(WidgetNumber wid_num) const
 {
-	if (wid_num == ERW_MESSAGE) _str_params.SetText(1, this->si->name);
+	switch (wid_num) {
+		case ERW_MESSAGE:
+			_str_params.SetText(1, this->si->name);
+			break;
+		case ERW_COST:
+			_str_params.SetMoney(1, -this->si->ComputeReturnCost());
+			break;
+		default:
+			break;
+	}
 }
 
 /**
@@ -231,7 +246,6 @@ GentleThrillRideManagerWindow::GentleThrillRideManagerWindow(GentleThrillRideIns
 	this->UpdateRecolourButtons();
 
 	SetSelector(nullptr);
-	entrance_exit_placement.cur_cursor = CUR_TYPE_INVALID;
 
 	/* When opening the window of a newly built ride immediately prompt the user to place the entrance or exit. */
 	if (this->ride->entrance_pos == XYZPoint16::invalid()) {
@@ -514,7 +528,7 @@ void GentleThrillRideManagerWindow::SelectorMouseMoveEvent(Viewport *vp, const P
 		entrance_exit_placement.SetSize(1, 1);
 		entrance_exit_placement.AddVoxel(location);
 		entrance_exit_placement.SetupRideInfoSpace();
-		entrance_exit_placement.SetRideData(location, static_cast<SmallRideInstance>(this->ride->GetIndex()), SHF_ENTRANCE_BITS);
+		entrance_exit_placement.SetRideData(location, static_cast<SmallRideInstance>(this->ride->GetIndex()), SHF_ENTRANCE_BITS, -1);
 	} else {
 		if (this->is_placing_entrance) {
 			this->ride->temp_entrance_pos = XYZPoint16::invalid();
