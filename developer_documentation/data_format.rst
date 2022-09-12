@@ -1703,7 +1703,7 @@ in the gui.
 
 Additionally stores all the strings related to the GUI and language meta information.
 
-FreeRCT can read blocks with version 13.
+FreeRCT can read blocks with version 14.
 
 ======  ======  =======  ==================  ================================================================
 Offset  Length  Version  Field name          Description
@@ -1783,8 +1783,13 @@ Offset  Length  Version  Field name          Description
  280       4     10-     toolbar_objects     Toolbar: Path objects GUI button.
  284       4     11-     toolbar_view        Toolbar: View menu GUI button.
  288       4     13-     toolbar_park        Toolbar: Park management GUI button.
- 292       4      2-     texts               Text of the guis (reference to a TEXT block).
- 296                                         Total length.
+ 292       4     14-     speed_0             0× speed icon.
+ 296       4     14-     speed_1             1× speed icon.
+ 300       4     14-     speed_2             2× speed icon.
+ 304       4     14-     speed_4             4× speed icon.
+ 308       4     14-     speed_8             8× speed icon.
+ 312       4      2-     texts               Text of the guis (reference to a TEXT block).
+ 316                                         Total length.
 ======  ======  =======  ==================  ================================================================
 
 Version history
@@ -1803,6 +1808,7 @@ Version history
 - 11 (20210918) Added toolbar view menu button sprite.
 - 12 (20220717) Added loadsave icon sprites.
 - 13 (20220820) Added toolbar park management button sprite.
+- 14 (20220912) Added speed icons.
 
 
 Main menu sprites

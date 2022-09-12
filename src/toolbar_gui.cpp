@@ -35,6 +35,7 @@ public:
 	ToolbarWindow();
 
 	Point32 OnInitialPosition() override;
+	void OnDraw(MouseModeSelector *selector) override;
 	void OnClick(WidgetNumber number, const Point16 &pos) override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
@@ -47,8 +48,12 @@ public:
  */
 enum ToolbarGuiWidgets {
 	TB_DROPDOWN_MAIN,     ///< Main menu dropdown.
-	TB_DROPDOWN_SPEED,    ///< Game speed dropdown.
 	TB_DROPDOWN_VIEW,     ///< View options dropdown.
+	TB_SPEED_0,           ///< Pause game button.
+	TB_SPEED_1,           ///< 1× game speed button.
+	TB_SPEED_2,           ///< 2× game speed button.
+	TB_SPEED_4,           ///< 4× game speed button.
+	TB_SPEED_8,           ///< 8× game speed button.
 	TB_GUI_PATHS,         ///< Build paths button.
 	TB_GUI_RIDE_SELECT,   ///< Select ride button.
 	TB_GUI_FENCE,         ///< Select fence button.
@@ -90,8 +95,16 @@ enum DropdownView {
 static const WidgetPart _toolbar_widgets[] = {
 	Intermediate(1, 0),
 		Widget(WT_IMAGE_DROPDOWN_BUTTON, TB_DROPDOWN_MAIN,   COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_MAIN,  GUI_TOOLBAR_GUI_DROPDOWN_MAIN),
-		Widget(WT_IMAGE_DROPDOWN_BUTTON, TB_DROPDOWN_SPEED,  COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_SPEED, GUI_TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP),
 		Widget(WT_IMAGE_DROPDOWN_BUTTON, TB_DROPDOWN_VIEW,   COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_VIEW,  GUI_TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP),
+		Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetMinimalSize(16, 16),
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN),
+			Intermediate(1, 0),
+				Widget(WT_IMAGE_BUTTON, TB_SPEED_0, COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_SPEED_0, GUI_TOOLBAR_GUI_DROPDOWN_SPEED_PAUSE), SetPadding(8, 0, 8, 8),
+				Widget(WT_IMAGE_BUTTON, TB_SPEED_1, COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_SPEED_1, GUI_TOOLBAR_GUI_DROPDOWN_SPEED_1), SetPadding(8, 0, 8, 0),
+				Widget(WT_IMAGE_BUTTON, TB_SPEED_2, COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_SPEED_2, GUI_TOOLBAR_GUI_DROPDOWN_SPEED_2), SetPadding(8, 0, 8, 0),
+				Widget(WT_IMAGE_BUTTON, TB_SPEED_4, COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_SPEED_4, GUI_TOOLBAR_GUI_DROPDOWN_SPEED_4), SetPadding(8, 0, 8, 0),
+				Widget(WT_IMAGE_BUTTON, TB_SPEED_8, COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_SPEED_8, GUI_TOOLBAR_GUI_DROPDOWN_SPEED_8), SetPadding(8, 8, 8, 0),
+			EndContainer(),
 		Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetMinimalSize(16, 16),
 		Widget(WT_IMAGE_PUSHBUTTON, TB_GUI_TERRAFORM,    COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_TERRAIN, GUI_TOOLBAR_GUI_TOOLTIP_TERRAFORM),
 		Widget(WT_IMAGE_PUSHBUTTON, TB_GUI_PATHS,        COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_PATH,    GUI_TOOLBAR_GUI_TOOLTIP_BUILD_PATHS),
@@ -117,6 +130,17 @@ Point32 ToolbarWindow::OnInitialPosition()
 {
 	static const Point32 pt(10, 0);
 	return pt;
+}
+
+void ToolbarWindow::OnDraw(MouseModeSelector *selector)
+{
+	this->SetWidgetPressed(TB_SPEED_0, _game_control.speed == GSP_PAUSE);
+	this->SetWidgetPressed(TB_SPEED_1, _game_control.speed == GSP_1);
+	this->SetWidgetPressed(TB_SPEED_2, _game_control.speed == GSP_2);
+	this->SetWidgetPressed(TB_SPEED_4, _game_control.speed == GSP_4);
+	this->SetWidgetPressed(TB_SPEED_8, _game_control.speed == GSP_8);
+
+	GuiWindow::OnDraw(selector);
 }
 
 /**
@@ -154,15 +178,6 @@ void ToolbarWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 
 			this->ShowDropdownMenu(number, itemlist, -1);
 			break;
 		}
-		case TB_DROPDOWN_SPEED: {
-			DropdownList itemlist;
-			for (int i = 0; i < GSP_COUNT; i++) {
-				_str_params.SetStrID(1, GUI_TOOLBAR_GUI_DROPDOWN_SPEED_PAUSE + i);
-				itemlist.push_back(DropdownItem(STR_ARG1));
-			}
-			this->ShowDropdownMenu(number, itemlist, _game_control.speed);
-			break;
-		}
 		case TB_DROPDOWN_VIEW: {
 			DropdownList itemlist;
 			/* Keep the order consistent with the DropdownView ordering! */
@@ -175,6 +190,22 @@ void ToolbarWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 
 			this->ShowDropdownMenu(number, itemlist, -1);
 			break;
 		}
+
+		case TB_SPEED_0:
+			_game_control.speed = GSP_PAUSE;
+			break;
+		case TB_SPEED_1:
+			_game_control.speed = GSP_1;
+			break;
+		case TB_SPEED_2:
+			_game_control.speed = GSP_2;
+			break;
+		case TB_SPEED_4:
+			_game_control.speed = GSP_4;
+			break;
+		case TB_SPEED_8:
+			_game_control.speed = GSP_8;
+			break;
 
 		case TB_GUI_PATHS:
 			ShowPathBuildGui();
@@ -243,9 +274,6 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 							break;
 						default: NOT_REACHED();
 					}
-					break;
-				case TB_DROPDOWN_SPEED:
-					_game_control.speed = static_cast<GameSpeed>(entry);
 					break;
 				case TB_DROPDOWN_VIEW:
 					switch (entry) {

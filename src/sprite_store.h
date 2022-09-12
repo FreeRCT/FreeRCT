@@ -533,6 +533,12 @@ struct GuiSprites {
 	ImageData *loadsave_warn;               ///< Loadsave icon for files with warnings.
 	ImageData *loadsave_ok;                 ///< Loadsave icon for files without warnings or errors.
 
+	ImageData *speed_0;  ///< 0× speed icon.
+	ImageData *speed_1;  ///< 1× speed icon.
+	ImageData *speed_2;  ///< 2× speed icon.
+	ImageData *speed_4;  ///< 4× speed icon.
+	ImageData *speed_8;  ///< 8× speed icon.
+
 	ImageData *toolbar_images[SPR_GUI_TOOLBAR_END - SPR_GUI_TOOLBAR_BEGIN];  ///< Toolbar button sprites.
 
 	ImageData *mainmenu_logo;               ///< Main menu: FreeeRCT logo.
