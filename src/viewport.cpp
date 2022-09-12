@@ -792,7 +792,9 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 	if (voxel == nullptr) return; // Ignore cursors, they are not clickable.
 
 	SmallRideInstance number = voxel->GetInstance();
-	if ((this->allowed & CS_RIDE) != 0 && number >= SRI_FULL_RIDES) {
+	if (((this->allowed & CS_RIDE) != 0 && number >= SRI_FULL_RIDES) ||
+			((this->allowed & CS_PARK_BORDER) != 0 && number == SRI_SCENERY && voxel->instance_data != INVALID_VOXEL_DATA &&
+			_scenery.GetType(voxel->instance_data)->category == SCC_SCENARIO)) {
 		/* Looking for a ride? */
 		DrawData dd[4];
 		int count = DrawRideOrScenery(slice, voxel_pos, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth),
@@ -810,6 +812,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 				}
 			}
 		}
+		if (this->found && number == SRI_SCENERY) this->data.order = SO_FENCE_FRONT;  // Treat as park entrance rather than ride.
 	} else if ((this->allowed & CS_PATH) != 0 && HasValidPath(voxel)) {
 		/* Looking for a path? */
 		uint16 instance_data = voxel->GetInstanceData();
@@ -839,7 +842,25 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 				this->pixel = pixel;
 			}
 		}
-	} else if ((this->allowed & CS_PERSON) != 0) {
+	} else if ((this->allowed & CS_PARK_BORDER) != 0) {
+		for (TileEdge t = EDGE_BEGIN; t < EDGE_COUNT; t++) {
+			if (GetFenceType(voxel->GetFences(), t) != FENCE_TYPE_LAND_BORDER) continue;
+
+			const ImageData *img = this->sprites->GetFenceSprite(FENCE_TYPE_LAND_BORDER, t, voxel->GetGroundSlope(), this->orient);
+			if (img != nullptr) {
+				DrawData dd;
+				dd.Set(slice, voxel_pos.z, SO_FENCE_BACK, nullptr, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth));
+				uint32 pixel = img->GetPixel(dd.base.x - img->xoffset, dd.base.y - img->yoffset);
+				if (GetA(pixel) != TRANSPARENT && (!this->found || this->data < dd)) {
+					this->found = true;
+					this->data = dd;
+					this->pixel = pixel;
+					break;
+				}
+			}
+		}
+	}
+	if ((this->allowed & CS_PERSON) != 0) {
 		/* Looking for persons? */
 		const VoxelObject *vo = voxel->voxel_objects;
 		while (vo != nullptr) {
@@ -1321,7 +1342,7 @@ WmMouseEvent Viewport::OnMouseButtonEvent(MouseButtons state, WmMouseEventMode m
 	}
 
 	/* Did the user click on something that has a window? */
-	FinderData fdata(CS_RIDE | CS_PERSON, FW_TILE);
+	FinderData fdata(CS_RIDE | CS_PERSON | CS_PARK_BORDER, FW_TILE);
 	switch (this->ComputeCursorPosition(&fdata)) {
 		case CS_RIDE:
 			if (ShowRideManagementGui(fdata.ride)) return WMME_NONE;
@@ -1329,6 +1350,10 @@ WmMouseEvent Viewport::OnMouseButtonEvent(MouseButtons state, WmMouseEventMode m
 
 		case CS_PERSON:
 			ShowPersonInfoGui(fdata.person);
+			return WMME_NONE;
+
+		case CS_PARK_BORDER:
+			ShowParkManagementGui(PARK_MANAGEMENT_TAB_GENERAL);
 			return WMME_NONE;
 
 		default: break;

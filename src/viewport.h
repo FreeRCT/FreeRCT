@@ -36,9 +36,10 @@ enum ClickableSprite {
 	CS_PATH   = 1 << 2, ///< %Path sprite.
 	CS_RIDE   = 1 << 3, ///< Ride sprite.
 	CS_PERSON = 1 << 4, ///< %Person sprite.
+	CS_PARK_BORDER = 1 << 5, ///< Border %Fence or park entrance sprite.
 
 	CS_LENGTH = 8,      ///< Bitlength of the enum.
-	CS_MASK = 0x1f,     ///< Used for converting between this and #SpriteOrder.
+	CS_MASK = 0x3f,     ///< Used for converting between this and #SpriteOrder.
 };
 DECLARE_ENUM_AS_BIT_SET(ClickableSprite)
 
@@ -53,7 +54,7 @@ enum SpriteOrder {
 	SO_FOUNDATION      = ( 1 << CS_LENGTH),             ///< Draw foundation sprites.
 	SO_GROUND          = ( 2 << CS_LENGTH) | CS_GROUND, ///< Draw ground sprites.
 	SO_GROUND_EDGE     = ( 3 << CS_LENGTH) | CS_GROUND_EDGE, ///< Used for ground edge detection.
-	SO_FENCE_BACK      = ( 4 << CS_LENGTH),             ///< Draw fence on the back edges
+	SO_FENCE_BACK      = ( 4 << CS_LENGTH) | CS_PARK_BORDER, ///< Draw fence on the back edges.
 	SO_SUPPORT         = ( 5 << CS_LENGTH),             ///< Draw support sprites.
 	SO_PLATFORM        = ( 6 << CS_LENGTH) | CS_RIDE,   ///< Draw platform sprites.
 	SO_PATH            = ( 7 << CS_LENGTH) | CS_PATH,   ///< Draw path sprites.
@@ -65,7 +66,7 @@ enum SpriteOrder {
 	SO_PLATFORM_FRONT  = (13 << CS_LENGTH) | CS_RIDE,   ///< Front of platform.
 	SO_PERSON          = (14 << CS_LENGTH) | CS_PERSON, ///< Draw person sprites.
 	SO_PERSON_OVERLAY  = (15 << CS_LENGTH) | CS_PERSON, ///< Draw overlays over person sprites.
-	SO_FENCE_FRONT     = (16 << CS_LENGTH),             ///< Draw fence on the front edges.
+	SO_FENCE_FRONT     = (16 << CS_LENGTH) | CS_PARK_BORDER,  ///< Draw fence on the front edges.
 	SO_CURSOR          = (17 << CS_LENGTH),             ///< Draw cursor sprites.
 };
 
