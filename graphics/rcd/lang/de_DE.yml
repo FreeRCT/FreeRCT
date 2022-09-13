@@ -48,8 +48,6 @@ strings:
 
 		DECREASE_BUTTON:          "-"
 		INCREASE_BUTTON:          "+"
-		DROPDOWN_CHECKED:         "☑ %1%"
-		DROPDOWN_UNCHECKED:       "☐ %1%"
 
 		# Toolbar gui strings.
 		TOOLBAR_GUI_DROPDOWN_MAIN:          "Menü"
@@ -71,6 +69,16 @@ strings:
 		TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP:     "Ansichtseinstellungen"
 		TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: "Untergrundsicht"
 		TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP:     "Übersichtskarte"
+		TOOLBAR_GUI_DROPDOWN_VIEW_UNDERWATER:          "Unterwassersicht"
+		TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_RIDES:          "Drahtmodelle Attraktionen"
+		TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_SCENERY:        "Drahtmodelle Landschaft"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_PEOPLE:         "Personen ausblenden"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SUPPORTS:       "Stützen ausblenden"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SURFACES:       "Horizontale Flächen ausblenden"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_FOUNDATIONS:    "Vertikale Verschalung ausblenden"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_RIDES:        "Höhenmarken auf Attraktionen"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_PATHS:        "Höhenmarken auf Wegen"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_TERRAIN:      "Höhenmarken auf der Landschaft"
 
 		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spielen"
 		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Editor"

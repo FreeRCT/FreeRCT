@@ -148,6 +148,16 @@ public:
 	bool draw_fps;               ///< Whether to draw an FPS counter.
 	bool additions_enabled;      ///< Flashing of world additions is enabled.
 	bool underground_mode;       ///< Whether underground mode is displayed in this viewport.
+	bool underwater_mode;        ///< Whether underwater mode is displayed in this viewport.
+	bool wireframe_rides;         ///< Draw rides as wireframes.
+	bool wireframe_scenery;       ///< Draw scenery items as wireframes.
+	bool hide_people;             ///< Do not draw people.
+	bool hide_supports;           ///< Do not draw supports.
+	bool hide_surfaces;           ///< Do not draw terrain surfaces.
+	bool hide_foundations;        ///< Do not draw vertical foundations.
+	bool height_markers_rides;    ///< Draw height markers on rides.
+	bool height_markers_paths;    ///< Draw height markers on paths.
+	bool height_markers_terrain;  ///< Draw height markers on the terrain.
 	std::vector<FloatawayText> floataway_texts;  ///< Currently active floataway texts.
 
 protected:

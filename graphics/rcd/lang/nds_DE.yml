@@ -48,8 +48,6 @@ strings:
 
 		DECREASE_BUTTON:          "-"
 		INCREASE_BUTTON:          "+"
-		DROPDOWN_CHECKED:         "☑ %1%"
-		DROPDOWN_UNCHECKED:       "☐ %1%"
 
 		# Toolbar gui strings.
 		TOOLBAR_GUI_DROPDOWN_MAIN:          "Menü"
@@ -71,6 +69,16 @@ strings:
 		TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP:     "Ankiekens-Instellens"
 		TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: "Unner de Eer kieken"
 		TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP:     "Lütt Kaart"
+		TOOLBAR_GUI_DROPDOWN_VIEW_UNDERWATER:       "Unner Water kieken"
+		TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_RIDES:       "Drahdmodellen Buden"
+		TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_SCENERY:     "Drahdmodellen Landskupp"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_PEOPLE:      "Lüü verbargen"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SUPPORTS:    "Stütten verbargen"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SURFACES:    "Horizontaal Bovensieden verbargen"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_FOUNDATIONS: "Vertikaal Verschalen verbargen"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_RIDES:     "Höchtenwiesers up Buden"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_PATHS:     "Höchtenwiesers up Wegen"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_TERRAIN:   "Höchtenwiesers up de Landskupp"
 
 		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spölen"
 		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Bewarker"

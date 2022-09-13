@@ -24,12 +24,21 @@ class Person;
 class Message;
 class MouseModeSelector;
 
+/** Information about a dropdown item. */
+enum DropdownItemFlags {
+	DDIF_NONE = 0,        ///< Nothing special about this item.
+	DDIF_SELECTABLE = 1,  ///< The item can be selected like a checkbox.
+	DDIF_SELECTED = 2,    ///< The item is currently selected. Only valid in combination with #DDIF_SELECTABLE.
+};
+DECLARE_ENUM_AS_BIT_SET(DropdownItemFlags)
+
 /** An item in a dropdown list. */
 class DropdownItem {
 public:
-	explicit DropdownItem(StringID strid);
+	explicit DropdownItem(StringID strid, DropdownItemFlags flags = DDIF_NONE);
 
-	const std::string str;  ///< Item, as a string.
+	const std::string str;    ///< Item, as a string.
+	DropdownItemFlags flags;  ///< Properties of the item.
 };
 
 /** A dropdown list is a collection of #DropdownItem items. */

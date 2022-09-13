@@ -11,13 +11,15 @@
 #include "window.h"
 #include "palette.h"
 #include "bitmath.h"
+#include "sprite_store.h"
 
 /**
  * Defines a Dropdown menu item.
  * @param strid StringID to store.
+ * @param flags Properties if this item.
  * @pre String parameters must be set for this string.
  */
-DropdownItem::DropdownItem(StringID strid) : str(DrawText(strid))
+DropdownItem::DropdownItem(StringID strid, DropdownItemFlags flags) : str(DrawText(strid)), flags(flags)
 {
 }
 
@@ -39,6 +41,7 @@ public:
 	DropdownList items;      ///< List of strings to display.
 	Rectangle16 size;        ///< Size of the window.
 	int selected_index;      ///< Currently selected item in list.
+	bool has_selectable;     ///< The dropdown contains at least one selectable item.
 
 private:
 	void SetDropdownSize(const Point16 &pos, uint16 min_width);
@@ -68,9 +71,23 @@ static const WidgetPart _dropdown_widgets[] = {
  * @param initial_select Item in list that is selected initially.
  * @param colour Colour of the window.
  */
-DropdownMenuWindow::DropdownMenuWindow(WindowTypes parent_type, WindowNumber parent_num, int parent_btn, const DropdownList &items, const Point16 &pos, uint16 min_width, int initial_select, ColourRange colour)
-		: GuiWindow(WC_DROPDOWN, ALL_WINDOWS_OF_TYPE), parent_type(parent_type), parent_num(parent_num), parent_btn(parent_btn), items(items), selected_index(initial_select)
+DropdownMenuWindow::DropdownMenuWindow(WindowTypes parent_type, WindowNumber parent_num, int parent_btn, const DropdownList &items,
+		const Point16 &pos, uint16 min_width, int initial_select, ColourRange colour)
+	: GuiWindow(WC_DROPDOWN, ALL_WINDOWS_OF_TYPE),
+		parent_type(parent_type),
+		parent_num(parent_num),
+		parent_btn(parent_btn),
+		items(items),
+		selected_index(initial_select),
+		has_selectable(false)
 {
+	for (const DropdownItem &item : this->items) {
+		if ((item.flags & DDIF_SELECTABLE) != 0) {
+			this->has_selectable = true;
+			break;
+		}
+	}
+
 	this->SetDropdownSize(pos, min_width);
 	this->SetupWidgetTree(_dropdown_widgets, lengthof(_dropdown_widgets));
 
@@ -87,10 +104,11 @@ void DropdownMenuWindow::SetDropdownSize(const Point16 &pos, uint16 min_width)
 {
 	this->size = {pos.x, pos.y, min_width, 0};
 	int max_width = this->size.width;
-	for (auto const &item : items) {
+	int add_w = (this->has_selectable ? _gui_sprites.checkbox.width + 4 : 0) + 2;
+	for (const DropdownItem &item : items) {
 		int w, unused;
 		_video.GetTextSize(item.str, &w, &unused);
-		max_width = std::max(max_width, w + 2);
+		max_width = std::max(max_width, w + add_w);
 		this->size.height += GetTextHeight();
 	}
 	this->size.width = max_width;
@@ -102,7 +120,8 @@ void DropdownMenuWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid)
 
 	int y = this->rect.base.y; // wid->pos is relative to the window
 	int it = 0;
-	for (auto const &item : this->items) {
+	int add_w = (this->has_selectable ? _gui_sprites.checkbox.width + 4 : 0);
+	for (const DropdownItem &item : this->items) {
 		const Rectangle32 r(this->rect.base.x, y, static_cast<uint>(wid->pos.width - 1), static_cast<uint>(GetTextHeight()));
 		uint32 highlight = 0;
 		if (it == this->selected_index) {
@@ -118,7 +137,10 @@ void DropdownMenuWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid)
 			_video.FillRectangle(r, _palette[GetColourRangeBase(static_cast<const LeafWidget*>(wid)->colour) + highlight]);
 		}
 
-		_video.BlitText(item.str, MakeRGBA(255, 255, 255, OPAQUE), this->rect.base.x, y, wid->pos.width);
+		_video.BlitText(item.str, MakeRGBA(255, 255, 255, OPAQUE), this->rect.base.x + add_w, y, wid->pos.width);
+		if ((item.flags & DDIF_SELECTABLE) != 0) {
+			_video.BlitImage(Point32(this->rect.base.x, y), _gui_sprites.checkbox.sprites[(item.flags & DDIF_SELECTED) != 0 ? WCS_CHECKED : WCS_EMPTY]);
+		}
 
 		y += GetTextHeight();
 		it++;

@@ -47,8 +47,6 @@ strings:
 
 		DECREASE_BUTTON:          "-"
 		INCREASE_BUTTON:          "+"
-		DROPDOWN_CHECKED:         "☑ %1%"
-		DROPDOWN_UNCHECKED:       "☐ %1%"
 
 		# Toolbar gui strings.
 		TOOLBAR_GUI_DROPDOWN_MAIN:          "Menu"
@@ -70,6 +68,16 @@ strings:
 		TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP:     "Viewport options"
 		TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: "Underground view"
 		TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP:     "Minimap"
+		TOOLBAR_GUI_DROPDOWN_VIEW_UNDERWATER:       "Underwater view"
+		TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_RIDES:       "Wireframe rides"
+		TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_SCENERY:     "Wireframe scenery"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_PEOPLE:      "Hide people"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SUPPORTS:    "Hide supports"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SURFACES:    "Hide horizontal surfaces"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_FOUNDATIONS: "Hide vertical foundations"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_RIDES:     "Show height markers on rides"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_PATHS:     "Show height markers on paths"
+		TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_TERRAIN:   "Show height markers on terrain"
 
 		TOOLBAR_GUI_GAME_MODE_PLAY:       "Play"
 		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Editor"

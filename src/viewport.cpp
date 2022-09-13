@@ -141,6 +141,7 @@ public:
 	Viewport *vp;                 ///< Parent viewport for accessing the cursors if not \c nullptr.
 	MouseModeSelector *selector;  ///< Mouse mode selector.
 	bool underground_mode;        ///< Whether to draw underground mode sprites (else draw normal surface sprites).
+	bool underwater_mode;         ///< Whether to draw underwater mode sprites (else draw normal water sprites).
 
 	Rectangle32 rect; ///< Screen area of interest.
 
@@ -281,6 +282,7 @@ VoxelCollector::VoxelCollector(Viewport *vp)
 	this->tile_height = vp->tile_height;
 	this->orient = vp->orientation;
 	this->underground_mode = vp->underground_mode;
+	this->underwater_mode = vp->underwater_mode;
 
 	this->sprites = _sprite_manager.GetSprites(this->tile_width);
 	assert(this->sprites != nullptr);
@@ -913,7 +915,17 @@ Viewport::Viewport(const XYZPoint32 &init_view_pos) : Window(WC_MAINDISPLAY, ALL
 #else
 	draw_fps(false),
 #endif
-	underground_mode(false)
+	underground_mode(false),
+	underwater_mode(false),
+	wireframe_rides(false),
+	wireframe_scenery(false),
+	hide_people(false),
+	hide_supports(false),
+	hide_surfaces(false),
+	hide_foundations(false),
+	height_markers_rides(false),
+	height_markers_paths(false),
+	height_markers_terrain(false)
 {
 	uint16 width  = _video.Width();
 	uint16 height = _video.Height();
