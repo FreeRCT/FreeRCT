@@ -182,6 +182,7 @@ enum GradientShift {
 
 	GS_COUNT,          ///< Number of gradient shifts.
 	GS_SEMI_TRANSPARENT = GS_COUNT, ///< Semi-transparent for buying rides.
+	GS_WIREFRAME,                   ///< Dark, transparent wireframe view to make rides and scenery almost but not quite invisible.
 
 	GS_INVALID = 0xff, ///< Invalid gradient shift.
 };
@@ -192,6 +193,7 @@ enum Opacities {
 	OPAQUE = 255,    ///< Opacity value of a fully opaque pixel.
 
 	OPACITY_SEMI_TRANSPARENT = 100, ///< Opacity of the semi-transparent white colour while buying a ride.
+	OPACITY_WIREFRAME        =  20, ///< Opacity of wireframe models of rides and scenery.
 };
 
 static const int STEP_SIZE = 18; ///< Amount of colour shift for each gradient step.
@@ -298,6 +300,46 @@ static inline uint8 ShiftGradientTransparent([[maybe_unused]] uint8 col)
 }
 
 /**
+ * Gradient shift function for #GS_WIREFRAME.
+ * @param col Input colour.
+ * @return Result colour.
+ */
+static inline uint8 ShiftGradientWireframe(uint8 col)
+{
+	return ShiftGradientNight(col);
+}
+
+/**
+ * No-op opacity shift function.
+ * @param col Input opacity.
+ * @return Result opacity.
+ */
+static inline uint8 ShiftAlphaDefault(uint8 a)
+{
+	return a;
+}
+
+/**
+ * Opacity shift function for #GS_SEMI_TRANSPARENT.
+ * @param col Input opacity.
+ * @return Result opacity.
+ */
+static inline uint8 ShiftAlphaTransparent(uint8 a)
+{
+	return a * OPACITY_SEMI_TRANSPARENT / 255;
+}
+
+/**
+ * Opacity shift function for #GS_WIREFRAME.
+ * @param col Input opacity.
+ * @return Result opacity.
+ */
+static inline uint8 ShiftAlphaWireframe(uint8 a)
+{
+	return a * OPACITY_WIREFRAME / 255;
+}
+
+/**
  * Select gradient shift function based on the \a shift.
  * @param shift Desired amount of gradient shift.
  * @return Recolour function implementing the shift.
@@ -315,6 +357,31 @@ static inline ShiftFunc GetGradientShiftFunc(GradientShift shift)
 		case GS_VERY_LIGHT:     return ShiftGradientVeryLight;
 		case GS_DAY:            return ShiftGradientDay;
 		case GS_SEMI_TRANSPARENT: return ShiftGradientTransparent;
+		case GS_WIREFRAME       : return ShiftGradientWireframe;
+		default: NOT_REACHED();
+	}
+}
+
+/**
+ * Select opacity shift function based on the \a shift.
+ * @param shift Desired amount of gradient shift.
+ * @return Recolour function implementing the shift.
+ */
+static inline ShiftFunc GetAlphaShiftFunc(GradientShift shift)
+{
+	switch (shift) {
+		case GS_NIGHT:
+		case GS_VERY_DARK:
+		case GS_DARK:
+		case GS_SLIGHTLY_DARK:
+		case GS_NORMAL:
+		case GS_SLIGHTLY_LIGHT:
+		case GS_LIGHT:
+		case GS_VERY_LIGHT:
+		case GS_DAY:
+			return ShiftAlphaDefault;
+		case GS_SEMI_TRANSPARENT: return ShiftAlphaTransparent;
+		case GS_WIREFRAME       : return ShiftAlphaWireframe;
 		default: NOT_REACHED();
 	}
 }

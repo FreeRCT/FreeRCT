@@ -180,9 +180,10 @@ struct DrawData {
 	 * @param sprite Mouse cursor to draw.
 	 * @param base Base coordinate of the image, relative to top-left of the window.
 	 * @param recolour Recolouring of the sprite.
-	 * @param highlight Highlight the sprite.
+	 * @param gs Gradient shift of the sprite.
 	 */
-	inline void Set(int32 level, uint16 z_height, SpriteOrder order, const ImageData *sprite, const Point32 &base, const Recolouring *recolour = nullptr, bool highlight = false)
+	inline void Set(int32 level, uint16 z_height, SpriteOrder order, const ImageData *sprite, const Point32 &base,
+			const Recolouring *recolour = nullptr, GradientShift gs = GS_INVALID)
 	{
 		this->level = level;
 		this->z_height = z_height;
@@ -190,7 +191,7 @@ struct DrawData {
 		this->sprite = sprite;
 		this->base = base;
 		this->recolour = recolour;
-		this->highlight = highlight;
+		this->gs = gs;
 	}
 
 	int32 level;                 ///< Slice of this sprite (vertical row).
@@ -199,7 +200,7 @@ struct DrawData {
 	const ImageData *sprite;     ///< Mouse cursor to draw.
 	Point32 base;                ///< Base coordinate of the image, relative to top-left of the window.
 	const Recolouring *recolour; ///< Recolouring of the sprite.
-	bool highlight;              ///< Highlight the sprite (semi-transparent white).
+	GradientShift gs;            ///< Gradient shift of the sprite.
 };
 
 /**
@@ -513,7 +514,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 
 		DrawData dd;
 		dd.Set(slice, voxel_pos.z, SO_PATH, this->sprites->GetPathSprite(GetPathType(instance_data), GetImplodedPathSlope(instance_data), this->orient),
-				north_point, nullptr, highlight);
+				north_point, nullptr, highlight ? GS_SEMI_TRANSPARENT : GS_INVALID);
 		this->draw_images.insert(dd);
 
 		for (const PathObjectInstance::PathObjectSprite &image : _scenery.DrawPathObjects(voxel_pos, this->orient)) {
@@ -522,14 +523,19 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			Point32 pos(north_point.x + this->north_offsets[this->orient].x + x_off,
 			            north_point.y + this->north_offsets[this->orient].y + y_off);
 
-			dd.Set(slice, voxel_pos.z, SO_PATH_OBJECTS, image.sprite, pos, nullptr, image.semi_transparent);
+			dd.Set(slice, voxel_pos.z, SO_PATH_OBJECTS, image.sprite, pos, nullptr,
+					image.semi_transparent ? GS_SEMI_TRANSPARENT : this->vp->wireframe_scenery ? GS_WIREFRAME : GS_INVALID);
 			this->draw_images.insert(dd);
 		}
 	} else if (sri >= SRI_FULL_RIDES || sri == SRI_SCENERY) { // A normal ride, or a scenery item.
 		DrawData dd[4];
 		int count = DrawRideOrScenery(slice, voxel_pos, north_point, this->orient, sri, instance_data, dd, &platform_shape);
 		for (int i = 0; i < count; i++) {
-			dd[i].highlight = highlight;
+			if (highlight) {
+				dd[i].gs = GS_SEMI_TRANSPARENT;
+			} else if ((this->vp->wireframe_rides && sri >= SRI_FULL_RIDES) || (this->vp->wireframe_scenery && sri == SRI_SCENERY)) {
+				dd[i].gs = GS_WIREFRAME;
+			}
 			this->draw_images.insert(dd[i]);
 		}
 	}
@@ -540,7 +546,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	}
 
 	/* Foundations. */
-	if (voxel != nullptr && voxel->GetFoundationType() != FDT_INVALID) {
+	if (voxel != nullptr && voxel->GetFoundationType() != FDT_INVALID && !this->vp->hide_foundations) {
 		uint8 fslope = voxel->GetFoundationSlope();
 		uint8 sw, se; // SW foundations, SE foundations.
 		switch (this->orient) {
@@ -571,7 +577,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 
 	/* Ground surface. */
 	uint8 gslope = SL_FLAT;
-	if (voxel != nullptr && voxel->GetGroundType() != GTP_INVALID) {
+	if (voxel != nullptr && voxel->GetGroundType() != GTP_INVALID && !this->vp->hide_surfaces) {
 		uint8 slope = voxel->GetGroundSlope();
 		uint8 type = (this->underground_mode) ? GTP_UNDERGROUND : voxel->GetGroundType();
 		DrawData dd;
@@ -618,7 +624,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 				dd.Set(slice, voxel_pos.z, IsBackEdge(this->orient, edge) ? SO_FENCE_BACK : SO_FENCE_FRONT,
 						this->sprites->GetFenceSprite(fence_type, edge, gslope, this->orient), north_point);
 				if (IsImplodedSteepSlope(gslope) && !IsImplodedSteepSlopeTop(gslope)) dd.z_height++;
-				if (GB(fences, 16 + edge, 1) != 0) dd.highlight = true;
+				if (GB(fences, 16 + edge, 1) != 0) dd.gs = GS_SEMI_TRANSPARENT;
 				this->draw_images.insert(dd);
 			}
 		}
@@ -639,7 +645,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	}
 
 	/* Add platforms. */
-	if (platform_shape != PATH_INVALID) {
+	if (platform_shape != PATH_INVALID && !this->vp->hide_supports) {
 		/* Platform gets automatically added when drawing a path or ride, without drawing ground. */
 		ImageData *pl_spr;
 		switch (platform_shape) {
@@ -699,7 +705,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	while (vo != nullptr) {
 		const Recolouring *recolour;
 		const ImageData *anim_spr = vo->GetSprite(this->sprites, this->orient, &recolour);
-		if (anim_spr != nullptr) {
+		if (anim_spr != nullptr && (!this->vp->hide_people || dynamic_cast<const Person*>(vo) == nullptr)) {
 			int x_off = ComputeX(vo->pix_pos.x, vo->pix_pos.y);
 			int y_off = ComputeY(vo->pix_pos.x, vo->pix_pos.y, vo->pix_pos.z);
 			Point32 pos(north_point.x + this->north_offsets[this->orient].x + x_off,
@@ -862,7 +868,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 			}
 		}
 	}
-	if ((this->allowed & CS_PERSON) != 0) {
+	if ((this->allowed & CS_PERSON) != 0 && !this->vp->hide_people) {
 		/* Looking for persons? */
 		const VoxelObject *vo = voxel->voxel_objects;
 		while (vo != nullptr) {
@@ -1040,7 +1046,7 @@ void Viewport::OnDraw(MouseModeSelector *selector)
 	for (const auto &iter : collector.draw_images) {
 		const DrawData &dd = iter;
 		const Recolouring &rec = (dd.recolour == nullptr) ? _no_recolour : *dd.recolour;
-		_video.BlitImage(dd.base, dd.sprite, rec, dd.highlight ? GS_SEMI_TRANSPARENT : gs);
+		_video.BlitImage(dd.base, dd.sprite, rec, dd.gs != GS_INVALID ? dd.gs : gs);
 	}
 
 	for (uint i = 0; i < this->floataway_texts.size();) {

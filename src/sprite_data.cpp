@@ -272,14 +272,15 @@ uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *re
 	const uint8 *rgba_base = &this->rgba[4 * (yoffset * this->width + xoffset)];
 	const uint8 *recol_base = &this->recol[2 * (yoffset * this->width + xoffset)];
 	ShiftFunc sf = GetGradientShiftFunc(shift);
+	ShiftFunc af = GetAlphaShiftFunc(shift);
 
 	if (recol_base == nullptr || recolour == nullptr || recol_base[0] == 0) {
 		/* No recolouring, */
-		return sf(rgba_base[0] << 24) | sf(rgba_base[1] << 16) | sf(rgba_base[2] << 8) | sf(rgba_base[3]);
+		return sf(rgba_base[0] << 24) | sf(rgba_base[1] << 16) | sf(rgba_base[2] << 8) | af(rgba_base[3]);
 	}
 
 	const uint32 recoloured = recolour->GetRecolourTable(recol_base[0] - 1)[recol_base[1]];
-	return MakeRGBA(sf(GetR(recoloured)), sf(GetG(recoloured)), sf(GetB(recoloured)), rgba_base[3]);
+	return MakeRGBA(sf(GetR(recoloured)), sf(GetG(recoloured)), sf(GetB(recoloured)), af(rgba_base[3]));
 }
 
 /**
@@ -294,6 +295,7 @@ const uint8 *ImageData::GetRecoloured(GradientShift shift, const Recolouring &re
 	const auto it = this->recoloured.find(map_key);
 	if (it != this->recoloured.end()) return it->second.get();
 
+	ShiftFunc af = GetAlphaShiftFunc(shift);
 	std::unique_ptr<uint8[]> result(new uint8[this->width * this->height * 4]);
 	uint8 *ptr = result.get();
 	const uint8 *recol_ptr = this->recol.get();
@@ -305,7 +307,7 @@ const uint8 *ImageData::GetRecoloured(GradientShift shift, const Recolouring &re
 				*(ptr++) = GetR(pixel);
 				*(ptr++) = GetG(pixel);
 				*(ptr++) = GetB(pixel);
-				*(ptr++) = GetA(pixel);
+				*(ptr++) = af(GetA(pixel));
 			}
 		}
 	} else {
@@ -317,16 +319,15 @@ const uint8 *ImageData::GetRecoloured(GradientShift shift, const Recolouring &re
 					*(ptr++) = sf(*(rgba_ptr++));
 					*(ptr++) = sf(*(rgba_ptr++));
 					*(ptr++) = sf(*(rgba_ptr++));
-					*(ptr++) = *(rgba_ptr++);
+					*(ptr++) = af(*(rgba_ptr++));
 				} else {
 					const uint32 recoloured = recolour.GetRecolourTable(recol_ptr[0] - 1)[recol_ptr[1]];
 					*(ptr++) = sf(GetR(recoloured));
 					*(ptr++) = sf(GetG(recoloured));
 					*(ptr++) = sf(GetB(recoloured));
-					*(ptr++) = rgba_ptr[3];
+					*(ptr++) = af(rgba_ptr[3]);
 					rgba_ptr += 4;
 				}
-				if (shift == GS_SEMI_TRANSPARENT) *(ptr - 1) = *(ptr - 1) * OPACITY_SEMI_TRANSPARENT / 255;
 				recol_ptr += 2;
 			}
 		}

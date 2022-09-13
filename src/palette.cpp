@@ -211,11 +211,13 @@ void Recolouring::Save(Saver &svr)
 const uint8 *Recolouring::GetPalette(GradientShift shift) const
 {
 	if (this->shift == shift) return this->colour_map;
+	this->shift = shift;
 
 	for (int i = 0; i < COL_SERIES_START; i++) this->colour_map[i] = i;
 	if (shift == GS_SEMI_TRANSPARENT) {
 		for (int i = COL_SERIES_START; i < COL_SERIES_END; i++) this->colour_map[i] = COL_SEMI_TRANSPARENT;
 	} else {
+		if (shift == GS_WIREFRAME) shift = GS_NIGHT;
 		for (int rng = 0; rng < COL_RANGE_COUNT; rng++) {
 			int base = GetColourRangeBase((ColourRange)rng);
 			int baseval = GetColourRangeBase(this->GetReplacementRange((ColourRange)rng));
@@ -225,8 +227,6 @@ const uint8 *Recolouring::GetPalette(GradientShift shift) const
 		}
 	}
 	for (int i = COL_SERIES_END; i < 256; i++) this->colour_map[i] = i;
-
-	this->shift = shift;
 	return this->colour_map;
 }
 

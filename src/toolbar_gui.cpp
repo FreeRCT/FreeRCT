@@ -332,9 +332,9 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 						case DDV_HIDE_SUPPORTS:    TOGGLE(hide_supports); break;
 						case DDV_HIDE_SURFACES:    TOGGLE(hide_surfaces); break;
 						case DDV_HIDE_FOUNDATIONS: TOGGLE(hide_foundations); break;
-						case DDV_HEIGHT_RIDES:     TOGGLE(height_markers_rides); break;
-						case DDV_HEIGHT_PATHS:     TOGGLE(height_markers_paths); break;
-						case DDV_HEIGHT_TERRAIN:   TOGGLE(height_markers_terrain); break;
+						case DDV_HEIGHT_RIDES:     TOGGLE(height_markers_rides); break;    // NOCOM implement
+						case DDV_HEIGHT_PATHS:     TOGGLE(height_markers_paths); break;    // NOCOM implement
+						case DDV_HEIGHT_TERRAIN:   TOGGLE(height_markers_terrain); break;  // NOCOM implement
 #undef TOGGLE
 
 						default: NOT_REACHED();
