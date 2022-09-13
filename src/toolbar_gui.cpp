@@ -85,6 +85,7 @@ enum DropdownMain {
  */
 enum DropdownView {
 	DDV_MINIMAP,      ///< Open the minimap.
+	DDV_GRID,         ///< Toggle terrain grid.
 	DDV_UNDERGROUND,  ///< Toggle underground view.
 	DDV_UNDERWATER,   ///< Toggle underwater view.
 	DDV_WIRE_RIDES,        ///< Toggle wireframe view for rides.
@@ -193,6 +194,9 @@ void ToolbarWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 
 			/* Keep the order consistent with the DropdownView ordering! */
 			/* DDV_MINIMAP */
 			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP));
+			/* DDV_GRID */
+			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_GRID, DDIF_SELECTABLE |
+					(_window_manager.GetViewport()->grid ? DDIF_SELECTED : DDIF_NONE)));
 			/* DDV_UNDERGROUND */
 			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND, DDIF_SELECTABLE |
 					(_window_manager.GetViewport()->underground_mode ? DDIF_SELECTED : DDIF_NONE)));
@@ -326,6 +330,7 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 
 #define TOGGLE(what) _window_manager.GetViewport()->what = !_window_manager.GetViewport()->what
 						case DDV_UNDERWATER:       TOGGLE(underwater_mode); break;
+						case DDV_GRID:             TOGGLE(grid); break;
 						case DDV_WIRE_RIDES:       TOGGLE(wireframe_rides); break;
 						case DDV_WIRE_SCENERY:     TOGGLE(wireframe_scenery); break;
 						case DDV_HIDE_PEOPLE:      TOGGLE(hide_people); break;

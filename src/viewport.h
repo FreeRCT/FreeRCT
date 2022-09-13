@@ -149,6 +149,7 @@ public:
 	bool additions_enabled;      ///< Flashing of world additions is enabled.
 	bool underground_mode;       ///< Whether underground mode is displayed in this viewport.
 	bool underwater_mode;        ///< Whether underwater mode is displayed in this viewport.
+	bool grid;                    ///< Draw a grid overlay over the terrain.
 	bool wireframe_rides;         ///< Draw rides as wireframes.
 	bool wireframe_scenery;       ///< Draw scenery items as wireframes.
 	bool hide_people;             ///< Do not draw people.

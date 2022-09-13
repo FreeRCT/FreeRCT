@@ -69,6 +69,7 @@ strings:
 		TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP:     "Ansichtseinstellungen"
 		TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: "Untergrundsicht"
 		TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP:     "Übersichtskarte"
+		TOOLBAR_GUI_DROPDOWN_VIEW_GRID:        "Gitternetz"
 		TOOLBAR_GUI_DROPDOWN_VIEW_UNDERWATER:          "Unterwassersicht"
 		TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_RIDES:          "Drahtmodelle Attraktionen"
 		TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_SCENERY:        "Drahtmodelle Landschaft"

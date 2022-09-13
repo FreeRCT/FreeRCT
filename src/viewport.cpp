@@ -142,6 +142,7 @@ public:
 	MouseModeSelector *selector;  ///< Mouse mode selector.
 	bool underground_mode;        ///< Whether to draw underground mode sprites (else draw normal surface sprites).
 	bool underwater_mode;         ///< Whether to draw underwater mode sprites (else draw normal water sprites).
+	bool grid;                    ///< Whether to draw a grid overlay around terrain tiles.
 
 	Rectangle32 rect; ///< Screen area of interest.
 
@@ -284,6 +285,7 @@ VoxelCollector::VoxelCollector(Viewport *vp)
 	this->orient = vp->orientation;
 	this->underground_mode = vp->underground_mode;
 	this->underwater_mode = vp->underwater_mode;
+	this->grid = vp->grid;
 
 	this->sprites = _sprite_manager.GetSprites(this->tile_width);
 	assert(this->sprites != nullptr);
@@ -584,6 +586,12 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 		DrawData dd;
 		dd.Set(slice, voxel_pos.z, SO_GROUND, this->sprites->GetSurfaceSprite(type, slope, this->orient), north_point);
 		this->draw_images.insert(dd);
+
+		if (this->grid) {
+			dd.Set(slice, voxel_pos.z, SO_GROUND, this->sprites->GetCursorSprite(slope, this->orient), north_point, nullptr, GS_SEMI_TRANSPARENT);
+			this->draw_images.insert(dd);
+		}
+
 		switch (slope) {
 			// XXX There are no sprites for partial support of a platform.
 			case SL_FLAT:
@@ -924,6 +932,7 @@ Viewport::Viewport(const XYZPoint32 &init_view_pos) : Window(WC_MAINDISPLAY, ALL
 #endif
 	underground_mode(false),
 	underwater_mode(false),
+	grid(false),
 	wireframe_rides(false),
 	wireframe_scenery(false),
 	hide_people(false),

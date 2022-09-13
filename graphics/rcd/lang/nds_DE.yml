@@ -69,6 +69,7 @@ strings:
 		TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP:     "Ankiekens-Instellens"
 		TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: "Unner de Eer kieken"
 		TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP:     "Lütt Kaart"
+		TOOLBAR_GUI_DROPDOWN_VIEW_GRID:        "Gaddernett"
 		TOOLBAR_GUI_DROPDOWN_VIEW_UNDERWATER:       "Unner Water kieken"
 		TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_RIDES:       "Drahdmodellen Buden"
 		TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_SCENERY:     "Drahdmodellen Landskupp"
