@@ -477,6 +477,7 @@ static int DrawRideOrScenery(int32 slice, const XYZPoint16 & pos, const Point32 
 		if (sprites[i] == nullptr) continue;
 
 		dd[idx].Set(slice, pos.z, sprite_numbers[i], sprites[i], base_pos, recolour);
+		if (number == SRI_SCENERY) dd[idx].order = static_cast<SpriteOrder>(dd[idx].order & ~CS_RIDE);  // Don't treat scenery like rides.
 		idx++;
 	}
 	return idx;
@@ -1043,10 +1044,29 @@ void Viewport::OnDraw(MouseModeSelector *selector)
 	_video.PushClip(this->rect);
 
 	GradientShift gs = static_cast<GradientShift>(GS_LIGHT - _weather.GetWeatherType());
-	for (const auto &iter : collector.draw_images) {
-		const DrawData &dd = iter;
+	for (const DrawData &dd : collector.draw_images) {
 		const Recolouring &rec = (dd.recolour == nullptr) ? _no_recolour : *dd.recolour;
 		_video.BlitImage(dd.base, dd.sprite, rec, dd.gs != GS_INVALID ? dd.gs : gs);
+
+		/* Draw height markers if applicable. */
+		GuiTextColours marker_colour;
+		if (this->height_markers_rides && dd.order == SO_RIDE) {
+			marker_colour = HEIGHT_MARKER_RIDES;
+		} else if (this->height_markers_paths && dd.order == SO_PATH) {
+			marker_colour = HEIGHT_MARKER_PATHS;
+		} else if (this->height_markers_terrain && dd.order == SO_GROUND) {
+			marker_colour = HEIGHT_MARKER_TERRAIN;
+		} else {
+			continue;
+		}
+
+		std::string text = std::to_string(dd.z_height);
+		int w, h;
+		_video.GetTextSize(text, &w, &h);
+		// Rectangle32 r(dd.base.x - w / 2, dd.base.y + this->tile_height - h / 2, w, h);
+		Rectangle32 r(dd.base.x + dd.sprite->xoffset + (dd.sprite->width - w) / 2, dd.base.y + dd.sprite->yoffset + (dd.sprite->height - h) / 2, w, h);
+		_video.FillRectangle(r, SetA(_palette[marker_colour], OPACITY_SEMI_TRANSPARENT));
+		_video.BlitText(text, _palette[TEXT_BLACK], r.base.x, r.base.y, r.width, ALG_CENTER);
 	}
 
 	for (uint i = 0; i < this->floataway_texts.size();) {
