@@ -724,10 +724,12 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			dd.Set(slice, people_z_pos, SO_PERSON, anim_spr, pos, recolour);
 			this->draw_images.insert(dd);
 
-			for (const VoxelObject::Overlay &overlay : vo->GetOverlays(this->sprites, this->orient)) {
-				if (overlay.sprite != nullptr) {
-					dd.Set(slice, people_z_pos, SO_PERSON_OVERLAY, overlay.sprite, pos, overlay.recolour);
-					this->draw_images.insert(dd);
+			if (!this->vp->hide_people) {
+				for (const VoxelObject::Overlay &overlay : vo->GetOverlays(this->sprites, this->orient)) {
+					if (overlay.sprite != nullptr) {
+						dd.Set(slice, people_z_pos, SO_PERSON_OVERLAY, overlay.sprite, pos, overlay.recolour);
+						this->draw_images.insert(dd);
+					}
 				}
 			}
 		}
