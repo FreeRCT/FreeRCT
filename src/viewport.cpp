@@ -192,12 +192,12 @@ struct DrawData {
 		this->highlight = highlight;
 	}
 
-	int32 level;                 ///< Slice of this sprite (vertical row).
-	uint16 z_height;             ///< Height of the voxel being drawn.
-	SpriteOrder order;           ///< Selection when to draw this sprite (sorts sprites within a voxel). @see SpriteOrder
 	const ImageData *sprite;     ///< Mouse cursor to draw.
-	Point32 base;                ///< Base coordinate of the image, relative to top-left of the window.
 	const Recolouring *recolour; ///< Recolouring of the sprite.
+	int32 level;                 ///< Slice of this sprite (vertical row).
+	SpriteOrder order;           ///< Selection when to draw this sprite (sorts sprites within a voxel). @see SpriteOrder
+	Point32 base;                ///< Base coordinate of the image, relative to top-left of the window.
+	uint16 z_height;             ///< Height of the voxel being drawn.
 	bool highlight;              ///< Highlight the sprite (semi-transparent white).
 };
 

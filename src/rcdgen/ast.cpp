@@ -333,7 +333,7 @@ static const Position _dummy_position("", -1); ///< Dummy position.
  */
 const Position &NameRow::GetPosition() const
 {
-	if (this->identifiers.size() > 0) return this->identifiers.front()->GetPosition();
+	if (!this->identifiers.empty()) return this->identifiers.front()->GetPosition();
 	return _dummy_position;
 }
 

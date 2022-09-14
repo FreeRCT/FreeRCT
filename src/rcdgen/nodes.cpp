@@ -291,11 +291,11 @@ Image *SheetBlock::GetSheet()
 	BitMaskData *bmd = (this->mask == nullptr) ? nullptr : &this->mask->data;
 	if (this->imf->Is8bpp()) {
 		this->img_sheet = new Image8bpp(this->imf.get(), bmd);
-		if (this->recolour != "") fprintf(stderr, "Error at %s, cannot recolour an 8bpp image, ignoring the file.\n", this->pos.ToString());
+		if (!this->recolour.empty()) fprintf(stderr, "Error at %s, cannot recolour an 8bpp image, ignoring the file.\n", this->pos.ToString());
 	} else {
 		Image32bpp *im = new Image32bpp(this->imf.get(), bmd);
 		this->img_sheet = im;
-		if (this->recolour != "") {
+		if (!this->recolour.empty()) {
 			this->rmf.reset();
 			const char *err = ImageFile::LoadFile(this->recolour, this->rmf);
 			if (err != nullptr) {
@@ -669,14 +669,14 @@ void StringsNode::Add(const StringNode &node, const Position &pos)
 		/* Check for duplicates: No same names with same language and same key. */
 		if (iter.name != node.name) continue;
 		if (iter.lang_index >= 0 && node.lang_index >= 0 && iter.lang_index != node.lang_index) continue;
-		if (iter.key == "" || node.key == "" || iter.key != node.key) continue;
+		if (iter.key.empty() || node.key.empty() || iter.key != node.key) continue;
 		fprintf(stderr, "Error at %s: ", node.text_pos.ToString());
 		fprintf(stderr, "\"string node\" conflicts with node at %s\n", iter.text_pos.ToString());
 		exit(1);
 	}
 	this->strings.push_back(node);
-	if (this->key != "") {
-		if (node.key == "") {
+	if (!this->key.empty()) {
+		if (node.key.empty()) {
 			this->strings.back().key = this->key;
 		} else if (this->key != node.key) {
 			fprintf(stderr, "Error at %s: String \"%s\" already has key \"%s\".\n", pos.ToString(), node.name.c_str(), node.key.c_str());
@@ -693,13 +693,13 @@ void StringsNode::Add(const StringNode &node, const Position &pos)
  */
 void StringsNode::SetKey(const std::string &key, const Position &pos)
 {
-	if (this->key != "") {
+	if (!this->key.empty()) {
 		fprintf(stderr, "Error at %s: Strings already have key \"%s\".\n", pos.ToString(), this->key.c_str());
 		exit(1);
 	}
 	this->key = key;
 	for (auto &str : this->strings) {
-		if (str.key != "" && str.key != key) {
+		if (!str.key.empty() && str.key != key) {
 			fprintf(stderr, "Error at %s: String \"%s\" already has key \"%s\".\n", pos.ToString(), str.name.c_str(), str.key.c_str());
 			exit(1);
 		}
@@ -717,13 +717,13 @@ std::string StringsNode::GetKey() const
 	bool set_key = false;
 	for (const auto &str : this->strings) {
 		if (!set_key) {
-			if (str.key != "") {
+			if (!str.key.empty()) {
 				key = str.key;
 				set_key = true;
 			}
 			continue;
 		}
-		if (str.key != "" && key != str.key) return ""; // Two or more different keys, no sane way to decide what it is.
+		if (!str.key.empty() && key != str.key) return ""; // Two or more different keys, no sane way to decide what it is.
 	}
 	if (set_key) return key;
 	return this->key; // Can only give a result when there are no strings in this node.
@@ -813,9 +813,9 @@ void TextNode::Write(FileBlock *fb) const
 void StringBundle::Fill(std::shared_ptr<StringsNode> strs, const Position &pos)
 {
 	std::string strs_key = strs->GetKey();
-	if (this->key == "") {
+	if (this->key.empty()) {
 		this->key = strs_key;
-	} else if (strs_key != "" && this->key != strs_key) {
+	} else if (!strs_key.empty() && this->key != strs_key) {
 		fprintf(stderr, "Error at %s: Bundle gets key \"%s\" but already has key \"%s\".\n", pos.ToString(), this->key.c_str(), strs_key.c_str());
 		exit(1);
 	}
@@ -848,7 +848,7 @@ void StringBundle::Fill(std::shared_ptr<StringsNode> strs, const Position &pos)
  */
 void StringBundle::MergeStorage(const StringBundle &storage)
 {
-	assert(this->key == "" || storage.key == "" || this->key == storage.key);
+	assert(this->key.empty() || storage.key.empty() || this->key == storage.key);
 	for (const auto &stor : storage.texts) {
 		auto iter = this->texts.find(stor.first);
 		if (iter == this->texts.end()) {
@@ -868,7 +868,7 @@ void StringBundle::MergeStorage(const StringBundle &storage)
  */
 void StringBundle::CheckTranslations(const char *names[], int name_count, const Position &pos)
 {
-	if (this->key != "") {	// Merge strings from storage, if available.
+	if (!this->key.empty()) {	// Merge strings from storage, if available.
 		const StringBundle *stored = _strings_storage.GetBundle(this->key);
 		if (stored != nullptr) this->MergeStorage(*stored);
 	}

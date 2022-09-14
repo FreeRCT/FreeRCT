@@ -25,6 +25,8 @@ PERM_SUPPRESSED_CHECKS = {
 	'[cppcoreguidelines-pro-type-reinterpret-cast]',  # do not use reinterpret_cast
 	'[google-runtime-references]',  # non-const reference parameter 'vals', make it const or use a pointer
 	'[cppcoreguidelines-non-private-member-variables-in-classes]',  # member variable 'north_offsets' has protected visibility
+	'[hicpp-use-auto]','[modernize-use-auto]',  # use auto when initializing with new to avoid duplicating the type name
+	'[modernize-raw-string-literal]',  # escaped string literal can be written as a raw string literal
 }
 
 # Checks we intend to clear in the future. When a check has been cleared, remove it from this list.
@@ -84,10 +86,6 @@ TEMP_SUPPRESSED_CHECKS = {
 	'[hicpp-signed-bitwise]',  # use of a signed integer operand with a binary bitwise operator
 	'[hicpp-uppercase-literal-suffix]',  # floating point literal has suffix 'f', which is not uppercase
 	'[hicpp-uppercase-literal-suffix]','[readability-uppercase-literal-suffix]',  # floating point literal has suffix 'f', which is not uppercase
-	'[hicpp-use-auto]','[modernize-use-auto]',  # use auto when initializing with new to avoid duplicating the type name
-	'[hicpp-use-emplace]','[modernize-use-emplace]',  # use emplace_back instead of push_back
-	'[hicpp-use-equals-default]','[modernize-use-equals-default]',  # use '= default' to define a trivial default constructor
-	'[hicpp-use-nullptr]','[modernize-use-nullptr]',  # use nullptr
 	'[llvm-else-after-return]','[readability-else-after-return]',  # do not use 'else' after 'continue'
 	'[llvm-include-order]',  # #includes are not sorted properly
 	'[misc-non-private-member-variables-in-classes]',  # member variable 'name' has public visibility
@@ -95,7 +93,6 @@ TEMP_SUPPRESSED_CHECKS = {
 	'[modernize-loop-convert]',  # use range-based for loop instead
 	'[modernize-make-unique]',  # use std::make_unique instead
 	'[modernize-pass-by-value]',  # pass by value and use std::move
-	'[modernize-raw-string-literal]',  # escaped string literal can be written as a raw string literal
 	'[modernize-redundant-void-arg]',  # redundant void argument list in function definition
 	'[modernize-return-braced-init-list]',  # avoid repeating the return type from the declaration; use a braced initializer list instead
 	'[modernize-use-bool-literals]',  # converting integer literal to bool, use bool literal instead
@@ -103,15 +100,12 @@ TEMP_SUPPRESSED_CHECKS = {
 	'[modernize-use-nodiscard]',  # function 'GetMessage' should be marked [[nodiscard]]
 	'[modernize-use-nullptr]',  # use nullptr
 	'[modernize-use-using]',  # use 'using' instead of 'typedef'
-	'[performance-for-range-copy]',  # loop variable is copied but only used as const reference; consider making it a const reference
 	'[performance-implicit-conversion-in-loop]',  # the type of the loop variable 'bundle' is different from the one returned by the iterator and generates an implicit conversion; you can either change the type to the matching one ('const std::pair<const std::basic_string<char>, std::map<std::basic_string<char>, std::map<std::basic_string<char>, std::pair<std::basic_string<char>, Position>>>> &' but 'const auto&' is always a valid option) or remove the reference to make it explicit that you are creating a new value
 	'[performance-no-automatic-move]',  # constness of 'text' prevents automatic move
 	'[performance-no-int-to-ptr]',  # integer to pointer cast pessimizes optimization opportunities
 	'[performance-type-promotion-in-math-fn]',  # call to 'hypot' promotes float to double
 	'[performance-unnecessary-value-param]',  # the parameter 'fname' is copied for each invocation but only used as a const reference; consider making it a const reference
 	'[readability-avoid-const-params-in-decls]',  # parameter 'wid_num' is const-qualified in the function declaration; const-qualification of parameters only has an effect in function definitions
-	'[readability-container-data-pointer]',  # 'data' should be used for accessing the data pointer instead of taking the address of the 0-th element
-	'[readability-container-size-empty]',  # the 'empty' method should be used to check for emptiness instead of 'size'
 	'[readability-convert-member-functions-to-static]',  # method 'GetDefaultCarType' can be made static
 	'[readability-duplicate-include]',  # duplicate include
 	'[readability-function-cognitive-complexity]',  # function 'Encode' has cognitive complexity of 57 (threshold 25)
@@ -121,7 +115,6 @@ TEMP_SUPPRESSED_CHECKS = {
 	'[readability-isolate-declaration]',  # multiple declarations in a single statement reduces readability
 	'[readability-make-member-function-const]',  # method 'CheckEndSave' can be made const
 	'[readability-non-const-parameter]',  # pointer parameter 'corners' can be pointer to const
-	'[readability-qualified-auto]',  # 'auto &str' can be declared as 'const auto &str'
 	'[readability-redundant-declaration]',  # redundant 'yylex' declaration
 	'[readability-suspicious-call-argument]',  # 1st argument 'num' (passed to 'num') looks like it might be swapped with the 2nd, 'number' (passed to 'number')
 	'[readability-use-anyofallof]',  # replace loop by 'std::all_of()'

@@ -810,7 +810,7 @@ void CoasterInstance::OnAnimate(int delay)
 
 	for (uint i = 0; i < lengthof(this->trains); i++) {
 		CoasterTrain &train = this->trains[i];
-		if (train.cars.size() == 0) break;
+		if (train.cars.empty()) break;
 		train.OnAnimate(delay);
 	}
 }
