@@ -29,11 +29,6 @@ FixedRideType::FixedRideType(const RideTypeKind k) : RideType(k),
 {
 }
 
-FixedRideType::~FixedRideType()
-{
-	/* Images and texts are handled by the sprite collector, no need to release its memory here. */
-}
-
 const ImageData *FixedRideType::GetView(uint8 orientation) const
 {
 	return (orientation < 4) ? this->previews[orientation] : nullptr;

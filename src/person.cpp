@@ -2358,18 +2358,6 @@ void Guest::BuyItem(RideInstance *ri)
 	this->ChangeHappiness(-10);
 }
 
-/* Constructor. */
-StaffMember::StaffMember()
-{
-	/* Nothing to do currently. */
-}
-
-/* Destructor. */
-StaffMember::~StaffMember()
-{
-	/* Nothing to do currently. */
-}
-
 void StaffMember::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("stfm");
@@ -2505,12 +2493,6 @@ void StaffMember::DecideMoveDirection()
 	this->StartAnimation(new_walk);
 }
 
-/* Constructor. */
-Mechanic::Mechanic()
-{
-	/* Nothing to do currently. */
-}
-
 /* Destructor. */
 Mechanic::~Mechanic()
 {
@@ -2627,18 +2609,6 @@ AnimateResult Mechanic::ActionAnimationCallback()
 	return OAR_CONTINUE;
 }
 
-/* Constructor. */
-Guard::Guard()
-{
-	/* Nothing to do currently. */
-}
-
-/* Destructor. */
-Guard::~Guard()
-{
-	/* Nothing to do currently. */
-}
-
 void Guard::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("gard");
@@ -2654,18 +2624,6 @@ void Guard::Save(Saver &svr)
 	this->StaffMember::Save(svr);
 	/* No specific data to save currently. */
 	svr.EndPattern();
-}
-
-/* Constructor. */
-Entertainer::Entertainer()
-{
-	/* Nothing to do currently. */
-}
-
-/* Destructor. */
-Entertainer::~Entertainer()
-{
-	/* Nothing to do currently. */
 }
 
 void Entertainer::Load(Loader &ldr)
@@ -2688,12 +2646,6 @@ void Entertainer::Save(Saver &svr)
 /* Constructor. */
 Handyman::Handyman() : activity(HandymanActivity::WANDER)
 {
-}
-
-/* Destructor. */
-Handyman::~Handyman()
-{
-	/* Nothing to do currently. */
 }
 
 void Handyman::Load(Loader &ldr)

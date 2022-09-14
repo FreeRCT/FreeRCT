@@ -19,7 +19,6 @@
 class FixedRideType : public RideType {
 public:
 	explicit FixedRideType(RideTypeKind kind);
-	~FixedRideType();
 
 	/* Information about how many guests can use the ride at the same time. */
 	struct RideCapacity {

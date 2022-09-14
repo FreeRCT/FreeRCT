@@ -21,11 +21,6 @@ TrackVoxel::TrackVoxel()
 	std::fill_n(this->front, lengthof(this->front), nullptr);
 }
 
-TrackVoxel::~TrackVoxel()
-{
-	/* Images are deleted by the RCD manager. */
-}
-
 /**
  * Load a track voxel.
  * @param rcd_file Data file being loaded.

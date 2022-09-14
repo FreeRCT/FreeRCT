@@ -24,11 +24,6 @@ ShopType::ShopType() : FixedRideType(RTK_SHOP)
 	/* Nothing to do currently. */
 }
 
-ShopType::~ShopType()
-{
-	/* Images and texts are handled by the sprite collector, no need to release its memory here. */
-}
-
 RideInstance *ShopType::CreateInstance() const
 {
 	return new ShopInstance(this);
@@ -139,11 +134,6 @@ const StringID *ShopType::GetInstanceNames() const
 ShopInstance::ShopInstance(const ShopType *type) : FixedRideInstance(type)
 {
 	this->maintenance_interval = 0;  // Shops don't break down.
-}
-
-ShopInstance::~ShopInstance()
-{
-	/* Nothing to do currently. */
 }
 
 /**

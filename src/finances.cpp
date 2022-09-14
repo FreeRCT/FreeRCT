@@ -25,10 +25,6 @@ Finances::Finances()
 	this->Reset();
 }
 
-/** Destructor. */
-Finances::~Finances()
-= default;
-
 /** Resets the finance categories to \c 0. */
 void Finances::Reset()
 {

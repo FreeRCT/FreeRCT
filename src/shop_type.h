@@ -19,7 +19,6 @@
 class ShopType : public FixedRideType {
 public:
 	ShopType();
-	~ShopType();
 
 	void Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
 	FixedRideType::RideCapacity GetRideCapacity() const override;
@@ -34,7 +33,6 @@ public:
 class ShopInstance : public FixedRideInstance {
 public:
 	ShopInstance(const ShopType *type);
-	~ShopInstance();
 
 	const ShopType *GetShopType() const;
 	bool CanBeVisited(const XYZPoint16 &vox, TileEdge edge) const override;

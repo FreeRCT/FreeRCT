@@ -46,7 +46,6 @@ enum GameSpeed {
 class GameControl {
 public:
 	GameControl();
-	~GameControl();
 
 	/**
 	 * If applicable, run the latest action.
@@ -101,7 +100,6 @@ enum GameMode {
 class GameModeManager {
 public:
 	GameModeManager();
-	~GameModeManager();
 
 	void SetGameMode(GameMode new_mode);
 	inline GameMode GetGameMode() const;

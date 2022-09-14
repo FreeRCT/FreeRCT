@@ -22,11 +22,6 @@ GentleThrillRideType::GentleThrillRideType() : FixedRideType(RTK_GENTLE /* Kind 
 	capacity.guests_per_batch = 0;
 }
 
-GentleThrillRideType::~GentleThrillRideType()
-{
-	/* Images and texts are handled by the sprite collector, no need to release its memory here. */
-}
-
 RideInstance *GentleThrillRideType::CreateInstance() const
 {
 	return new GentleThrillRideInstance(this);
@@ -170,11 +165,6 @@ GentleThrillRideInstance::GentleThrillRideInstance(const GentleThrillRideType *t
 	temp_exit_pos(XYZPoint16::invalid())
 {
 	this->working_cycles = type->working_cycles_default;
-}
-
-GentleThrillRideInstance::~GentleThrillRideInstance()
-{
-	/* Nothing to do currently. */
 }
 
 /**
