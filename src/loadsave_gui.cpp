@@ -388,12 +388,12 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 						new LoadsaveConfirmationWindow(path, true);
 						return;
 					} else {
-						_game_control.SaveGame(path.c_str());
+						_game_control.SaveGame(path);
 					}
 					break;
 				case LOAD:
 					if (sel < 0 || !this->all_files.at(sel).load_success) return;  // The file does not exist or is invalid.
-					_game_control.LoadGame(path.c_str());
+					_game_control.LoadGame(path);
 					break;
 			}
 			delete this;
@@ -511,7 +511,7 @@ void LoadsaveConfirmationWindow::OnClick(WidgetNumber number, [[maybe_unused]] c
 {
 	if (number == LSC_YES) {
 		if (this->is_save_window) {
-			_game_control.SaveGame(this->filepath.c_str());
+			_game_control.SaveGame(this->filepath);
 			delete GetWindowByType(WC_LOADSAVE, ALL_WINDOWS_OF_TYPE);
 		} else {
 			RemoveFile(this->filepath.c_str());

@@ -1599,7 +1599,7 @@ static std::shared_ptr<SpriteBlock> ConvertSpriteNode(std::shared_ptr<NodeGroup>
 		int xoffset      = vals.GetNumber("x_offset");
 		int yoffset      = vals.GetNumber("y_offset");
 
-		std::string recolour = "";
+		std::string recolour;
 		if (vals.HasValue("recolour")) recolour = vals.GetString("recolour");
 
 		bool crop = true;
@@ -2382,7 +2382,7 @@ static std::shared_ptr<StringsNode> ConvertStringsNode(std::shared_ptr<NodeGroup
 	Values vals("strings", ng->pos);
 	vals.PrepareNamedValues(ng->values, true, true);
 
-	std::string child_key = "";
+	std::string child_key;
 	for (int i = 0; i < vals.unnamed_count; i++) {
 		std::shared_ptr<ValueInformation> vi = vals.unnamed_values[i];
 		if (vi->used) continue;

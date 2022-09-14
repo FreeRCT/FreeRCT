@@ -1363,7 +1363,7 @@ Curve::Curve() : BlockNode()
  * @return Value of the curve at the queried point.
  */
 
-CubicSplines::CubicSplines() : Curve()
+CubicSplines::CubicSplines()
 {
 }
 
@@ -1384,9 +1384,8 @@ double CubicSplines::GetValue(int index, int step)
 	return ta * spline->a + tb * spline->b + tc * spline->c + td * spline->d;
 }
 
-FixedTable::FixedTable() : Curve()
+FixedTable::FixedTable() : value(0)
 {
-	this->value = 0;
 }
 
 double FixedTable::GetValue(int index, int step)

@@ -66,7 +66,7 @@ TrackCurve::~TrackCurve()
  * Track curve that always has the same value.
  * @param value Constant value of the curve.
  */
-ConstantTrackCurve::ConstantTrackCurve(int value) : TrackCurve(), value(value)
+ConstantTrackCurve::ConstantTrackCurve(int value) : value(value)
 {
 }
 

@@ -786,9 +786,8 @@ public:
  * Constructor of the trackpiece mouse mode.
  * @param ci Coaster to edit.
  */
-TrackPieceMouseMode::TrackPieceMouseMode(CoasterInstance *ci) : RideMouseMode()
+TrackPieceMouseMode::TrackPieceMouseMode(CoasterInstance *ci) : ci(ci)
 {
-	this->ci = ci;
 	this->pos_piece.piece = nullptr;
 }
 

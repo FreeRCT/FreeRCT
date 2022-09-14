@@ -1779,7 +1779,7 @@ void Person::DecideMoveDirectionOnPathlessLand(Voxel *former_voxel, const XYZPoi
  * @return Result code of the visit.
  */
 
-Guest::Guest() : Person()
+Guest::Guest()
 {
 }
 

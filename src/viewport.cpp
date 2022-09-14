@@ -328,8 +328,8 @@ void VoxelCollector::Collect()
 		for (uint ypos = 0; ypos < _world.GetYSize(); ypos++) {
 			int32 world_y = (ypos + ((this->orient == VOR_SOUTH || this->orient == VOR_EAST) ? 1 : 0)) * 256;
 			int32 north_x = ComputeX(world_x, world_y);
-			if (north_x + this->tile_width / 2 <= (int32)this->rect.base.x) continue; // Right of voxel column is at left of window.
-			if (north_x - this->tile_width / 2 >= (int32)(this->rect.base.x + this->rect.width)) continue; // Left of the window.
+			if (north_x + this->tile_width / 2 <= static_cast<int32>(this->rect.base.x)) continue;  // Right of voxel column is at left of window.
+			if (north_x - this->tile_width / 2 >= static_cast<int32>(this->rect.base.x + this->rect.width)) continue;  // Left of the window.
 
 			const VoxelStack *stack = _world.GetStack(xpos, ypos);
 
@@ -348,8 +348,8 @@ void VoxelCollector::Collect()
 
 			for (; zpos <= top; zpos++) {
 				int32 north_y = this->ComputeY(world_x, world_y, zpos * 256);
-				if (north_y - this->tile_height >= (int32)(this->rect.base.y + this->rect.height)) continue; // Voxel is below the window.
-				if (north_y + this->tile_width / 2 + this->tile_height <= (int32)this->rect.base.y) break; // Above the window and rising!
+				if (north_y - this->tile_height >= static_cast<int32>(this->rect.base.y + this->rect.height)) continue;  // Voxel is below the window.
+				if (north_y + this->tile_width / 2 + this->tile_height <= static_cast<int32>(this->rect.base.y)) break;  // Above the window and rising!
 
 				int count = zpos - stack->base;
 				const Voxel *voxel = (count >= 0 && count < stack->height) ? stack->voxels[count].get() : nullptr;
@@ -435,7 +435,6 @@ void SpriteCollector::SetupSupports(const VoxelStack *stack, [[maybe_unused]] ui
 		break;
 	}
 	this->ground_height = -1;
-	return;
 }
 
 /**

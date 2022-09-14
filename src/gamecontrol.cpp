@@ -128,8 +128,7 @@ GameControl::GameControl()
 	main_menu(false),
 	speed(GSP_1),
 	action_test_mode(false),
-	next_action(GCA_NONE),
-	fname("")
+	next_action(GCA_NONE)
 {
 }
 
@@ -146,7 +145,7 @@ void GameControl::Initialize(const std::string &fname)
 	if (fname.empty()) {
 		this->MainMenu();
 	} else {
-		this->LoadGame(fname.c_str());
+		this->LoadGame(fname);
 	}
 
 	this->RunAction();

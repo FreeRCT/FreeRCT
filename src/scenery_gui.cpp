@@ -218,7 +218,7 @@ void SceneryGui::OnClick(const WidgetNumber number, const Point16 &pos)
 
 void SceneryGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 {
-	if (this->instance.get() == nullptr) return;
+	if (this->instance == nullptr) return;
 	this->instance->RemoveFromWorld();
 	_scenery.temp_item = nullptr;
 	this->build_forbidden_reason.Reset();
@@ -311,7 +311,7 @@ void SceneryGui::SelectorMouseButtonEvent(const MouseButtons state)
 		return;
 	}
 
-	if (this->instance.get() == nullptr) return;
+	if (this->instance == nullptr) return;
 	if (state != MB_LEFT) return;
 	if (scenery_sel.area.width < 1 || scenery_sel.area.height < 1) {
 		this->build_forbidden_reason.ShowErrorMessage();

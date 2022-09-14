@@ -306,7 +306,7 @@ void SpriteManager::LoadTSEL(RcdFileReader *rcd_file, const ImageMap &sprites)
 	}
 }
 
-Fence::Fence() : RcdBlock(), type(FENCE_TYPE_INVALID), width(0)
+Fence::Fence() : type(FENCE_TYPE_INVALID), width(0)
 {
 	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = nullptr;
 }
@@ -721,7 +721,7 @@ void SpriteManager::LoadBDIR(RcdFileReader *rcd_file, const ImageMap &sprites)
 }
 
 /** %Animation default constructor. */
-Animation::Animation() : RcdBlock(),
+Animation::Animation() :
 	frame_count(0),
 	person_type(PERSON_INVALID),
 	anim_type(ANIM_INVALID),
@@ -786,7 +786,7 @@ void Animation::Load(RcdFileReader *rcd_file)
 }
 
 /** Animation sprites default constructor. */
-AnimationSprites::AnimationSprites() : RcdBlock(),
+AnimationSprites::AnimationSprites() :
 	width(0),
 	person_type(PERSON_INVALID),
 	anim_type(ANIM_INVALID),
