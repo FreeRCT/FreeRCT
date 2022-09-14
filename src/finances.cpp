@@ -120,10 +120,6 @@ FinancesManager::FinancesManager()
 	this->Reset();
 }
 
-/** Destructor. */
-FinancesManager::~FinancesManager()
-= default;
-
 /** Reset all finances to initial state. */
 void FinancesManager::Reset()
 {

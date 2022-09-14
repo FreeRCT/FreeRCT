@@ -65,7 +65,6 @@ protected:
 
 public:
 	FinancesManager();
-	~FinancesManager();
 
 	const Finances &GetFinances();
 	void AdvanceMonth();
