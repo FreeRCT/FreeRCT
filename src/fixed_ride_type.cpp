@@ -63,8 +63,7 @@ FixedRideInstance::FixedRideInstance(const FixedRideType *type) : RideInstance(t
 }
 
 FixedRideInstance::~FixedRideInstance()
-{
-}
+= default;
 
 /**
  * Get the fixed ride type of the ride.

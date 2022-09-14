@@ -48,12 +48,10 @@ void TrackVoxel::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sp
 }
 
 TrackCurve::TrackCurve()
-{
-}
+= default;
 
 TrackCurve::~TrackCurve()
-{
-}
+= default;
 
 /**
  * \fn double TrackCurve::GetValue(int distance)
@@ -84,8 +82,7 @@ CubicBezier::CubicBezier(uint32 start, uint32 last, int a, int b, int c, int d) 
 }
 
 BezierTrackCurve::BezierTrackCurve()
-{
-}
+= default;
 
 /**
  * Load the data of a Bezier spline into a #BezierTrackCurve.

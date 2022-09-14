@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
 		nvs = nullptr;
 
 		/* Phase 3: Construct output files. */
-		for (auto iter : file_nodes->files) {
+		for (const auto& iter : file_nodes->files) {
 			FileWriter fw;
 			iter->Write(&fw);
 			fw.WriteFile(iter->file_name);

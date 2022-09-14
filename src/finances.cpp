@@ -27,8 +27,7 @@ Finances::Finances()
 
 /** Destructor. */
 Finances::~Finances()
-{
-}
+= default;
 
 /** Resets the finance categories to \c 0. */
 void Finances::Reset()
@@ -127,8 +126,7 @@ FinancesManager::FinancesManager()
 
 /** Destructor. */
 FinancesManager::~FinancesManager()
-{
-}
+= default;
 
 /** Reset all finances to initial state. */
 void FinancesManager::Reset()

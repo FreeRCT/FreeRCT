@@ -288,8 +288,7 @@ VoxelCollector::VoxelCollector(Viewport *vp)
 
 /* Destructor. */
 VoxelCollector::~VoxelCollector()
-{
-}
+= default;
 
 /**
  * Set screen area of interest (relative to the (#Viewport::view_pos position).
@@ -376,8 +375,7 @@ SpriteCollector::SpriteCollector(Viewport *vp) : VoxelCollector(vp)
 }
 
 SpriteCollector::~SpriteCollector()
-{
-}
+= default;
 
 /**
  * Set the offset of the top-left coordinate of the collect window to the top-left of the display.
@@ -752,8 +750,7 @@ PixelFinder::PixelFinder(Viewport *vp, FinderData *init_fdata) : VoxelCollector(
 }
 
 PixelFinder::~PixelFinder()
-{
-}
+= default;
 
 /**
  * Find the closest sprite.
@@ -903,8 +900,7 @@ Viewport::Viewport(const XYZPoint32 &init_view_pos) : Window(WC_MAINDISPLAY, ALL
 }
 
 Viewport::~Viewport()
-{
-}
+= default;
 
 /**
  * Can the viewport switch to underground mode view?

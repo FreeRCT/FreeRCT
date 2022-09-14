@@ -74,8 +74,7 @@ const char *Position::ToString() const
 }
 
 ExpressionList::ExpressionList()
-{
-}
+= default;
 
 /**
  * Constructor of the base expression class.
@@ -86,8 +85,7 @@ Expression::Expression(const Position &pos) : pos(pos)
 }
 
 Expression::~Expression()
-{
-}
+= default;
 
 /**
  * \fn std::shared_ptr<const Expression> Expression::Evaluate(const Symbol *symbols) const
@@ -247,12 +245,10 @@ std::shared_ptr<const Expression> BitSet::Evaluate(const Symbol *symbols) const
 }
 
 Name::Name()
-{
-}
+= default;
 
 Name::~Name()
-{
-}
+= default;
 
 /**
  * \fn Name::GetPosition() const
@@ -322,8 +318,7 @@ bool IdentifierLine::IsValid() const
 }
 
 NameRow::NameRow()
-{
-}
+= default;
 
 static const Position _dummy_position("", -1); ///< Dummy position.
 
@@ -399,12 +394,10 @@ int NameTable::GetNameCount() const
 }
 
 Group::Group()
-{
-}
+= default;
 
 Group::~Group()
-{
-}
+= default;
 
 /**
  * \fn Group::GetPosition() const
@@ -451,12 +444,10 @@ const Position &ExpressionGroup::GetPosition() const
 }
 
 BaseNamedValue::BaseNamedValue()
-{
-}
+= default;
 
 BaseNamedValue::~BaseNamedValue()
-{
-}
+= default;
 
 /**
  * \fn void BaseNamedValue::HandleImports()
@@ -495,8 +486,7 @@ void ImportValue::HandleImports()
 }
 
 NamedValueList::NamedValueList()
-{
-}
+= default;
 
 /** Handle imports in the body. */
 void NamedValueList::HandleImports()

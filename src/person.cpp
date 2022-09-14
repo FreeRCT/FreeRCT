@@ -1780,12 +1780,10 @@ void Person::DecideMoveDirectionOnPathlessLand(Voxel *former_voxel, const XYZPoi
  */
 
 Guest::Guest()
-{
-}
+= default;
 
 Guest::~Guest()
-{
-}
+= default;
 
 /** Initialize this guest's ride preferences with random values. */
 void Guest::InitRidePreferences()

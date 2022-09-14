@@ -100,8 +100,7 @@ CoasterType::CoasterType() : RideType(RTK_COASTER)
 }
 
 CoasterType::~CoasterType()
-{
-}
+= default;
 
 /**
  * Load a coaster type.

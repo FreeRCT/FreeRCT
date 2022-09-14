@@ -792,8 +792,7 @@ TrackPieceMouseMode::TrackPieceMouseMode(CoasterInstance *ci) : ci(ci)
 }
 
 TrackPieceMouseMode::~TrackPieceMouseMode()
-{
-}
+= default;
 
 /**
  * Setup the mouse selector for displaying a track piece.

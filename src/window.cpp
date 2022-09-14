@@ -674,8 +674,7 @@ WindowManager::WindowManager()
 
 /** %Window manager destructor. */
 WindowManager::~WindowManager()
-{
-}
+= default;
 
 /** Close all windows at the display. */
 void WindowManager::CloseAllWindows()

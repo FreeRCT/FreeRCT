@@ -133,8 +133,7 @@ GameControl::GameControl()
 }
 
 GameControl::~GameControl()
-{
-}
+= default;
 
 /** Initialize the game controller. */
 void GameControl::Initialize(const std::string &fname)
@@ -307,8 +306,7 @@ GameModeManager::GameModeManager() : game_mode(GM_NONE)
 }
 
 GameModeManager::~GameModeManager()
-{
-}
+= default;
 
 /**
  * Change game mode of the program.

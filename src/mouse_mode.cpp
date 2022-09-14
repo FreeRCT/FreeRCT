@@ -23,8 +23,7 @@ MouseModeSelector::MouseModeSelector(CursorType init_cur_cursor) : cur_cursor(in
 }
 
 MouseModeSelector::~MouseModeSelector()
-{
-}
+= default;
 
 /**
  * \fn CursorMouseMode MouseModeSelector::GetCursor(const XYZPoint16 &voxel_pos) const

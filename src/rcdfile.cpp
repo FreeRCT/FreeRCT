@@ -31,9 +31,8 @@ RcdFileInfo::RcdFileInfo(const std::string &path, const std::string &uri, const 
  * Copy constructor.
  * @param orig Existing instance to copy.
  */
-RcdFileInfo::RcdFileInfo(const RcdFileInfo &orig) : path(orig.path), uri(orig.uri), build(orig.build)
-{
-}
+RcdFileInfo::RcdFileInfo(const RcdFileInfo &orig)
+= default;
 
 /**
  * Assignment operator.
@@ -51,8 +50,7 @@ RcdFileInfo &RcdFileInfo::operator=(const RcdFileInfo &orig)
 }
 
 RcdFileCollection::RcdFileCollection()
-{
-}
+= default;
 
 /**
  * Check whether the new file is useful to store in the available RCD files.

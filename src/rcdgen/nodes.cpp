@@ -81,7 +81,7 @@ FileNode::FileNode(const std::string &file_name)
  */
 void FileNode::Write(FileWriter *fw)
 {
-	for (auto iter : this->blocks) {
+	for (const auto& iter : this->blocks) {
 		iter->Write(fw);
 	}
 }
@@ -538,7 +538,7 @@ int ANSPBlock::Write(FileWriter *fw)
 	fb->SaveUInt8(this->person_type);
 	fb->SaveUInt16(this->anim_type);
 	fb->SaveUInt16(this->frames.size());
-	for (auto iter : this->frames) {
+	for (const auto& iter : this->frames) {
 		fb->SaveUInt32(iter->Write(fw));
 	}
 	fb->CheckEndSave();
@@ -655,8 +655,7 @@ StringNode::StringNode()
 }
 
 StringsNode::StringsNode()
-{
-}
+= default;
 
 /**
  * Add a string to the collection of strings.
@@ -1352,8 +1351,7 @@ CubicSpline::CubicSpline()
 }
 
 Curve::Curve()
-{
-}
+= default;
 
 /**
  * \fn double Curve::GetValue(int index, int step)
@@ -1364,8 +1362,7 @@ Curve::Curve()
  */
 
 CubicSplines::CubicSplines()
-{
-}
+= default;
 
 double CubicSplines::GetValue(int index, int step)
 {
@@ -1792,7 +1789,7 @@ void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWr
 		fb->SaveUInt16(flags);
 		fb->SaveUInt32(this->cost);
 		fb->SaveUInt16(this->track_voxels.size());
-		for (auto iter : this->track_voxels) {
+		for (const auto& iter : this->track_voxels) {
 			iter->Write(fw, fb, rot);
 		}
 		fb->SaveUInt32(this->total_distance);
@@ -1825,7 +1822,7 @@ int RCSTBlock::Write(FileWriter *fw)
 {
 	/* Collect connection names, and give each a number. */
 	std::map<std::string, int> connections;
-	for (auto iter : this->track_blocks) {
+	for (const auto& iter : this->track_blocks) {
 		iter->UpdateConnectionMap(&connections);
 	}
 
@@ -1841,7 +1838,7 @@ int RCSTBlock::Write(FileWriter *fw)
 	fb->SaveUInt16(this->reliability_decrease_monthly);
 	fb->SaveUInt32(this->text->Write(fw));
 	fb->SaveUInt16(4 * this->track_blocks.size());
-	for (auto iter : this->track_blocks) {
+	for (const auto& iter : this->track_blocks) {
 		iter->Write(connections, fw, fb);
 	}
 	fb->SaveText(this->internal_name);

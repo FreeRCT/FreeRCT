@@ -481,8 +481,7 @@ void Values::CreateValues(int named_count, int unnamed_count)
 }
 
 Values::~Values()
-{
-}
+= default;
 
 /**
  * Prepare the named values for access by field name.
@@ -2570,8 +2569,8 @@ static std::shared_ptr<TrackPieceNode> ConvertTrackPieceNode(std::shared_ptr<Nod
 	tb->car_ypos = vals.GetCurve("car_ypos");
 	tb->car_zpos = vals.GetCurve("car_zpos");
 	tb->car_roll = vals.GetCurve("car_roll");
-	tb->car_pitch = (vals.HasValue("car_pitch")) ? vals.GetCurve("car_pitch") : NULL;
-	tb->car_yaw = (vals.HasValue("car_yaw")) ? vals.GetCurve("car_yaw") : NULL;
+	tb->car_pitch = (vals.HasValue("car_pitch")) ? vals.GetCurve("car_pitch") : nullptr;
+	tb->car_yaw = (vals.HasValue("car_yaw")) ? vals.GetCurve("car_yaw") : nullptr;
 
 	tb->ComputeTrackLength(ng->pos);
 	tb->track_voxels = GetTypedData<TrackVoxel>(vals, "track_voxel", 0);
