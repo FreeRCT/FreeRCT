@@ -128,8 +128,7 @@ TerrainChanges::TerrainChanges(const Point16 &init_base, uint16 init_xsize, uint
 
 /** Destructor. */
 TerrainChanges::~TerrainChanges()
-{
-}
+= default;
 
 /**
  * Get ground data of a voxel stack.

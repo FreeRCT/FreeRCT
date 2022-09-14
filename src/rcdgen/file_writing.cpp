@@ -158,8 +158,7 @@ bool operator==(const FileBlock &fb1, const FileBlock &fb2)
 }
 
 FileWriter::FileWriter()
-{
-}
+= default;
 
 FileWriter::~FileWriter()
 {

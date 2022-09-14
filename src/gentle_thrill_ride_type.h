@@ -18,7 +18,6 @@
 class GentleThrillRideType : public FixedRideType {
 public:
 	GentleThrillRideType();
-	~GentleThrillRideType();
 
 	void Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
 	FixedRideType::RideCapacity GetRideCapacity() const override;
@@ -43,7 +42,6 @@ private:
 class GentleThrillRideInstance : public FixedRideInstance {
 public:
 	GentleThrillRideInstance(const GentleThrillRideType *type);
-	~GentleThrillRideInstance();
 
 	const GentleThrillRideType *GetGentleThrillRideType() const;
 

@@ -83,8 +83,7 @@ BaseWidget::BaseWidget(WidgetType wtype)
 }
 
 BaseWidget::~BaseWidget()
-{
-}
+= default;
 
 /**
  * Initialize the minimal size of the widget based on the width and height of the content, and the necessary border space.

@@ -28,7 +28,6 @@ static const int NUM_FINANCE_HISTORY = 4; ///< Number of finance objects to keep
 class Finances {
 public:
 	Finances();
-	~Finances();
 
 	Money ride_construct; ///< Monthly expenditures for ride construction (value is negative).
 	Money ride_running;   ///< Monthly expenditures for ride running costs (value is negative).
@@ -66,7 +65,6 @@ protected:
 
 public:
 	FinancesManager();
-	~FinancesManager();
 
 	const Finances &GetFinances();
 	void AdvanceMonth();

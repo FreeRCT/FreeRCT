@@ -51,7 +51,7 @@ static void ExpandExpressions(std::shared_ptr<ExpressionList> exprs, std::shared
  */
 static void ExpandNoExpression(std::shared_ptr<ExpressionList> exprs, const Position &pos, const char *node)
 {
-	if (exprs == nullptr || exprs->exprs.size() == 0) return;
+	if (exprs == nullptr || exprs->exprs.empty()) return;
 
 	fprintf(stderr, "Error at %s: No arguments expected for node \"%s\" (found %lu)\n", pos.ToString(), node, exprs->exprs.size());
 	exit(1);
@@ -481,8 +481,7 @@ void Values::CreateValues(int named_count, int unnamed_count)
 }
 
 Values::~Values()
-{
-}
+= default;
 
 /**
  * Prepare the named values for access by field name.
@@ -1599,7 +1598,7 @@ static std::shared_ptr<SpriteBlock> ConvertSpriteNode(std::shared_ptr<NodeGroup>
 		int xoffset      = vals.GetNumber("x_offset");
 		int yoffset      = vals.GetNumber("y_offset");
 
-		std::string recolour = "";
+		std::string recolour;
 		if (vals.HasValue("recolour")) recolour = vals.GetString("recolour");
 
 		bool crop = true;
@@ -1625,11 +1624,11 @@ static std::shared_ptr<SpriteBlock> ConvertSpriteNode(std::shared_ptr<NodeGroup>
 		BitMaskData *bmd = (bm == nullptr) ? nullptr : &bm->data;
 		if (imf->Is8bpp()) {
 			Image8bpp img(imf.get(), bmd);
-			if (recolour != "") fprintf(stderr, "Error at %s, cannot recolour an 8bpp image, ignoring the file.\n", ng->pos.ToString());
+			if (!recolour.empty()) fprintf(stderr, "Error at %s, cannot recolour an 8bpp image, ignoring the file.\n", ng->pos.ToString());
 			err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height, crop);
 		} else {
 			Image32bpp img(imf.get(), bmd);
-			if (recolour == "") {
+			if (recolour.empty()) {
 				err = sb->sprite_image.CopySprite(&img, xoffset, yoffset, xbase, ybase, width, height, crop);
 			} else {
 				std::shared_ptr<const ImageFile> rmf;
@@ -2388,7 +2387,7 @@ static std::shared_ptr<StringsNode> ConvertStringsNode(std::shared_ptr<NodeGroup
 	Values vals("strings", ng->pos);
 	vals.PrepareNamedValues(ng->values, true, true);
 
-	std::string child_key = "";
+	std::string child_key;
 	for (int i = 0; i < vals.unnamed_count; i++) {
 		std::shared_ptr<ValueInformation> vi = vals.unnamed_values[i];
 		if (vi->used) continue;
@@ -2402,8 +2401,8 @@ static std::shared_ptr<StringsNode> ConvertStringsNode(std::shared_ptr<NodeGroup
 		if (sn != nullptr) {
 			for (const auto &iter : sn->strings) strs->Add(iter, ng->pos);
 			std::string sn_key = sn->GetKey();
-			if (sn->strings.size() == 0 && sn_key != "") {
-				if (child_key == "") {
+			if (sn->strings.empty() && !sn_key.empty()) {
+				if (child_key.empty()) {
 					child_key = sn_key;
 				} else if (child_key != sn_key) {
 					fprintf(stderr, "Error at %s: Two or more different keys set (\"%s\" and \"%s\").", vi->pos.ToString(), child_key.c_str(), sn_key.c_str());
@@ -2416,7 +2415,7 @@ static std::shared_ptr<StringsNode> ConvertStringsNode(std::shared_ptr<NodeGroup
 		fprintf(stderr, "Error at %s: Node is not a \"string\" nor a \"strings\" node\n", vi->pos.ToString());
 		exit(1);
 	}
-	if (strs->strings.size() == 0 && child_key != "") strs->SetKey(child_key, ng->pos);
+	if (strs->strings.empty() && !child_key.empty()) strs->SetKey(child_key, ng->pos);
 
 	for (int i = 0; i < vals.named_count; i++) {
 		std::shared_ptr<ValueInformation> vi = vals.named_values[i];
@@ -2445,7 +2444,7 @@ static std::shared_ptr<StringsNode> ConvertStringsNode(std::shared_ptr<NodeGroup
 			strs->SetKey(key, vi->pos);
 			/* Copy key into the strings. */
 			for (auto &str : strs->strings) {
-				if (str.key != "") {
+				if (!str.key.empty()) {
 					fprintf(stderr, "Error at %s: ", vi->pos.ToString());
 					fprintf(stderr, "String \"%s\" at %s already has a key.\n", str.name.c_str(), str.text_pos.ToString());
 					exit(1);
@@ -2576,8 +2575,8 @@ static std::shared_ptr<TrackPieceNode> ConvertTrackPieceNode(std::shared_ptr<Nod
 	tb->car_ypos = vals.GetCurve("car_ypos");
 	tb->car_zpos = vals.GetCurve("car_zpos");
 	tb->car_roll = vals.GetCurve("car_roll");
-	tb->car_pitch = (vals.HasValue("car_pitch")) ? vals.GetCurve("car_pitch") : NULL;
-	tb->car_yaw = (vals.HasValue("car_yaw")) ? vals.GetCurve("car_yaw") : NULL;
+	tb->car_pitch = (vals.HasValue("car_pitch")) ? vals.GetCurve("car_pitch") : nullptr;
+	tb->car_yaw = (vals.HasValue("car_yaw")) ? vals.GetCurve("car_yaw") : nullptr;
 
 	tb->ComputeTrackLength(ng->pos);
 	tb->track_voxels = GetTypedData<TrackVoxel>(vals, "track_voxel", 0);

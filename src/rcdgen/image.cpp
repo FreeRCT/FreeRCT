@@ -231,8 +231,7 @@ Image::Image(const ImageFile *imf, const char *block_name, int block_version, Bi
 
 /** Compiler doesn't like base classes without virtual destructor. */
 Image::~Image()
-{
-}
+= default;
 
 /**
  * Get the height of the image.

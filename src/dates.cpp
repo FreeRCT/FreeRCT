@@ -52,9 +52,8 @@ Date::Date() : day(1), month(1), year(1), frac(0)
  * Copy constructor.
  * @param d Existing date.
  */
-Date::Date(const Date &d) : day(d.day), month(d.month), year(d.year), frac(d.frac)
-{
-}
+Date::Date(const Date &d)
+= default;
 
 /**
  * Constructor od a date from a compressed date.

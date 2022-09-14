@@ -100,8 +100,7 @@ CoasterType::CoasterType() : RideType(RTK_COASTER)
 }
 
 CoasterType::~CoasterType()
-{
-}
+= default;
 
 /**
  * Load a coaster type.
@@ -242,9 +241,8 @@ void LoadCoasterPlatform(RcdFileReader *rcd_file, const ImageMap &sprites)
 	LoadSpriteFromFile(rcd_file, sprites, &platform.nw_se_front);
 }
 
-DisplayCoasterCar::DisplayCoasterCar() : VoxelObject(), yaw(0xff) // Mark everything as invalid.
+DisplayCoasterCar::DisplayCoasterCar() : yaw(0xff), owning_car(nullptr)  // Mark everything as invalid.
 {
-	this->owning_car = nullptr;
 }
 
 const ImageData *DisplayCoasterCar::GetSprite([[maybe_unused]] const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
@@ -811,7 +809,7 @@ void CoasterInstance::OnAnimate(int delay)
 
 	for (uint i = 0; i < lengthof(this->trains); i++) {
 		CoasterTrain &train = this->trains[i];
-		if (train.cars.size() == 0) break;
+		if (train.cars.empty()) break;
 		train.OnAnimate(delay);
 	}
 }
@@ -1602,7 +1600,7 @@ void CoasterInstance::UpdateStations()
 		const PositionedTrackPiece &piece = this->pieces[p];
 		if (piece.piece->IsStartingPiece()) {
 			/* This code assumes that all station pieces are flat and straight tiles of size 1×1. */
-			if (current_station.get() == nullptr) {
+			if (current_station == nullptr) {
 				current_station.reset(new CoasterStation);
 				current_station->back_position = piece.distance_base;
 			}
@@ -1611,7 +1609,7 @@ void CoasterInstance::UpdateStations()
 			for (const auto &track : piece.piece->track_voxels) {
 				current_station->locations.emplace_back(piece.base_voxel + track->dxyz);
 			}
-		} else if (current_station.get() != nullptr) {
+		} else if (current_station != nullptr) {
 			this->InitializeStation(*current_station);
 			result.emplace_back(*current_station);
 			current_station.reset();

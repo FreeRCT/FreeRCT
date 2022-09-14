@@ -42,7 +42,7 @@ Loader::Loader(FILE *file) : fp(file), cache_count(0)
 uint32 Loader::OpenPattern(const char *name, bool may_fail)
 {
 	assert(strlen(name) == 4);
-	this->pattern_names.push_back(name);
+	this->pattern_names.emplace_back(name);
 	if (this->fp == nullptr) return 0;
 
 	int i = 0;
@@ -212,7 +212,7 @@ void Saver::StartPattern(const char *name, uint32 version)
 	assert(version != 0 && version != UINT32_MAX);
 	for (int i = 0; i < 4; i++) this->PutByte(name[i]);
 	this->PutLong(version);
-	this->pattern_names.push_back(name);
+	this->pattern_names.emplace_back(name);
 }
 
 /** Write the end of the pattern to the output. */

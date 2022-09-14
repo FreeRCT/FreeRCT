@@ -52,11 +52,6 @@ RidesManager _rides_manager; ///< Storage and retrieval of ride types and rides 
 uint8 RideEntranceExitType::entrance_height = 4;
 uint8 RideEntranceExitType::exit_height = 3;
 
-RideEntranceExitType::RideEntranceExitType()
-{
-	/* Nothing to do currently. */
-}
-
 /**
  * Load a type of ride entrance or exit from the RCD file.
  * @param rcd_file Rcd file being loaded.

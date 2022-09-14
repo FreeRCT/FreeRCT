@@ -69,7 +69,7 @@ enum ItemType {
 /** Class describing an entrance or exit of rides. */
 class RideEntranceExitType {
 public:
-	RideEntranceExitType();
+	RideEntranceExitType() = default;
 	void Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
 
 	std::string internal_name;       ///< Unique internal name of the entrance/exit type.

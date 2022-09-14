@@ -132,6 +132,12 @@ public:
 	bool IsQueuingGuest() const;
 	const Person *GetQueuingGuestNearby(const XYZPoint16& vox_pos, const XYZPoint16& pix_pos, bool only_in_front);
 
+	/**
+	 * Test whether this person type treats queue paths like normal paths.
+	 * @return This person doesn't treat queue paths specially.
+	 */
+	virtual bool WalksOnQueuePaths() const = 0;
+
 	void SetName(const std::string &name);
 	std::string GetName() const;
 	std::string GetStatus() const;
@@ -220,6 +226,10 @@ public:
 	void NotifyRideDeletion(const RideInstance *ri);
 	void ExitRide(RideInstance *ri, TileEdge entry);
 	void ExpelFromBench();
+	bool WalksOnQueuePaths() const override
+	{
+		return false;
+	}
 
 	GuestActivity activity; ///< Activity being done by the guest currently.
 	int16 happiness;        ///< Happiness of the guest (values are 0-100). Use #ChangeHappiness to change the guest happiness.
@@ -264,8 +274,7 @@ protected:
 /** A staff member: Mechanics, handymen, guards, entertainers. */
 class StaffMember : public Person {
 public:
-	StaffMember();
-	~StaffMember();
+	StaffMember() = default;
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
@@ -282,7 +291,7 @@ public:
 /** A mechanic who can repair and inspect rides. */
 class Mechanic : public StaffMember {
 public:
-	Mechanic();
+	Mechanic() = default;
 	~Mechanic();
 
 	void Load(Loader &ldr);
@@ -295,13 +304,16 @@ public:
 	AnimateResult VisitRideOnAnimate(RideInstance *ri, TileEdge exit_edge) override;
 	RideVisitDesire WantToVisit(const RideInstance *ri, const XYZPoint16 &ride_pos, TileEdge exit_edge) override;
 	AnimateResult ActionAnimationCallback() override;
+	bool WalksOnQueuePaths() const override
+	{
+		return false;
+	}
 };
 
 /** A guard who walks around the park to stop guests from smashing up park property. */
 class Guard : public StaffMember {
 public:
-	Guard();
-	~Guard();
+	Guard() = default;
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
@@ -309,6 +321,10 @@ public:
 	AnimateResult ActionAnimationCallback() override
 	{
 		NOT_REACHED();  // Guards don't have action animations.
+	}
+	bool WalksOnQueuePaths() const override
+	{
+		return true;
 	}
 };
 
@@ -318,8 +334,7 @@ public:
  */
 class Entertainer : public StaffMember {
 public:
-	Entertainer();
-	~Entertainer();
+	Entertainer() = default;
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
@@ -327,6 +342,10 @@ public:
 	AnimateResult ActionAnimationCallback() override
 	{
 		NOT_REACHED();  // Entertainers don't have action animations.
+	}
+	bool WalksOnQueuePaths() const override
+	{
+		return true;
 	}
 };
 
@@ -347,7 +366,6 @@ public:
 	};
 
 	Handyman();
-	~Handyman();
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
@@ -356,6 +374,10 @@ public:
 	AnimateResult ActionAnimationCallback() override;
 	bool IsLeavingPath() const override;
 	AnimateResult InteractWithPathObject(PathObjectInstance *obj) override;
+	bool WalksOnQueuePaths() const override
+	{
+		return true;
+	}
 
 	HandymanActivity activity;  ///< What the handyman is doing right now.
 };

@@ -256,7 +256,6 @@ inline const BaseWidget *GuiWindow::GetWidget(WidgetNumber wnum) const
 class WindowManager {
 public:
 	WindowManager();
-	~WindowManager();
 
 	bool HasWindow(Window *w);
 	void AddToStack(Window *w);
