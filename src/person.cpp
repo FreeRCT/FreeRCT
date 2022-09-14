@@ -925,7 +925,7 @@ RideVisitDesire Person::ComputeExitDesire(TileEdge current_edge, XYZPoint16 cur_
 
 	const TileEdge original_exit_edge = exit_edge;
 	const XYZPoint16 original_cur_pos = cur_pos;
-	bool travel = TravelQueuePath(&cur_pos, &exit_edge);
+	bool travel = this->WalksOnQueuePaths() || TravelQueuePath(&cur_pos, &exit_edge);
 	if (!travel) return RVD_NO_VISIT; // Path leads to nowhere.
 
 	if (PathExistsAtBottomEdge(cur_pos, exit_edge)) return RVD_NO_RIDE; // Found a path.
