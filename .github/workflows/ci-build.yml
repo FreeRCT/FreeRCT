@@ -68,7 +68,7 @@ jobs:
         done
 
     - name: Results
-      run: ./utils/check_clang_tidy_results.py clang-tidy.log   || true  # TODO Let this check fail on errors once we've cleaned up all hits.
+      run: ./utils/check_clang_tidy_results.py clang-tidy.log
 
   linux:
     name: Linux
