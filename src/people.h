@@ -78,8 +78,7 @@ private:
 /** All the staff (handymen, mechanics, entertainers, guards) in the park. */
 class Staff {
 public:
-	Staff();
-	~Staff();
+	Staff() = default;
 	void Uninitialize();
 
 	void RequestMechanic(RideInstance *ride);

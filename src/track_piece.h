@@ -22,7 +22,6 @@ typedef class std::map<unsigned int, ImageData *> ImageMap; ///< Loaded images.
 /** Data of a voxel in a track piece. */
 struct TrackVoxel {
 	TrackVoxel();
-	~TrackVoxel();
 
 	void Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites);
 

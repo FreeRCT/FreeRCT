@@ -58,8 +58,17 @@ jobs:
         popd
         echo "::endgroup::"
 
+    - name: Overview
+      run: |
+        for check in $( grep -P '^[/a-zA-Z._]+:[0-9]+:[0-9]+: [a-zA-Z]+:' clang-tidy.log | grep -oP '\[[-,._a-zA-Z0-9]+\]$' | sort -u )
+        do
+          echo "::group::$check"
+          grep -F --after-context=2 "$check" clang-tidy.log
+          echo "::endgroup::"
+        done
+
     - name: Results
-      run: ./utils/check_clang_tidy_results.py clang-tidy.log   || true  # TODO Let this check fail on errors once we've cleaned up all hits.
+      run: ./utils/check_clang_tidy_results.py clang-tidy.log
 
   linux:
     name: Linux

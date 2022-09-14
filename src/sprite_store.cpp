@@ -306,22 +306,20 @@ void SpriteManager::LoadTSEL(RcdFileReader *rcd_file, const ImageMap &sprites)
 	}
 }
 
-Fence::Fence() : RcdBlock(), type(FENCE_TYPE_INVALID), width(0)
+Fence::Fence() : type(FENCE_TYPE_INVALID), width(0)
 {
 	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = nullptr;
 }
 
 Fence::~Fence()
-{
-}
+= default;
 
 FrameSet::FrameSet() : width(0), width_x(0), width_y(0)
 {
 }
 
 FrameSet::~FrameSet()
-{
-}
+= default;
 
 /**
  * Load a frame set block from a RCD file.
@@ -355,8 +353,7 @@ TimedAnimation::TimedAnimation() : frames(0)
 }
 
 TimedAnimation::~TimedAnimation()
-{
-}
+= default;
 
 /**
  * How long this animation needs to play once.
@@ -721,7 +718,7 @@ void SpriteManager::LoadBDIR(RcdFileReader *rcd_file, const ImageMap &sprites)
 }
 
 /** %Animation default constructor. */
-Animation::Animation() : RcdBlock(),
+Animation::Animation() :
 	frame_count(0),
 	person_type(PERSON_INVALID),
 	anim_type(ANIM_INVALID),
@@ -786,7 +783,7 @@ void Animation::Load(RcdFileReader *rcd_file)
 }
 
 /** Animation sprites default constructor. */
-AnimationSprites::AnimationSprites() : RcdBlock(),
+AnimationSprites::AnimationSprites() :
 	width(0),
 	person_type(PERSON_INVALID),
 	anim_type(ANIM_INVALID),

@@ -274,8 +274,7 @@ protected:
 /** A staff member: Mechanics, handymen, guards, entertainers. */
 class StaffMember : public Person {
 public:
-	StaffMember();
-	~StaffMember();
+	StaffMember() = default;
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
@@ -292,7 +291,7 @@ public:
 /** A mechanic who can repair and inspect rides. */
 class Mechanic : public StaffMember {
 public:
-	Mechanic();
+	Mechanic() = default;
 	~Mechanic();
 
 	void Load(Loader &ldr);
@@ -314,8 +313,7 @@ public:
 /** A guard who walks around the park to stop guests from smashing up park property. */
 class Guard : public StaffMember {
 public:
-	Guard();
-	~Guard();
+	Guard() = default;
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
@@ -336,8 +334,7 @@ public:
  */
 class Entertainer : public StaffMember {
 public:
-	Entertainer();
-	~Entertainer();
+	Entertainer() = default;
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
@@ -369,7 +366,6 @@ public:
 	};
 
 	Handyman();
-	~Handyman();
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr);

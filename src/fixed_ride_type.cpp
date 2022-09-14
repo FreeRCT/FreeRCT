@@ -29,11 +29,6 @@ FixedRideType::FixedRideType(const RideTypeKind k) : RideType(k),
 {
 }
 
-FixedRideType::~FixedRideType()
-{
-	/* Images and texts are handled by the sprite collector, no need to release its memory here. */
-}
-
 const ImageData *FixedRideType::GetView(uint8 orientation) const
 {
 	return (orientation < 4) ? this->previews[orientation] : nullptr;
@@ -63,8 +58,7 @@ FixedRideInstance::FixedRideInstance(const FixedRideType *type) : RideInstance(t
 }
 
 FixedRideInstance::~FixedRideInstance()
-{
-}
+= default;
 
 /**
  * Get the fixed ride type of the ride.
@@ -146,7 +140,7 @@ void FixedRideInstance::GetSprites(const XYZPoint16 &vox, [[maybe_unused]] uint1
 				const int stop_duration = t->animation_stopping == nullptr ? 0 : t->animation_stopping->GetTotalDuration();
 				if (relative_time > total_duration - stop_duration) {
 					/* Slowing down. */
-					const int index = t->animation_stopping->GetFrame(stop_duration + relative_time - total_duration, false);
+					const int index = t->animation_stopping->GetFrame(stop_duration + relative_time - total_duration, false);  // NOLINT clang-tidy false positive.
 					assert(index >= 0 && index < t->animation_stopping->frames);
 					set_to_use = t->animation_stopping->views[index];
 				} else if (t->animation_working != nullptr && t->animation_working->GetTotalDuration() > 0) {

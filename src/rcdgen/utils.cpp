@@ -110,7 +110,7 @@ HorVert ParameterizedName::DecodeName(const char *name, const Position &pos)
 	this->variant = nullptr;
 
 	this->result = HV_NONE;
-	while (*p) {
+	while (*p != '\0') {
 		if (*p != '{') {
 			p++;
 			continue;
@@ -152,7 +152,6 @@ HorVert ParameterizedName::DecodeName(const char *name, const Position &pos)
 		}
 		range->used = true;
 		range->length = (p - name) - range->offset;
-		continue;
 	}
 	/* Copy name. */
 	this->name = new char[(p - name) + 1];

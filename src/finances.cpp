@@ -25,11 +25,6 @@ Finances::Finances()
 	this->Reset();
 }
 
-/** Destructor. */
-Finances::~Finances()
-{
-}
-
 /** Resets the finance categories to \c 0. */
 void Finances::Reset()
 {
@@ -123,11 +118,6 @@ void Finances::Save(Saver &svr)
 FinancesManager::FinancesManager()
 {
 	this->Reset();
-}
-
-/** Destructor. */
-FinancesManager::~FinancesManager()
-{
 }
 
 /** Reset all finances to initial state. */

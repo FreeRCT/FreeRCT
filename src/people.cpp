@@ -348,16 +348,6 @@ void Guests::Complain(const ComplaintType type)
 	}
 }
 
-Staff::Staff()
-{
-	/* Nothing to do currently. */
-}
-
-Staff::~Staff()
-{
-	/* Nothing to do currently. */
-}
-
 static const uint16 STAFF_BASE_ID = std::numeric_limits<uint16>::max();  // Counting staff IDs backwards to avoid conflicts with %Guests.
 
 /** Remove all staff and reset all variables. */

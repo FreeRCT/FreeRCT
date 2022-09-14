@@ -57,9 +57,9 @@ void TextRenderer::Initialize()
 	glGenBuffers(1, &this->vbo);
 	glBindVertexArray(this->vao);
 	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), nullptr);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
 }
@@ -552,7 +552,7 @@ void VideoSystem::Initialize(const std::string &font, int font_size)
 
 	std::string caption = "FreeRCT ";
 	caption += _freerct_revision;
-	this->window = glfwCreateWindow(this->width, this->height, caption.c_str(), NULL, NULL);
+	this->window = glfwCreateWindow(this->width, this->height, caption.c_str(), nullptr, nullptr);
 	if (this->window == nullptr) {
 		glfwTerminate();
 		error("Failed to open GLFW window\n");
@@ -810,7 +810,7 @@ GLuint VideoSystem::LoadShaders(const char *vp, const char *fp)
 
 	/* Compile Vertex Shader. */
 	char const* vertex_source_pointer = vertex_shader_code.c_str();
-	glShaderSource(vertex_shader_id, 1, &vertex_source_pointer, NULL);
+	glShaderSource(vertex_shader_id, 1, &vertex_source_pointer, nullptr);
 	glCompileShader(vertex_shader_id);
 
 	/* Check Vertex Shader. */
@@ -818,13 +818,13 @@ GLuint VideoSystem::LoadShaders(const char *vp, const char *fp)
 	if (result != GL_TRUE) {
 		glGetShaderiv(vertex_shader_id, GL_INFO_LOG_LENGTH, &info_log_length);
 		std::vector<char> vertex_shader_error_message(info_log_length + 1);
-		glGetShaderInfoLog(vertex_shader_id, info_log_length, NULL, &vertex_shader_error_message[0]);
-		error("Compile error in shader %s: %s\n", vp, &vertex_shader_error_message[0]);
+		glGetShaderInfoLog(vertex_shader_id, info_log_length, nullptr, vertex_shader_error_message.data());
+		error("Compile error in shader %s: %s\n", vp, vertex_shader_error_message.data());
 	}
 
 	/* Compile Fragment Shader. */
 	char const* FragmentSourcePointer = fragment_shader_code.c_str();
-	glShaderSource(fragment_shader_id, 1, &FragmentSourcePointer, NULL);
+	glShaderSource(fragment_shader_id, 1, &FragmentSourcePointer, nullptr);
 	glCompileShader(fragment_shader_id);
 
 	/* Check Fragment Shader. */
@@ -832,8 +832,8 @@ GLuint VideoSystem::LoadShaders(const char *vp, const char *fp)
 	if (result != GL_TRUE) {
 		glGetShaderiv(fragment_shader_id, GL_INFO_LOG_LENGTH, &info_log_length);
 		std::vector<char> fragment_shader_error_message(info_log_length + 1);
-		glGetShaderInfoLog(fragment_shader_id, info_log_length, NULL, &fragment_shader_error_message[0]);
-		error("Compile error in shader %s: %s\n", fp, &fragment_shader_error_message[0]);
+		glGetShaderInfoLog(fragment_shader_id, info_log_length, nullptr, fragment_shader_error_message.data());
+		error("Compile error in shader %s: %s\n", fp, fragment_shader_error_message.data());
 	}
 
 	/* Link the program. */
@@ -847,8 +847,8 @@ GLuint VideoSystem::LoadShaders(const char *vp, const char *fp)
 	if (result != GL_TRUE) {
 		glGetProgramiv(program_id, GL_INFO_LOG_LENGTH, &info_log_length);
 		std::vector<char> program_error_message(info_log_length + 1);
-		glGetProgramInfoLog(program_id, info_log_length, NULL, &program_error_message[0]);
-		error("Linking error in shader pair %s/%s: %s\n", vp, fp, &program_error_message[0]);
+		glGetProgramInfoLog(program_id, info_log_length, nullptr, program_error_message.data());
+		error("Linking error in shader pair %s/%s: %s\n", vp, fp, program_error_message.data());
 	}
 
 	glDetachShader(program_id, vertex_shader_id);
@@ -1012,7 +1012,7 @@ void VideoSystem::DoDrawImage(GLuint texture, float x1, float y1, float x2, floa
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)nullptr);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
@@ -1021,7 +1021,7 @@ void VideoSystem::DoDrawImage(GLuint texture, float x1, float y1, float x2, floa
 	glBindTexture(GL_TEXTURE_2D, texture);
 	glUseProgram(this->image_shader);
 	glBindVertexArray(this->vao);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
 /**
@@ -1055,7 +1055,7 @@ void VideoSystem::DoDrawPlainColours(const std::vector<Point<float>> &points, ui
 	}
 	glBindVertexArray(this->vao);
 	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)nullptr);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
@@ -1082,7 +1082,7 @@ void VideoSystem::DoDrawLine(float x1, float y1, float x2, float y2, uint32 col)
 	glBindVertexArray(this->vao);
 	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)nullptr);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
@@ -1118,11 +1118,11 @@ void VideoSystem::DoFillPlainColour(float x1, float y1, float x2, float y2, uint
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)nullptr);
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 	glUseProgram(this->colour_shader);
 	glBindVertexArray(this->vao);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }

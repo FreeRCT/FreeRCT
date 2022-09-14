@@ -164,7 +164,7 @@ static const WidgetPart _path_build_gui_parts[] = {
 };
 
 /** Constructor of the path build gui. */
-PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE), ride_selector(), path_type_button_size()
+PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE)
 {
 	const SpriteStorage *store = _sprite_manager.GetSprites(64); // GUI size.
 	for (int i = 0; i < PAT_COUNT; i++) {

@@ -21,11 +21,6 @@ TrackVoxel::TrackVoxel()
 	std::fill_n(this->front, lengthof(this->front), nullptr);
 }
 
-TrackVoxel::~TrackVoxel()
-{
-	/* Images are deleted by the RCD manager. */
-}
-
 /**
  * Load a track voxel.
  * @param rcd_file Data file being loaded.
@@ -48,12 +43,10 @@ void TrackVoxel::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sp
 }
 
 TrackCurve::TrackCurve()
-{
-}
+= default;
 
 TrackCurve::~TrackCurve()
-{
-}
+= default;
 
 /**
  * \fn double TrackCurve::GetValue(int distance)
@@ -66,7 +59,7 @@ TrackCurve::~TrackCurve()
  * Track curve that always has the same value.
  * @param value Constant value of the curve.
  */
-ConstantTrackCurve::ConstantTrackCurve(int value) : TrackCurve(), value(value)
+ConstantTrackCurve::ConstantTrackCurve(int value) : value(value)
 {
 }
 
@@ -84,8 +77,7 @@ CubicBezier::CubicBezier(uint32 start, uint32 last, int a, int b, int c, int d) 
 }
 
 BezierTrackCurve::BezierTrackCurve()
-{
-}
+= default;
 
 /**
  * Load the data of a Bezier spline into a #BezierTrackCurve.

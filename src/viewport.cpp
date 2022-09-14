@@ -192,12 +192,12 @@ struct DrawData {
 		this->highlight = highlight;
 	}
 
-	int32 level;                 ///< Slice of this sprite (vertical row).
-	uint16 z_height;             ///< Height of the voxel being drawn.
-	SpriteOrder order;           ///< Selection when to draw this sprite (sorts sprites within a voxel). @see SpriteOrder
 	const ImageData *sprite;     ///< Mouse cursor to draw.
-	Point32 base;                ///< Base coordinate of the image, relative to top-left of the window.
 	const Recolouring *recolour; ///< Recolouring of the sprite.
+	int32 level;                 ///< Slice of this sprite (vertical row).
+	SpriteOrder order;           ///< Selection when to draw this sprite (sorts sprites within a voxel). @see SpriteOrder
+	Point32 base;                ///< Base coordinate of the image, relative to top-left of the window.
+	uint16 z_height;             ///< Height of the voxel being drawn.
 	bool highlight;              ///< Highlight the sprite (semi-transparent white).
 };
 
@@ -288,8 +288,7 @@ VoxelCollector::VoxelCollector(Viewport *vp)
 
 /* Destructor. */
 VoxelCollector::~VoxelCollector()
-{
-}
+= default;
 
 /**
  * Set screen area of interest (relative to the (#Viewport::view_pos position).
@@ -328,8 +327,8 @@ void VoxelCollector::Collect()
 		for (uint ypos = 0; ypos < _world.GetYSize(); ypos++) {
 			int32 world_y = (ypos + ((this->orient == VOR_SOUTH || this->orient == VOR_EAST) ? 1 : 0)) * 256;
 			int32 north_x = ComputeX(world_x, world_y);
-			if (north_x + this->tile_width / 2 <= (int32)this->rect.base.x) continue; // Right of voxel column is at left of window.
-			if (north_x - this->tile_width / 2 >= (int32)(this->rect.base.x + this->rect.width)) continue; // Left of the window.
+			if (north_x + this->tile_width / 2 <= static_cast<int32>(this->rect.base.x)) continue;  // Right of voxel column is at left of window.
+			if (north_x - this->tile_width / 2 >= static_cast<int32>(this->rect.base.x + this->rect.width)) continue;  // Left of the window.
 
 			const VoxelStack *stack = _world.GetStack(xpos, ypos);
 
@@ -348,8 +347,8 @@ void VoxelCollector::Collect()
 
 			for (; zpos <= top; zpos++) {
 				int32 north_y = this->ComputeY(world_x, world_y, zpos * 256);
-				if (north_y - this->tile_height >= (int32)(this->rect.base.y + this->rect.height)) continue; // Voxel is below the window.
-				if (north_y + this->tile_width / 2 + this->tile_height <= (int32)this->rect.base.y) break; // Above the window and rising!
+				if (north_y - this->tile_height >= static_cast<int32>(this->rect.base.y + this->rect.height)) continue;  // Voxel is below the window.
+				if (north_y + this->tile_width / 2 + this->tile_height <= static_cast<int32>(this->rect.base.y)) break;  // Above the window and rising!
 
 				int count = zpos - stack->base;
 				const Voxel *voxel = (count >= 0 && count < stack->height) ? stack->voxels[count].get() : nullptr;
@@ -376,8 +375,7 @@ SpriteCollector::SpriteCollector(Viewport *vp) : VoxelCollector(vp)
 }
 
 SpriteCollector::~SpriteCollector()
-{
-}
+= default;
 
 /**
  * Set the offset of the top-left coordinate of the collect window to the top-left of the display.
@@ -435,7 +433,6 @@ void SpriteCollector::SetupSupports(const VoxelStack *stack, [[maybe_unused]] ui
 		break;
 	}
 	this->ground_height = -1;
-	return;
 }
 
 /**
@@ -753,8 +750,7 @@ PixelFinder::PixelFinder(Viewport *vp, FinderData *init_fdata) : VoxelCollector(
 }
 
 PixelFinder::~PixelFinder()
-{
-}
+= default;
 
 /**
  * Find the closest sprite.
@@ -904,8 +900,7 @@ Viewport::Viewport(const XYZPoint32 &init_view_pos) : Window(WC_MAINDISPLAY, ALL
 }
 
 Viewport::~Viewport()
-{
-}
+= default;
 
 /**
  * Can the viewport switch to underground mode view?

@@ -35,7 +35,7 @@ std::shared_ptr<BlockNode> BlockNode::GetSubNode(int row, int col, const char *n
  * @param blk_name Name of the block (4 letters string).
  * @param version Version number of the block.
  */
-NamedBlock::NamedBlock(const char *blk_name, int version) : BlockNode()
+NamedBlock::NamedBlock(const char *blk_name, int version)
 {
 	this->blk_name = blk_name;
 	this->version = version;
@@ -70,7 +70,7 @@ MetaBlock::MetaBlock(const char *blk_name, int version) : NamedBlock(blk_name, v
  * Constructor of the file node.
  * @param file_name Name of the file to write to.
  */
-FileNode::FileNode(const std::string &file_name) : BlockNode()
+FileNode::FileNode(const std::string &file_name)
 {
 	this->file_name = file_name;
 }
@@ -81,7 +81,7 @@ FileNode::FileNode(const std::string &file_name) : BlockNode()
  */
 void FileNode::Write(FileWriter *fw)
 {
-	for (auto iter : this->blocks) {
+	for (const auto& iter : this->blocks) {
 		iter->Write(fw);
 	}
 }
@@ -291,11 +291,11 @@ Image *SheetBlock::GetSheet()
 	BitMaskData *bmd = (this->mask == nullptr) ? nullptr : &this->mask->data;
 	if (this->imf->Is8bpp()) {
 		this->img_sheet = new Image8bpp(this->imf.get(), bmd);
-		if (this->recolour != "") fprintf(stderr, "Error at %s, cannot recolour an 8bpp image, ignoring the file.\n", this->pos.ToString());
+		if (!this->recolour.empty()) fprintf(stderr, "Error at %s, cannot recolour an 8bpp image, ignoring the file.\n", this->pos.ToString());
 	} else {
 		Image32bpp *im = new Image32bpp(this->imf.get(), bmd);
 		this->img_sheet = im;
-		if (this->recolour != "") {
+		if (!this->recolour.empty()) {
 			this->rmf.reset();
 			const char *err = ImageFile::LoadFile(this->recolour, this->rmf);
 			if (err != nullptr) {
@@ -538,7 +538,7 @@ int ANSPBlock::Write(FileWriter *fw)
 	fb->SaveUInt8(this->person_type);
 	fb->SaveUInt16(this->anim_type);
 	fb->SaveUInt16(this->frames.size());
-	for (auto iter : this->frames) {
+	for (const auto& iter : this->frames) {
 		fb->SaveUInt32(iter->Write(fw));
 	}
 	fb->CheckEndSave();
@@ -649,14 +649,13 @@ int GetLanguageIndex(const char *lname, const Position &pos)
 	exit(1);
 }
 
-StringNode::StringNode() : BlockNode()
+StringNode::StringNode()
 {
 	this->lang_index = -1;
 }
 
-StringsNode::StringsNode() : BlockNode()
-{
-}
+StringsNode::StringsNode()
+= default;
 
 /**
  * Add a string to the collection of strings.
@@ -669,14 +668,14 @@ void StringsNode::Add(const StringNode &node, const Position &pos)
 		/* Check for duplicates: No same names with same language and same key. */
 		if (iter.name != node.name) continue;
 		if (iter.lang_index >= 0 && node.lang_index >= 0 && iter.lang_index != node.lang_index) continue;
-		if (iter.key == "" || node.key == "" || iter.key != node.key) continue;
+		if (iter.key.empty() || node.key.empty() || iter.key != node.key) continue;
 		fprintf(stderr, "Error at %s: ", node.text_pos.ToString());
 		fprintf(stderr, "\"string node\" conflicts with node at %s\n", iter.text_pos.ToString());
 		exit(1);
 	}
 	this->strings.push_back(node);
-	if (this->key != "") {
-		if (node.key == "") {
+	if (!this->key.empty()) {
+		if (node.key.empty()) {
 			this->strings.back().key = this->key;
 		} else if (this->key != node.key) {
 			fprintf(stderr, "Error at %s: String \"%s\" already has key \"%s\".\n", pos.ToString(), node.name.c_str(), node.key.c_str());
@@ -693,13 +692,13 @@ void StringsNode::Add(const StringNode &node, const Position &pos)
  */
 void StringsNode::SetKey(const std::string &key, const Position &pos)
 {
-	if (this->key != "") {
+	if (!this->key.empty()) {
 		fprintf(stderr, "Error at %s: Strings already have key \"%s\".\n", pos.ToString(), this->key.c_str());
 		exit(1);
 	}
 	this->key = key;
 	for (auto &str : this->strings) {
-		if (str.key != "" && str.key != key) {
+		if (!str.key.empty() && str.key != key) {
 			fprintf(stderr, "Error at %s: String \"%s\" already has key \"%s\".\n", pos.ToString(), str.name.c_str(), str.key.c_str());
 			exit(1);
 		}
@@ -715,15 +714,15 @@ std::string StringsNode::GetKey() const
 {
 	std::string key;
 	bool set_key = false;
-	for (auto &str : this->strings) {
+	for (const auto &str : this->strings) {
 		if (!set_key) {
-			if (str.key != "") {
+			if (!str.key.empty()) {
 				key = str.key;
 				set_key = true;
 			}
 			continue;
 		}
-		if (str.key != "" && key != str.key) return ""; // Two or more different keys, no sane way to decide what it is.
+		if (!str.key.empty() && key != str.key) return ""; // Two or more different keys, no sane way to decide what it is.
 	}
 	if (set_key) return key;
 	return this->key; // Can only give a result when there are no strings in this node.
@@ -813,9 +812,9 @@ void TextNode::Write(FileBlock *fb) const
 void StringBundle::Fill(std::shared_ptr<StringsNode> strs, const Position &pos)
 {
 	std::string strs_key = strs->GetKey();
-	if (this->key == "") {
+	if (this->key.empty()) {
 		this->key = strs_key;
-	} else if (strs_key != "" && this->key != strs_key) {
+	} else if (!strs_key.empty() && this->key != strs_key) {
 		fprintf(stderr, "Error at %s: Bundle gets key \"%s\" but already has key \"%s\".\n", pos.ToString(), this->key.c_str(), strs_key.c_str());
 		exit(1);
 	}
@@ -848,7 +847,7 @@ void StringBundle::Fill(std::shared_ptr<StringsNode> strs, const Position &pos)
  */
 void StringBundle::MergeStorage(const StringBundle &storage)
 {
-	assert(this->key == "" || storage.key == "" || this->key == storage.key);
+	assert(this->key.empty() || storage.key.empty() || this->key == storage.key);
 	for (const auto &stor : storage.texts) {
 		auto iter = this->texts.find(stor.first);
 		if (iter == this->texts.end()) {
@@ -868,7 +867,7 @@ void StringBundle::MergeStorage(const StringBundle &storage)
  */
 void StringBundle::CheckTranslations(const char *names[], int name_count, const Position &pos)
 {
-	if (this->key != "") {	// Merge strings from storage, if available.
+	if (!this->key.empty()) {	// Merge strings from storage, if available.
 		const StringBundle *stored = _strings_storage.GetBundle(this->key);
 		if (stored != nullptr) this->MergeStorage(*stored);
 	}
@@ -1340,7 +1339,7 @@ int MENUBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-CubicSpline::CubicSpline() : BlockNode()
+CubicSpline::CubicSpline()
 {
 	this->a = 0;
 	this->b = 0;
@@ -1351,9 +1350,8 @@ CubicSpline::CubicSpline() : BlockNode()
 	this->last = 0;
 }
 
-Curve::Curve() : BlockNode()
-{
-}
+Curve::Curve()
+= default;
 
 /**
  * \fn double Curve::GetValue(int index, int step)
@@ -1363,9 +1361,8 @@ Curve::Curve() : BlockNode()
  * @return Value of the curve at the queried point.
  */
 
-CubicSplines::CubicSplines() : Curve()
-{
-}
+CubicSplines::CubicSplines()
+= default;
 
 double CubicSplines::GetValue(int index, int step)
 {
@@ -1384,9 +1381,8 @@ double CubicSplines::GetValue(int index, int step)
 	return ta * spline->a + tb * spline->b + tc * spline->c + td * spline->d;
 }
 
-FixedTable::FixedTable() : Curve()
+FixedTable::FixedTable() : value(0)
 {
-	this->value = 0;
 }
 
 double FixedTable::GetValue(int index, int step)
@@ -1394,7 +1390,7 @@ double FixedTable::GetValue(int index, int step)
 	return this->value;
 }
 
-TrackVoxel::TrackVoxel() : BlockNode()
+TrackVoxel::TrackVoxel()
 {
 	this->dx = 0;
 	this->dy = 0;
@@ -1472,7 +1468,7 @@ void TrackVoxel::Write(FileWriter *fw, FileBlock *fb, int rot)
 	fb->SaveUInt8(RotateFlags(this->flags, rot));
 }
 
-Connection::Connection() : BlockNode()
+Connection::Connection()
 {
 	this->name = "?";
 	this->direction = 0;
@@ -1793,7 +1789,7 @@ void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWr
 		fb->SaveUInt16(flags);
 		fb->SaveUInt32(this->cost);
 		fb->SaveUInt16(this->track_voxels.size());
-		for (auto iter : this->track_voxels) {
+		for (const auto& iter : this->track_voxels) {
 			iter->Write(fw, fb, rot);
 		}
 		fb->SaveUInt32(this->total_distance);
@@ -1826,7 +1822,7 @@ int RCSTBlock::Write(FileWriter *fw)
 {
 	/* Collect connection names, and give each a number. */
 	std::map<std::string, int> connections;
-	for (auto iter : this->track_blocks) {
+	for (const auto& iter : this->track_blocks) {
 		iter->UpdateConnectionMap(&connections);
 	}
 
@@ -1842,7 +1838,7 @@ int RCSTBlock::Write(FileWriter *fw)
 	fb->SaveUInt16(this->reliability_decrease_monthly);
 	fb->SaveUInt32(this->text->Write(fw));
 	fb->SaveUInt16(4 * this->track_blocks.size());
-	for (auto iter : this->track_blocks) {
+	for (const auto& iter : this->track_blocks) {
 		iter->Write(connections, fw, fb);
 	}
 	fb->SaveText(this->internal_name);
