@@ -32,6 +32,12 @@ enum GuiSpritesTable {
 	SPR_GUI_LOADSAVE_WARN,  ///< Loadsave icon for files with warnings.
 	SPR_GUI_LOADSAVE_OK,    ///< Loadsave icon for files without warnings or errors.
 
+	SPR_GUI_SPEED_0,  ///< 0× speed icon.
+	SPR_GUI_SPEED_1,  ///< 1× speed icon.
+	SPR_GUI_SPEED_2,  ///< 2× speed icon.
+	SPR_GUI_SPEED_4,  ///< 4× speed icon.
+	SPR_GUI_SPEED_8,  ///< 8× speed icon.
+
 	SPR_GUI_TOOLBAR_BEGIN,                         ///< Begin of toolbar sprites.
 	SPR_GUI_TOOLBAR_MAIN = SPR_GUI_TOOLBAR_BEGIN,  ///< Toolbar button main menu gui sprite.
 	SPR_GUI_TOOLBAR_SPEED,                         ///< Toolbar button speed menu gui sprite.

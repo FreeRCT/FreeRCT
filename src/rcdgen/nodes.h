@@ -897,6 +897,11 @@ public:
 	std::shared_ptr<SpriteBlock> toolbar_objects;   ///< Toolbar: Path objects GUI button.
 	std::shared_ptr<SpriteBlock> toolbar_view;      ///< Toolbar: View menu GUI button.
 	std::shared_ptr<SpriteBlock> toolbar_park;      ///< Toolbar: Park management GUI button.
+	std::shared_ptr<SpriteBlock> speed_0;         ///< 0× speed icon.
+	std::shared_ptr<SpriteBlock> speed_1;         ///< 1× speed icon.
+	std::shared_ptr<SpriteBlock> speed_2;         ///< 2× speed icon.
+	std::shared_ptr<SpriteBlock> speed_4;         ///< 4× speed icon.
+	std::shared_ptr<SpriteBlock> speed_8;         ///< 8× speed icon.
 	std::shared_ptr<SpriteBlock> weather[5];      ///< Weather sprites (sunny -> thunder).
 	std::shared_ptr<SpriteBlock> rog_lights[4];   ///< Red/orange/green lights (red, orange, green, none).
 	std::shared_ptr<SpriteBlock> rg_lights[3];    ///< Red/green lights (red, green, none).

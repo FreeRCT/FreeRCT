@@ -141,6 +141,8 @@ public:
 	Viewport *vp;                 ///< Parent viewport for accessing the cursors if not \c nullptr.
 	MouseModeSelector *selector;  ///< Mouse mode selector.
 	bool underground_mode;        ///< Whether to draw underground mode sprites (else draw normal surface sprites).
+	bool underwater_mode;         ///< Whether to draw underwater mode sprites (else draw normal water sprites).
+	bool grid;                    ///< Whether to draw a grid overlay around terrain tiles.
 
 	Rectangle32 rect; ///< Screen area of interest.
 
@@ -179,9 +181,10 @@ struct DrawData {
 	 * @param sprite Mouse cursor to draw.
 	 * @param base Base coordinate of the image, relative to top-left of the window.
 	 * @param recolour Recolouring of the sprite.
-	 * @param highlight Highlight the sprite.
+	 * @param gs Gradient shift of the sprite.
 	 */
-	inline void Set(int32 level, uint16 z_height, SpriteOrder order, const ImageData *sprite, const Point32 &base, const Recolouring *recolour = nullptr, bool highlight = false)
+	inline void Set(int32 level, uint16 z_height, SpriteOrder order, const ImageData *sprite, const Point32 &base,
+			const Recolouring *recolour = nullptr, GradientShift gs = GS_INVALID)
 	{
 		this->level = level;
 		this->z_height = z_height;
@@ -189,7 +192,7 @@ struct DrawData {
 		this->sprite = sprite;
 		this->base = base;
 		this->recolour = recolour;
-		this->highlight = highlight;
+		this->gs = gs;
 	}
 
 	const ImageData *sprite;     ///< Mouse cursor to draw.
@@ -198,7 +201,7 @@ struct DrawData {
 	SpriteOrder order;           ///< Selection when to draw this sprite (sorts sprites within a voxel). @see SpriteOrder
 	Point32 base;                ///< Base coordinate of the image, relative to top-left of the window.
 	uint16 z_height;             ///< Height of the voxel being drawn.
-	bool highlight;              ///< Highlight the sprite (semi-transparent white).
+	GradientShift gs;            ///< Gradient shift of the sprite.
 };
 
 /**
@@ -281,6 +284,8 @@ VoxelCollector::VoxelCollector(Viewport *vp)
 	this->tile_height = vp->tile_height;
 	this->orient = vp->orientation;
 	this->underground_mode = vp->underground_mode;
+	this->underwater_mode = vp->underwater_mode;
+	this->grid = vp->grid;
 
 	this->sprites = _sprite_manager.GetSprites(this->tile_width);
 	assert(this->sprites != nullptr);
@@ -471,6 +476,7 @@ static int DrawRideOrScenery(int32 slice, const XYZPoint16 & pos, const Point32 
 		if (sprites[i] == nullptr) continue;
 
 		dd[idx].Set(slice, pos.z, sprite_numbers[i], sprites[i], base_pos, recolour);
+		if (number == SRI_SCENERY) dd[idx].order = static_cast<SpriteOrder>(dd[idx].order & ~CS_RIDE);  // Don't treat scenery like rides.
 		idx++;
 	}
 	return idx;
@@ -508,7 +514,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 
 		DrawData dd;
 		dd.Set(slice, voxel_pos.z, SO_PATH, this->sprites->GetPathSprite(GetPathType(instance_data), GetImplodedPathSlope(instance_data), this->orient),
-				north_point, nullptr, highlight);
+				north_point, nullptr, highlight ? GS_SEMI_TRANSPARENT : GS_INVALID);
 		this->draw_images.insert(dd);
 
 		for (const PathObjectInstance::PathObjectSprite &image : _scenery.DrawPathObjects(voxel_pos, this->orient)) {
@@ -517,14 +523,19 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			Point32 pos(north_point.x + this->north_offsets[this->orient].x + x_off,
 			            north_point.y + this->north_offsets[this->orient].y + y_off);
 
-			dd.Set(slice, voxel_pos.z, SO_PATH_OBJECTS, image.sprite, pos, nullptr, image.semi_transparent);
+			dd.Set(slice, voxel_pos.z, SO_PATH_OBJECTS, image.sprite, pos, nullptr,
+					image.semi_transparent ? GS_SEMI_TRANSPARENT : this->vp->wireframe_scenery ? GS_WIREFRAME : GS_INVALID);
 			this->draw_images.insert(dd);
 		}
 	} else if (sri >= SRI_FULL_RIDES || sri == SRI_SCENERY) { // A normal ride, or a scenery item.
 		DrawData dd[4];
 		int count = DrawRideOrScenery(slice, voxel_pos, north_point, this->orient, sri, instance_data, dd, &platform_shape);
 		for (int i = 0; i < count; i++) {
-			dd[i].highlight = highlight;
+			if (highlight) {
+				dd[i].gs = GS_SEMI_TRANSPARENT;
+			} else if ((this->vp->wireframe_rides && sri >= SRI_FULL_RIDES) || (this->vp->wireframe_scenery && sri == SRI_SCENERY)) {
+				dd[i].gs = GS_WIREFRAME;
+			}
 			this->draw_images.insert(dd[i]);
 		}
 	}
@@ -535,7 +546,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	}
 
 	/* Foundations. */
-	if (voxel != nullptr && voxel->GetFoundationType() != FDT_INVALID) {
+	if (voxel != nullptr && voxel->GetFoundationType() != FDT_INVALID && !this->vp->hide_foundations) {
 		uint8 fslope = voxel->GetFoundationSlope();
 		uint8 sw, se; // SW foundations, SE foundations.
 		switch (this->orient) {
@@ -566,12 +577,18 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 
 	/* Ground surface. */
 	uint8 gslope = SL_FLAT;
-	if (voxel != nullptr && voxel->GetGroundType() != GTP_INVALID) {
+	if (voxel != nullptr && voxel->GetGroundType() != GTP_INVALID && !this->vp->hide_surfaces) {
 		uint8 slope = voxel->GetGroundSlope();
 		uint8 type = (this->underground_mode) ? GTP_UNDERGROUND : voxel->GetGroundType();
 		DrawData dd;
 		dd.Set(slice, voxel_pos.z, SO_GROUND, this->sprites->GetSurfaceSprite(type, slope, this->orient), north_point);
 		this->draw_images.insert(dd);
+
+		if (this->grid) {
+			dd.Set(slice, voxel_pos.z, SO_GROUND, this->sprites->GetCursorSprite(slope, this->orient), north_point, nullptr, GS_SEMI_TRANSPARENT);
+			this->draw_images.insert(dd);
+		}
+
 		switch (slope) {
 			// XXX There are no sprites for partial support of a platform.
 			case SL_FLAT:
@@ -613,7 +630,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 				dd.Set(slice, voxel_pos.z, IsBackEdge(this->orient, edge) ? SO_FENCE_BACK : SO_FENCE_FRONT,
 						this->sprites->GetFenceSprite(fence_type, edge, gslope, this->orient), north_point);
 				if (IsImplodedSteepSlope(gslope) && !IsImplodedSteepSlopeTop(gslope)) dd.z_height++;
-				if (GB(fences, 16 + edge, 1) != 0) dd.highlight = true;
+				if (GB(fences, 16 + edge, 1) != 0) dd.gs = GS_SEMI_TRANSPARENT;
 				this->draw_images.insert(dd);
 			}
 		}
@@ -634,7 +651,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	}
 
 	/* Add platforms. */
-	if (platform_shape != PATH_INVALID) {
+	if (platform_shape != PATH_INVALID && !this->vp->hide_supports) {
 		/* Platform gets automatically added when drawing a path or ride, without drawing ground. */
 		ImageData *pl_spr;
 		switch (platform_shape) {
@@ -694,7 +711,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	while (vo != nullptr) {
 		const Recolouring *recolour;
 		const ImageData *anim_spr = vo->GetSprite(this->sprites, this->orient, &recolour);
-		if (anim_spr != nullptr) {
+		if (anim_spr != nullptr && (!this->vp->hide_people || dynamic_cast<const Person*>(vo) == nullptr)) {
 			int x_off = ComputeX(vo->pix_pos.x, vo->pix_pos.y);
 			int y_off = ComputeY(vo->pix_pos.x, vo->pix_pos.y, vo->pix_pos.z);
 			Point32 pos(north_point.x + this->north_offsets[this->orient].x + x_off,
@@ -704,10 +721,12 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			dd.Set(slice, people_z_pos, SO_PERSON, anim_spr, pos, recolour);
 			this->draw_images.insert(dd);
 
-			for (const VoxelObject::Overlay &overlay : vo->GetOverlays(this->sprites, this->orient)) {
-				if (overlay.sprite != nullptr) {
-					dd.Set(slice, people_z_pos, SO_PERSON_OVERLAY, overlay.sprite, pos, overlay.recolour);
-					this->draw_images.insert(dd);
+			if (!this->vp->hide_people) {
+				for (const VoxelObject::Overlay &overlay : vo->GetOverlays(this->sprites, this->orient)) {
+					if (overlay.sprite != nullptr) {
+						dd.Set(slice, people_z_pos, SO_PERSON_OVERLAY, overlay.sprite, pos, overlay.recolour);
+						this->draw_images.insert(dd);
+					}
 				}
 			}
 		}
@@ -788,7 +807,9 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 	if (voxel == nullptr) return; // Ignore cursors, they are not clickable.
 
 	SmallRideInstance number = voxel->GetInstance();
-	if ((this->allowed & CS_RIDE) != 0 && number >= SRI_FULL_RIDES) {
+	if (((this->allowed & CS_RIDE) != 0 && number >= SRI_FULL_RIDES) ||
+			((this->allowed & CS_PARK_BORDER) != 0 && number == SRI_SCENERY && voxel->instance_data != INVALID_VOXEL_DATA &&
+			_scenery.GetType(voxel->instance_data)->category == SCC_SCENARIO)) {
 		/* Looking for a ride? */
 		DrawData dd[4];
 		int count = DrawRideOrScenery(slice, voxel_pos, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth),
@@ -806,6 +827,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 				}
 			}
 		}
+		if (this->found && number == SRI_SCENERY) this->data.order = SO_FENCE_FRONT;  // Treat as park entrance rather than ride.
 	} else if ((this->allowed & CS_PATH) != 0 && HasValidPath(voxel)) {
 		/* Looking for a path? */
 		uint16 instance_data = voxel->GetInstanceData();
@@ -835,7 +857,25 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 				this->pixel = pixel;
 			}
 		}
-	} else if ((this->allowed & CS_PERSON) != 0) {
+	} else if ((this->allowed & CS_PARK_BORDER) != 0) {
+		for (TileEdge t = EDGE_BEGIN; t < EDGE_COUNT; t++) {
+			if (GetFenceType(voxel->GetFences(), t) != FENCE_TYPE_LAND_BORDER) continue;
+
+			const ImageData *img = this->sprites->GetFenceSprite(FENCE_TYPE_LAND_BORDER, t, voxel->GetGroundSlope(), this->orient);
+			if (img != nullptr) {
+				DrawData dd;
+				dd.Set(slice, voxel_pos.z, SO_FENCE_BACK, nullptr, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth));
+				uint32 pixel = img->GetPixel(dd.base.x - img->xoffset, dd.base.y - img->yoffset);
+				if (GetA(pixel) != TRANSPARENT && (!this->found || this->data < dd)) {
+					this->found = true;
+					this->data = dd;
+					this->pixel = pixel;
+					break;
+				}
+			}
+		}
+	}
+	if ((this->allowed & CS_PERSON) != 0 && !this->vp->hide_people) {
 		/* Looking for persons? */
 		const VoxelObject *vo = voxel->voxel_objects;
 		while (vo != nullptr) {
@@ -888,7 +928,18 @@ Viewport::Viewport(const XYZPoint32 &init_view_pos) : Window(WC_MAINDISPLAY, ALL
 #else
 	draw_fps(false),
 #endif
-	underground_mode(false)
+	underground_mode(false),
+	underwater_mode(false),
+	grid(false),
+	wireframe_rides(false),
+	wireframe_scenery(false),
+	hide_people(false),
+	hide_supports(false),
+	hide_surfaces(false),
+	hide_foundations(false),
+	height_markers_rides(false),
+	height_markers_paths(false),
+	height_markers_terrain(false)
 {
 	uint16 width  = _video.Width();
 	uint16 height = _video.Height();
@@ -999,10 +1050,29 @@ void Viewport::OnDraw(MouseModeSelector *selector)
 	_video.PushClip(this->rect);
 
 	GradientShift gs = static_cast<GradientShift>(GS_LIGHT - _weather.GetWeatherType());
-	for (const auto &iter : collector.draw_images) {
-		const DrawData &dd = iter;
+	for (const DrawData &dd : collector.draw_images) {
 		const Recolouring &rec = (dd.recolour == nullptr) ? _no_recolour : *dd.recolour;
-		_video.BlitImage(dd.base, dd.sprite, rec, dd.highlight ? GS_SEMI_TRANSPARENT : gs);
+		_video.BlitImage(dd.base, dd.sprite, rec, dd.gs != GS_INVALID ? dd.gs : gs);
+
+		/* Draw height markers if applicable. */
+		GuiTextColours marker_colour;
+		if (this->height_markers_rides && dd.order == SO_RIDE) {
+			marker_colour = HEIGHT_MARKER_RIDES;
+		} else if (this->height_markers_paths && dd.order == SO_PATH) {
+			marker_colour = HEIGHT_MARKER_PATHS;
+		} else if (this->height_markers_terrain && dd.order == SO_GROUND) {
+			marker_colour = HEIGHT_MARKER_TERRAIN;
+		} else {
+			continue;
+		}
+
+		std::string text = std::to_string(dd.z_height);
+		int w, h;
+		_video.GetTextSize(text, &w, &h);
+		// Rectangle32 r(dd.base.x - w / 2, dd.base.y + this->tile_height - h / 2, w, h);
+		Rectangle32 r(dd.base.x + dd.sprite->xoffset + (dd.sprite->width - w) / 2, dd.base.y + dd.sprite->yoffset + (dd.sprite->height - h) / 2, w, h);
+		_video.FillRectangle(r, SetA(_palette[marker_colour], OPACITY_SEMI_TRANSPARENT));
+		_video.BlitText(text, _palette[TEXT_BLACK], r.base.x, r.base.y, r.width, ALG_CENTER);
 	}
 
 	for (uint i = 0; i < this->floataway_texts.size();) {
@@ -1316,7 +1386,7 @@ WmMouseEvent Viewport::OnMouseButtonEvent(MouseButtons state, WmMouseEventMode m
 	}
 
 	/* Did the user click on something that has a window? */
-	FinderData fdata(CS_RIDE | CS_PERSON, FW_TILE);
+	FinderData fdata(CS_RIDE | CS_PERSON | CS_PARK_BORDER, FW_TILE);
 	switch (this->ComputeCursorPosition(&fdata)) {
 		case CS_RIDE:
 			if (ShowRideManagementGui(fdata.ride)) return WMME_NONE;
@@ -1324,6 +1394,10 @@ WmMouseEvent Viewport::OnMouseButtonEvent(MouseButtons state, WmMouseEventMode m
 
 		case CS_PERSON:
 			ShowPersonInfoGui(fdata.person);
+			return WMME_NONE;
+
+		case CS_PARK_BORDER:
+			ShowParkManagementGui(PARK_MANAGEMENT_TAB_GENERAL);
 			return WMME_NONE;
 
 		default: break;

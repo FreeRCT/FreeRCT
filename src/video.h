@@ -199,10 +199,14 @@ public:
 	 */
 	inline void DrawRectangle(const Rectangle32 &rect, uint32 col)
 	{
-		this->DoDrawLine(rect.base.x, rect.base.y, rect.base.x + rect.width, rect.base.y, col);
-		this->DoDrawLine(rect.base.x, rect.base.y, rect.base.x, rect.base.y + rect.height, col);
-		this->DoDrawLine(rect.base.x + rect.width, rect.base.y + rect.height, rect.base.x + rect.width, rect.base.y, col);
-		this->DoDrawLine(rect.base.x + rect.width, rect.base.y + rect.height, rect.base.x, rect.base.y + rect.height, col);
+		this->DoDrawLine(rect.base.x, rect.base.y,
+				rect.base.x + static_cast<float>(rect.width), rect.base.y, col);
+		this->DoDrawLine(rect.base.x, rect.base.y,
+				rect.base.x, rect.base.y + static_cast<float>(rect.height), col);
+		this->DoDrawLine(rect.base.x + static_cast<float>(rect.width), rect.base.y + static_cast<float>(rect.height),
+				rect.base.x + static_cast<float>(rect.width), rect.base.y, col);
+		this->DoDrawLine(rect.base.x + static_cast<float>(rect.width), rect.base.y + static_cast<float>(rect.height),
+				rect.base.x, rect.base.y + static_cast<float>(rect.height), col);
 	}
 
 	/**
@@ -212,7 +216,7 @@ public:
 	 */
 	inline void FillRectangle(const Rectangle32 &rect, uint32 colour)
 	{
-		this->DoFillPlainColour(rect.base.x, rect.base.y, rect.base.x + rect.width, rect.base.y + rect.height, colour);
+		this->DoFillPlainColour(rect.base.x, rect.base.y, rect.base.x + static_cast<float>(rect.width), rect.base.y + static_cast<float>(rect.height), colour);
 	}
 
 	void TileImage(const ImageData *img, const Rectangle32 &rect, bool tile_hor, bool tile_vert,

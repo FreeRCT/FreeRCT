@@ -815,6 +815,11 @@ Attributes:
 - ``toolbar_objects`` - Toolbar path objects sprite.
 - ``toolbar_view`` - Toolbar view menu sprite.
 - ``toolbar_park`` - Toolbar park management sprite.
+- ``speed_0`` - 0× speed icon.
+- ``speed_1`` - 1× speed icon.
+- ``speed_2`` - 2× speed icon.
+- ``speed_4`` - 4× speed icon.
+- ``speed_8`` - 8× speed icon.
 - ``sunny", "light_cloud", "thick_cloud", "rain", "thunder`` - Sprites for all weather conditions.
 - ``light_rog_red", "light_rog_orange", "light_rog_green", "light_rog_none`` - Sprites for red/orange/green indicators.
 - ``light_rg_red", "light_rg_green", "light_rg_none`` - Sprites for red/green indicators.

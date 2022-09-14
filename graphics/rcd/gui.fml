@@ -149,6 +149,12 @@ file("gui.rcd") {
 			x_offset: 0; y_offset: 0; width: 32; height: 32; crop: 0;
 		}
 
+		(speed_0, speed_1, speed_2, speed_4, speed_8): sheet {
+			x_base: 0; y_base: 0; x_step: 16; y_step: 0;
+			file: "../sprites/gui/speed.png";
+			x_offset: 0; y_offset: 0; width: 16; height: 16; crop: 0;
+		}
+
 		texts: strings { key: "gui"; }
 	}
 

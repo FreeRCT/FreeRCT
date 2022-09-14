@@ -146,17 +146,6 @@ enum ColourRange {
 	COL_RANGE_INVALID = 0xff, ///< Number denoting an invalid colour range.
 };
 
-/** Gui text colours. */
-enum GuiTextColours {
-	TEXT_BLACK = 8,                ///< Black text colour.
-	TEXT_WHITE = 1,                ///< White text colour.
-	TEXT_TOOLTIP_BACKGROUND = 3,   ///< Background colour for tooltips.
-	TEXT_TOOLTIP_TEXT = 4,         ///< Text colour for tooltips.
-	TEXT_TOOLTIP_BORDER = 5,       ///< Border colour for tooltips.
-	TEXT_GREY = 6,                 ///< Grey text colour.
-	OVERLAY_DARKEN = 7,            ///< Darkening overlay.
-};
-
 /** Colours. */
 enum PaletteColours {
 	COL_BACKGROUND = 0,       ///< Index of background behind the world display.
@@ -166,6 +155,20 @@ enum PaletteColours {
 	COL_SERIES_START = 10,    ///< Index of the first series.
 	COL_SERIES_LENGTH = 12,   ///< Number of shades in a single run.
 	COL_SERIES_END = COL_SERIES_START + COL_RANGE_COUNT * COL_SERIES_LENGTH, ///< First colour after the series.
+};
+
+/** Gui text colours. */
+enum GuiTextColours {
+	TEXT_BLACK = 8,                ///< Black text colour.
+	TEXT_WHITE = 1,                ///< White text colour.
+	TEXT_TOOLTIP_BACKGROUND = 3,   ///< Background colour for tooltips.
+	TEXT_TOOLTIP_TEXT = 4,         ///< Text colour for tooltips.
+	TEXT_TOOLTIP_BORDER = 5,       ///< Border colour for tooltips.
+	TEXT_GREY = 6,                 ///< Grey text colour.
+	OVERLAY_DARKEN = 7,            ///< Darkening overlay.
+	HEIGHT_MARKER_TERRAIN = COL_SERIES_START + COL_SERIES_LENGTH  * (COL_RANGE_LIGHT_GREEN + 1) - 2,  ///< Colour for terrain height markers.
+	HEIGHT_MARKER_RIDES   = COL_SERIES_START + COL_SERIES_LENGTH  * (COL_RANGE_SEA_GREEN   + 1) - 2,  ///< Colour for ride height markers.
+	HEIGHT_MARKER_PATHS   = COL_SERIES_START + COL_SERIES_LENGTH  * (COL_RANGE_GREEN_BROWN + 1) - 2,  ///< Colour for path height markers.
 };
 
 /** Shifting of the gradient to make the sprite lighter or darker. */
@@ -182,6 +185,7 @@ enum GradientShift {
 
 	GS_COUNT,          ///< Number of gradient shifts.
 	GS_SEMI_TRANSPARENT = GS_COUNT, ///< Semi-transparent for buying rides.
+	GS_WIREFRAME,                   ///< Dark, transparent wireframe view to make rides and scenery almost but not quite invisible.
 
 	GS_INVALID = 0xff, ///< Invalid gradient shift.
 };
@@ -192,6 +196,7 @@ enum Opacities {
 	OPAQUE = 255,    ///< Opacity value of a fully opaque pixel.
 
 	OPACITY_SEMI_TRANSPARENT = 100, ///< Opacity of the semi-transparent white colour while buying a ride.
+	OPACITY_WIREFRAME        =  20, ///< Opacity of wireframe models of rides and scenery.
 };
 
 static const int STEP_SIZE = 18; ///< Amount of colour shift for each gradient step.
@@ -298,6 +303,46 @@ static inline uint8 ShiftGradientTransparent([[maybe_unused]] uint8 col)
 }
 
 /**
+ * Gradient shift function for #GS_WIREFRAME.
+ * @param col Input colour.
+ * @return Result colour.
+ */
+static inline uint8 ShiftGradientWireframe(uint8 col)
+{
+	return ShiftGradientNight(col);
+}
+
+/**
+ * No-op opacity shift function.
+ * @param col Input opacity.
+ * @return Result opacity.
+ */
+static inline uint8 ShiftAlphaDefault(uint8 a)
+{
+	return a;
+}
+
+/**
+ * Opacity shift function for #GS_SEMI_TRANSPARENT.
+ * @param col Input opacity.
+ * @return Result opacity.
+ */
+static inline uint8 ShiftAlphaTransparent(uint8 a)
+{
+	return a * OPACITY_SEMI_TRANSPARENT / 255;
+}
+
+/**
+ * Opacity shift function for #GS_WIREFRAME.
+ * @param col Input opacity.
+ * @return Result opacity.
+ */
+static inline uint8 ShiftAlphaWireframe(uint8 a)
+{
+	return a * OPACITY_WIREFRAME / 255;
+}
+
+/**
  * Select gradient shift function based on the \a shift.
  * @param shift Desired amount of gradient shift.
  * @return Recolour function implementing the shift.
@@ -315,6 +360,31 @@ static inline ShiftFunc GetGradientShiftFunc(GradientShift shift)
 		case GS_VERY_LIGHT:     return ShiftGradientVeryLight;
 		case GS_DAY:            return ShiftGradientDay;
 		case GS_SEMI_TRANSPARENT: return ShiftGradientTransparent;
+		case GS_WIREFRAME       : return ShiftGradientWireframe;
+		default: NOT_REACHED();
+	}
+}
+
+/**
+ * Select opacity shift function based on the \a shift.
+ * @param shift Desired amount of gradient shift.
+ * @return Recolour function implementing the shift.
+ */
+static inline ShiftFunc GetAlphaShiftFunc(GradientShift shift)
+{
+	switch (shift) {
+		case GS_NIGHT:
+		case GS_VERY_DARK:
+		case GS_DARK:
+		case GS_SLIGHTLY_DARK:
+		case GS_NORMAL:
+		case GS_SLIGHTLY_LIGHT:
+		case GS_LIGHT:
+		case GS_VERY_LIGHT:
+		case GS_DAY:
+			return ShiftAlphaDefault;
+		case GS_SEMI_TRANSPARENT: return ShiftAlphaTransparent;
+		case GS_WIREFRAME       : return ShiftAlphaWireframe;
 		default: NOT_REACHED();
 	}
 }

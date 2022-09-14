@@ -33,8 +33,6 @@ strings:
 
 		DECREASE_BUTTON:          "-"
 		INCREASE_BUTTON:          "+"
-		DROPDOWN_CHECKED:         "☑ %1%"
-		DROPDOWN_UNCHECKED:       "☐ %1%"
 
 		# Toolbar gui strings.
 		TOOLBAR_GUI_DROPDOWN_MAIN:          "Meny"

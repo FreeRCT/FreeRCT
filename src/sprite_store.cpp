@@ -1104,7 +1104,7 @@ void GuiSprites::LoadGSCL(RcdFileReader *rcd_file, const ImageMap &sprites)
  */
 void GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
 {
-	rcd_file->CheckVersion(13);
+	rcd_file->CheckVersion(14);
 	const uint8 indices[] = {TSL_STRAIGHT_DOWN, TSL_STEEP_DOWN, TSL_DOWN, TSL_FLAT, TSL_UP, TSL_STEEP_UP, TSL_STRAIGHT_UP};
 
 	/* 'indices' entries of slope sprites, bends, banking, 4 triangle arrows,
@@ -1112,7 +1112,7 @@ void GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 	 */
 	rcd_file->CheckExactLength(rcd_file->size,
 			(lengthof(indices) + TBN_COUNT + TPB_COUNT + 4 + 2 + 2 + 1 + TC_END + 1 + WTP_COUNT +
-			4 + 3 + 4 + 2 + 1 + 5 + 3 + lengthof(this->toolbar_images)) * 4,
+			4 + 3 + 4 + 2 + 1 + 5 + 3 + lengthof(this->toolbar_images) + 5) * 4,
 			"header");
 
 	for (uint i = 0; i < lengthof(indices); i++) {
@@ -1170,6 +1170,12 @@ void GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 	LoadSpriteFromFile(rcd_file, sprites, &this->loadsave_ok);
 
 	for (ImageData *& t : this->toolbar_images) LoadSpriteFromFile(rcd_file, sprites, &t);
+
+	LoadSpriteFromFile(rcd_file, sprites, &this->speed_0);
+	LoadSpriteFromFile(rcd_file, sprites, &this->speed_1);
+	LoadSpriteFromFile(rcd_file, sprites, &this->speed_2);
+	LoadSpriteFromFile(rcd_file, sprites, &this->speed_4);
+	LoadSpriteFromFile(rcd_file, sprites, &this->speed_8);
 
 	LoadTextFromFile(rcd_file, texts, &this->text);
 	_language.RegisterStrings(*this->text, _gui_strings_table, STR_GUI_START);
@@ -1245,6 +1251,11 @@ void GuiSprites::Clear()
 	this->loadsave_err = nullptr;
 	this->loadsave_warn = nullptr;
 	this->loadsave_ok = nullptr;
+	this->speed_0 = nullptr;
+	this->speed_1 = nullptr;
+	this->speed_2 = nullptr;
+	this->speed_4 = nullptr;
+	this->speed_8 = nullptr;
 	for (ImageData *& t : this->toolbar_images) t = nullptr;
 	for (uint i = 0; i < TC_END; i++) this->compass[i] = nullptr;
 	for (uint i = 0; i < WTP_COUNT; i++) this->weather[i] = nullptr;
@@ -1762,6 +1773,11 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 		case SPR_GUI_LOADSAVE_ERR:       return _gui_sprites.loadsave_err;
 		case SPR_GUI_LOADSAVE_WARN:      return _gui_sprites.loadsave_warn;
 		case SPR_GUI_LOADSAVE_OK:        return _gui_sprites.loadsave_ok;
+		case SPR_GUI_SPEED_0:            return _gui_sprites.speed_0;
+		case SPR_GUI_SPEED_1:            return _gui_sprites.speed_1;
+		case SPR_GUI_SPEED_2:            return _gui_sprites.speed_2;
+		case SPR_GUI_SPEED_4:            return _gui_sprites.speed_4;
+		case SPR_GUI_SPEED_8:            return _gui_sprites.speed_8;
 		case SPR_GUI_BENCH:              return this->store.path_decoration.bench    [0];
 		case SPR_GUI_BIN:                return this->store.path_decoration.litterbin[0];
 		case SPR_GUI_LAMP:               return this->store.path_decoration.lamp_post[0];

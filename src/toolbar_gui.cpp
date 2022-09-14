@@ -35,6 +35,7 @@ public:
 	ToolbarWindow();
 
 	Point32 OnInitialPosition() override;
+	void OnDraw(MouseModeSelector *selector) override;
 	void OnClick(WidgetNumber number, const Point16 &pos) override;
 	void OnChange(ChangeCode code, uint32 parameter) override;
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
@@ -47,8 +48,12 @@ public:
  */
 enum ToolbarGuiWidgets {
 	TB_DROPDOWN_MAIN,     ///< Main menu dropdown.
-	TB_DROPDOWN_SPEED,    ///< Game speed dropdown.
 	TB_DROPDOWN_VIEW,     ///< View options dropdown.
+	TB_SPEED_0,           ///< Pause game button.
+	TB_SPEED_1,           ///< 1× game speed button.
+	TB_SPEED_2,           ///< 2× game speed button.
+	TB_SPEED_4,           ///< 4× game speed button.
+	TB_SPEED_8,           ///< 8× game speed button.
 	TB_GUI_PATHS,         ///< Build paths button.
 	TB_GUI_RIDE_SELECT,   ///< Select ride button.
 	TB_GUI_FENCE,         ///< Select fence button.
@@ -80,7 +85,18 @@ enum DropdownMain {
  */
 enum DropdownView {
 	DDV_MINIMAP,      ///< Open the minimap.
+	DDV_GRID,         ///< Toggle terrain grid.
 	DDV_UNDERGROUND,  ///< Toggle underground view.
+	DDV_UNDERWATER,   ///< Toggle underwater view.
+	DDV_WIRE_RIDES,        ///< Toggle wireframe view for rides.
+	DDV_WIRE_SCENERY,      ///< Toggle wireframe view for scenery items.
+	DDV_HIDE_PEOPLE,       ///< Toggle visibility of people.
+	DDV_HIDE_SUPPORTS,     ///< Toggle visibility of supports.
+	DDV_HIDE_SURFACES,     ///< Toggle visibility of surfaces.
+	DDV_HIDE_FOUNDATIONS,  ///< Toggle visibility of foundations.
+	DDV_HEIGHT_RIDES,      ///< Toggle height markers on rides.
+	DDV_HEIGHT_PATHS,      ///< Toggle height markers on paths.
+	DDV_HEIGHT_TERRAIN,    ///< Toggle height markers on terrain.
 };
 
 /**
@@ -90,8 +106,16 @@ enum DropdownView {
 static const WidgetPart _toolbar_widgets[] = {
 	Intermediate(1, 0),
 		Widget(WT_IMAGE_DROPDOWN_BUTTON, TB_DROPDOWN_MAIN,   COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_MAIN,  GUI_TOOLBAR_GUI_DROPDOWN_MAIN),
-		Widget(WT_IMAGE_DROPDOWN_BUTTON, TB_DROPDOWN_SPEED,  COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_SPEED, GUI_TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP),
 		Widget(WT_IMAGE_DROPDOWN_BUTTON, TB_DROPDOWN_VIEW,   COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_VIEW,  GUI_TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP),
+		Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetMinimalSize(16, 16),
+		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN),
+			Intermediate(1, 0),
+				Widget(WT_IMAGE_BUTTON, TB_SPEED_0, COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_SPEED_0, GUI_TOOLBAR_GUI_DROPDOWN_SPEED_PAUSE), SetPadding(8, 0, 8, 8),
+				Widget(WT_IMAGE_BUTTON, TB_SPEED_1, COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_SPEED_1, GUI_TOOLBAR_GUI_DROPDOWN_SPEED_1), SetPadding(8, 0, 8, 0),
+				Widget(WT_IMAGE_BUTTON, TB_SPEED_2, COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_SPEED_2, GUI_TOOLBAR_GUI_DROPDOWN_SPEED_2), SetPadding(8, 0, 8, 0),
+				Widget(WT_IMAGE_BUTTON, TB_SPEED_4, COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_SPEED_4, GUI_TOOLBAR_GUI_DROPDOWN_SPEED_4), SetPadding(8, 0, 8, 0),
+				Widget(WT_IMAGE_BUTTON, TB_SPEED_8, COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_SPEED_8, GUI_TOOLBAR_GUI_DROPDOWN_SPEED_8), SetPadding(8, 8, 8, 0),
+			EndContainer(),
 		Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetMinimalSize(16, 16),
 		Widget(WT_IMAGE_PUSHBUTTON, TB_GUI_TERRAFORM,    COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_TERRAIN, GUI_TOOLBAR_GUI_TOOLTIP_TERRAFORM),
 		Widget(WT_IMAGE_PUSHBUTTON, TB_GUI_PATHS,        COL_RANGE_ORANGE_BROWN), SetData(SPR_GUI_TOOLBAR_PATH,    GUI_TOOLBAR_GUI_TOOLTIP_BUILD_PATHS),
@@ -117,6 +141,17 @@ Point32 ToolbarWindow::OnInitialPosition()
 {
 	static const Point32 pt(10, 0);
 	return pt;
+}
+
+void ToolbarWindow::OnDraw(MouseModeSelector *selector)
+{
+	this->SetWidgetPressed(TB_SPEED_0, _game_control.speed == GSP_PAUSE);
+	this->SetWidgetPressed(TB_SPEED_1, _game_control.speed == GSP_1);
+	this->SetWidgetPressed(TB_SPEED_2, _game_control.speed == GSP_2);
+	this->SetWidgetPressed(TB_SPEED_4, _game_control.speed == GSP_4);
+	this->SetWidgetPressed(TB_SPEED_8, _game_control.speed == GSP_8);
+
+	GuiWindow::OnDraw(selector);
 }
 
 /**
@@ -154,27 +189,67 @@ void ToolbarWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 
 			this->ShowDropdownMenu(number, itemlist, -1);
 			break;
 		}
-		case TB_DROPDOWN_SPEED: {
-			DropdownList itemlist;
-			for (int i = 0; i < GSP_COUNT; i++) {
-				_str_params.SetStrID(1, GUI_TOOLBAR_GUI_DROPDOWN_SPEED_PAUSE + i);
-				itemlist.push_back(DropdownItem(STR_ARG1));
-			}
-			this->ShowDropdownMenu(number, itemlist, _game_control.speed);
-			break;
-		}
 		case TB_DROPDOWN_VIEW: {
 			DropdownList itemlist;
 			/* Keep the order consistent with the DropdownView ordering! */
 			/* DDV_MINIMAP */
 			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP));
+			/* DDV_GRID */
+			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_GRID, DDIF_SELECTABLE |
+					(_window_manager.GetViewport()->grid ? DDIF_SELECTED : DDIF_NONE)));
 			/* DDV_UNDERGROUND */
-			_str_params.SetStrID(1, GUI_TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND);
-			itemlist.push_back(DropdownItem(_window_manager.GetViewport()->underground_mode ? GUI_DROPDOWN_CHECKED : GUI_DROPDOWN_UNCHECKED));
+			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND, DDIF_SELECTABLE |
+					(_window_manager.GetViewport()->underground_mode ? DDIF_SELECTED : DDIF_NONE)));
+			/* DDV_UNDERWATER */
+			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_UNDERWATER, DDIF_SELECTABLE |
+					(_window_manager.GetViewport()->underwater_mode ? DDIF_SELECTED : DDIF_NONE)));
+			/* DDV_WIRE_RIDES */
+			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_RIDES, DDIF_SELECTABLE |
+					(_window_manager.GetViewport()->wireframe_rides ? DDIF_SELECTED : DDIF_NONE)));
+			/* DDV_WIRE_SCENERY */
+			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_SCENERY, DDIF_SELECTABLE |
+					(_window_manager.GetViewport()->wireframe_scenery ? DDIF_SELECTED : DDIF_NONE)));
+			/* DDV_HIDE_PEOPLE */
+			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_PEOPLE, DDIF_SELECTABLE |
+					(_window_manager.GetViewport()->hide_people ? DDIF_SELECTED : DDIF_NONE)));
+			/* DDV_HIDE_SUPPORTS */
+			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SUPPORTS, DDIF_SELECTABLE |
+					(_window_manager.GetViewport()->hide_supports ? DDIF_SELECTED : DDIF_NONE)));
+			/* DDV_HIDE_SURFACES */
+			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SURFACES, DDIF_SELECTABLE |
+					(_window_manager.GetViewport()->hide_surfaces ? DDIF_SELECTED : DDIF_NONE)));
+			/* DDV_HIDE_FOUNDATIONS */
+			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_FOUNDATIONS, DDIF_SELECTABLE |
+					(_window_manager.GetViewport()->hide_foundations ? DDIF_SELECTED : DDIF_NONE)));
+			/* DDV_HEIGHT_RIDES */
+			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_RIDES, DDIF_SELECTABLE |
+					(_window_manager.GetViewport()->height_markers_rides ? DDIF_SELECTED : DDIF_NONE)));
+			/* DDV_HEIGHT_PATHS */
+			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_PATHS, DDIF_SELECTABLE |
+					(_window_manager.GetViewport()->height_markers_paths ? DDIF_SELECTED : DDIF_NONE)));
+			/* DDV_HEIGHT_TERRAIN */
+			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_TERRAIN, DDIF_SELECTABLE |
+					(_window_manager.GetViewport()->height_markers_terrain ? DDIF_SELECTED : DDIF_NONE)));
 
 			this->ShowDropdownMenu(number, itemlist, -1);
 			break;
 		}
+
+		case TB_SPEED_0:
+			_game_control.speed = GSP_PAUSE;
+			break;
+		case TB_SPEED_1:
+			_game_control.speed = GSP_1;
+			break;
+		case TB_SPEED_2:
+			_game_control.speed = GSP_2;
+			break;
+		case TB_SPEED_4:
+			_game_control.speed = GSP_4;
+			break;
+		case TB_SPEED_8:
+			_game_control.speed = GSP_8;
+			break;
 
 		case TB_GUI_PATHS:
 			ShowPathBuildGui();
@@ -244,9 +319,6 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 						default: NOT_REACHED();
 					}
 					break;
-				case TB_DROPDOWN_SPEED:
-					_game_control.speed = static_cast<GameSpeed>(entry);
-					break;
 				case TB_DROPDOWN_VIEW:
 					switch (entry) {
 						case DDV_MINIMAP:
@@ -255,6 +327,21 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 						case DDV_UNDERGROUND:
 							_window_manager.GetViewport()->ToggleUndergroundMode();
 							break;
+
+#define TOGGLE(what) _window_manager.GetViewport()->what = !_window_manager.GetViewport()->what
+						case DDV_UNDERWATER:       TOGGLE(underwater_mode); break;
+						case DDV_GRID:             TOGGLE(grid); break;
+						case DDV_WIRE_RIDES:       TOGGLE(wireframe_rides); break;
+						case DDV_WIRE_SCENERY:     TOGGLE(wireframe_scenery); break;
+						case DDV_HIDE_PEOPLE:      TOGGLE(hide_people); break;
+						case DDV_HIDE_SUPPORTS:    TOGGLE(hide_supports); break;
+						case DDV_HIDE_SURFACES:    TOGGLE(hide_surfaces); break;
+						case DDV_HIDE_FOUNDATIONS: TOGGLE(hide_foundations); break;
+						case DDV_HEIGHT_RIDES:     TOGGLE(height_markers_rides); break;
+						case DDV_HEIGHT_PATHS:     TOGGLE(height_markers_paths); break;
+						case DDV_HEIGHT_TERRAIN:   TOGGLE(height_markers_terrain); break;
+#undef TOGGLE
+
 						default: NOT_REACHED();
 					}
 					break;
