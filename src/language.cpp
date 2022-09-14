@@ -633,7 +633,7 @@ static bool TrySetLanguage(std::string lang) {
  */
 void InitLanguage()
 {
-	for (auto& var : {"FREERCT_LANG", "LANG", "LANGUAGE"}) {
+	for (const auto& var : {"FREERCT_LANG", "LANG", "LANGUAGE"}) {
 		const char *environment_variable = getenv(var);
 		if (environment_variable != nullptr && TrySetLanguage(environment_variable)) break;
 	}

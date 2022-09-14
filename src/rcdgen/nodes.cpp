@@ -35,7 +35,7 @@ std::shared_ptr<BlockNode> BlockNode::GetSubNode(int row, int col, const char *n
  * @param blk_name Name of the block (4 letters string).
  * @param version Version number of the block.
  */
-NamedBlock::NamedBlock(const char *blk_name, int version) : BlockNode()
+NamedBlock::NamedBlock(const char *blk_name, int version)
 {
 	this->blk_name = blk_name;
 	this->version = version;
@@ -70,7 +70,7 @@ MetaBlock::MetaBlock(const char *blk_name, int version) : NamedBlock(blk_name, v
  * Constructor of the file node.
  * @param file_name Name of the file to write to.
  */
-FileNode::FileNode(const std::string &file_name) : BlockNode()
+FileNode::FileNode(const std::string &file_name)
 {
 	this->file_name = file_name;
 }
@@ -649,12 +649,12 @@ int GetLanguageIndex(const char *lname, const Position &pos)
 	exit(1);
 }
 
-StringNode::StringNode() : BlockNode()
+StringNode::StringNode()
 {
 	this->lang_index = -1;
 }
 
-StringsNode::StringsNode() : BlockNode()
+StringsNode::StringsNode()
 {
 }
 
@@ -715,7 +715,7 @@ std::string StringsNode::GetKey() const
 {
 	std::string key;
 	bool set_key = false;
-	for (auto &str : this->strings) {
+	for (const auto &str : this->strings) {
 		if (!set_key) {
 			if (str.key != "") {
 				key = str.key;
@@ -1340,7 +1340,7 @@ int MENUBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-CubicSpline::CubicSpline() : BlockNode()
+CubicSpline::CubicSpline()
 {
 	this->a = 0;
 	this->b = 0;
@@ -1351,7 +1351,7 @@ CubicSpline::CubicSpline() : BlockNode()
 	this->last = 0;
 }
 
-Curve::Curve() : BlockNode()
+Curve::Curve()
 {
 }
 
@@ -1393,7 +1393,7 @@ double FixedTable::GetValue(int index, int step)
 	return this->value;
 }
 
-TrackVoxel::TrackVoxel() : BlockNode()
+TrackVoxel::TrackVoxel()
 {
 	this->dx = 0;
 	this->dy = 0;
@@ -1471,7 +1471,7 @@ void TrackVoxel::Write(FileWriter *fw, FileBlock *fb, int rot)
 	fb->SaveUInt8(RotateFlags(this->flags, rot));
 }
 
-Connection::Connection() : BlockNode()
+Connection::Connection()
 {
 	this->name = "?";
 	this->direction = 0;

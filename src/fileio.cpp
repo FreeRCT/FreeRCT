@@ -398,7 +398,7 @@ const std::string &GetUserHomeDirectory()
 	static std::string homedir;
 	if (!homedir.empty()) return homedir;
 
-	for (auto& var : {"HOME", "USERPROFILE", "HOMEPATH", "APPDATA"}) {
+	for (const auto& var : {"HOME", "USERPROFILE", "HOMEPATH", "APPDATA"}) {
 		const char *environment_variable = getenv(var);
 		if (environment_variable != nullptr && environment_variable[0] != '\0') {
 			homedir = environment_variable;

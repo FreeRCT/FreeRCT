@@ -23,6 +23,8 @@ PERM_SUPPRESSED_CHECKS = {
 	'[bugprone-suspicious-include]',  # suspicious #include of file with '.cpp' extension
 	'[altera-unroll-loops]',  # kernel performance could be improved by unrolling this loop with a '#pragma unroll' directive
 	'[cppcoreguidelines-pro-type-reinterpret-cast]',  # do not use reinterpret_cast
+	'[google-runtime-references]',  # non-const reference parameter 'vals', make it const or use a pointer
+	'[cppcoreguidelines-non-private-member-variables-in-classes]',  # member variable 'north_offsets' has protected visibility
 }
 
 # Checks we intend to clear in the future. When a check has been cleared, remove it from this list.
@@ -123,6 +125,7 @@ TEMP_SUPPRESSED_CHECKS = {
 	'[readability-redundant-declaration]',  # redundant 'yylex' declaration
 	'[readability-suspicious-call-argument]',  # 1st argument 'num' (passed to 'num') looks like it might be swapped with the 2nd, 'number' (passed to 'number')
 	'[readability-use-anyofallof]',  # replace loop by 'std::all_of()'
+	'[bugprone-sizeof-expression]',  # suspicious usage of 'sizeof(A*)'; pointer to aggregate
 }
 
 # Any check not present in either of the above lists is expected to be clear; regressions are errors.
