@@ -1018,21 +1018,18 @@ int TIMABlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-RIEEBlock::RIEEBlock() : GameBlock("RIEE", 2)
+RIEEBlock::RIEEBlock() : GameBlock("RIEE", 3)
 {
 }
 
 int RIEEBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 63 + this->internal_name.size() + 1 - 12);
+	fb->StartSave(this->blk_name, this->version, 37 + this->internal_name.size() + 1 - 12);
 	fb->SaveUInt8(this->is_entrance ? 1 : 0);
 	fb->SaveUInt32(this->texts->Write(fw));
-	fb->SaveUInt16(this->tile_width);
-	for (std::shared_ptr<SpriteBlock>& v : this->ne_views) fb->SaveUInt32(v->Write(fw));
-	for (std::shared_ptr<SpriteBlock>& v : this->se_views) fb->SaveUInt32(v->Write(fw));
-	for (std::shared_ptr<SpriteBlock>& v : this->sw_views) fb->SaveUInt32(v->Write(fw));
-	for (std::shared_ptr<SpriteBlock>& v : this->nw_views) fb->SaveUInt32(v->Write(fw));
+	fb->SaveUInt32(this->bg->Write(fw));
+	fb->SaveUInt32(this->fg->Write(fw));
 	for (Recolouring& r : this->recol) fb->SaveUInt32(r.Encode());
 	fb->SaveText(this->internal_name);
 	fb->CheckEndSave();

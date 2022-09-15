@@ -900,16 +900,14 @@ void CoasterInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uin
 		return (4 + o - orient) & 3;
 	};
 	if (this->IsEntranceLocation(vox)) {
-		const ImageData *const *array = _rides_manager.entrances[this->entrance_type]->images[orientation_index(EntranceExitRotation(vox, nullptr))];
-		sprites[1] = array[0];
-		sprites[2] = array[1];
+		sprites[1] = _rides_manager.entrances[this->entrance_type]->bg->GetSprite(0, 0, orientation_index(EntranceExitRotation(vox, nullptr)), zoom);
+		sprites[2] = _rides_manager.entrances[this->entrance_type]->fg->GetSprite(0, 0, orientation_index(EntranceExitRotation(vox, nullptr)), zoom);
 		if (platform != nullptr) *platform = PATH_NE_NW_SE_SW;
 		return;
 	}
 	if (this->IsExitLocation(vox)) {
-		const ImageData *const *array = _rides_manager.exits[this->exit_type]->images[orientation_index(EntranceExitRotation(vox, nullptr))];
-		sprites[1] = array[0];
-		sprites[2] = array[1];
+		sprites[1] = _rides_manager.exits[this->exit_type]->bg->GetSprite(0, 0, orientation_index(EntranceExitRotation(vox, nullptr)), zoom);
+		sprites[2] = _rides_manager.exits[this->exit_type]->fg->GetSprite(0, 0, orientation_index(EntranceExitRotation(vox, nullptr)), zoom);
 		if (platform != nullptr) *platform = PATH_NE_NW_SE_SW;
 		return;
 	}

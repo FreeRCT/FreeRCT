@@ -2082,15 +2082,8 @@ static std::shared_ptr<RIEEBlock> ConvertRIEENode(std::shared_ptr<NodeGroup> ng)
 		return nullptr;
 	}
 
-	block->tile_width = vals.GetNumber("tile_width");
-	block->ne_views[0] = vals.GetSprite("ne_bg");
-	block->se_views[0] = vals.GetSprite("se_bg");
-	block->sw_views[0] = vals.GetSprite("sw_bg");
-	block->nw_views[0] = vals.GetSprite("nw_bg");
-	block->ne_views[1] = vals.GetSprite("ne_fg");
-	block->se_views[1] = vals.GetSprite("se_fg");
-	block->sw_views[1] = vals.GetSprite("sw_fg");
-	block->nw_views[1] = vals.GetSprite("nw_fg");
+	block->bg = vals.GetFrameSet("bg");
+	block->fg = vals.GetFrameSet("fg");
 
 	std::vector<std::shared_ptr<Recolouring>> recolours = GetTypedData<Recolouring>(vals, "recolour", 3);
 	int i = 0;

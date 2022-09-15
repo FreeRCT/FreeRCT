@@ -979,11 +979,10 @@ RIEE
 ~~~~
 Attributes:
 
-- ``tile_width`` - Zoom scale of the sprites. Supported is only 64.
 - ``internal_name`` - Internal name of the entrance/exit type.
 - ``type`` - ``"entrance"`` or ``"exit"``.
-- ``ne_bg, se_bg, sw_bg, nw_bg`` - Background sprites for all four orientations.
-- ``ne_fg, se_fg, sw_fg, nw_fg`` - Foreground sprites for all four orientations.
+- ``bg`` - Background graphics FSET_ block.
+- ``fg`` - Foreground graphics FSET_ block.
 - ``texts`` - strings_ node containing the object's texts.
 
 SCNY

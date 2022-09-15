@@ -70,7 +70,7 @@ enum ItemType {
 class RideEntranceExitType {
 public:
 	RideEntranceExitType() = default;
-	void Load(RcdFileReader *rcf_file, const ImageMap &sprites, const TextMap &texts);
+	void Load(RcdFileReader *rcf_file, const TextMap &texts);
 
 	std::string internal_name;       ///< Unique internal name of the entrance/exit type.
 	bool is_entrance;                ///< Whether this is an entrance type or exit type.
@@ -78,7 +78,8 @@ public:
 	StringID recolour_description_1; ///< First recolouring description.
 	StringID recolour_description_2; ///< Second recolouring description.
 	StringID recolour_description_3; ///< Third recolouring description.
-	ImageData* images[4][2];         ///< The entrance/exit's graphics.
+	const FrameSet *bg;              ///< The background entrance/exit's graphics.
+	const FrameSet *fg;              ///< The foreground entrance/exit's graphics.
 	Recolouring recolours;           ///< Sprite recolour map.
 
 	/* The following two values must be the same for all entrance/exit sets. */

@@ -680,19 +680,21 @@ Offset       Length   Version  Description
    8          4        1-      Length of the block excluding magic string, version, and length.
   12          1        1-      Magic number 1 for entrances or 0 for exits.
   13          4        1-      Strings of the entrance/exit type (reference to a TEXT block).
-  17          2        1-      Zoom-width of a tile of the surface.
-  19          4        1-      Unrotated (ne) image, background sprite.
-  23          4        1-      ne image, foreground sprite.
-  27          4        1-      se image, background.
-  31          4        1-      se image, foreground.
-  35          4        1-      sw image, background.
-  39          4        1-      sw image, foreground.
-  43          4        1-      nw image, background.
-  47          4        1-      nw image, foreground.
-  51          4        1-      First recolouring specification.
-  55          4        1-      Second recolouring specification.
-  59          4        1-      Third recolouring specification.
-  63          ?        2-      Characters of the type's internal name, nul-terminated.
+  --          2        1-1     Zoom-width of a tile of the surface.
+  --          4        1-1     Unrotated (ne) image, background sprite.
+  --          4        1-1     ne image, foreground sprite.
+  --          4        1-1     se image, background.
+  --          4        1-1     se image, foreground.
+  --          4        1-1     sw image, background.
+  --          4        1-1     sw image, foreground.
+  --          4        1-1     nw image, background.
+  --          4        1-1     nw image, foreground.
+  17          4        3-      Background images (reference to an FSET block).
+  21          4        3-      Foreground images (reference to an FSET block).
+  25          4        1-      First recolouring specification.
+  29          4        1-      Second recolouring specification.
+  33          4        1-      Third recolouring specification.
+  37          ?        2-      Characters of the type's internal name, nul-terminated.
    ?                           Total length.
 ===========  =======  =======  ==================================================================
 
@@ -701,6 +703,7 @@ Version history
 
 - 1 (20210206) Initial version.
 - 2 (20220829) Added internal name.
+- 3 (20220915) Use FSET for graphics.
 
 
 Gentle and thrill rides

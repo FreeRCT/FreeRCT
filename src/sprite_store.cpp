@@ -1567,7 +1567,7 @@ void SpriteManager::Load(const char *filename)
 
 		if (strcmp(rcd_file.name, "RIEE") == 0) {
 			std::unique_ptr<RideEntranceExitType> e(new RideEntranceExitType);
-			e->Load(&rcd_file, sprites, texts);
+			e->Load(&rcd_file, texts);
 			_rides_manager.AddRideEntranceExitType(e);
 			continue;
 		}
