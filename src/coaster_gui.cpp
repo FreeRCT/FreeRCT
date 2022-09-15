@@ -1155,31 +1155,17 @@ void CoasterBuildWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid)
 	/* Render the track piece's preview. \todo Needs testing with a multi-voxel track piece. */
 	std::map<XYZPoint16, std::vector<const ImageData*>> sprites;
 	for (const auto &tv : this->piece_selector.pos_piece.piece->track_voxels) {
-		if (tv->back [orient] != nullptr) sprites[tv->dxyz].push_back(tv->back [orient]);
-		if (tv->front[orient] != nullptr) sprites[tv->dxyz].push_back(tv->front[orient]);
+		const CoasterPlatform *platform = tv->HasPlatform() ? &_coaster_platforms[this->ci->GetCoasterType()->platform_type] : nullptr;
+		int platform_orient = (tv->GetPlatformDirection() + 4 - orient) % 4;
 
-		if (tv->HasPlatform()) {
-			const CoasterPlatform &platform = _coaster_platforms[this->ci->GetCoasterType()->platform_type];
-			switch ((tv->GetPlatformDirection() + 4 - orient) % 4) {
-				case EDGE_NE:
-					sprites[tv->dxyz].push_back(platform.ne_sw_back);
-					sprites[tv->dxyz].push_back(platform.ne_sw_front);
-					break;
-				case EDGE_SE:
-					sprites[tv->dxyz].push_back(platform.se_nw_back);
-					sprites[tv->dxyz].push_back(platform.se_nw_front);
-					break;
-				case EDGE_SW:
-					sprites[tv->dxyz].push_back(platform.sw_ne_back);
-					sprites[tv->dxyz].push_back(platform.sw_ne_front);
-					break;
-				case EDGE_NW:
-					sprites[tv->dxyz].push_back(platform.nw_se_back);
-					sprites[tv->dxyz].push_back(platform.nw_se_front);
-					break;
-				default: NOT_REACHED();
-			}
-		}
+		if (platform != nullptr) sprites[tv->dxyz].push_back(platform->bg->GetSprite(0, 0, platform_orient, DEFAULT_ZOOM));
+
+		const ImageData *img = tv->bg == nullptr ? nullptr : tv->bg->GetSprite(0, 0, orient, DEFAULT_ZOOM);
+		if (img != nullptr) sprites[tv->dxyz].push_back(img);
+		img = tv->fg == nullptr ? nullptr : tv->fg->GetSprite(0, 0, orient, DEFAULT_ZOOM);
+		if (img != nullptr) sprites[tv->dxyz].push_back(img);
+
+		if (platform != nullptr) sprites[tv->dxyz].push_back(platform->fg->GetSprite(0, 0, platform_orient, DEFAULT_ZOOM));
 	}
 	for (const auto &pair : sprites) {
 		const Point32 p(

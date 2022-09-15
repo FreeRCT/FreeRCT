@@ -113,16 +113,9 @@ class CoasterPlatform {
 public:
 	CoasterPlatform();
 
-	int tile_width;           ///< Width of the tile of these sprites.
 	CoasterPlatformType type; ///< Type of platform.
-	ImageData *ne_sw_back;    ///< Background sprite for the NE-SW direction.
-	ImageData *ne_sw_front;   ///< Foreground sprite for the NE-SW direction.
-	ImageData *se_nw_back;    ///< Background sprite for the SE-NW direction.
-	ImageData *se_nw_front;   ///< Foreground sprite for the SE-NW direction.
-	ImageData *sw_ne_back;    ///< Background sprite for the SW_NE direction.
-	ImageData *sw_ne_front;   ///< Foreground sprite for the SW_NE direction.
-	ImageData *nw_se_back;    ///< Background sprite for the NW_SE direction.
-	ImageData *nw_se_front;   ///< Foreground sprite for the NW_SE direction.
+	const FrameSet *bg;       ///< The platform background graphics.
+	const FrameSet *fg;       ///< The platform foreground graphics.
 };
 
 extern CoasterPlatform _coaster_platforms[];
@@ -330,6 +323,6 @@ public:
 	std::map<uint32, CoasterIntensityStatistics> intensity_statistics;  ///< Intensity along the track.
 };
 
-void LoadCoasterPlatform(RcdFileReader *rcd_file, const ImageMap &sprites);
+void LoadCoasterPlatform(RcdFileReader *rcd_file);
 
 #endif

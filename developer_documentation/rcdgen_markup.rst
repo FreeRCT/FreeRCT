@@ -1,5 +1,5 @@
 :Author: The FreeRCT Team
-:Version: 2022-09-09
+:Version: 2022-09-15
 
 .. contents::
    :depth: 3
@@ -513,10 +513,8 @@ Attributes:
 - ``dx`` - Relative X position of the voxel.
 - ``dy`` - Relative Y position of the voxel.
 - ``dz`` - Relative Z position of the voxel.
-
-Additionally, the voxel may contain sprite graphics named
-``n_back, s_back, w_back, e_back, n_front, s_front, w_front, e_front``.
-All sprites are optional. They represent the background and foreground graphics of the voxel for the various orientations respectively.
+- ``bg`` - *Optional*. Background graphics FSET_ block.
+- ``fg`` - *Optional*. Foreground graphics FSET_ block.
 
 splines
 ~~~~~~~
@@ -605,12 +603,9 @@ CSPL
 ~~~~
 Attributes:
 
-- ``tile_width`` - Zoom scale of the sprites. Supported is only 64.
 - ``type`` - Type of the platform.
-- ``ne_sw_back, ne_sw_front`` - Background and foreground sprite for the northeast-southwest orientation.
-- ``se_nw_back, se_nw_front`` - Background and foreground sprite for the southeast-northwest orientation.
-- ``sw_ne_back, sw_ne_front`` - Background and foreground sprite for the southwest-northeast orientation.
-- ``nw_se_back, nw_se_front`` - Background and foreground sprite for the northwest-southeast orientation.
+- ``bg`` - Background graphics FSET_ block.
+- ``fg`` - Foreground graphics FSET_ block.
 
 FENC
 ~~~~

@@ -16,14 +16,13 @@
 #include "bitmath.h"
 #include "money.h"
 
-class ImageData;
-typedef class std::map<unsigned int, ImageData *> ImageMap; ///< Loaded images.
+class FrameSet;
 
 /** Data of a voxel in a track piece. */
 struct TrackVoxel {
 	TrackVoxel();
 
-	void Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites);
+	void Load(RcdFileReader *rcd_file, size_t length);
 
 	/**
 	 * Does the track piece have a platform?
@@ -44,8 +43,8 @@ struct TrackVoxel {
 		return static_cast<TileEdge>(GB(this->flags, 4, 3) - 1);
 	}
 
-	ImageData *back[4];  ///< Reference to the background tracks (N/E/S/W view).
-	ImageData *front[4]; ///< Reference to the front tracks (N/E/S/W view).
+	const FrameSet *bg;       ///< The track background graphics.
+	const FrameSet *fg;       ///< The track foreground graphics.
 	XYZPoint16 dxyz;     ///< Relative position of the voxel.
 	uint8 flags;         ///< Flags of the voxel (space requirements, platform direction).
 };
@@ -160,7 +159,7 @@ class TrackPiece {
 public:
 	TrackPiece();
 
-	void Load(RcdFileReader *rcd_file, const ImageMap &sprites);
+	void Load(RcdFileReader *rcd_file);
 	Rectangle16 GetArea() const;
 
 	uint8 entry_connect;      ///< Entry connection code

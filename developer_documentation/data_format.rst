@@ -1,5 +1,5 @@
 :Author: Alberth
-:Version: 2022-09-09
+:Version: 2022-09-15
 
 .. contents::
    :depth: 3
@@ -1318,9 +1318,9 @@ Offset   Length  Version  Field name          Description
   18        2      2-     track_flags         Flags of the track piece (version 2 is 1 byte).
   20        4      2-     cost                Cost of this track piece.
   24        2      1-                         Number of voxels in this track piece (called 'n').
-  26      36*n     1-                         Voxel definitions
-26+36*n     4      4-     <calculated>        Length of the piece, in 1/256 pixels.
-30+36*n     ?      4-     car_xpos            Car x position.
+  26      12*n     1-                         Voxel definitions
+26+12*n     4      4-     <calculated>        Length of the piece, in 1/256 pixels.
+30+12*n     ?      4-     car_xpos            Car x position.
    ?        ?      4-     car_ypos            Car y position.
    ?        ?      4-     car_xpos            Car z position.
    ?        ?      4-     car_pitch           Car pitch (may be empty).
@@ -1345,19 +1345,21 @@ A voxel definition is
 =======  ======  =======  ==================  ================================================================
 Offset   Length  Version  Field name          Description
 =======  ======  =======  ==================  ================================================================
-   0       4       1-     n_back              Reference to the background tracks for north view.
-   4       4       2-     e_back              Reference to the background tracks for east view.
-   8       4       2-     s_back              Reference to the background tracks for south view.
-  12       4       2-     w_back              Reference to the background tracks for west view.
-  16       4       2-     n_front             Reference to the front tracks for north view.
-  20       4       2-     e_front             Reference to the front tracks for east view.
-  24       4       2-     s_front             Reference to the front tracks for south view.
-  28       4       2-     w_front             Reference to the front tracks for west view.
-  32       1       1-     dx                  Relative X position of the voxel.
-  33       1       1-     dy                  Relative Y position of the voxel.
-  34       1       1-     dz                  Relative Z position of the voxel.
-  35       1       1-     flags               Flags of the voxel (space requirements, platforms).
-  36                                          Total length of a voxel definition.
+  --       4       1-5    n_back              Reference to the background tracks for north view.
+  --       4       2-5    e_back              Reference to the background tracks for east view.
+  --       4       2-5    s_back              Reference to the background tracks for south view.
+  --       4       2-5    w_back              Reference to the background tracks for west view.
+  --       4       2-5    n_front             Reference to the front tracks for north view.
+  --       4       2-5    e_front             Reference to the front tracks for east view.
+  --       4       2-5    s_front             Reference to the front tracks for south view.
+  --       4       2-5    w_front             Reference to the front tracks for west view.
+   0       4       6-     bg                  Background images (reference to an FSET block).
+   4       4       6-     fg                  Foreground images (reference to an FSET block).
+   8       1       1-     dx                  Relative X position of the voxel.
+   9       1       1-     dy                  Relative Y position of the voxel.
+  10       1       1-     dz                  Relative Z position of the voxel.
+  11       1       1-     flags               Flags of the voxel (space requirements, platforms).
+  12                                          Total length of a voxel definition.
 =======  ======  =======  ==================  ================================================================
 
 The flags are defined as follows:
@@ -1416,6 +1418,7 @@ Version history
 - 4 (20131117) Moved platform bits from track piece to track voxel.
 - 5 (20131218) Added length of the track piece, and ``car_xpos``, ``car_ypos``,
   ``car_zpos``, ``car_pitch``, ``car_roll``, and ``car_yaw`` entries.
+- 6 (20220915) Use FSET for graphics.
 
 Coaster cars
 ~~~~~~~~~~~~
@@ -1470,17 +1473,19 @@ Offset   Length  Version  Field name   Description
    0        4      1-                  Magic string 'CSPL'.
    4        4      1-                  Version number of the block.
    8        4      1-                  Length of the block excluding magic string, version, and length.
-  12        2      1-     tile_width   Zoom-width of a tile.
-  14        1      1-     type         Type of the platform, see `Roller coaster tracks`_.
-  15        4      1-     ne_sw_back   Background platform sprite of the NE to SW direction.
-  19        4      1-     ne_sw_front  Foreground platform sprite of the NE to SW direction.
-  23        4      2-     se_nw_back   Background platform sprite of the SE to NW direction.
-  27        4      2-     se_nw_front  Foreground platform sprite of the SE to NW direction.
-  31        4      2-     sw_ne_back   Background platform sprite of the SW to NE direction.
-  35        4      2-     sw_ne_front  Foreground platform sprite of the SW to NE direction.
-  39        4      1-     nw_se_back   Background platform sprite of the NW to SE direction.
-  43        4      1-     nw_se_front  Foreground platform sprite of the NW to SE direction.
-  47                                   Total length of the block.
+  --        2      1-2    tile_width   Zoom-width of a tile.
+  12        1      1-     type         Type of the platform, see `Roller coaster tracks`_.
+  --        4      1-2    ne_sw_back   Background platform sprite of the NE to SW direction.
+  --        4      1-2    ne_sw_front  Foreground platform sprite of the NE to SW direction.
+  --        4      2-2    se_nw_back   Background platform sprite of the SE to NW direction.
+  --        4      2-2    se_nw_front  Foreground platform sprite of the SE to NW direction.
+  --        4      2-2    sw_ne_back   Background platform sprite of the SW to NE direction.
+  --        4      2-2    sw_ne_front  Foreground platform sprite of the SW to NE direction.
+  --        4      1-2    nw_se_back   Background platform sprite of the NW to SE direction.
+  --        4      1-2    nw_se_front  Foreground platform sprite of the NW to SE direction.
+  13        4      3-     bg           Background images (reference to an FSET block).
+  17        4      3-     fg           Foreground images (reference to an FSET block).
+  21                                   Total length of the block.
 =======  ======  =======  ===========  ================================================================
 
 The direction of a platform is the same as the movement direction of a coaster train.
@@ -1490,6 +1495,7 @@ Version history
 
 - 1 (20131120) Initial version.
 - 2 (20131123) Added the missing directions SE to NW, and SW to NE.
+- 3 (20220915) Use FSET for graphics.
 
 
 GUI

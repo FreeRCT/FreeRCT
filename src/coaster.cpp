@@ -205,40 +205,29 @@ int CoasterType::GetTrackVoxelIndex(const TrackVoxel *tvx) const
 }
 
 /** Default constructor, no sprites available yet. */
-CoasterPlatform::CoasterPlatform()
-:
-	ne_sw_back(nullptr), ne_sw_front(nullptr), se_nw_back(nullptr), se_nw_front(nullptr),
-	sw_ne_back(nullptr), sw_ne_front(nullptr), nw_se_back(nullptr), nw_se_front(nullptr)
+CoasterPlatform::CoasterPlatform() : bg(nullptr), fg(nullptr)
 {
 }
 
 /**
  * Load a coaster platform (CSPL) block.
  * @param rcd_file Data file being loaded.
- * @param sprites Sprites already loaded from the RCD file.
  */
-void LoadCoasterPlatform(RcdFileReader *rcd_file, const ImageMap &sprites)
+void LoadCoasterPlatform(RcdFileReader *rcd_file)
 {
-	rcd_file->CheckVersion(2);
-	rcd_file->CheckExactLength(rcd_file->size, 2 + 1 + 8 * 4, "header");
+	rcd_file->CheckVersion(3);
+	rcd_file->CheckExactLength(rcd_file->size, 1 + 2 * 4, "header");
 
-	uint16 width = rcd_file->GetUInt16();
-	if (width != 64) rcd_file->Error("Wrong width");
 	uint8 type = rcd_file->GetUInt8();
 	if (type >= CPT_COUNT) rcd_file->Error("Unknown type");
 
 	CoasterPlatform &platform = _coaster_platforms[type];
-	platform.tile_width = width;
 	platform.type = static_cast<CoasterPlatformType>(type);
 
-	LoadSpriteFromFile(rcd_file, sprites, &platform.ne_sw_back);
-	LoadSpriteFromFile(rcd_file, sprites, &platform.ne_sw_front);
-	LoadSpriteFromFile(rcd_file, sprites, &platform.se_nw_back);
-	LoadSpriteFromFile(rcd_file, sprites, &platform.se_nw_front);
-	LoadSpriteFromFile(rcd_file, sprites, &platform.sw_ne_back);
-	LoadSpriteFromFile(rcd_file, sprites, &platform.sw_ne_front);
-	LoadSpriteFromFile(rcd_file, sprites, &platform.nw_se_back);
-	LoadSpriteFromFile(rcd_file, sprites, &platform.nw_se_front);
+	platform.bg = _sprite_manager.GetFrameSet(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
+	platform.fg = _sprite_manager.GetFrameSet(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
+	if (platform.bg == nullptr || platform.fg == nullptr) rcd_file->Error("Invalid graphics");
+	if (platform.bg->width_x != 1 || platform.fg->width_x != 1 || platform.bg->width_y != 1 || platform.fg->width_y != 1) rcd_file->Error("Invalid dimension");
 }
 
 DisplayCoasterCar::DisplayCoasterCar() : yaw(0xff), owning_car(nullptr)  // Mark everything as invalid.
@@ -920,39 +909,16 @@ void CoasterInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uin
 	assert(voxel_number < ct->voxels.size());
 	const TrackVoxel *tv = ct->voxels[voxel_number];
 
-	// NOCOM Zoom
-	sprites[1] = tv->back[orient];  // SO_RIDE
-	sprites[2] = tv->front[orient]; // SO_RIDE_FRONT
-	if ((tv->back[orient] == nullptr && tv->front[orient] == nullptr) || !tv->HasPlatform() || ct->platform_type >= CPT_COUNT) {
+	sprites[1] = tv->bg == nullptr ? nullptr : tv->bg->GetSprite(0, 0, orient, zoom);  // SO_RIDE
+	sprites[2] = tv->fg == nullptr ? nullptr : tv->fg->GetSprite(0, 0, orient, zoom);  // SO_RIDE_FRONT
+	if ((sprites[1] == nullptr && sprites[2] == nullptr) || !tv->HasPlatform() || ct->platform_type >= CPT_COUNT) {
 		sprites[0] = nullptr; // SO_PLATFORM_BACK
 		sprites[3] = nullptr; // SO_PLATFORM_FRONT
 	} else {
 		const CoasterPlatform &platform = _coaster_platforms[ct->platform_type];
 		TileEdge edge = static_cast<TileEdge>(orientation_index(tv->GetPlatformDirection()));
-		// NOCOM Zoom
-		switch (edge) {
-			case EDGE_NE:
-				sprites[0] = platform.ne_sw_back;
-				sprites[3] = platform.ne_sw_front;
-				break;
-
-			case EDGE_SE:
-				sprites[0] = platform.se_nw_back;
-				sprites[3] = platform.se_nw_front;
-				break;
-
-			case EDGE_SW:
-				sprites[0] = platform.sw_ne_back;
-				sprites[3] = platform.sw_ne_front;
-				break;
-
-			case EDGE_NW:
-				sprites[0] = platform.nw_se_back;
-				sprites[3] = platform.nw_se_front;
-				break;
-
-			default: NOT_REACHED();
-		}
+		sprites[0] = platform.bg->GetSprite(0, 0, edge, zoom);
+		sprites[3] = platform.fg->GetSprite(0, 0, edge, zoom);
 	}
 }
 

@@ -593,6 +593,7 @@ public:
 	virtual ~FSETBlock() = default;
 
 	int Write(FileWriter *fw) override;
+	int Write(FileWriter *fw, int rot);
 
 	int width_x;    ///< The number of voxels in x direction.
 	int width_y;    ///< The number of voxels in y direction.
@@ -990,9 +991,8 @@ public:
 	int dy;    ///< Relative Y position of the voxel.
 	int dz;    ///< Relative Z position of the voxel.
 	int flags; ///< Flags of the voxel (space corners, platform direction).
-
-	std::array<std::shared_ptr<SpriteBlock>, 4> back;  ///< Back coaster sprites.
-	std::array<std::shared_ptr<SpriteBlock>, 4> front; ///< Front coaster sprites.
+	std::shared_ptr<FSETBlock> bg;            ///< Background sprites.
+	std::shared_ptr<FSETBlock> fg;            ///< Foreground sprites.
 };
 
 /** Class for storing a 'connection' between track pieces. */
@@ -1107,16 +1107,9 @@ public:
 
 	int Write(FileWriter *fw) override;
 
-	int tile_width; ///< Zoom-width of a tile of the surface.
+	std::shared_ptr<FSETBlock> bg;            ///< Background sprites.
+	std::shared_ptr<FSETBlock> fg;            ///< Foreground sprites.
 	uint8 type;     ///< Type of platform.
-	std::shared_ptr<SpriteBlock> ne_sw_back;  ///< Background platform sprite of the NE to SW direction.
-	std::shared_ptr<SpriteBlock> ne_sw_front; ///< Foreground platform sprite of the NE to SW direction.
-	std::shared_ptr<SpriteBlock> se_nw_back;  ///< Background platform sprite of the SE to NW direction.
-	std::shared_ptr<SpriteBlock> se_nw_front; ///< Foreground platform sprite of the SE to NW direction.
-	std::shared_ptr<SpriteBlock> sw_ne_back;  ///< Background platform sprite of the SW to NE direction.
-	std::shared_ptr<SpriteBlock> sw_ne_front; ///< Foreground platform sprite of the SW to NE direction.
-	std::shared_ptr<SpriteBlock> nw_se_back;  ///< Background platform sprite of the NW to SE direction.
-	std::shared_ptr<SpriteBlock> nw_se_front; ///< Foreground platform sprite of the NW to SE direction.
 };
 
 /** 'FENC' game block. */

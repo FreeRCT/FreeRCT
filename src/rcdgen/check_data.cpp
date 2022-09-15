@@ -2512,17 +2512,8 @@ static std::shared_ptr<TrackVoxel> ConvertTrackVoxel(std::shared_ptr<NodeGroup> 
 	tv->dz = vals.GetNumber("dz");
 	tv->flags = vals.GetNumber("flags");
 
-	char buffer[16];
-	for (int i = 0; i < 4; i++) {
-		strcpy(buffer, direction[i]);
-		strcpy(buffer + 1, "_back");
-		if (vals.HasValue(buffer)) tv->back[i] = vals.GetSprite(buffer);
-	}
-	for (int i = 0; i < 4; i++) {
-		strcpy(buffer, direction[i]);
-		strcpy(buffer + 1, "_front");
-		if (vals.HasValue(buffer)) tv->front[i] = vals.GetSprite(buffer);
-	}
+	if (vals.HasValue("bg")) tv->bg = vals.GetFrameSet("bg");
+	if (vals.HasValue("fg")) tv->fg = vals.GetFrameSet("fg");
 
 	vals.VerifyUsage();
 	return tv;
@@ -2761,16 +2752,9 @@ static std::shared_ptr<CSPLBlock> ConvertCSPLNode(std::shared_ptr<NodeGroup> ng)
 	Values vals("CSPL", ng->pos);
 	vals.PrepareNamedValues(ng->values, true, false, _coaster_platform_symbols);
 
-	blk->tile_width  = vals.GetNumber("tile_width");
-	blk->type        = vals.GetNumber("type");
-	blk->ne_sw_back  = vals.GetSprite("ne_sw_back");
-	blk->ne_sw_front = vals.GetSprite("ne_sw_front");
-	blk->se_nw_back  = vals.GetSprite("se_nw_back");
-	blk->se_nw_front = vals.GetSprite("se_nw_front");
-	blk->sw_ne_back  = vals.GetSprite("sw_ne_back");
-	blk->sw_ne_front = vals.GetSprite("sw_ne_front");
-	blk->nw_se_back  = vals.GetSprite("nw_se_back");
-	blk->nw_se_front = vals.GetSprite("nw_se_front");
+	blk->type = vals.GetNumber("type");
+	blk->bg = vals.GetFrameSet("bg");
+	blk->fg = vals.GetFrameSet("fg");
 
 	vals.VerifyUsage();
 	return blk;

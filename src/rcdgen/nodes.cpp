@@ -967,6 +967,17 @@ FSETBlock::FSETBlock() : GameBlock("FSET", 2)
 
 int FSETBlock::Write(FileWriter *fw)
 {
+	return this->Write(fw, 0);
+}
+
+/**
+ * Write this frame set after rotating it \a rot times first.
+ * @param fw Output stream to write the set to.
+ * @param rot Number of -90 degrees rotation to apply first.
+ * @return Block index in the file.
+ */
+int FSETBlock::Write(FileWriter *fw, int rot)
+{
 	if (!this->unrotated_views_only_allowed && this->unrotated_views_only) {
 		fprintf(stderr, "Error: FSET block which requires all views to be specified has specified only the unrotated views");
 		::exit(1);
@@ -980,11 +991,13 @@ int FSETBlock::Write(FileWriter *fw)
 	fb->SaveUInt8(this->width_y);
 	for (int i = 0; i < this->scales; ++i) fb->SaveUInt16(this->tile_width[i]);
 
-	for (const auto &array : {&this->ne_views, &this->se_views, &this->sw_views, &this->nw_views}) {
+	const std::unique_ptr<std::shared_ptr<SpriteBlock>[]> *arrays[] = {&this->ne_views, &this->se_views, &this->sw_views, &this->nw_views};
+	for (int view = 0; view < 4; ++view) {
+		int rotated = (view + 4 - rot) & 3;
 		for (int x = 0; x < this->width_x; ++x) {
 			for (int y = 0; y < this->width_y; ++y) {
 				for (int z = 0; z < this->scales; ++z) {
-					fb->SaveUInt32((*array)[x * this->width_y * this->scales + y * this->scales + z]->Write(fw));
+					fb->SaveUInt32((*arrays[rotated])[x * this->width_y * this->scales + y * this->scales + z]->Write(fw));
 				}
 			}
 		}
@@ -1439,22 +1452,8 @@ static int RotateFlags(int flags, int count)
  */
 void TrackVoxel::Write(FileWriter *fw, FileBlock *fb, int rot)
 {
-	for (int i = 0; i < 4; i++) {
-		int j = (i + 4 - rot) & 3;
-		if (this->back[j] == nullptr) {
-			fb->SaveUInt32(0);
-		} else {
-			fb->SaveUInt32(this->back[j]->Write(fw));
-		}
-	}
-	for (int i = 0; i < 4; i++) {
-		int j = (i + 4 - rot) & 3;
-		if (this->front[j] == nullptr) {
-			fb->SaveUInt32(0);
-		} else {
-			fb->SaveUInt32(this->front[j]->Write(fw));
-		}
-	}
+	fb->SaveUInt32(this->bg == nullptr ? 0 : this->bg->Write(fw, rot));
+	fb->SaveUInt32(this->fg == nullptr ? 0 : this->fg->Write(fw, rot));
 	int nx = this->dx;
 	int ny = this->dy;
 	RotateXY(&nx, &ny, rot);
@@ -1761,10 +1760,10 @@ void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWr
 {
 	for (int rot = 0; rot < 4; rot++) {
 		FileBlock *fb = new FileBlock;
-		int size = 26 - 12 + 36 * this->track_voxels.size() + 4;
+		int size = 26 - 12 + 12 * this->track_voxels.size() + 4;
 		size += GetCarEntrySize(this->car_xpos) + GetCarEntrySize(this->car_ypos) + GetCarEntrySize(this->car_zpos);
 		size += GetCarEntrySize(this->car_pitch) + GetCarEntrySize(this->car_roll) + GetCarEntrySize(this->car_yaw);
-		fb->StartSave("TRCK", 5, size);
+		fb->StartSave("TRCK", 6, size);
 		fb->SaveUInt8(this->entry->Encode(connections, rot));
 		fb->SaveUInt8(this->exit->Encode(connections, rot));
 		int nx = this->exit_dx;
@@ -1865,24 +1864,17 @@ int CARSBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-CSPLBlock::CSPLBlock() : GameBlock("CSPL", 2)
+CSPLBlock::CSPLBlock() : GameBlock("CSPL", 3)
 {
 }
 
 int CSPLBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 2 + 1 + 8 * 4);
-	fb->SaveUInt16(this->tile_width);
+	fb->StartSave(this->blk_name, this->version, 1 + 2 * 4);
 	fb->SaveUInt8(this->type);
-	fb->SaveUInt32(this->ne_sw_back->Write(fw));
-	fb->SaveUInt32(this->ne_sw_front->Write(fw));
-	fb->SaveUInt32(this->se_nw_back->Write(fw));
-	fb->SaveUInt32(this->se_nw_front->Write(fw));
-	fb->SaveUInt32(this->sw_ne_back->Write(fw));
-	fb->SaveUInt32(this->sw_ne_front->Write(fw));
-	fb->SaveUInt32(this->nw_se_back->Write(fw));
-	fb->SaveUInt32(this->nw_se_front->Write(fw));
+	fb->SaveUInt32(this->bg->Write(fw));
+	fb->SaveUInt32(this->fg->Write(fw));
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }

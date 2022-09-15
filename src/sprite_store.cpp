@@ -1597,7 +1597,7 @@ void SpriteManager::Load(const char *filename)
 
 		if (strcmp(rcd_file.name, "TRCK") == 0) {
 			auto tp = std::make_shared<TrackPiece>();
-			tp->Load(&rcd_file, sprites);
+			tp->Load(&rcd_file);
 			track_pieces.insert({blk_num, tp});
 			continue;
 		}
@@ -1610,7 +1610,7 @@ void SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "CSPL") == 0) {
-			LoadCoasterPlatform(&rcd_file, sprites);
+			LoadCoasterPlatform(&rcd_file);
 			continue;
 		}
 
