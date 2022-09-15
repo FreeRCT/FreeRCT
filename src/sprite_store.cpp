@@ -359,7 +359,7 @@ void FrameSet::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
  * @param x Relative X coordinate in the object.
  * @param y Relative Y coordinate in the object.
  * @param orientation View orientation.
- * @param zoom Zoom scale index of the image. If the frame set does not contain images at this scale, a correspnidng image from another scale will be resized to create it.
+ * @param zoom Zoom scale index of the image. If the frame set does not contain images at this scale, another existing scale will be resized to create it.
  * @return The image.
  */
 ImageData* FrameSet::GetSprite(uint16 x, uint16 y, uint8 orientation, int zoom) const
@@ -384,7 +384,7 @@ ImageData* FrameSet::GetSprite(uint16 x, uint16 y, uint8 orientation, int zoom) 
 	int index = smallest_bigger_index >= 0 ? smallest_bigger_index : biggest_smaller_index;
 	assert(index >= 0);
 	ImageData *img_to_scale = this->sprites[orientation][x * this->width_y * this->scales + y * this->scales + index];
-	assert(img_to_scale != nullptr);
+	if (img_to_scale == nullptr) return nullptr;
 	return img_to_scale->Scale(static_cast<float>(desired_tile_w) / this->width[index]);
 }
 
@@ -1517,7 +1517,7 @@ void SpriteManager::Load(const char *filename)
 				throw LoadingError("ANIM: Unknown animation.");
 			}
 			this->AddAnimation(anim.get());
-			// this->store.RemoveAnimations(anim->anim_type, (PersonType)anim->person_type);  // NOCOM needed?
+			for (SpriteStorage &ss : this->store) ss.RemoveAnimations(anim->anim_type, (PersonType)anim->person_type);
 			this->AddBlock(std::move(anim));
 			continue;
 		}
@@ -1528,8 +1528,15 @@ void SpriteManager::Load(const char *filename)
 			if (an_spr->person_type == PERSON_INVALID || an_spr->anim_type == ANIM_INVALID) {
 				throw LoadingError("ANSP: Unknown animation.");
 			}
-			// this->store.AddAnimationSprites(an_spr.get());  // NOCOM needed?
-			this->AddBlock(std::move(an_spr));
+
+			SpriteStorage *ss = this->GetSpriteStore(an_spr->width);
+			if (ss != nullptr) {
+				ss->AddAnimationSprites(an_spr.get());
+				this->AddBlock(std::move(an_spr));
+			} else {
+				printf("WARNING: Not loading animation sprites with tile width %u\n", an_spr->width);
+			}
+
 			continue;
 		}
 

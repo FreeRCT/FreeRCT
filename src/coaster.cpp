@@ -245,20 +245,20 @@ DisplayCoasterCar::DisplayCoasterCar() : yaw(0xff), owning_car(nullptr)  // Mark
 {
 }
 
-const ImageData *DisplayCoasterCar::GetSprite([[maybe_unused]] const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
+const ImageData *DisplayCoasterCar::GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const
 {
 	*recolour = &this->owning_car->owning_train->coaster->recolours;
-	return this->car_type->GetCar(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF);
+	return this->car_type->GetCar(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF);  // NOCOM zoom
 }
 
-VoxelObject::Overlays DisplayCoasterCar::GetOverlays([[maybe_unused]] const SpriteStorage *sprites, ViewOrientation orient) const
+VoxelObject::Overlays DisplayCoasterCar::GetOverlays(ViewOrientation orient, int zoom) const
 {
 	Overlays result;
 	if (this->owning_car == nullptr) return result;
 	for (int i = 0; i < this->car_type->num_passengers; i++) {
 		if (this->owning_car->guests[i] != nullptr) {
 			result.push_back(Overlay {
-					this->car_type->GetGuestOverlay(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF, i),
+					this->car_type->GetGuestOverlay(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF, i),  // NOCOM zoom
 					&this->owning_car->guests[i]->recolour});
 		}
 	}
@@ -920,6 +920,7 @@ void CoasterInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uin
 	assert(voxel_number < ct->voxels.size());
 	const TrackVoxel *tv = ct->voxels[voxel_number];
 
+	// NOCOM Zoom
 	sprites[1] = tv->back[orient];  // SO_RIDE
 	sprites[2] = tv->front[orient]; // SO_RIDE_FRONT
 	if ((tv->back[orient] == nullptr && tv->front[orient] == nullptr) || !tv->HasPlatform() || ct->platform_type >= CPT_COUNT) {
@@ -928,6 +929,7 @@ void CoasterInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uin
 	} else {
 		const CoasterPlatform &platform = _coaster_platforms[ct->platform_type];
 		TileEdge edge = static_cast<TileEdge>(orientation_index(tv->GetPlatformDirection()));
+		// NOCOM Zoom
 		switch (edge) {
 			case EDGE_NE:
 				sprites[0] = platform.ne_sw_back;

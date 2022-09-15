@@ -19,6 +19,7 @@
 #include "track_piece.h"
 #include "weather.h"
 #include "gui_sprites.h"
+#include "sprite_data.h"
 #include <map>
 #include <set>
 
@@ -685,6 +686,47 @@ public:
 		return nullptr;
 	}
 
+	/**
+	 * Get a foundation sprite.
+	 * @param f Foundation type.
+	 * @param i Sprite index.
+	 * @return The sprite.
+	 */
+	const ImageData *GetFoundationSprite(int f, int i) const
+	{
+		return this->foundation[f].sprites[i];
+	}
+
+	/**
+	 * Get a support sprite.
+	 * @param i Sprite index.
+	 * @return The sprite.
+	 */
+	const ImageData *GetSupportSprite(int i) const
+	{
+		return this->support.sprites[i];
+	}
+
+	/**
+	 * Get a flat platform sprite.
+	 * @param i Sprite index.
+	 * @return The sprite.
+	 */
+	const ImageData *GetFlatPlatformSprite(int i) const
+	{
+		return this->platform.flat[i];
+	}
+
+	/**
+	 * Get a ramped platform sprite.
+	 * @param i Sprite index.
+	 * @return The sprite.
+	 */
+	const ImageData *GetRampPlatformSprite(int i) const
+	{
+		return this->platform.ramp[i];
+	}
+
 	const uint16 size; ///< Width of the tile.
 
 	SurfaceData surface[GTP_COUNT];   ///< Surface data.
@@ -725,7 +767,26 @@ public:
 
 	PathStatus GetPathStatus(PathType path_type);
 
-	SpriteStorage *GetSpriteStore(int width);
+	/**
+	 * Get a sprite from the sprite storage. If the sprite is only available at a different resolution, it will be scaled.
+	 * @param zoom Zoom scale.
+	 * @param f Functor to extract the image from a sprite storage.
+	 * @param args Arguments to forward to the functor.
+	 * @return The image.
+	 */
+	template<typename Fn, typename... Args>
+	const ImageData *GetSprite(int zoom, Fn f, Args... args)
+	{
+		for (int z = zoom; z < ZOOM_SCALES_COUNT; ++z) {
+			const ImageData *img = (this->store.at(z).*f)(args...);
+			if (img != nullptr) return img->Scale(static_cast<float>(TileWidth(zoom)) / TileWidth(z));
+		}
+		for (int z = zoom - 1; z >= 0; --z) {
+			const ImageData *img = (this->store.at(z).*f)(args...);
+			if (img != nullptr) return img->Scale(static_cast<float>(TileWidth(zoom)) / TileWidth(z));
+		}
+		return nullptr;
+	}
 
 	/**
 	 * Get the sprite storage at the size to use in the Gui.
@@ -740,6 +801,8 @@ protected:
 	void Load(const char *fname);
 
 	std::vector<std::unique_ptr<RcdBlock>> blocks;  ///< List of loaded RCD data blocks.
+
+	SpriteStorage *GetSpriteStore(int width);
 
 	std::vector<SpriteStorage> store;        ///< Sprite storage for each zoom scale.
 	AnimationsMap animations;                ///< Available animations.

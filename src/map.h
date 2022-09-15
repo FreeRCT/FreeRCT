@@ -312,8 +312,8 @@ public:
 	};
 	typedef std::vector<Overlay> Overlays;
 
-	virtual const ImageData *GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const = 0;
-	virtual Overlays GetOverlays(const SpriteStorage *sprites, ViewOrientation orient) const;
+	virtual const ImageData *GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const = 0;
+	virtual Overlays GetOverlays(ViewOrientation orient, int zoom) const;
 
 	/**
 	 * Add itself to the voxel objects chain.

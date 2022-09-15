@@ -92,10 +92,11 @@ VoxelObject::~VoxelObject()
 }
 
 /**
- * \fn const ImageData *VoxelObject::GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
+ * \fn const ImageData *VoxelObject::GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const
  * Get the sprite to draw for the voxel object.
  * @param sprites Sprites at the right size for drawing.
  * @param orient Direction of view.
+ * @param zoom Zoom scale.
  * @param recolour [out] Recolour mapping if present, else \c nullptr.
  * @return Sprite to display for the voxel object.
  */
@@ -104,9 +105,10 @@ VoxelObject::~VoxelObject()
  * Get the overlay sprite(s) to draw for the voxel object.
  * @param sprites Sprites at the right size for drawing.
  * @param orient Direction of view.
+ * @param zoom Zoom scale.
  * @return Sprites to overlay for the voxel object, with their respective recolourings.
  */
-VoxelObject::Overlays VoxelObject::GetOverlays([[maybe_unused]] const SpriteStorage *sprites, [[maybe_unused]] ViewOrientation orient) const
+VoxelObject::Overlays VoxelObject::GetOverlays([[maybe_unused]] ViewOrientation orient, [[maybe_unused]] int zoom) const
 {
 	return {};
 }

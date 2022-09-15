@@ -138,8 +138,8 @@ class DisplayCoasterCar : public VoxelObject {
 public:
 	DisplayCoasterCar();
 
-	const ImageData *GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const override;
-	VoxelObject::Overlays GetOverlays(const SpriteStorage *sprites, ViewOrientation orient) const override;
+	const ImageData *GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const override;
+	VoxelObject::Overlays GetOverlays(ViewOrientation orient, int zoom) const override;
 
 	void Set(const XYZPoint16 &vox_pos, const XYZPoint16 &pix_pos, uint8 pitch, uint8 roll, uint8 yaw);
 	void PreRemove();

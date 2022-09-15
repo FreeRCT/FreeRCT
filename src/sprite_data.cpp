@@ -344,10 +344,10 @@ const uint8 *ImageData::GetRecoloured(GradientShift shift, const Recolouring &re
  * @param factor Factor by which to scale.
  * @return The scaled instance.
  */
-ImageData *ImageData::Scale(float factor)
+ImageData *ImageData::Scale(float factor) const
 {
 	constexpr float EPSILON = 0.01;  ///< Threshold for float comparisons.
-	if (fabs(factor - 1.0f) < EPSILON) return this;
+	if (fabs(factor - 1.0f) < EPSILON) return const_cast<ImageData*>(this);
 	for (const auto &pair : this->scaled) if (fabs(pair.first - factor) < EPSILON) return pair.second.get();
 
 	ImageData *img = new ImageData;

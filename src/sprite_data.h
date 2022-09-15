@@ -32,7 +32,7 @@ public:
 	uint32 GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *recolour = nullptr, GradientShift shift = GS_NORMAL) const;
 	const uint8 *GetRecoloured(GradientShift shift, const Recolouring &recolour) const;
 
-	ImageData *Scale(float factor);
+	ImageData *Scale(float factor) const;
 
 	/**
 	 * Is the sprite just a single pixel?
@@ -52,8 +52,8 @@ public:
 	std::unique_ptr<uint8[]> rgba;   ///< All pixel values of the image in RGBA format.
 	std::unique_ptr<uint8[]> recol;  ///< The recolouring layer and table index of each pixel.
 
-	mutable std::map<RecolourData, std::unique_ptr<uint8[]>> recoloured;  ///< Copies of this image with various alterations.
-	std::vector<std::pair<float, std::unique_ptr<ImageData>>> scaled;     ///< Scaled copies of this image and their scaling factor.
+	mutable std::map<RecolourData, std::unique_ptr<uint8[]>> recoloured;       ///< Copies of this image with various alterations.
+	mutable std::vector<std::pair<float, std::unique_ptr<ImageData>>> scaled;  ///< Scaled copies of this image and their scaling factor.
 };
 
 ImageData *LoadImage(RcdFileReader *rcd_file);

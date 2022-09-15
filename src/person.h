@@ -100,7 +100,7 @@ public:
 	Person();
 	virtual ~Person() override;
 
-	const ImageData *GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const override;
+	const ImageData *GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const override;
 
 	virtual AnimateResult OnAnimate(int delay);
 	virtual bool DailyUpdate() = 0;
