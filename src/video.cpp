@@ -334,7 +334,7 @@ void VideoSystem::FramebufferSizeCallback([[maybe_unused]] GLFWwindow *window, i
 void VideoSystem::KeyCallback([[maybe_unused]] GLFWwindow *window, int key, [[maybe_unused]] int scancode, int action, int mods)
 {
 	assert(window == _video.window);
-	if (action != GLFW_PRESS) return;
+	if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
 
 	WmKeyMod mod_mask = WMKM_NONE;
 	if ((mods & GLFW_MOD_CONTROL) != 0) mod_mask |= WMKM_CTRL;
