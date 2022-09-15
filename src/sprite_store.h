@@ -698,8 +698,6 @@ public:
 	PathDecoration path_decoration;   ///< %Path decoration sprites.
 	DisplayedObject build_arrows;     ///< Arrows displaying build direction of paths and tracks.
 	AnimationSpritesMap animations;   ///< %Animation sprites ordered by animation type.
-	FrameSetsMap frame_sets;             ///< Frame sets.
-	TimedAnimationsMap timed_animations; ///< Timed animations.
 
 protected:
 	void Clear();
@@ -717,33 +715,36 @@ public:
 	void LoadRcdFiles();
 	void AddBlock(std::unique_ptr<RcdBlock> block);
 
-	/**
-	 * Get the sprite store.
-	 * @return The sprite store.
-	 */
-	const SpriteStorage *GetSprites() const
-	{
-		return &this->store;
-	}
-
 	void AddAnimation(Animation *anim);
 	const ImageData *GetTableSprite(uint16 number) const;
 	const Rectangle16 &GetTableSpriteSize(uint16 number);
 	const Animation *GetAnimation(AnimationType anim_type, PersonType per_type) const;
-	const Fence *GetFence(FenceType fence) const;
+	const Fence *GetFence(FenceType fence, int zoom) const;
 	const FrameSet *GetFrameSet(const ImageSetKey &key) const;
 	const TimedAnimation *GetTimedAnimation(const ImageSetKey &key) const;
 
 	PathStatus GetPathStatus(PathType path_type);
 
+	SpriteStorage *GetSpriteStore(int width);
+
+	/**
+	 * Get the sprite storage at the size to use in the Gui.
+	 * @return The sprite storage.
+	 */
+	inline SpriteStorage &GetGuiSpriteStore()
+	{
+		return this->store.at(DEFAULT_ZOOM);
+	}
+
 protected:
 	void Load(const char *fname);
-	SpriteStorage *GetSpriteStore(uint16 width);
 
 	std::vector<std::unique_ptr<RcdBlock>> blocks;  ///< List of loaded RCD data blocks.
 
-	SpriteStorage store;      ///< Sprite storage of size 64.
-	AnimationsMap animations; ///< Available animations.
+	std::vector<SpriteStorage> store;        ///< Sprite storage for each zoom scale.
+	AnimationsMap animations;                ///< Available animations.
+	FrameSetsMap frame_sets;                 ///< Available frame sets.
+	TimedAnimationsMap timed_animations;     ///< Available timed animations.
 
 private:
 	void LoadSURF(RcdFileReader *rcd_file, const ImageMap &sprites);

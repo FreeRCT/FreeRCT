@@ -189,6 +189,7 @@ struct DrawData {
 		this->base = base;
 		this->recolour = recolour;
 		this->gs = gs;
+		assert(this->sprite != nullptr);
 	}
 
 	const ImageData *sprite;     ///< Mouse cursor to draw.
@@ -279,7 +280,7 @@ VoxelCollector::VoxelCollector(Viewport *vp)
 	this->zoom = vp->zoom;
 	this->orient = vp->orientation;
 
-	this->sprites = _sprite_manager.GetSprites();
+	this->sprites = _sprite_manager.GetSpriteStore(TileWidth(vp->zoom));
 	assert(this->sprites != nullptr);
 }
 
@@ -935,33 +936,6 @@ Viewport::~Viewport()
 = default;
 
 /**
- * Can the viewport switch to underground mode view?
- * @return Whether underground mode view is available.
- */
-bool Viewport::IsUndergroundModeAvailable() const
-{
-	const SpriteStorage *storage = _sprite_manager.GetSprites();
-	return storage->surface[GTP_UNDERGROUND].HasAllSprites();
-}
-
-/** Enable the underground mode view, if possible. */
-void Viewport::SetUndergroundMode()
-{
-	if (!IsUndergroundModeAvailable()) return;
-	this->SetDisplayFlag(DF_UNDERGROUND_MODE, true);
-}
-
-/** Toggle the underground mode view on/off. */
-void Viewport::ToggleUndergroundMode()
-{
-	if (this->GetDisplayFlag(DF_UNDERGROUND_MODE)) {
-		this->SetDisplayFlag(DF_UNDERGROUND_MODE, false);
-	} else {
-		this->SetUndergroundMode();
-	}
-}
-
-/**
  * Check if the zoom scale can be further decreased.
  * @return We can zoom out.
  */
@@ -1341,7 +1315,7 @@ bool Viewport::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &s
 				return true;
 			}
 			if (symbol == "u") {  // u to toggle underground view.
-				this->ToggleUndergroundMode();
+				this->ToggleDisplayFlag(DF_UNDERGROUND_MODE);
 				return true;
 			}
 			if (symbol == "m") {  // m to open the minimap.

@@ -337,10 +337,8 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 						case DDV_ZOOM_OUT:
 							_window_manager.GetViewport()->ZoomOut();
 							break;
-						case DDV_UNDERGROUND:
-							_window_manager.GetViewport()->ToggleUndergroundMode();
-							break;
 
+						case DDV_UNDERGROUND:      _window_manager.GetViewport()->ToggleDisplayFlag(DF_UNDERGROUND_MODE); break;
 						case DDV_UNDERWATER:       _window_manager.GetViewport()->ToggleDisplayFlag(DF_UNDERWATER_MODE); break;
 						case DDV_GRID:             _window_manager.GetViewport()->ToggleDisplayFlag(DF_GRID); break;
 						case DDV_WIRE_RIDES:       _window_manager.GetViewport()->ToggleDisplayFlag(DF_WIREFRAME_RIDES); break;

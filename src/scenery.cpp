@@ -114,7 +114,8 @@ void PathObjectInstance::RecomputeExistenceState()
 
 	if (this->type->ignore_edges) {
 		if (this->state == 0xFF) {
-			const PathDecoration &pdec = _sprite_manager.GetSprites()->path_decoration;
+			// NOCOM this is a very bad place for this stuff...
+			const PathDecoration &pdec = _sprite_manager.GetSpriteStore(TileWidth(DEFAULT_ZOOM))->path_decoration;
 			uint8 count;
 			if (is_ramp) {
 				this->data[0] = path_slope_imploded - PATH_FLAT_COUNT;
@@ -239,7 +240,8 @@ void PathObjectInstance::RemoveGuestsFromBench(const TileEdge e)
  */
 std::vector<PathObjectInstance::PathObjectSprite> PathObjectInstance::GetSprites(const uint8 orientation) const
 {
-	const PathDecoration &pdec = _sprite_manager.GetSprites()->path_decoration;
+	// NOCOM this is a very bad place for this stuff...
+	const PathDecoration &pdec = _sprite_manager.GetSpriteStore(TileWidth(DEFAULT_ZOOM))->path_decoration;
 
 	if (this->type->ignore_edges) {
 		switch (this->data[0]) {

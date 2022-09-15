@@ -1371,9 +1371,13 @@ void SpriteStorage::AddFence(Fence *fnc)
 }
 
 /** Sprite manager constructor. */
-SpriteManager::SpriteManager() : store(64)
+SpriteManager::SpriteManager()
 {
 	_gui_sprites.Clear();
+
+	this->store.reserve(ZOOM_SCALES_COUNT);
+	for (int z = 0; z < ZOOM_SCALES_COUNT; ++z) this->store.emplace_back(TileWidth(z));
+	this->store.shrink_to_fit();
 }
 
 /** Sprite manager destructor. */
@@ -1446,8 +1450,13 @@ void SpriteManager::Load(const char *filename)
 		if (strcmp(rcd_file.name, "FENC") == 0) {
 			std::unique_ptr<Fence> block(new Fence);
 			block->Load(&rcd_file, sprites);
-			this->store.AddFence(block.get());
-			this->AddBlock(std::move(block));
+			SpriteStorage *ss = this->GetSpriteStore(block->width);
+			if (ss != nullptr) {
+				ss->AddFence(block.get());
+				this->AddBlock(std::move(block));
+			} else {
+				printf("WARNING: Not loading fence with tile width %u\n", block->width);
+			}
 			continue;
 		}
 
@@ -1508,7 +1517,7 @@ void SpriteManager::Load(const char *filename)
 				throw LoadingError("ANIM: Unknown animation.");
 			}
 			this->AddAnimation(anim.get());
-			this->store.RemoveAnimations(anim->anim_type, (PersonType)anim->person_type);
+			// this->store.RemoveAnimations(anim->anim_type, (PersonType)anim->person_type);  // NOCOM needed?
 			this->AddBlock(std::move(anim));
 			continue;
 		}
@@ -1519,7 +1528,7 @@ void SpriteManager::Load(const char *filename)
 			if (an_spr->person_type == PERSON_INVALID || an_spr->anim_type == ANIM_INVALID) {
 				throw LoadingError("ANSP: Unknown animation.");
 			}
-			this->store.AddAnimationSprites(an_spr.get());
+			// this->store.AddAnimationSprites(an_spr.get());  // NOCOM needed?
 			this->AddBlock(std::move(an_spr));
 			continue;
 		}
@@ -1547,14 +1556,14 @@ void SpriteManager::Load(const char *filename)
 		if (strcmp(rcd_file.name, "FSET") == 0) {
 			std::unique_ptr<FrameSet> fset(new FrameSet);
 			fset->Load(&rcd_file, sprites);
-			this->store.frame_sets[ImageSetKey(filename, blk_num)] = std::move(fset);
+			this->frame_sets[ImageSetKey(filename, blk_num)] = std::move(fset);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "TIMA") == 0) {
 			std::unique_ptr<TimedAnimation> anim(new TimedAnimation);
 			anim->Load(&rcd_file, sprites);
-			this->store.timed_animations[ImageSetKey(filename, blk_num)] = std::move(anim);
+			this->timed_animations[ImageSetKey(filename, blk_num)] = std::move(anim);
 			continue;
 		}
 
@@ -1616,10 +1625,11 @@ void SpriteManager::Load(const char *filename)
  * @param width Tile width of the sprites.
  * @return Sprite storage object for the given width if it exists, else \c nullptr.
  */
-SpriteStorage *SpriteManager::GetSpriteStore(uint16 width)
+SpriteStorage *SpriteManager::GetSpriteStore(int width)
 {
-	if (width == 64) return &this->store;
-	return nullptr;
+	width = GetZoomScaleByWidth(width);
+	if (width < 0) return nullptr;
+	return &this->store[width];
 }
 
 /** Load all useful RCD files found by #_rcd_collection, into the program. */
@@ -1775,8 +1785,9 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 	if (number >= SPR_GUI_BANK_START   && number < SPR_GUI_BANK_END) return _gui_sprites.bank_select[number - SPR_GUI_BANK_START];
 	if (number >= SPR_GUI_TOOLBAR_BEGIN && number < SPR_GUI_TOOLBAR_END) return _gui_sprites.toolbar_images[number - SPR_GUI_TOOLBAR_BEGIN];
 
+	// NOCOM build arrows don't belong here
 	if (number >= SPR_GUI_BUILDARROW_START && number < SPR_GUI_BUILDARROW_END) {
-		return this->store.GetArrowSprite(number - SPR_GUI_BUILDARROW_START, VOR_NORTH);
+		return this->store[DEFAULT_ZOOM /* NOCOM */].GetArrowSprite(number - SPR_GUI_BUILDARROW_START, VOR_NORTH);
 	}
 
 	switch (number) {
@@ -1806,9 +1817,9 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 		case SPR_GUI_SPEED_2:            return _gui_sprites.speed_2;
 		case SPR_GUI_SPEED_4:            return _gui_sprites.speed_4;
 		case SPR_GUI_SPEED_8:            return _gui_sprites.speed_8;
-		case SPR_GUI_BENCH:              return this->store.path_decoration.bench    [0];
-		case SPR_GUI_BIN:                return this->store.path_decoration.litterbin[0];
-		case SPR_GUI_LAMP:               return this->store.path_decoration.lamp_post[0];
+		case SPR_GUI_BENCH:              return this->store[DEFAULT_ZOOM].path_decoration.bench    [0];
+		case SPR_GUI_BIN:                return this->store[DEFAULT_ZOOM].path_decoration.litterbin[0];
+		case SPR_GUI_LAMP:               return this->store[DEFAULT_ZOOM].path_decoration.lamp_post[0];
 		default:                     return nullptr;
 	}
 }
@@ -1833,12 +1844,13 @@ const Animation *SpriteManager::GetAnimation(AnimationType anim_type, PersonType
 /**
  * Get the fence rcd data for a given fence type
  * @param fence_type The fence type (@see FenceType)
+ * @param zoom Zoom scale.
  * @return Fence object or nullptr
  */
-const Fence *SpriteManager::GetFence(FenceType fence_type) const
+const Fence *SpriteManager::GetFence(FenceType fence_type, int zoom) const
 {
 	assert(fence_type < FENCE_TYPE_COUNT);
-	return this->store.fence[fence_type];
+	return this->store[zoom].fence[fence_type];
 }
 
 /**
@@ -1848,8 +1860,8 @@ const Fence *SpriteManager::GetFence(FenceType fence_type) const
  */
 const FrameSet *SpriteManager::GetFrameSet(const ImageSetKey &key) const
 {
-	auto it = this->store.frame_sets.find(key);
-	return it == this->store.frame_sets.end() ? nullptr : it->second.get();
+	auto it = this->frame_sets.find(key);
+	return it == this->frame_sets.end() ? nullptr : it->second.get();
 }
 
 /**
@@ -1859,8 +1871,8 @@ const FrameSet *SpriteManager::GetFrameSet(const ImageSetKey &key) const
  */
 const TimedAnimation *SpriteManager::GetTimedAnimation(const ImageSetKey &key) const
 {
-	auto it = this->store.timed_animations.find(key);
-	return it == this->store.timed_animations.end() ? nullptr : it->second.get();
+	auto it = this->timed_animations.find(key);
+	return it == this->timed_animations.end() ? nullptr : it->second.get();
 }
 
 /**
@@ -1870,6 +1882,7 @@ const TimedAnimation *SpriteManager::GetTimedAnimation(const ImageSetKey &key) c
  */
 PathStatus SpriteManager::GetPathStatus(PathType path_type)
 {
-	const Path &path = this->store.path_sprites[path_type];
+	// NOCOM static info really doesn't belong in zoom-specific data!
+	const Path &path = this->store[DEFAULT_ZOOM].path_sprites[path_type];
 	return path.status;
 }

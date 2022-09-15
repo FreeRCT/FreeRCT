@@ -178,10 +178,6 @@ public:
 		this->SetDisplayFlag(f, !this->GetDisplayFlag(f));
 	}
 
-	bool IsUndergroundModeAvailable() const;
-	void SetUndergroundMode();
-	void ToggleUndergroundMode();
-
 	bool CanZoomOut() const;
 	bool CanZoomIn() const;
 	void ZoomOut();

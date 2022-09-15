@@ -166,9 +166,8 @@ static const WidgetPart _path_build_gui_parts[] = {
 /** Constructor of the path build gui. */
 PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE)
 {
-	const SpriteStorage *store = _sprite_manager.GetSprites();
 	for (int i = 0; i < PAT_COUNT; i++) {
-		switch (store->path_sprites[i].status) {
+		switch (_sprite_manager.GetPathStatus(PathType(i))) {
 			case PAS_UNUSED:
 				this->normal_path_types[i] = false;
 				this->queue_path_types[i]  = false;
@@ -178,14 +177,14 @@ PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE)
 			case PAS_NORMAL_PATH:
 				this->normal_path_types[i] = true;
 				this->queue_path_types[i]  = false;
-				this->path_type_sprites[i] = store->GetPathSprite(i, PATH_NE_NW_SE_SW, VOR_NORTH);
+				this->path_type_sprites[i] = _sprite_manager.GetGuiSpriteStore().GetPathSprite(i, PATH_NE_NW_SE_SW, VOR_NORTH);
 				this->path_type_button_size.MergeArea(GetSpriteSize(this->path_type_sprites[i]));
 				break;
 
 			case PAS_QUEUE_PATH:
 				this->normal_path_types[i] = false;
 				this->queue_path_types[i]  = true;
-				this->path_type_sprites[i] = store->GetPathSprite(i, PATH_NE_SW, VOR_NORTH);
+				this->path_type_sprites[i] = _sprite_manager.GetGuiSpriteStore().GetPathSprite(i, PATH_NE_SW, VOR_NORTH);
 				this->path_type_button_size.MergeArea(GetSpriteSize(this->path_type_sprites[i]));
 				break;
 
