@@ -612,31 +612,38 @@ Version history
 
 Frame Sets
 ~~~~~~~~~~
-A set of sprites for an object (e.g. a ride) that occupies (x*y) tiles. FreeRCT can read block version 1.
+A set of sprites for an object (e.g. a ride) that occupies (x*y) tiles. FreeRCT can read block version 2.
 
-===============  =======  =======  =================================================================
-Offset           Length   Version  Description
-===============  =======  =======  =================================================================
-   0              4        1-      Magic string 'FSET'.
-   4              4        1-      Version number of the block.
-   8              4        1-      Length of the block excluding magic string, version, and length.
-  12              2        1-      Zoom-width of a tile of the surface.
-  14              1        1-      Number x of tiles in x direction.
-  15              1        1-      Number y of tiles in y direction.
-  16              4*x*y    1-      Unrotated views (ne), for each tile.
-  16+4*x*y        4*x*y    1-      Views after 1 quarter negative rotation (se).
-  16+8*x*y        4*x*y    1-      Views after 2 quarter negative rotations (sw).
-  16+12*x*y       4*x*y    1-      Views after 3 quarter negative rotations (nw).
-  16+16*x*y                        Total length.
-===============  =======  =======  =================================================================
+=================  =======  =======  =================================================================
+Offset             Length   Version  Description
+=================  =======  =======  =================================================================
+   0               4        1-       Magic string 'FSET'.
+   4               4        1-       Version number of the block.
+   8               4        1-       Length of the block excluding magic string, version, and length.
+  12               1        2-       Number z of zoom scales in the set.
+  --               2        1-1      Zoom-width of a tile of the surface.
+  13               1        1-       Number x of tiles in x direction.
+  14               1        1-       Number y of tiles in y direction.
+  15               2*z      2-       Zoom-width of a tile of the surface, for each zoom scale.
+  --               4*x*y    1-1      Unrotated views (ne), for each tile.
+  --               4*x*y    1-1      Views after 1 quarter negative rotation (se).
+  --               4*x*y    1-1      Views after 2 quarter negative rotations (sw).
+  --               4*x*y    1-1      Views after 3 quarter negative rotations (nw).
+  15+2*z           4*x*y*z  2-       Unrotated views (ne), for each tile.
+  15+2*z+4*x*y*z   4*x*y*z  2-       Views after 1 quarter negative rotation (se).
+  15+2*z+8*x*y*z   4*x*y*z  2-       Views after 2 quarter negative rotations (sw).
+  15+2*z+12*x*y*z  4*x*y*z  2-       Views after 3 quarter negative rotations (nw).
+  15+2*z+16*x*y*z                    Total length.
+=================  =======  =======  =================================================================
 
-A view consists of a sprite block reference for each tile of the object,
-with x as the minor index and y as the major index.
+A view consists of a sprite block reference for each tile and zoom scale of the object.
+The index order from minor to major is x - y - z.
 
 Version history
 ...............
 
 - 1 (20210131) Initial version.
+- 2 (20220915) Add zoom.
 
 
 Timed animations

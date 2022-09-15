@@ -594,9 +594,10 @@ public:
 
 	int Write(FileWriter *fw) override;
 
-	int tile_width; ///< Zoom-width of a tile of the surface.
 	int width_x;    ///< The number of voxels in x direction.
 	int width_y;    ///< The number of voxels in y direction.
+	int scales;     ///< Number of zoom scales.
+	std::unique_ptr<uint16[]> tile_width;                     ///< Width of a tile for each scale.
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> ne_views; ///< Unrotated views.
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> se_views; ///< Rotated 90 degrees.
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> sw_views; ///< Rotated 180 degrees.

@@ -959,7 +959,7 @@ int SHOPBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-FSETBlock::FSETBlock() : GameBlock("FSET", 1)
+FSETBlock::FSETBlock() : GameBlock("FSET", 2)
 {
 	this->unrotated_views_only = false;
 	this->unrotated_views_only_allowed = false;
@@ -971,31 +971,25 @@ int FSETBlock::Write(FileWriter *fw)
 		fprintf(stderr, "Error: FSET block which requires all views to be specified has specified only the unrotated views");
 		::exit(1);
 	}
+
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 16 + (16 * this->width_x * this->width_y) - 12);
-	fb->SaveUInt16(this->tile_width);
+	fb->StartSave(this->blk_name, this->version, 15 + (16 * this->width_x * this->width_y * this->scales) + 2 * this->scales - 12);
+
+	fb->SaveUInt8(this->scales);
 	fb->SaveUInt8(this->width_x);
 	fb->SaveUInt8(this->width_y);
-	for (int x = 0; x < this->width_x; ++x) {
-		for (int y = 0; y < this->width_y; ++y) {
-			fb->SaveUInt32(this->ne_views[x * this->width_y + y]->Write(fw));
+	for (int i = 0; i < this->scales; ++i) fb->SaveUInt16(this->tile_width[i]);
+
+	for (const auto &array : {&this->ne_views, &this->se_views, &this->sw_views, &this->nw_views}) {
+		for (int x = 0; x < this->width_x; ++x) {
+			for (int y = 0; y < this->width_y; ++y) {
+				for (int z = 0; z < this->scales; ++z) {
+					fb->SaveUInt32((*array)[x * this->width_y * this->scales + y * this->scales + z]->Write(fw));
+				}
+			}
 		}
 	}
-	for (int x = 0; x < this->width_x; ++x) {
-		for (int y = 0; y < this->width_y; ++y) {
-			fb->SaveUInt32(this->se_views[x * this->width_y + y]->Write(fw));
-		}
-	}
-	for (int x = 0; x < this->width_x; ++x) {
-		for (int y = 0; y < this->width_y; ++y) {
-			fb->SaveUInt32(this->sw_views[x * this->width_y + y]->Write(fw));
-		}
-	}
-	for (int x = 0; x < this->width_x; ++x) {
-		for (int y = 0; y < this->width_y; ++y) {
-			fb->SaveUInt32(this->nw_views[x * this->width_y + y]->Write(fw));
-		}
-	}
+
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }

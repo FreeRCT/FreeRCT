@@ -13,6 +13,7 @@
 #include "fileio.h"
 #include "bitmath.h"
 
+#include <cmath>
 #include <vector>
 
 static const uint32 IMAGE_BATCH_SIZE = 1024;  ///< Number of images that are batch-preallocated (arbitrary number).
@@ -336,6 +337,73 @@ const uint8 *ImageData::GetRecoloured(GradientShift shift, const Recolouring &re
 	ptr = result.get();
 	this->recoloured.emplace(map_key, std::move(result));
 	return ptr;
+}
+
+/**
+ * Scale this image to a different size.
+ * @param factor Factor by which to scale.
+ * @return The scaled instance.
+ */
+ImageData *ImageData::Scale(float factor)
+{
+	constexpr float EPSILON = 0.01;  ///< Threshold for float comparisons.
+	if (fabs(factor - 1.0f) < EPSILON) return this;
+	for (const auto &pair : this->scaled) if (fabs(pair.first - factor) < EPSILON) return pair.second.get();
+
+	ImageData *img = new ImageData;
+	img->is_8bpp = this->is_8bpp;
+	img->width = round(this->width * factor);
+	img->height = round(this->height * factor);
+	img->xoffset = round(this->xoffset * factor);
+	img->yoffset = round(this->yoffset * factor);
+
+	const int nrecol = (img->is_8bpp ? 1 : 2);
+	img->recol.reset(new uint8[img->width * img->height * nrecol]);
+	img->rgba.reset(new uint8[img->width * img->height * 4]);
+
+	if (factor > 1.f) {
+		/* Upscaling. Each old pixel is copied to multiple new pixels. */
+		for (uint16 x = 0; x < img->width; ++x) {
+			for (uint16 y = 0; y < img->height; ++y) {
+				uint16 oldx = this->width * x / img->width;
+				uint16 oldy = this->height * y / img->height;
+				uint8 *newptr = &img->rgba[4 * (y * img->width + x)];
+				const uint8 *oldptr = &this->rgba[4 * (oldy * this->width + oldx)];
+				for (int i = 0; i < 4; ++i) *(newptr++) = *(oldptr++);
+
+				newptr = &img->recol[nrecol * (y * img->width + x)];
+				oldptr = &this->recol[nrecol * (oldy * this->width + oldx)];
+				for (int i = 0; i < nrecol; ++i) *(newptr++) = *(oldptr++);
+			}
+		}
+	} else {
+		/* Downscaling. Each new pixel is averaged from multiple old pixels. */
+		for (uint16 x = 0; x < img->width; ++x) {
+			for (uint16 y = 0; y < img->height; ++y) {
+				uint16 oldx1 = this->width * x / img->width;
+				uint16 oldy1 = this->height * y / img->height;
+				uint16 oldx2 = this->width * (x + 1) / img->width;
+				uint16 oldy2 = this->height * (y + 1) / img->height;
+				assert(oldx2 > oldx1 && oldy2 > oldy1);
+				int avg[] = {0, 0, 0, 0};
+				for (uint16 oldx = oldx1; oldx < oldx2; ++oldx) {
+					for (uint16 oldy = oldy1; oldy < oldy2; ++oldy) {
+						const uint8 *oldptr = &this->rgba[4 * (oldy * this->width + oldx)];
+						for (int i = 0; i < 4; ++i) avg[i] += *(oldptr++);
+					}
+				}
+				uint8 *newptr = &img->rgba[4 * (y * img->width + x)];
+				for (int i = 0; i < 4; ++i) *(newptr++) = avg[i] / ((oldx2 - oldx1) * (oldy2 - oldy1));
+
+				newptr = &img->recol[nrecol * (y * img->width + x)];
+				const uint8 *oldptr = &this->recol[nrecol * (oldy1 * this->width + oldx1)];
+				for (int i = 0; i < nrecol; ++i) *(newptr++) = *(oldptr++);
+			}
+		}
+	}
+
+	this->scaled.emplace_back(factor, img);
+	return img;
 }
 
 /**

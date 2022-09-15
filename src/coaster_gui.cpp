@@ -1183,8 +1183,8 @@ void CoasterBuildWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid)
 	}
 	for (const auto &pair : sprites) {
 		const Point32 p(
-				x + wid->pos.width  / 2 + (pair.first.y - pair.first.x               ) * vp->tile_width,
-				y + wid->pos.height / 2 + (pair.first.x + pair.first.y - pair.first.z) * vp->tile_height);
+				x + wid->pos.width  / 2 + (pair.first.y - pair.first.x               ) * TileWidth(vp->zoom),
+				y + wid->pos.height / 2 + (pair.first.x + pair.first.y - pair.first.z) * TileHeight(vp->zoom));
 		for (const ImageData *i : pair.second) _video.BlitImage(p, i);
 	}
 

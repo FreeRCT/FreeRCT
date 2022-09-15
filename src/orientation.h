@@ -95,4 +95,44 @@ static inline bool IsBackEdge(ViewOrientation orient, TileEdge edge)
 XYZPoint16 OrientatedOffset(const uint8 orientation, const int x, const int y);
 XYZPoint16 UnorientatedOffset(const uint8 orientation, const int x, const int y);
 
+/** Information about the graphics sizes at a zoom scale. */
+struct ZoomScale {
+	int tile_width;   ///< Width  of a tile in pixels.
+	int tile_height;  ///< Height of a tile in pixels.
+};
+
+/** Available zoom scales, sorted from smallest to biggest. */
+constexpr ZoomScale _zoom_scales[] = {
+	{ 16,  4},
+	{ 32,  8},
+	{ 64, 16},
+	{128, 32},
+	{256, 64},
+};
+constexpr int ZOOM_SCALES_COUNT = lengthof(_zoom_scales);  ///< Number of available zoom scales.
+constexpr int DEFAULT_ZOOM = ZOOM_SCALES_COUNT / 2;        ///< Default zoom scale index.
+
+int GetZoomScaleByWidth(int w);
+int GetZoomScaleByHeight(int h);
+
+/**
+ * Get the tile width at a zoom scale.
+ * @param zoom Zoom scale index.
+ * @return The tile width.
+ */
+inline int TileWidth(int zoom)
+{
+	return _zoom_scales[zoom].tile_width;
+}
+
+/**
+ * Get the tile height at a zoom scale.
+ * @param zoom Zoom scale index.
+ * @return The tile height.
+ */
+inline int TileHeight(int zoom)
+{
+	return _zoom_scales[zoom].tile_height;
+}
+
 #endif

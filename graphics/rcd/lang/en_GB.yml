@@ -79,6 +79,8 @@ strings:
 		TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_RIDES:     "Show height markers on rides"
 		TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_PATHS:     "Show height markers on paths"
 		TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_TERRAIN:   "Show height markers on terrain"
+		TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_OUT:         "Zoom out"
+		TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_IN:          "Zoom in"
 
 		TOOLBAR_GUI_GAME_MODE_PLAY:       "Play"
 		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Editor"

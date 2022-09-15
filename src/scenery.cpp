@@ -114,7 +114,7 @@ void PathObjectInstance::RecomputeExistenceState()
 
 	if (this->type->ignore_edges) {
 		if (this->state == 0xFF) {
-			const PathDecoration &pdec = _sprite_manager.GetSprites(64)->path_decoration;
+			const PathDecoration &pdec = _sprite_manager.GetSprites()->path_decoration;
 			uint8 count;
 			if (is_ramp) {
 				this->data[0] = path_slope_imploded - PATH_FLAT_COUNT;
@@ -239,7 +239,7 @@ void PathObjectInstance::RemoveGuestsFromBench(const TileEdge e)
  */
 std::vector<PathObjectInstance::PathObjectSprite> PathObjectInstance::GetSprites(const uint8 orientation) const
 {
-	const PathDecoration &pdec = _sprite_manager.GetSprites(64)->path_decoration;
+	const PathDecoration &pdec = _sprite_manager.GetSprites()->path_decoration;
 
 	if (this->type->ignore_edges) {
 		switch (this->data[0]) {
@@ -655,10 +655,12 @@ void SceneryInstance::RemoveFromWorld()
  * @param vox The voxel's absolute coordinates.
  * @param voxel_number Number of the voxel to draw (copied from the world voxel data).
  * @param orient View orientation.
+ * @param zoom Zoom scale index.
  * @param sprites [out] Sprites to draw, from back to front, #SO_PLATFORM_BACK, #SO_RIDE, #SO_RIDE_FRONT, and #SO_PLATFORM_FRONT.
  * @param platform [out] Shape of the support platform, if needed. @see PathSprites
  */
-void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_number, const uint8 orient, const ImageData *sprites[4], [[maybe_unused]] uint8 *platform) const
+void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_number, const uint8 orient,
+		int zoom, const ImageData *sprites[4], [[maybe_unused]] uint8 *platform) const
 {
 	sprites[0] = nullptr;
 	sprites[1] = nullptr;
@@ -667,9 +669,7 @@ void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_numbe
 	if (voxel_number == INVALID_VOXEL_DATA) return;
 	const XYZPoint16 unrotated_pos = UnorientatedOffset(this->orientation, vox.x - this->vox_pos.x, vox.y - this->vox_pos.y);
 	const TimedAnimation *anim = (this->IsDry() ? this->type->dry_animation : this->type->main_animation);
-	sprites[1] = anim->views[anim->GetFrame(this->animtime, true)]
-			->sprites[(this->orientation + 4 - orient) & 3]
-					[unrotated_pos.x * this->type->width_y + unrotated_pos.y];
+	sprites[1] = anim->views[anim->GetFrame(this->animtime, true)]->GetSprite(unrotated_pos.x, unrotated_pos.y, (this->orientation + 4 - orient) & 3, zoom);
 }
 
 /**

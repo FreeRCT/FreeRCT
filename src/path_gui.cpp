@@ -166,7 +166,7 @@ static const WidgetPart _path_build_gui_parts[] = {
 /** Constructor of the path build gui. */
 PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE)
 {
-	const SpriteStorage *store = _sprite_manager.GetSprites(64); // GUI size.
+	const SpriteStorage *store = _sprite_manager.GetSprites();
 	for (int i = 0; i < PAT_COUNT; i++) {
 		switch (store->path_sprites[i].status) {
 			case PAS_UNUSED:

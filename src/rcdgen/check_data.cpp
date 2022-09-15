@@ -1886,7 +1886,20 @@ static std::shared_ptr<FSETBlock> ConvertFSETNode(std::shared_ptr<NodeGroup> ng)
 	Values vals("FSET", ng->pos);
 	vals.PrepareNamedValues(ng->values, true, true);
 
-	block->tile_width = vals.GetNumber("tile_width");
+	const bool uses_explicit_tile_widths = vals.HasValue("scales");
+	if (uses_explicit_tile_widths) {
+		block->scales = vals.GetNumber("scales");
+		block->tile_width.reset(new uint16[block->scales]);
+		for (int z = 0; z < block->scales; ++z) {
+			std::string key = "tile_width_"; key += std::to_string(z);
+			block->tile_width[z] = vals.GetNumber(key.c_str());
+		}
+	} else {
+		block->scales = 1;
+		block->tile_width.reset(new uint16[1]);
+		block->tile_width[0] = vals.GetNumber("tile_width");
+	}
+
 	block->width_x = vals.GetNumber("width_x");
 	block->width_y = vals.GetNumber("width_y");
 	block->ne_views.reset(new std::shared_ptr<SpriteBlock>[block->width_x * block->width_y]);
@@ -1899,9 +1912,12 @@ static std::shared_ptr<FSETBlock> ConvertFSETNode(std::shared_ptr<NodeGroup> ng)
 
 	for (int x = 0; x < block->width_x; ++x) {
 		for (int y = 0; y < block->width_y; ++y) {
-			std::string key = "ne_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
-			block->ne_views[x * block->width_y + y] =
-					(vals.HasValue(key.c_str()) || empty_image_block == nullptr) ? vals.GetSprite(key.c_str()) : empty_image_block;
+			for (int z = 0; z < block->scales; ++z) {
+				std::string key = "ne_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
+				if (uses_explicit_tile_widths) { key += '_'; key += std::to_string(block->tile_width[z]); }
+				block->ne_views[x * block->width_y + y] =
+						(vals.HasValue(key.c_str()) || empty_image_block == nullptr) ? vals.GetSprite(key.c_str()) : empty_image_block;
+			}
 		}
 	}
 	if (vals.HasValue("unrotated_views_only") && vals.GetNumber("unrotated_views_only") > 0) {
@@ -1914,23 +1930,32 @@ static std::shared_ptr<FSETBlock> ConvertFSETNode(std::shared_ptr<NodeGroup> ng)
 	} else {
 		for (int x = 0; x < block->width_x; ++x) {
 			for (int y = 0; y < block->width_y; ++y) {
-				std::string key = "se_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
-				block->se_views[x * block->width_y + y] =
-						(vals.HasValue(key.c_str()) || empty_image_block == nullptr) ? vals.GetSprite(key.c_str()) : empty_image_block;
+				for (int z = 0; z < block->scales; ++z) {
+					std::string key = "se_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
+					if (uses_explicit_tile_widths) { key += '_'; key += std::to_string(block->tile_width[z]); }
+					block->se_views[x * block->width_y + y] =
+							(vals.HasValue(key.c_str()) || empty_image_block == nullptr) ? vals.GetSprite(key.c_str()) : empty_image_block;
+				}
 			}
 		}
 		for (int x = 0; x < block->width_x; ++x) {
 			for (int y = 0; y < block->width_y; ++y) {
-				std::string key = "sw_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
-				block->sw_views[x * block->width_y + y] =
-						(vals.HasValue(key.c_str()) || empty_image_block == nullptr) ? vals.GetSprite(key.c_str()) : empty_image_block;
+				for (int z = 0; z < block->scales; ++z) {
+					std::string key = "sw_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
+					if (uses_explicit_tile_widths) { key += '_'; key += std::to_string(block->tile_width[z]); }
+					block->sw_views[x * block->width_y + y] =
+							(vals.HasValue(key.c_str()) || empty_image_block == nullptr) ? vals.GetSprite(key.c_str()) : empty_image_block;
+				}
 			}
 		}
 		for (int x = 0; x < block->width_x; ++x) {
 			for (int y = 0; y < block->width_y; ++y) {
-				std::string key = "nw_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
-				block->nw_views[x * block->width_y + y] =
-						(vals.HasValue(key.c_str()) || empty_image_block == nullptr) ? vals.GetSprite(key.c_str()) : empty_image_block;
+				for (int z = 0; z < block->scales; ++z) {
+					std::string key = "nw_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
+					if (uses_explicit_tile_widths) { key += '_'; key += std::to_string(block->tile_width[z]); }
+					block->nw_views[x * block->width_y + y] =
+							(vals.HasValue(key.c_str()) || empty_image_block == nullptr) ? vals.GetSprite(key.c_str()) : empty_image_block;
+				}
 			}
 		}
 	}
@@ -1987,7 +2012,9 @@ static std::shared_ptr<TIMABlock> ConvertTIMANode(std::shared_ptr<NodeGroup> ng)
 		for (int f = 0; f < block->frames; ++f) {
 			std::shared_ptr<FSETBlock> fset(new FSETBlock);
 			block->views[f] = fset;
-			fset->tile_width = tile_width;
+			fset->scales = 1;
+			fset->tile_width.reset(new uint16[1]);
+			fset->tile_width[0] = tile_width;
 			fset->width_x = width_x;
 			fset->width_y = width_y;
 			fset->ne_views.reset(new std::shared_ptr<SpriteBlock>[width_x * width_y]);

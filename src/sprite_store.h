@@ -180,14 +180,18 @@ public:
 class FrameSet : public RcdBlock {
 public:
 	FrameSet();
-	~FrameSet();
 
 	void Load(RcdFileReader *rcd_file, const ImageMap &sprites);
 
-	uint16 width;   ///< Width of a tile.
-	uint16 width_x; ///< The number of voxels in x direction.
-	uint16 width_y; ///< The number of voxels in y direction.
-	std::unique_ptr<ImageData*[]> sprites[4]; ///< Sprites for the ne,se,sw,nw orientations.
+	ImageData* GetSprite(uint16 x, uint16 y, uint8 orientation, int zoom) const;
+
+	uint16 width_x;                   ///< The number of voxels in x direction.
+	uint16 width_y;                   ///< The number of voxels in y direction.
+
+private:
+	int scales;                                ///< Number of zoom scales.
+	std::unique_ptr<uint16[]> width;           ///< Width of a tile for each scale.
+	std::unique_ptr<ImageData*[]> sprites[4];  ///< Sprites for the ne,se,sw,nw orientations.
 };
 typedef std::pair<std::string, int> ImageSetKey;         ///< Pair of <RCD file name, RCD block number>.
 typedef std::map<ImageSetKey, std::unique_ptr<FrameSet>> FrameSetsMap;  ///< Map of available frame sets.
@@ -713,7 +717,15 @@ public:
 	void LoadRcdFiles();
 	void AddBlock(std::unique_ptr<RcdBlock> block);
 
-	const SpriteStorage *GetSprites(uint16 size) const;
+	/**
+	 * Get the sprite store.
+	 * @return The sprite store.
+	 */
+	const SpriteStorage *GetSprites() const
+	{
+		return &this->store;
+	}
+
 	void AddAnimation(Animation *anim);
 	const ImageData *GetTableSprite(uint16 number) const;
 	const Rectangle16 &GetTableSpriteSize(uint16 number);

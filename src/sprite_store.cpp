@@ -314,12 +314,9 @@ Fence::Fence() : type(FENCE_TYPE_INVALID), width(0)
 Fence::~Fence()
 = default;
 
-FrameSet::FrameSet() : width(0), width_x(0), width_y(0)
+FrameSet::FrameSet() : width_x(0), width_y(0), scales(0)
 {
 }
-
-FrameSet::~FrameSet()
-= default;
 
 /**
  * Load a frame set block from a RCD file.
@@ -328,24 +325,67 @@ FrameSet::~FrameSet()
  */
 void FrameSet::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	rcd_file->CheckVersion(1);
-	rcd_file->CheckMinLength(rcd_file->size, 4, "header");
+	rcd_file->CheckVersion(2);
+	rcd_file->CheckMinLength(rcd_file->size, 3, "header");
 
-	this->width = rcd_file->GetUInt16();
+	this->scales = rcd_file->GetUInt8();
 	this->width_x = rcd_file->GetUInt8();
 	this->width_y = rcd_file->GetUInt8();
-	rcd_file->CheckExactLength(rcd_file->size, 4 + 16 * this->width_x * this->width_y, "frame");
+	if (this->scales < 1) rcd_file->Error("No scales");
+	if (this->scales > 10) rcd_file->Error("Too many scales");  // Arbitrary sanity limit.
+	if (this->width_x < 1 || this->width_y < 1) rcd_file->Error("Dimension is zero");
+	if (this->width_x > 80 || this->width_y > 80) rcd_file->Error("Dimension too big");  // Arbitrary sanity limit.
+	rcd_file->CheckExactLength(rcd_file->size, 3 + 16 * this->width_x * this->width_y * this->scales + 2 * this->scales, "frame");
+
+	this->width.reset(new uint16[this->scales]);
+	for (int i = 0; i < this->scales; ++i) this->width[i] = rcd_file->GetUInt16();
+
 	for (int i = 0; i < 4; ++i) {
-		this->sprites[i].reset(new ImageData*[this->width_x * this->width_y]);
+		this->sprites[i].reset(new ImageData*[this->width_x * this->width_y * this->scales]);
 		for (int x = 0; x < this->width_x; ++x) {
 			for (int y = 0; y < this->width_y; ++y) {
-				ImageData *view;
-				LoadSpriteFromFile(rcd_file, sprites, &view);
-				if (this->width != 64) continue; /// \todo Widths other than 64.
-				this->sprites[i][x * this->width_y + y] = view;
+				for (int z = 0; z < this->scales; ++z) {
+					ImageData *view;
+					LoadSpriteFromFile(rcd_file, sprites, &view);
+					this->sprites[i][x * this->width_y * this->scales + y * this->scales + z] = view;
+				}
 			}
 		}
 	}
+}
+
+/**
+ * Get a sprite from the frame set.
+ * @param x Relative X coordinate in the object.
+ * @param y Relative Y coordinate in the object.
+ * @param orientation View orientation.
+ * @param zoom Zoom scale index of the image. If the frame set does not contain images at this scale, a correspnidng image from another scale will be resized to create it.
+ * @return The image.
+ */
+ImageData* FrameSet::GetSprite(uint16 x, uint16 y, uint8 orientation, int zoom) const
+{
+	assert(x < this->width_x && y < this->width_y);
+	const int desired_tile_w = TileWidth(zoom);
+
+	int smallest_bigger_index = -1;
+	int biggest_smaller_index = -1;
+
+	for (int z = 0; z < this->scales; ++z) {
+		if (this->width[z] == desired_tile_w) {
+			return this->sprites[orientation][x * this->width_y * this->scales + y * this->scales + z];
+		} else if (this->width[z] > desired_tile_w) {
+			if (smallest_bigger_index < 0 || this->width[z] < this->width[smallest_bigger_index]) smallest_bigger_index = z;
+		} else {
+			if (biggest_smaller_index < 0 || this->width[z] > this->width[biggest_smaller_index]) biggest_smaller_index = z;
+		}
+	}
+
+	/* No match. Downscale an image if possible; otherwise upscale one. */
+	int index = smallest_bigger_index >= 0 ? smallest_bigger_index : biggest_smaller_index;
+	assert(index >= 0);
+	ImageData *img_to_scale = this->sprites[orientation][x * this->width_y * this->scales + y * this->scales + index];
+	assert(img_to_scale != nullptr);
+	return img_to_scale->Scale(static_cast<float>(desired_tile_w) / this->width[index]);
 }
 
 TimedAnimation::TimedAnimation() : frames(0)
@@ -1603,18 +1643,6 @@ void SpriteManager::LoadRcdFiles()
 inline void SpriteManager::AddBlock(std::unique_ptr<RcdBlock> block)
 {
 	this->blocks.push_back(std::move(block));
-}
-
-/**
- * Get a sprite store of a given size.
- * @param size Requested size.
- * @return Sprite store with sprites of the requested size, if it exists, else \c nullptr.
- * @todo Add support for other sprite sizes as well.
- */
-const SpriteStorage *SpriteManager::GetSprites(uint16 size) const
-{
-	if (size != 64) return nullptr;
-	return &this->store;
 }
 
 /**

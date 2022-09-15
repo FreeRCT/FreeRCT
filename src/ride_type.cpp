@@ -267,11 +267,12 @@ const RideType *RideInstance::GetRideType() const
 }
 
 /**
- * \fn void RideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const
+ * \fn void RideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, int zoom, const ImageData *sprites[4], uint8 *platform) const
  * Get the sprites to display for the provided voxel number.
  * @param vox The voxel's absolute coordinates.
  * @param voxel_number Number of the voxel to draw (copied from the world voxel data).
  * @param orient View orientation.
+ * @param zoom Zoom scale index.
  * @param sprites [out] Sprites to draw, from back to front, #SO_PLATFORM_BACK, #SO_RIDE, #SO_RIDE_FRONT, and #SO_PLATFORM_FRONT.
  * @param platform [out] Shape of the support platform, if needed. @see PathSprites
  */

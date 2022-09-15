@@ -80,6 +80,8 @@ strings:
 		TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_RIDES:        "Höhenmarken auf Attraktionen"
 		TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_PATHS:        "Höhenmarken auf Wegen"
 		TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_TERRAIN:      "Höhenmarken auf der Landschaft"
+		TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_OUT:         "Verkleinern"
+		TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_IN:          "Vergrößern"
 
 		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spielen"
 		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Editor"

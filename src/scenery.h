@@ -76,7 +76,7 @@ public:
 	~SceneryInstance();
 
 	StringID CanPlace() const;
-	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const;
+	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, int zoom, const ImageData *sprites[4], uint8 *platform) const;
 	void OnAnimate(int delay);
 	bool IsDry() const;
 	bool ShouldBeWatered() const;

@@ -664,14 +664,22 @@ FSET
 ~~~~
 Attributes:
 
-- ``tile_width`` - Zoom scale of the sprites. Supported is only 64.
 - ``width_x, width_y`` - Number of voxels in X and Y direction occupied by the animation.
+
+Scales
+......
+The scales of the images in the set may be specified either with a single attribute ``tile_width``, or with the attributes:
+
+- ``scales`` - Number Z of zoom scales in the set.
+- ``tile_width_Z`` - Each zoom scale's til width.
 
 Sprites
 .......
 The FSET contains one sprite for each of the (X×Y) voxels for each of the four orientations.
 
-The sprite for voxel (X,Y) at orientation O is named ``O_Y_X`` (where O is ``ne, se, sw, nw``).
+If the scales are specified with a single ``tile_width`` parameter,
+the sprite for voxel (X,Y) at orientation O is named ``O_Y_X`` (where O is ``ne, se, sw, nw``).
+Otherwise, the sprite is named ``O_Y_X_W`` for each tile width ``W``.
 
 If the optional boolean switch ``unrotated_views_only`` is set, only north-east sprites are used for all orientations;
 sprites for the other orientations may be omitted.

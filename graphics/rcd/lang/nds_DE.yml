@@ -80,6 +80,8 @@ strings:
 		TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_RIDES:     "Höchtenwiesers up Buden"
 		TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_PATHS:     "Höchtenwiesers up Wegen"
 		TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_TERRAIN:   "Höchtenwiesers up de Landskupp"
+		TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_OUT:         "Lütter maken"
+		TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_IN:          "Groter maken"
 
 		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spölen"
 		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Bewarker"
