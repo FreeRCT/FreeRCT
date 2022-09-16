@@ -92,7 +92,7 @@ VoxelObject::~VoxelObject()
 }
 
 /**
- * \fn const ImageData *VoxelObject::GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const
+ * \fn ScaledImage VoxelObject::GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const
  * Get the sprite to draw for the voxel object.
  * @param sprites Sprites at the right size for drawing.
  * @param orient Direction of view.

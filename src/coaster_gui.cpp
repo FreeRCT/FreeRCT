@@ -1153,17 +1153,17 @@ void CoasterBuildWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid)
 	const int orient = vp->orientation;
 
 	/* Render the track piece's preview. \todo Needs testing with a multi-voxel track piece. */
-	std::map<XYZPoint16, std::vector<const ImageData*>> sprites;
+	std::map<XYZPoint16, std::vector<ScaledImage>> sprites;
 	for (const auto &tv : this->piece_selector.pos_piece.piece->track_voxels) {
 		const CoasterPlatform *platform = tv->HasPlatform() ? &_coaster_platforms[this->ci->GetCoasterType()->platform_type] : nullptr;
 		int platform_orient = (tv->GetPlatformDirection() + 4 - orient) % 4;
 
 		if (platform != nullptr) sprites[tv->dxyz].push_back(platform->bg->GetSprite(0, 0, platform_orient, DEFAULT_ZOOM));
 
-		const ImageData *img = tv->bg == nullptr ? nullptr : tv->bg->GetSprite(0, 0, orient, DEFAULT_ZOOM);
-		if (img != nullptr) sprites[tv->dxyz].push_back(img);
+		ScaledImage img = tv->bg == nullptr ? nullptr : tv->bg->GetSprite(0, 0, orient, DEFAULT_ZOOM);
+		if (img.sprite != nullptr) sprites[tv->dxyz].push_back(img);
 		img = tv->fg == nullptr ? nullptr : tv->fg->GetSprite(0, 0, orient, DEFAULT_ZOOM);
-		if (img != nullptr) sprites[tv->dxyz].push_back(img);
+		if (img.sprite != nullptr) sprites[tv->dxyz].push_back(img);
 
 		if (platform != nullptr) sprites[tv->dxyz].push_back(platform->fg->GetSprite(0, 0, platform_orient, DEFAULT_ZOOM));
 	}
@@ -1171,7 +1171,7 @@ void CoasterBuildWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid)
 		const Point32 p(
 				x + wid->pos.width  / 2 + (pair.first.y - pair.first.x               ) * TileWidth(vp->zoom),
 				y + wid->pos.height / 2 + (pair.first.x + pair.first.y - pair.first.z) * TileHeight(vp->zoom));
-		for (const ImageData *i : pair.second) _video.BlitImage(p, i);
+		for (const auto &i : pair.second) _video.BlitImage(p, i);
 	}
 
 	/* Render build cost. */

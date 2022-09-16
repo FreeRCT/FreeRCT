@@ -112,7 +112,7 @@ Person::~Person()
 	NotifyChange(WC_PERSON_INFO, this->id, CHG_PERSON_DELETED, 0);
 }
 
-const ImageData *Person::GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const
+ScaledImage Person::GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const
 {
 	*recolour = &this->recolour;
 	AnimationType anim_type = this->walk->anim_type;

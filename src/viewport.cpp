@@ -178,7 +178,7 @@ struct DrawData {
 	 * @param recolour Recolouring of the sprite.
 	 * @param gs Gradient shift of the sprite.
 	 */
-	inline void Set(int32 level, uint16 z_height, SpriteOrder order, const ImageData *sprite, const Point32 &base,
+	inline void Set(int32 level, uint16 z_height, SpriteOrder order, ScaledImage sprite, const Point32 &base,
 			const Recolouring *recolour = nullptr, GradientShift gs = GS_INVALID)
 	{
 		this->level = level;
@@ -188,10 +188,10 @@ struct DrawData {
 		this->base = base;
 		this->recolour = recolour;
 		this->gs = gs;
-		assert(this->sprite != nullptr);
+		assert(this->sprite.sprite != nullptr);
 	}
 
-	const ImageData *sprite;     ///< Mouse cursor to draw.
+	ScaledImage sprite;          ///< Sprite to draw.
 	const Recolouring *recolour; ///< Recolouring of the sprite.
 	int32 level;                 ///< Slice of this sprite (vertical row).
 	SpriteOrder order;           ///< Selection when to draw this sprite (sorts sprites within a voxel). @see SpriteOrder
@@ -238,7 +238,7 @@ public:
 protected:
 	void CollectVoxel(const Voxel *vx, const XYZPoint16 &voxel_pos, int32 xnorth, int32 ynorth) override;
 	void SetupSupports(const VoxelStack *stack, uint xpos, uint ypos) override;
-	const ImageData *GetCursorSpriteAtPos(CursorType ctype, const XYZPoint16 &voxel_pos, uint8 tslope);
+	ScaledImage GetCursorSpriteAtPos(CursorType ctype, const XYZPoint16 &voxel_pos, uint8 tslope);
 
 	/** For each orientation the location of the real northern corner of a tile relative to the northern displayed corner. */
 	Point16 north_offsets[4];
@@ -389,7 +389,7 @@ void SpriteCollector::SetXYOffset(int16 xoffset, int16 yoffset)
  * @param tslope Slope of the tile.
  * @return Pointer to the cursor sprite, or \c nullptr if no cursor available.
  */
-const ImageData *SpriteCollector::GetCursorSpriteAtPos(CursorType ctype, [[maybe_unused]] const XYZPoint16 &voxel_pos, uint8 tslope)
+ScaledImage SpriteCollector::GetCursorSpriteAtPos(CursorType ctype, [[maybe_unused]] const XYZPoint16 &voxel_pos, uint8 tslope)
 {
 	switch (ctype) {
 		case CUR_TYPE_NORTH:
@@ -446,7 +446,7 @@ static int DrawRideOrScenery(int32 slice, const XYZPoint16 & pos, const Point32 
 		ViewOrientation orient, int zoom, uint16 number, uint16 voxel_number, DrawData *dd, uint8 *platform)
 {
 	if (platform != nullptr) *platform = PATH_INVALID;
-	const ImageData *sprites[4];
+	ScaledImage sprites[4];
 	const Recolouring *recolour = nullptr;
 
 	if (number == SRI_SCENERY) {
@@ -463,7 +463,7 @@ static int DrawRideOrScenery(int32 slice, const XYZPoint16 & pos, const Point32 
 	int idx = 0;
 	static const SpriteOrder sprite_numbers[4] = {SO_PLATFORM_BACK, SO_RIDE, SO_RIDE_FRONT, SO_PLATFORM_FRONT};
 	for (int i = 0; i < 4; i++) {
-		if (sprites[i] == nullptr) continue;
+		if (sprites[i].sprite == nullptr) continue;
 
 		dd[idx].Set(slice, pos.z, sprite_numbers[i], sprites[i], base_pos, recolour);
 		if (number == SRI_SCENERY) dd[idx].order = static_cast<SpriteOrder>(dd[idx].order & ~CS_RIDE);  // Don't treat scenery like rides.
@@ -549,16 +549,16 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			default: NOT_REACHED();
 		}
 		if (sw != 0) {
-			const ImageData *img = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetFoundationSprite, FDT_GROUND, 3 + sw - 1);
-			if (img != nullptr) {
+			ScaledImage img = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetFoundationSprite, FDT_GROUND, 3 + sw - 1);
+			if (img.sprite != nullptr) {
 				DrawData dd;
 				dd.Set(slice, voxel_pos.z, SO_FOUNDATION, img, north_point);
 				this->draw_images.insert(dd);
 			}
 		}
 		if (se != 0) {
-			const ImageData *img = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetFoundationSprite, FDT_GROUND, se - 1);
-			if (img != nullptr) {
+			ScaledImage img = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetFoundationSprite, FDT_GROUND, se - 1);
+			if (img.sprite != nullptr) {
 				DrawData dd;
 				dd.Set(slice, voxel_pos.z, SO_FOUNDATION, img, north_point);
 				this->draw_images.insert(dd);
@@ -632,8 +632,8 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	if (this->selector != nullptr) {
 		CursorType ctype = this->selector->GetCursor(voxel_pos);
 		if (ctype != CUR_TYPE_INVALID) {
-			const ImageData *mspr = this->GetCursorSpriteAtPos(ctype, voxel_pos, gslope);
-			if (mspr != nullptr) {
+			ScaledImage mspr = this->GetCursorSpriteAtPos(ctype, voxel_pos, gslope);
+			if (mspr.sprite != nullptr) {
 				DrawData dd;
 				dd.Set(slice, voxel_pos.z, SO_CURSOR, mspr, north_point);
 				if (ctype >= CUR_TYPE_EDGE_NE && ctype <= CUR_TYPE_EDGE_NW && IsImplodedSteepSlope(gslope) && !IsImplodedSteepSlopeTop(gslope)) dd.z_height++;
@@ -645,7 +645,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	/* Add platforms. */
 	if (platform_shape != PATH_INVALID && !this->vp->GetDisplayFlag(DF_HIDE_SUPPORTS)) {
 		/* Platform gets automatically added when drawing a path or ride, without drawing ground. */
-		const ImageData *pl_spr;
+		ScaledImage pl_spr;
 		switch (platform_shape) {
 			case PATH_RAMP_NE: pl_spr = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetRampPlatformSprite, 2); break;
 			case PATH_RAMP_NW: pl_spr = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetRampPlatformSprite, 1); break;
@@ -653,7 +653,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			case PATH_RAMP_SW: pl_spr = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetRampPlatformSprite, 0); break;
 			default: pl_spr = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetFlatPlatformSprite, this->orient & 1); break;
 		}
-		if (pl_spr != nullptr) {
+		if (pl_spr.sprite != nullptr) {
 			DrawData dd;
 			dd.Set(slice, voxel_pos.z, SO_PLATFORM, pl_spr, north_point);
 			this->draw_images.insert(dd);
@@ -686,8 +686,8 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 				}
 				slope = SL_FLAT;
 			}
-			const ImageData *img = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetSupportSprite, sprnum);
-			if (img != nullptr) {
+			ScaledImage img = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetSupportSprite, sprnum);
+			if (img.sprite != nullptr) {
 				DrawData dd;
 				dd.Set(slice, height, SO_SUPPORT, img, Point32(north_point.x, north_point.y + yoffset));
 				this->draw_images.insert(dd);
@@ -702,8 +702,8 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			!IsImplodedSteepSlope(voxel->GetGroundSlope()) || IsImplodedSteepSlopeTop(voxel->GetGroundSlope())) ? voxel_pos.z : (voxel_pos.z + 1);
 	while (vo != nullptr) {
 		const Recolouring *recolour;
-		const ImageData *anim_spr = vo->GetSprite(this->orient, this->zoom, &recolour);
-		if (anim_spr != nullptr && (!this->vp->GetDisplayFlag(DF_HIDE_PEOPLE) || dynamic_cast<const Person*>(vo) == nullptr)) {
+		ScaledImage anim_spr = vo->GetSprite(this->orient, this->zoom, &recolour);
+		if (anim_spr.sprite != nullptr && (!this->vp->GetDisplayFlag(DF_HIDE_PEOPLE) || dynamic_cast<const Person*>(vo) == nullptr)) {
 			int x_off = ComputeX(vo->pix_pos.x, vo->pix_pos.y);
 			int y_off = ComputeY(vo->pix_pos.x, vo->pix_pos.y, vo->pix_pos.z);
 			Point32 pos(north_point.x + this->north_offsets[this->orient].x + x_off,
@@ -715,7 +715,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 
 			if (!this->vp->GetDisplayFlag(DF_HIDE_PEOPLE)) {
 				for (const VoxelObject::Overlay &overlay : vo->GetOverlays(this->orient, this->zoom)) {
-					if (overlay.sprite != nullptr) {
+					if (overlay.sprite.sprite != nullptr) {
 						dd.Set(slice, people_z_pos, SO_PERSON_OVERLAY, overlay.sprite, pos, overlay.recolour);
 						this->draw_images.insert(dd);
 					}
@@ -782,11 +782,11 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 	}
 	/* Looking for surface edge? */
 	if ((this->allowed & SO_GROUND_EDGE) != 0 && voxel->GetGroundType() != GTP_INVALID) {
-		const ImageData *spr = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetSurfaceSprite, GTP_CURSOR_EDGE_TEST, voxel->GetGroundSlope(), this->orient);
+		ScaledImage spr = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetSurfaceSprite, GTP_CURSOR_EDGE_TEST, voxel->GetGroundSlope(), this->orient);
 		DrawData dd;
 		dd.Set(slice, voxel_pos.z, SO_GROUND_EDGE, spr, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth));
-		if (spr != nullptr && (!this->found || this->data < dd)) {
-			uint32 pixel = spr->GetPixel(dd.base.x - spr->xoffset, dd.base.y - spr->yoffset);
+		if (spr.sprite != nullptr && (!this->found || this->data < dd)) {
+			uint32 pixel = spr.GetPixel(dd.base.x - spr.XOffset(), dd.base.y - spr.YOffset());
 			if (pixel != 0) {
 				this->found = true;
 				this->data = dd;
@@ -808,8 +808,8 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 				this->orient, this->zoom, number, voxel->GetInstanceData(), dd, nullptr);
 		for (int i = 0; i < count; i++) {
 			if (!this->found || this->data < dd[i]) {
-				const ImageData *img = dd[i].sprite;
-				uint32 pixel = img->GetPixel(dd[i].base.x - img->xoffset, dd[i].base.y - img->yoffset);
+				ScaledImage img = dd[i].sprite;
+				uint32 pixel = img.GetPixel(dd[i].base.x - img.XOffset(), dd[i].base.y - img.YOffset());
 				if (GetA(pixel) != TRANSPARENT) {
 					this->found = true;
 					this->data = dd[i];
@@ -823,12 +823,12 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 	} else if ((this->allowed & CS_PATH) != 0 && HasValidPath(voxel)) {
 		/* Looking for a path? */
 		uint16 instance_data = voxel->GetInstanceData();
-		const ImageData *img = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetPathSprite,
+		ScaledImage img = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetPathSprite,
 				GetPathType(instance_data), GetImplodedPathSlope(instance_data), this->orient);
 		DrawData dd;
 		dd.Set(slice, voxel_pos.z, SO_PATH, img, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth));
-		if (img != nullptr && (!this->found || this->data < dd)) {
-			uint32 pixel = img->GetPixel(dd.base.x - img->xoffset, dd.base.y - img->yoffset);
+		if (img.sprite != nullptr && (!this->found || this->data < dd)) {
+			uint32 pixel = img.GetPixel(dd.base.x - img.XOffset(), dd.base.y - img.YOffset());
 			if (GetA(pixel) != TRANSPARENT) {
 				this->found = true;
 				this->data = dd;
@@ -838,12 +838,12 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 		}
 	} else if ((this->allowed & CS_GROUND) != 0 && voxel->GetGroundType() != GTP_INVALID) {
 		/* Looking for surface? */
-		const ImageData *spr = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetSurfaceSprite,
+		ScaledImage spr = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetSurfaceSprite,
 				GTP_CURSOR_TEST, voxel->GetGroundSlope(), this->orient);
 		DrawData dd;
 		dd.Set(slice, voxel_pos.z, SO_GROUND, spr, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth));
-		if (spr != nullptr && (!this->found || this->data < dd)) {
-			uint32 pixel = spr->GetPixel(dd.base.x - spr->xoffset, dd.base.y - spr->yoffset);
+		if (spr.sprite != nullptr && (!this->found || this->data < dd)) {
+			uint32 pixel = spr.GetPixel(dd.base.x - spr.XOffset(), dd.base.y - spr.YOffset());
 			if (GetA(pixel) != TRANSPARENT) {
 				this->found = true;
 				this->data = dd;
@@ -855,12 +855,12 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 		for (TileEdge t = EDGE_BEGIN; t < EDGE_COUNT; t++) {
 			if (GetFenceType(voxel->GetFences(), t) != FENCE_TYPE_LAND_BORDER) continue;
 
-			const ImageData *img = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetFenceSprite,
+			ScaledImage img = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetFenceSprite,
 					FENCE_TYPE_LAND_BORDER, t, voxel->GetGroundSlope(), this->orient);
-			if (img != nullptr) {
+			if (img.sprite != nullptr) {
 				DrawData dd;
 				dd.Set(slice, voxel_pos.z, SO_FENCE_BACK, img, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth));
-				uint32 pixel = img->GetPixel(dd.base.x - img->xoffset, dd.base.y - img->yoffset);
+				uint32 pixel = img.GetPixel(dd.base.x - img.XOffset(), dd.base.y - img.YOffset());
 				if (GetA(pixel) != TRANSPARENT && (!this->found || this->data < dd)) {
 					this->found = true;
 					this->data = dd;
@@ -877,14 +877,14 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 			if (pers == nullptr) continue;
 			assert(pers->walk != nullptr);
 			AnimationType anim_type = pers->walk->anim_type;
-			const ImageData *anim_spr = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetAnimationSprite,
+			ScaledImage anim_spr = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetAnimationSprite,
 					anim_type, pers->frame_index, pers->type, this->orient);
 			int x_off = ComputeX(pers->pix_pos.x, pers->pix_pos.y);
 			int y_off = ComputeY(pers->pix_pos.x, pers->pix_pos.y, pers->pix_pos.z);
 			DrawData dd;
 			dd.Set(slice, voxel_pos.z, SO_PERSON, anim_spr, Point32(this->rect.base.x - xnorth - x_off, this->rect.base.y - ynorth - y_off));
-			if (anim_spr != nullptr && (!this->found || this->data < dd)) {
-				uint32 pixel = anim_spr->GetPixel(dd.base.x - anim_spr->xoffset, dd.base.y - anim_spr->yoffset);
+			if (anim_spr.sprite != nullptr && (!this->found || this->data < dd)) {
+				uint32 pixel = anim_spr.GetPixel(dd.base.x - anim_spr.XOffset(), dd.base.y - anim_spr.YOffset());
 				if (GetA(pixel) != TRANSPARENT) {
 					this->found = true;
 					this->data = dd;
@@ -1056,7 +1056,7 @@ void Viewport::OnDraw(MouseModeSelector *selector)
 		std::string text = std::to_string(dd.z_height);
 		int w, h;
 		_video.GetTextSize(text, &w, &h);
-		Rectangle32 r(dd.base.x + dd.sprite->xoffset + (dd.sprite->width - w) / 2, dd.base.y + dd.sprite->yoffset + (dd.sprite->height - h) / 2, w, h);
+		Rectangle32 r(dd.base.x + dd.sprite.XOffset() + (dd.sprite.Width() - w) / 2, dd.base.y + dd.sprite.YOffset() + (dd.sprite.Height() - h) / 2, w, h);
 		_video.FillRectangle(r, SetA(_palette[marker_colour], OPACITY_SEMI_TRANSPARENT));
 		_video.BlitText(text, _palette[TEXT_BLACK], r.base.x, r.base.y, r.width, ALG_CENTER);
 	}

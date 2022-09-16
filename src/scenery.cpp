@@ -662,7 +662,7 @@ void SceneryInstance::RemoveFromWorld()
  * @param platform [out] Shape of the support platform, if needed. @see PathSprites
  */
 void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_number, const uint8 orient,
-		int zoom, const ImageData *sprites[4], [[maybe_unused]] uint8 *platform) const
+		int zoom, ScaledImage sprites[4], [[maybe_unused]] uint8 *platform) const
 {
 	sprites[0] = nullptr;
 	sprites[1] = nullptr;

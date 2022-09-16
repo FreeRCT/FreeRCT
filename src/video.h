@@ -25,6 +25,7 @@
 
 struct FontGlyph;
 class ImageData;
+struct ScaledImage;
 
 using Realtime = std::chrono::high_resolution_clock::time_point;  ///< Represents a time point in real time.
 using Duration = std::chrono::duration<double, std::milli>;       ///< Difference between two time points with millisecond precision.
@@ -219,10 +220,10 @@ public:
 		this->DoFillPlainColour(rect.base.x, rect.base.y, rect.base.x + static_cast<float>(rect.width), rect.base.y + static_cast<float>(rect.height), colour);
 	}
 
-	void TileImage(const ImageData *img, const Rectangle32 &rect, bool tile_hor, bool tile_vert,
+	void TileImage(ScaledImage img, const Rectangle32 &rect, bool tile_hor, bool tile_vert,
 			const Recolouring &recolour = _no_recolour,
 			GradientShift shift = GS_NORMAL, uint32 col = 0xffffffff);
-	void BlitImage(const Point32 &pos, const ImageData *img, const Recolouring &recolour = _no_recolour,
+	void BlitImage(const Point32 &pos, ScaledImage img, const Recolouring &recolour = _no_recolour,
 			GradientShift shift = GS_NORMAL, uint32 col = 0xffffffff);
 
 	void PushClip(const Rectangle32 &rect);
@@ -236,7 +237,7 @@ private:
 	GLuint LoadShaders(const char *vp, const char *fp);
 	void UpdateClip();
 
-	GLuint GetImageTexture(const ImageData *img, const Recolouring &recolour, GradientShift shift);
+	GLuint GetImageTexture(ScaledImage img, const Recolouring &recolour, GradientShift shift);
 	void DoDrawImage(GLuint texture, float x1, float y1, float x2, float y2,
 			uint32 col = 0xffffffff, const WXYZPointF &tex = WXYZPointF(0.0f, 0.0f, 1.0f, 1.0f));
 

@@ -86,7 +86,7 @@ public:
 	~CoasterType();
 	bool CanMakeInstance() const override;
 	RideInstance *CreateInstance() const override;
-	const ImageData *GetView(uint8 orientation) const override;
+	ScaledImage GetView(uint8 orientation) const override;
 	const StringID *GetInstanceNames() const override;
 
 	void Load(RcdFileReader *rcd_file, const TextMap &texts, const TrackPiecesMap &piece_map);
@@ -131,7 +131,7 @@ class DisplayCoasterCar : public VoxelObject {
 public:
 	DisplayCoasterCar();
 
-	const ImageData *GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const override;
+	ScaledImage GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const override;
 	VoxelObject::Overlays GetOverlays(ViewOrientation orient, int zoom) const override;
 
 	void Set(const XYZPoint16 &vox_pos, const XYZPoint16 &pix_pos, uint8 pitch, uint8 roll, uint8 yaw);
@@ -247,7 +247,7 @@ public:
 	void OpenRide() override;
 	void RecalculateRatings() override;
 
-	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, int zoom, const ImageData *sprites[4], uint8 *platform) const override;
+	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, int zoom, ScaledImage sprites[4], uint8 *platform) const override;
 	uint8 GetEntranceDirections(const XYZPoint16 &vox) const override;
 	RideEntryResult EnterRide(int guest, const XYZPoint16 &vox, TileEdge entry) override;
 	XYZPoint32 GetExit(int guest, TileEdge entry_edge) override;

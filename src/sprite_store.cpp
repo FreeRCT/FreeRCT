@@ -362,7 +362,7 @@ void FrameSet::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
  * @param zoom Zoom scale index of the image. If the frame set does not contain images at this scale, another existing scale will be resized to create it.
  * @return The image.
  */
-ImageData* FrameSet::GetSprite(uint16 x, uint16 y, uint8 orientation, int zoom) const
+ScaledImage FrameSet::GetSprite(uint16 x, uint16 y, uint8 orientation, int zoom) const
 {
 	assert(x < this->width_x && y < this->width_y);
 	const int desired_tile_w = TileWidth(zoom);
@@ -384,8 +384,8 @@ ImageData* FrameSet::GetSprite(uint16 x, uint16 y, uint8 orientation, int zoom) 
 	int index = smallest_bigger_index >= 0 ? smallest_bigger_index : biggest_smaller_index;
 	assert(index >= 0);
 	ImageData *img_to_scale = this->sprites[orientation][x * this->width_y * this->scales + y * this->scales + index];
-	if (img_to_scale == nullptr) return nullptr;
-	return img_to_scale->Scale(static_cast<float>(desired_tile_w) / this->width[index]);
+	if (img_to_scale == nullptr) return ScaledImage();
+	return ScaledImage(img_to_scale, static_cast<float>(desired_tile_w) / this->width[index]);
 }
 
 TimedAnimation::TimedAnimation() : frames(0)
