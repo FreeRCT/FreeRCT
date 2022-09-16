@@ -13,6 +13,7 @@
 #include <map>
 #include <memory>
 #include "palette.h"
+#include "time.h"
 
 static const uint32 INVALID_JUMP = UINT32_MAX; ///< Invalid jump destination in image data.
 
@@ -51,10 +52,49 @@ public:
 
 	std::unique_ptr<uint8[]> rgba;   ///< All pixel values of the image in RGBA format.
 	std::unique_ptr<uint8[]> recol;  ///< The recolouring layer and table index of each pixel.
-
-	mutable std::map<RecolourData, std::unique_ptr<uint8[]>> recoloured;       ///< Copies of this image with various alterations.
-	mutable std::vector<std::pair<float, std::unique_ptr<ImageData>>> scaled;  ///< Scaled copies of this image and their scaling factor.
 };
+
+/** Keeps track of cached recolouring and scaling variants of images. */
+class ImageVariants {
+public:
+	ImageVariants();
+
+	uint8 *GetRecoloured(const ImageData *img, RecolourData key);
+	ImageData *GetScaled(const ImageData *img, float scale);
+
+	void Insert(const ImageData *img, RecolourData key, uint8 *rgba);
+	void Insert(const ImageData *img, float scale, ImageData *scaled);
+	void DropStale();
+
+	/** Frequent maintenance tasks. */
+	void Tick()
+	{
+		this->DropStale();
+	}
+
+private:
+	/** Variants of an image. */
+	struct Variant {
+		explicit Variant(const ImageData *img);
+
+		const ImageData *sprite;                                           ///< The source image.
+		std::map<RecolourData, std::unique_ptr<uint8[]>> recoloured;       ///< Copies of this image with various alterations.
+		std::vector<std::pair<float, std::unique_ptr<ImageData>>> scaled;  ///< Scaled copies of this image and their scaling factor.
+		Realtime last_accessed;                                            ///< When this variant was last fetched from the cache.
+
+		/**
+		 * Get the number of data entries in this Variant.
+		 * @return Number of entries.
+		 */
+		uint32 Size() const
+		{
+			return this->recoloured.size() + this->scaled.size();
+		}
+	};
+
+	std::vector<Variant> cache;  ///< Cache of image variants.
+};
+extern ImageVariants _image_variants;
 
 ImageData *LoadImage(RcdFileReader *rcd_file);
 

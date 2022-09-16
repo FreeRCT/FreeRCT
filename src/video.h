@@ -13,9 +13,9 @@
 #include "stdafx.h"
 #include "geometry.h"
 #include "palette.h"
+#include "time.h"
 #include "window_constants.h"
 
-#include <chrono>
 #include <map>
 #include <memory>
 #include <set>
@@ -25,28 +25,6 @@
 
 struct FontGlyph;
 class ImageData;
-
-using Realtime = std::chrono::high_resolution_clock::time_point;  ///< Represents a time point in real time.
-using Duration = std::chrono::duration<double, std::milli>;       ///< Difference between two time points with millisecond precision.
-
-/**
- * Get the current real time.
- * @return The time.
- */
-inline Realtime Time()
-{
-	return std::chrono::high_resolution_clock::now();
-}
-
-/**
- * Get the time difference between two time points in milliseconds.
- * @return The time difference.
- */
-inline double Delta(const Realtime &start, const Realtime &end = Time())
-{
-	Duration d = end - start;
-	return d.count();
-}
 
 /** Class responsible for rendering text. */
 class TextRenderer {

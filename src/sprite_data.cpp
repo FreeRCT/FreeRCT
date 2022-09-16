@@ -12,11 +12,128 @@
 #include "sprite_data.h"
 #include "fileio.h"
 #include "bitmath.h"
+#include "video.h"
 
 #include <cmath>
 #include <vector>
 
-static const uint32 IMAGE_BATCH_SIZE = 1024;  ///< Number of images that are batch-preallocated (arbitrary number).
+constexpr uint32 IMAGE_BATCH_SIZE  = 1024;  ///< Number of images that are batch-preallocated (arbitrary number).
+constexpr uint32 MAX_CACHE_ENTRIES = 3000;  ///< Maximum number of cached sprites (arbitrary number).
+constexpr uint32 MAX_CACHE_SIZE    =  800;  ///< Maximum number of cache entries (arbitrary number).
+
+ImageVariants::ImageVariants()
+{
+	this->cache.reserve(MAX_CACHE_SIZE);
+}
+
+ImageVariants::Variant::Variant(const ImageData *img) : sprite(img), last_accessed(Time())
+{
+}
+
+/**
+ * Get the recoloured instance of an image, if present.
+ * @param img Source image.
+ * @param key Recolouring to use.
+ * @return The image's RGBA data or \c nullptr.
+ */
+uint8 *ImageVariants::GetRecoloured(const ImageData *img, RecolourData key)
+{
+	for (Variant &v : this->cache) {
+		if (v.sprite == img) {
+			const auto it = v.recoloured.find(key);
+			if (it == v.recoloured.end()) return nullptr;
+
+			v.last_accessed = Time();
+			return it->second.get();
+		}
+	}
+	return nullptr;
+}
+
+/**
+ * Get the scaled instance of an image, if present.
+ * @param img Source image.
+ * @param scale Scale to apply.
+ * @return The image's RGBA data or \c nullptr.
+ */
+ImageData *ImageVariants::GetScaled(const ImageData *img, float scale)
+{
+	constexpr float EPSILON = 0.01;  ///< Threshold for float comparisons.
+	for (Variant &v : this->cache) {
+		if (v.sprite == img) {
+			for (const auto &pair : v.scaled) {
+				if (fabs(scale - pair.first) < EPSILON) {
+					v.last_accessed = Time();
+					return pair.second.get();
+				}
+			}
+			return nullptr;
+		}
+	}
+	return nullptr;
+}
+
+/**
+ * Insert a recoloured image into this cache.
+ * @param img Source image.
+ * @param key Recolouring used.
+ * @param rgba RGBA data of the recoloured image. Takes ownership.
+ */
+void ImageVariants::Insert(const ImageData *img, RecolourData key, uint8 *rgba)
+{
+	for (Variant &v : this->cache) {
+		if (v.sprite == img) {
+			v.recoloured.emplace(key, rgba);
+			v.last_accessed = Time();
+			return;
+		}
+	}
+	this->cache.emplace_back(img);
+	this->cache.back().recoloured.emplace(key, rgba);
+}
+
+/**
+ * Insert a scaled image into this cache.
+ * @param img Source image.
+ * @param scale Scaling factor.
+ * @param scaled Scaled image. Takes ownership.
+ */
+void ImageVariants::Insert(const ImageData *img, float scale, ImageData *scaled)
+{
+	for (Variant &v : this->cache) {
+		if (v.sprite == img) {
+			v.scaled.emplace_back(scale, scaled);
+			v.last_accessed = Time();
+			return;
+		}
+	}
+	this->cache.emplace_back(img);
+	this->cache.back().scaled.emplace_back(scale, scaled);
+}
+
+/** Delete images from the cache that haven't been accessed for some time. */
+void ImageVariants::DropStale()
+{
+	uint32 cache_size = this->cache.size();
+	uint32 entries = 0;
+	for (const Variant &v : this->cache) entries += v.Size();
+
+	while (entries > MAX_CACHE_ENTRIES || cache_size > MAX_CACHE_SIZE) {
+		uint32 oldest_index = 0;
+		for (uint32 i = 1; i < cache_size; ++i) {
+			if (this->cache.at(i).last_accessed < this->cache.at(oldest_index).last_accessed) {
+				oldest_index = i;
+			}
+		}
+
+		entries -= this->cache.at(oldest_index).Size();
+		this->cache.at(oldest_index) = std::move(this->cache.back());
+		this->cache.pop_back();
+		--cache_size;
+	}
+}
+
+ImageVariants _image_variants;  ///< Singleton image variants tracker.
 
 static std::vector<std::unique_ptr<ImageData[]>> _sprites;  ///< Available sprites to the program.
 static uint32 _sprites_loaded;                              ///< Total number of sprites loaded.
@@ -293,12 +410,12 @@ uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *re
 const uint8 *ImageData::GetRecoloured(GradientShift shift, const Recolouring &recolour) const
 {
 	RecolourData map_key(shift, recolour.ToCondensed());
-	const auto it = this->recoloured.find(map_key);
-	if (it != this->recoloured.end()) return it->second.get();
+	const uint8 *cached = _image_variants.GetRecoloured(this, map_key);
+	if (cached != nullptr) return cached;
 
 	ShiftFunc af = GetAlphaShiftFunc(shift);
-	std::unique_ptr<uint8[]> result(new uint8[this->width * this->height * 4]);
-	uint8 *ptr = result.get();
+	uint8 *result = new uint8[this->width * this->height * 4];
+	uint8 *ptr = result;
 	const uint8 *recol_ptr = this->recol.get();
 
 	if (this->is_8bpp) {
@@ -334,9 +451,8 @@ const uint8 *ImageData::GetRecoloured(GradientShift shift, const Recolouring &re
 		}
 	}
 
-	ptr = result.get();
-	this->recoloured.emplace(map_key, std::move(result));
-	return ptr;
+	_image_variants.Insert(this, map_key, result);
+	return result;
 }
 
 /**
@@ -348,7 +464,9 @@ ImageData *ImageData::Scale(float factor) const
 {
 	constexpr float EPSILON = 0.01;  ///< Threshold for float comparisons.
 	if (fabs(factor - 1.0f) < EPSILON) return const_cast<ImageData*>(this);
-	for (const auto &pair : this->scaled) if (fabs(pair.first - factor) < EPSILON) return pair.second.get();
+
+	ImageData *cached = _image_variants.GetScaled(this, factor);
+	if (cached != nullptr) return cached;
 
 	ImageData *img = new ImageData;
 	img->is_8bpp = this->is_8bpp;
@@ -402,7 +520,7 @@ ImageData *ImageData::Scale(float factor) const
 		}
 	}
 
-	this->scaled.emplace_back(factor, img);
+	_image_variants.Insert(this, factor, img);
 	return img;
 }
 
