@@ -2638,8 +2638,22 @@ static std::shared_ptr<CARSBlock> ConvertCARSNode(std::shared_ptr<NodeGroup> ng)
 	Values vals("CARS", ng->pos);
 	vals.PrepareNamedValues(ng->values, true, false);
 
-	rb->tile_width     = vals.GetNumber("tile_width");
-	rb->z_height       = vals.GetNumber("z_height");
+	const bool uses_explicit_tile_widths = vals.HasValue("scales");
+	if (uses_explicit_tile_widths) {
+		rb->scales = vals.GetNumber("scales");
+		rb->tile_width.reset(new uint16[rb->scales]);
+		for (int z = 0; z < rb->scales; ++z) {
+			std::string key = "tile_width_"; key += std::to_string(z);
+			rb->tile_width[z] = vals.GetNumber(key.c_str());
+		}
+	} else {
+		rb->scales = 1;
+		rb->tile_width.reset(new uint16[1]);
+		rb->tile_width[0] = vals.GetNumber("tile_width");
+	}
+	rb->sprites.reset(new std::array<std::shared_ptr<SpriteBlock>, 16*16*16>[rb->scales]);
+	rb->guest_overlays.reset(new std::unique_ptr<std::shared_ptr<SpriteBlock>[]>[rb->scales]);
+
 	rb->length         = vals.GetNumber("length");
 	rb->inter_length   = vals.GetNumber("inter_length");
 	rb->num_passengers = vals.GetNumber("num_passengers");
@@ -2660,26 +2674,32 @@ static std::shared_ptr<CARSBlock> ConvertCARSNode(std::shared_ptr<NodeGroup> ng)
 		exit(1);
 	}
 	guest_sheet_node->node_value = nullptr;
-	rb->guest_overlays.reset(new std::shared_ptr<SpriteBlock>[rb->num_passengers * 16*16*16]);
-
 	char buffer[32];
-	for (int yaw = 0; yaw < 16; yaw++) {
-		for (int roll = 0; roll < 16; roll++) {
-			for (int pitch = 0; pitch < 16; pitch++) {
-				int index = pitch + roll * 16 + yaw *16*16;
-				sprintf(buffer, "car_p%dr%dy%d", pitch, roll, yaw);
-				rb->sprites[index] = vals.GetSprite(buffer);
+	for (uint w = 0; w < rb->scales; ++w) {
+		rb->guest_overlays[w].reset(new std::shared_ptr<SpriteBlock>[rb->num_passengers * 16*16*16]);
+		for (int yaw = 0; yaw < 16; yaw++) {
+			for (int roll = 0; roll < 16; roll++) {
+				for (int pitch = 0; pitch < 16; pitch++) {
+					int index = pitch + roll * 16 + yaw *16*16;
+					if (uses_explicit_tile_widths) {
+						sprintf(buffer, "car_p%dr%dy%dw%u", pitch, roll, yaw, rb->tile_width[w]);
+					} else {
+						sprintf(buffer, "car_p%dr%dy%d", pitch, roll, yaw);
+					}
+					rb->sprites[w][index] = vals.GetSprite(buffer);
 
-				for (int slot = 0; slot < rb->num_passengers; slot++) {
-					const long idx = slot * 16*16*16 + index;
-					rb->guest_overlays[idx].reset(new SpriteBlock);
-					const char *error = rb->guest_overlays[idx]->sprite_image.CopySprite(
-							guest_sheet->GetSheet(), guest_sheet->x_offset, guest_sheet->y_offset,
-							yaw * guest_sheet->x_step, (pitch + roll * 16 + slot * 16*16) * guest_sheet->y_step,
-							guest_sheet->width, guest_sheet->height, guest_sheet->crop);
-					if (error != nullptr) {
-						fprintf(stderr, "Error at %s: Failed to copy guest overlay #%i at p%dr%dy%d: %s\n", ng->pos.ToString(), slot, pitch, roll, yaw, error);
-						exit(1);
+					for (int slot = 0; slot < rb->num_passengers; slot++) {
+						const long idx = slot * 16*16*16 + index;
+						rb->guest_overlays[w][idx].reset(new SpriteBlock);
+						const char *error = rb->guest_overlays[w][idx]->sprite_image.CopySprite(
+								guest_sheet->GetSheet(), guest_sheet->x_offset, guest_sheet->y_offset,
+								yaw * guest_sheet->x_step, (pitch + roll * 16 + slot * 16*16) * guest_sheet->y_step,
+								guest_sheet->width, guest_sheet->height, guest_sheet->crop);
+						if (error != nullptr) {
+							fprintf(stderr, "Error at %s: Failed to copy guest overlay #%i at p%dr%dy%dw%u: %s\n",
+									ng->pos.ToString(), slot, pitch, roll, yaw, rb->tile_width[w], error);
+							exit(1);
+						}
 					}
 				}
 			}

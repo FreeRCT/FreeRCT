@@ -37,39 +37,15 @@ enum CoasterPlatformType {
 /** A type of car riding at a track. */
 class CarType {
 public:
-	CarType();
-
 	void Load(RcdFileReader *rcd_file, const ImageMap &sprites);
 
-	/**
-	 * Retrieve an image of the car at a given \a pitch, \a roll, and \a yaw orientation.
-	 * @param pitch Required pitch of the car.
-	 * @param roll Required roll of the car.
-	 * @param yaw Required yaw of the car.
-	 * @return Image of the car in the requested orientation, if available.
-	 */
-	const ImageData *GetCar(uint pitch, uint roll, uint yaw) const
-	{
-		return this->cars[(pitch & 0xf) | ((roll & 0xf) << 4) | ((yaw & 0xf) << 8)];
-	}
+	const ImageData *GetCar(uint pitch, uint roll, uint yaw, uint16 tile_width) const;
+	const ImageData *GetGuestOverlay(uint pitch, uint roll, uint yaw, uint16 tile_width, uint slot) const;
 
-	/**
-	 * Retrieve a guest overlay sprite at a given \a pitch, \a roll, and \a yaw orientation.
-	 * @param pitch Required pitch of the car.
-	 * @param roll Required roll of the car.
-	 * @param yaw Required yaw of the car.
-	 * @param slot Seat number of the guest to overlay.
-	 * @return The overlay in the requested orientation, if available.
-	 */
-	const ImageData *GetGuestOverlay(uint pitch, uint roll, uint yaw, uint slot) const
-	{
-		return this->guest_overlays[slot * 16u*16u*16u + ((pitch & 0xf) | ((roll & 0xf) << 4) | ((yaw & 0xf) << 8))];
-	}
-
-	ImageData *cars[4096];                        ///< Images of the car, in all possible orientations.
-	std::unique_ptr<ImageData*[]> guest_overlays; ///< Images for the guest overlays, in all possible orientations.
-	uint16 tile_width;       ///< Tile width of the images.
-	uint16 z_height;         ///< Change in z-height of the images.
+	int scales;                                   ///< Number of zoom scales.
+	std::unique_ptr<uint16[]> tile_width;         ///< Width of a tile for each scale.
+	std::unique_ptr<std::array<ImageData*, 4096>[]> cars;            ///< Images of the car, in all possible orientations.
+	std::unique_ptr<std::unique_ptr<ImageData*[]>[]> guest_overlays; ///< Images for the guest overlays, in all possible orientations.
 	uint32 car_length;       ///< Length of a car in 1/256 pixel.
 	uint32 inter_car_length; ///< Length between two car in 1/256 pixel.
 	uint16 num_passengers;   ///< Number of passenger of a car.

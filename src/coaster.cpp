@@ -42,9 +42,69 @@ CarType *GetNewCarType()
 	return &_car_types[index];
 }
 
-CarType::CarType()
+/**
+ * Retrieve an image of the car at a given \a pitch, \a roll, and \a yaw orientation.
+ * @param pitch Required pitch of the car.
+ * @param roll Required roll of the car.
+ * @param yaw Required yaw of the car.
+ * @param tile_width Desired scale tile width.
+ * @return Image of the car in the requested orientation, if available.
+ */
+const ImageData *CarType::GetCar(uint pitch, uint roll, uint yaw, uint16 tile_width) const
 {
-	std::fill_n(this->cars, lengthof(this->cars), nullptr);
+	const int array_index = (pitch & 0xf) | ((roll & 0xf) << 4) | ((yaw & 0xf) << 8);
+	int smallest_bigger_index = -1;
+	int biggest_smaller_index = -1;
+
+	for (int z = 0; z < this->scales; ++z) {
+		if (this->tile_width[z] == tile_width) {
+			return this->cars[z][array_index];
+		} else if (this->tile_width[z] > tile_width) {
+			if (smallest_bigger_index < 0 || this->tile_width[z] < this->tile_width[smallest_bigger_index]) smallest_bigger_index = z;
+		} else {
+			if (biggest_smaller_index < 0 || this->tile_width[z] > this->tile_width[biggest_smaller_index]) biggest_smaller_index = z;
+		}
+	}
+
+	/* No match. Downscale an image if possible; otherwise upscale one. */
+	int index = smallest_bigger_index >= 0 ? smallest_bigger_index : biggest_smaller_index;
+	assert(index >= 0);
+	ImageData *img_to_scale = this->cars[index][array_index];
+	if (img_to_scale == nullptr) return nullptr;
+	return img_to_scale->Scale(static_cast<float>(tile_width) / this->tile_width[index]);
+}
+
+/**
+ * Retrieve a guest overlay sprite at a given \a pitch, \a roll, and \a yaw orientation.
+ * @param pitch Required pitch of the car.
+ * @param roll Required roll of the car.
+ * @param yaw Required yaw of the car.
+ * @param tile_width Desired scale tile width.
+ * @param slot Seat number of the guest to overlay.
+ * @return The overlay in the requested orientation, if available.
+ */
+const ImageData *CarType::GetGuestOverlay(uint pitch, uint roll, uint yaw, uint16 tile_width, uint slot) const
+{
+	const int array_index = slot * 16u*16u*16u + ((pitch & 0xf) | ((roll & 0xf) << 4) | ((yaw & 0xf) << 8));
+	int smallest_bigger_index = -1;
+	int biggest_smaller_index = -1;
+
+	for (int z = 0; z < this->scales; ++z) {
+		if (this->tile_width[z] == tile_width) {
+			return this->guest_overlays[z][array_index];
+		} else if (this->tile_width[z] > tile_width) {
+			if (smallest_bigger_index < 0 || this->tile_width[z] < this->tile_width[smallest_bigger_index]) smallest_bigger_index = z;
+		} else {
+			if (biggest_smaller_index < 0 || this->tile_width[z] > this->tile_width[biggest_smaller_index]) biggest_smaller_index = z;
+		}
+	}
+
+	/* No match. Downscale an image if possible; otherwise upscale one. */
+	int index = smallest_bigger_index >= 0 ? smallest_bigger_index : biggest_smaller_index;
+	assert(index >= 0);
+	ImageData *img_to_scale = this->guest_overlays[index][array_index];
+	if (img_to_scale == nullptr) return nullptr;
+	return img_to_scale->Scale(static_cast<float>(tile_width) / this->tile_width[index]);
 }
 
 /**
@@ -54,16 +114,18 @@ CarType::CarType()
  */
 void CarType::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	rcd_file->CheckVersion(3);
+	rcd_file->CheckVersion(4);
 	int length = rcd_file->size;
-	length -= 2 + 2 + 4 + 4 + 2 + 2 + 16384 + 4 * 3;
+	rcd_file->CheckMinLength(length, 1, "header");
+
+	this->scales = rcd_file->GetUInt8();
+	length -= 1 + 2 * this->scales + 4 + 4 + 2 + 2 + 16384 * this->scales + 4 * 3;
 	rcd_file->CheckMinLength(length, 0, "header");
 
-	this->tile_width = rcd_file->GetUInt16();
-	if (this->tile_width != 64) rcd_file->Error("Unsupported tile width %d", this->tile_width);  // Do not allow anything else than 64 pixels tile width.
-
-	this->z_height = rcd_file->GetUInt16();
-	if (this->z_height != this->tile_width / 4) rcd_file->Error("Wrong Z height");
+	this->tile_width.reset(new uint16[this->scales]);
+	for (int z = 0; z < this->scales; ++z) this->tile_width[z] = rcd_file->GetUInt16();
+	this->cars.reset(new std::array<ImageData*, 4096>[this->scales]);
+	this->guest_overlays.reset(new std::unique_ptr<ImageData*[]>[this->scales]);
 
 	this->car_length = rcd_file->GetUInt32();
 	if (this->car_length > 65535) rcd_file->Error("Car too long");  // Assumption is that a car fits in a single tile, at least some of the time.
@@ -77,16 +139,21 @@ void CarType::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 	uint16 pass_per_row = this->num_passengers / this->num_entrances;
 	if (this->num_passengers != pass_per_row * this->num_entrances) rcd_file->Error("Passenger counts don't match up");
 
-	for (uint i = 0; i < 4096; i++) {
-		LoadSpriteFromFile(rcd_file, sprites, &this->cars[i]);
+	for (int z = 0; z < this->scales; ++z) {
+		for (uint i = 0; i < 4096; i++) {
+			LoadSpriteFromFile(rcd_file, sprites, &this->cars[z][i]);
+		}
+		if (this->cars[z][0] == nullptr) rcd_file->Error("No car type");
 	}
 
-	if (this->cars[0] == nullptr) rcd_file->Error("No car type");
 	const int64 nr_overlays = 4096 * this->num_passengers;
-	rcd_file->CheckExactLength(length, 4 * nr_overlays, "guest overlays");
-	this->guest_overlays.reset(new ImageData*[nr_overlays]);
-	for (int64 i = 0; i < nr_overlays; i++) {
-		LoadSpriteFromFile(rcd_file, sprites, &this->guest_overlays[i]);
+	rcd_file->CheckExactLength(length, 4 * nr_overlays * this->scales, "guest overlays");
+
+	for (int z = 0; z < this->scales; ++z) {
+	this->guest_overlays[z].reset(new ImageData*[nr_overlays]);
+		for (int64 i = 0; i < nr_overlays; i++) {
+			LoadSpriteFromFile(rcd_file, sprites, &this->guest_overlays[z][i]);
+		}
 	}
 
 	for (int i = 0; i < 3; i++) {
@@ -237,7 +304,7 @@ DisplayCoasterCar::DisplayCoasterCar() : yaw(0xff), owning_car(nullptr)  // Mark
 const ImageData *DisplayCoasterCar::GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const
 {
 	*recolour = &this->owning_car->owning_train->coaster->recolours;
-	return this->car_type->GetCar(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF);  // NOCOM zoom
+	return this->car_type->GetCar(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF, TileWidth(zoom));
 }
 
 VoxelObject::Overlays DisplayCoasterCar::GetOverlays(ViewOrientation orient, int zoom) const
@@ -247,7 +314,7 @@ VoxelObject::Overlays DisplayCoasterCar::GetOverlays(ViewOrientation orient, int
 	for (int i = 0; i < this->car_type->num_passengers; i++) {
 		if (this->owning_car->guests[i] != nullptr) {
 			result.push_back(Overlay {
-					this->car_type->GetGuestOverlay(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF, i),  // NOCOM zoom
+					this->car_type->GetGuestOverlay(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF, TileWidth(zoom), i),
 					&this->owning_car->guests[i]->recolour});
 		}
 	}

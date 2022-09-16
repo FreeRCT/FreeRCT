@@ -1,5 +1,5 @@
 :Author: The FreeRCT Team
-:Version: 2022-09-15
+:Version: 2022-09-16
 
 .. contents::
    :depth: 3
@@ -590,14 +590,28 @@ CARS
 ~~~~
 Attributes:
 
-- ``tile_width, z_height`` - Zoom scale of the sprites. Supported are only 64×16.
 - ``length`` - Length of the car in 1/65,536 of a voxel.
 - ``inter_length`` - Spacing between cars in 1/65,536 of a voxel.
 - ``num_passengers`` - Number of passengers the car can hold.
 - ``num_entrances`` - Number of entrances in the car.
-- ``guest_sheet`` - *Optional*. The animation's guest overlay sheet_.
-- ``car_pPrRyY`` - The sprites for all orientations of the car, for values of *P* (pitch), *R* (roll), and *Y* (yaw) from 0 to 15 each.
 - Optionally, up to three unnamed recolour_ nodes specifying the car's recolouring information.
+
+Scales
+......
+The scales of the car's images may be specified either with a single attribute ``tile_width``, or with the attributes:
+
+- ``scales`` - Number W of zoom scales in the set.
+- ``tile_width_W`` - Each zoom scale's tile width.
+
+Sprites
+.......
+
+If the scales are specified with a single ``tile_width`` parameter, the sprites are named:
+
+- ``car_pPrRyY`` - The sprites for all orientations of the car, for values of *P* (pitch), *R* (roll), and *Y* (yaw) from 0 to 15 each.
+- ``guest_sheet`` - The animation's guest overlay sheet_.
+
+Otherwise, they are named ``car_pPrRyYwW`` and ``guest_sheet_W`` for each tile width ``W``.
 
 CSPL
 ~~~~
@@ -666,7 +680,7 @@ Scales
 The scales of the images in the set may be specified either with a single attribute ``tile_width``, or with the attributes:
 
 - ``scales`` - Number Z of zoom scales in the set.
-- ``tile_width_Z`` - Each zoom scale's til width.
+- ``tile_width_Z`` - Each zoom scale's tile width.
 
 Sprites
 .......

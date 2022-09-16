@@ -1,5 +1,5 @@
 :Author: Alberth
-:Version: 2022-09-15
+:Version: 2022-09-16
 
 .. contents::
    :depth: 3
@@ -1422,27 +1422,30 @@ Version history
 
 Coaster cars
 ~~~~~~~~~~~~
-Sprites for cars on the coaster tracks. Currently at version 3.
+Sprites for cars on the coaster tracks. Currently at version 4.
 
-==========================  =====================  =======  =================================  ================================================================
-Offset                      Length                 Version  Field name                         Description
-==========================  =====================  =======  =================================  ================================================================
-   0                            4                     1-                                       Magic string 'CARS'.
-   4                            4                     1-                                       Version number of the block.
-   8                            4                     1-                                       Length of the block excluding magic string, version, and length.
-  12                            2                     1-     tile_width                        Zoom-width of a tile.
-  14                            2                     1-     z_height                          Change in Z height of the tiles.
-  16                            4                     1-     length                            Length of a car (in 1/65,536 unit).
-  20                            4                     2-     inter_length                      Length between two cars (in 1/65,536 unit).
-  24                            2                     1-     num_passengers                    Number of passengers that can be carried.
-  26                            2                     1-     num_entrances                     Number of rows for entering/exiting the car.
-  28                          16384                   1-     car_p\ **P**\ r\ **R**\ y\ **Y**  4096 (16 * 16 * 16) sprites with different pitch, roll, and yaw.
- 16412                       16384*num_passengers     3-                                       num_passengers sets of 4096 guest overlay sprites each.
-16412+16384*num_passengers      4                     3-                                       First recolouring specification.
-16416+16384*num_passengers      4                     3-                                       Second recolouring specification.
-16420+16384*num_passengers      4                     3-                                       Third recolouring specification.
-16424+16384*num_passengers                                                                     Total length of the block.
-==========================  =====================  =======  =================================  ================================================================
+==========================  =====================  =======  ===========================================================================================
+Offset                      Length                 Version   Description
+==========================  =====================  =======  ===========================================================================================
+   0                            4                     1-     Magic string 'CARS'.
+   4                            4                     1-     Version number of the block.
+   8                            4                     1-     Length of the block excluding magic string, version, and length.
+  --                            2                     1-3    Zoom-width of a tile.
+  --                            2                     1-3    Change in Z height of the tiles.
+  12                            1                     4-     Number z of zoom scales in the set.
+  13                           2*z                    4-     Zoom-width of a tile for each zoom scale.
+  13+2*z                        4                     1-     Length of a car (in 1/65,536 unit).
+  17+2*z                        4                     2-     Length between two cars (in 1/65,536 unit).
+  19+2*z                        2                     1-     Number n of passengers that can be carried.
+  21+2*z                        2                     1-     Number of rows for entering/exiting the car.
+  --                          16384                   1-3    4096 (16 * 16 * 16) sprites with different pitch, roll, and yaw.
+  23+2*z                      16384*z                 4-     For each zoom scale, 4096 (16 * 16 * 16) sprites with different pitch, roll, and yaw.
+ 23+16386*z                   16384*z*g               3-     n sets of 4096 guest overlay sprites each.
+23+16386*z+16384*z*g            4                     3-     First recolouring specification.
+27+16386*z+16384*z*g            4                     3-     Second recolouring specification.
+31+16386*z+16384*z*g            4                     3-     Third recolouring specification.
+35+16386*z+16384*z*g                                         Total length of the block.
+==========================  =====================  =======  ===========================================================================================
 
 with
 
@@ -1461,6 +1464,7 @@ Version history
 - 1 (20131020) Initial version.
 - 2 (20140201) Added inter-car length field.
 - 3 (20210409) Added recolourings and guests overlays.
+- 4 (20220916) Add zoom.
 
 
 Coaster platforms
