@@ -29,7 +29,7 @@ FixedRideType::FixedRideType(const RideTypeKind k) : RideType(k),
 {
 }
 
-ScaledImage FixedRideType::GetView(uint8 orientation) const
+const ImageData *FixedRideType::GetView(uint8 orientation) const
 {
 	return (orientation < 4) ? this->previews[orientation] : nullptr;
 }
@@ -104,7 +104,7 @@ int FixedRideInstance::EntranceExitRotation(const XYZPoint16& vox) const
 }
 
 void FixedRideInstance::GetSprites(const XYZPoint16 &vox, [[maybe_unused]] uint16 voxel_number,
-		uint8 orient, int zoom, ScaledImage sprites[4], uint8 *platform) const
+		uint8 orient, int zoom, const ImageData *sprites[4], uint8 *platform) const
 {
 	sprites[0] = nullptr;
 	sprites[2] = nullptr;

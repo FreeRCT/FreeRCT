@@ -27,7 +27,7 @@ public:
 	};
 	virtual RideCapacity GetRideCapacity() const = 0;
 
-	ScaledImage GetView(uint8 orientation) const override;
+	const ImageData *GetView(uint8 orientation) const override;
 
 	int8 width_x; ///< This ride's width in x direction.
 	int8 width_y; ///< This ride's width in y direction.
@@ -51,7 +51,7 @@ public:
 	const TimedAnimation *animation_starting; ///< Ride graphics when the ride is starting to work
 	const TimedAnimation *animation_working;  ///< Ride graphics when the ride is working
 	const TimedAnimation *animation_stopping; ///< Ride graphics when the ride is stopping to work
-	ScaledImage previews[4];                  ///< Previews for the ride construction window.
+	ImageData* previews[4];                   ///< Previews for the ride construction window.
 };
 
 /** Fixed rides. */
@@ -61,7 +61,7 @@ public:
 	~FixedRideInstance();
 
 	const FixedRideType *GetFixedRideType() const;
-	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, int zoom, ScaledImage sprites[4], uint8 *platform) const override;
+	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, int zoom, const ImageData *sprites[4], uint8 *platform) const override;
 
 	virtual void SetRide(uint8 orientation, const XYZPoint16 &pos);
 	void RemoveAllPeople() override;

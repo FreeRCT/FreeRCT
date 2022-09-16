@@ -180,7 +180,7 @@ RideInstance *CoasterType::CreateInstance() const
 	return new CoasterInstance(this, car_type);
 }
 
-ScaledImage CoasterType::GetView([[maybe_unused]] uint8 orientation) const
+const ImageData *CoasterType::GetView([[maybe_unused]] uint8 orientation) const
 {
 	return nullptr; // No preview available.
 }
@@ -234,11 +234,10 @@ DisplayCoasterCar::DisplayCoasterCar() : yaw(0xff), owning_car(nullptr)  // Mark
 {
 }
 
-ScaledImage DisplayCoasterCar::GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const
+const ImageData *DisplayCoasterCar::GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const
 {
 	*recolour = &this->owning_car->owning_train->coaster->recolours;
-	return ScaledImage(this->car_type->GetCar(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF),
-			static_cast<float>(TileWidth(zoom)) / this->car_type->tile_width);
+	return this->car_type->GetCar(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF);  // NOCOM zoom
 }
 
 VoxelObject::Overlays DisplayCoasterCar::GetOverlays(ViewOrientation orient, int zoom) const
@@ -247,9 +246,8 @@ VoxelObject::Overlays DisplayCoasterCar::GetOverlays(ViewOrientation orient, int
 	if (this->owning_car == nullptr) return result;
 	for (int i = 0; i < this->car_type->num_passengers; i++) {
 		if (this->owning_car->guests[i] != nullptr) {
-			result.push_back(Overlay {ScaledImage(
-					this->car_type->GetGuestOverlay(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF, i),
-					static_cast<float>(TileWidth(zoom)) / this->car_type->tile_width),
+			result.push_back(Overlay {
+					this->car_type->GetGuestOverlay(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF, i),  // NOCOM zoom
 					&this->owning_car->guests[i]->recolour});
 		}
 	}
@@ -881,7 +879,7 @@ void CoasterInstance::InitializeItemPricesAndStatistics()
 	}
 }
 
-void CoasterInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, int zoom, ScaledImage sprites[4], uint8 *platform) const
+void CoasterInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, int zoom, const ImageData *sprites[4], uint8 *platform) const
 {
 	const CoasterType *ct = this->GetCoasterType();
 
@@ -913,7 +911,7 @@ void CoasterInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uin
 
 	sprites[1] = tv->bg == nullptr ? nullptr : tv->bg->GetSprite(0, 0, orient, zoom);  // SO_RIDE
 	sprites[2] = tv->fg == nullptr ? nullptr : tv->fg->GetSprite(0, 0, orient, zoom);  // SO_RIDE_FRONT
-	if ((sprites[1].sprite == nullptr && sprites[2].sprite == nullptr) || !tv->HasPlatform() || ct->platform_type >= CPT_COUNT) {
+	if ((sprites[1] == nullptr && sprites[2] == nullptr) || !tv->HasPlatform() || ct->platform_type >= CPT_COUNT) {
 		sprites[0] = nullptr; // SO_PLATFORM_BACK
 		sprites[3] = nullptr; // SO_PLATFORM_FRONT
 	} else {

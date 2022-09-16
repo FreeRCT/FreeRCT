@@ -118,7 +118,7 @@ public:
 	StringID GetString(uint16 number) const;
 	StringID GetTypeName() const;
 	StringID GetTypeDescription() const;
-	virtual ScaledImage GetView(uint8 orientation) const = 0;
+	virtual const ImageData *GetView(uint8 orientation) const = 0;
 	virtual const StringID *GetInstanceNames() const = 0;
 
 	/**
@@ -172,7 +172,7 @@ public:
 	RideInstance(const RideType *rt);
 	virtual ~RideInstance() = default;
 
-	virtual void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, int zoom, ScaledImage sprites[4], uint8 *platform) const = 0;
+	virtual void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, int zoom, const ImageData *sprites[4], uint8 *platform) const = 0;
 	virtual const Recolouring *GetRecolours(const XYZPoint16 &pos) const;
 	virtual uint8 GetEntranceDirections(const XYZPoint16 &vox) const = 0;
 	virtual RideEntryResult EnterRide(int guest, const XYZPoint16 &vox, TileEdge entry_edge) = 0;

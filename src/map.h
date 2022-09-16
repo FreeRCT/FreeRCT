@@ -307,12 +307,12 @@ public:
 
 	/** Holds data about an overlay to draw on top of this object's sprite. */
 	struct Overlay {
-		ScaledImage sprite;           ///< Sprite to draw.
+		const ImageData   *sprite;    ///< Sprite to draw.
 		const Recolouring *recolour;  ///< Recolouring specification to use (can be \c nullptr).
 	};
 	typedef std::vector<Overlay> Overlays;
 
-	virtual ScaledImage GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const = 0;
+	virtual const ImageData *GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const = 0;
 	virtual Overlays GetOverlays(ViewOrientation orient, int zoom) const;
 
 	/**

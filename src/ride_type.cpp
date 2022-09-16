@@ -120,7 +120,7 @@ bool RideType::CanMakeInstance() const
  */
 
 /**
- * \fn ScaledImage RideType::GetView(uint8 orientation) const
+ * \fn const ImageData *RideType::GetView(uint8 orientation) const
  * Get a display of the ride type for the purchase screen.
  * @param orientation Orientation of the ride type. Many ride types have \c 4 view orientations,
  *                    but some types may have only a view for orientation \c 0.
@@ -262,7 +262,7 @@ const RideType *RideInstance::GetRideType() const
 }
 
 /**
- * \fn void RideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, int zoom, ScaledImage sprites[4], uint8 *platform) const
+ * \fn void RideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, int zoom, const ImageData *sprites[4], uint8 *platform) const
  * Get the sprites to display for the provided voxel number.
  * @param vox The voxel's absolute coordinates.
  * @param voxel_number Number of the voxel to draw (copied from the world voxel data).

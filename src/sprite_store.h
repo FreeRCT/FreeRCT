@@ -26,6 +26,7 @@
 extern const uint8 _slope_rotation[NUM_SLOPE_SPRITES][4];
 
 class RcdFileReader;
+class ImageData;
 
 /**
  * Block of data from a RCD file.
@@ -183,7 +184,7 @@ public:
 
 	void Load(RcdFileReader *rcd_file, const ImageMap &sprites);
 
-	ScaledImage GetSprite(uint16 x, uint16 y, uint8 orientation, int zoom) const;
+	ImageData* GetSprite(uint16 x, uint16 y, uint8 orientation, int zoom) const;
 
 	uint16 width_x;                   ///< The number of voxels in x direction.
 	uint16 width_y;                   ///< The number of voxels in y direction.
@@ -774,17 +775,17 @@ public:
 	 * @return The image.
 	 */
 	template<typename Fn, typename... Args>
-	ScaledImage GetSprite(int zoom, Fn f, Args... args)
+	const ImageData *GetSprite(int zoom, Fn f, Args... args)
 	{
 		for (int z = zoom; z < ZOOM_SCALES_COUNT; ++z) {
 			const ImageData *img = (this->store.at(z).*f)(args...);
-			if (img != nullptr) return ScaledImage(img, static_cast<float>(TileWidth(zoom)) / TileWidth(z));
+			if (img != nullptr) return img->Scale(static_cast<float>(TileWidth(zoom)) / TileWidth(z));
 		}
 		for (int z = zoom - 1; z >= 0; --z) {
 			const ImageData *img = (this->store.at(z).*f)(args...);
-			if (img != nullptr) return ScaledImage(img, static_cast<float>(TileWidth(zoom)) / TileWidth(z));
+			if (img != nullptr) return img->Scale(static_cast<float>(TileWidth(zoom)) / TileWidth(z));
 		}
-		return ScaledImage();
+		return nullptr;
 	}
 
 	/**

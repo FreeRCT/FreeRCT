@@ -867,9 +867,8 @@ GLuint VideoSystem::LoadShaders(const char *vp, const char *fp)
  * @param shift Gradient shift.
  * @return The image's texture.
  */
-GLuint VideoSystem::GetImageTexture(ScaledImage img, const Recolouring &recolour, GradientShift shift) {
-	assert(img.sprite != nullptr);
-	std::pair<const ImageData*, RecolourData> map_key(img.sprite, RecolourData(shift, recolour.ToCondensed()));
+GLuint VideoSystem::GetImageTexture(const ImageData *img, const Recolouring &recolour, GradientShift shift) {
+	std::pair<const ImageData*, RecolourData> map_key(img, RecolourData(shift, recolour.ToCondensed()));
 	const auto it = this->image_textures.find(map_key);
 	if (it != this->image_textures.end()) return it->second;
 
@@ -880,7 +879,7 @@ GLuint VideoSystem::GetImageTexture(ScaledImage img, const Recolouring &recolour
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.sprite->width, img.sprite->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img.sprite->GetRecoloured(shift, recolour));
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img->width, img->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img->GetRecoloured(shift, recolour));
 	this->image_textures.emplace(map_key, t);
 	return t;
 }
@@ -893,14 +892,11 @@ GLuint VideoSystem::GetImageTexture(ScaledImage img, const Recolouring &recolour
  * @param shift Gradient shift.
  * @param col RGBA colour to overlay over the image.
  */
-void VideoSystem::BlitImage(const Point32 &pos, ScaledImage img, const Recolouring &recolour, GradientShift shift, uint32 col)
+void VideoSystem::BlitImage(const Point32 &pos, const ImageData *img, const Recolouring &recolour, GradientShift shift, uint32 col)
 {
-	if (img.factor > 1.1f) printf("NOCOM ScaledImage from %3ux%3u to %3ux%3u, offset %2dx%2d to %2dx%2d\n",
-			img.sprite->width, img.sprite->height, img.Width(), img.Height(),
-			img.sprite->xoffset, img.sprite->yoffset, img.XOffset(), img.YOffset());
 	this->DoDrawImage(this->GetImageTexture(img, recolour, shift),
-			pos.x + img.XOffset()              , pos.y + img.YOffset(),
-			pos.x + img.XOffset() + img.Width(), pos.y + img.YOffset() + img.Height(), col);
+			pos.x + img->xoffset             , pos.y + img->yoffset,
+			pos.x + img->xoffset + img->width, pos.y + img->yoffset + img->height, col);
 }
 
 /**
@@ -914,14 +910,14 @@ void VideoSystem::BlitImage(const Point32 &pos, ScaledImage img, const Recolouri
  * @param col RGBA colour to overlay over the image.
  * @note The image's offset is ignored.
  */
-void VideoSystem::TileImage(ScaledImage img, const Rectangle32 &rect, bool tile_hor, bool tile_vert,
+void VideoSystem::TileImage(const ImageData *img, const Rectangle32 &rect, bool tile_hor, bool tile_vert,
 		const Recolouring &recolour, GradientShift shift, uint32 col)
 {
 	this->DoDrawImage(this->GetImageTexture(img, recolour, shift),
 			rect.base.x, rect.base.y, rect.base.x + static_cast<float>(rect.width), rect.base.y + static_cast<float>(rect.height), col,
 			WXYZPointF(0.0f, 0.0f,
-					tile_vert ? static_cast<float>(rect.height) / img.Height() : 1.0f,
-					tile_hor ? static_cast<float>(rect.width) / img.Width() : 1.0f
+					tile_vert ? static_cast<float>(rect.height) / img->height : 1.0f,
+					tile_hor ? static_cast<float>(rect.width) / img->width : 1.0f
 				));
 }
 
