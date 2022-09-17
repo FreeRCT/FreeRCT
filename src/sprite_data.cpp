@@ -31,26 +31,6 @@ ImageVariants::Variant::Variant(const ImageData *img) : sprite(img), last_access
 }
 
 /**
- * Get the recoloured instance of an image, if present.
- * @param img Source image.
- * @param key Recolouring to use.
- * @return The image's RGBA data or \c nullptr.
- */
-uint8 *ImageVariants::GetRecoloured(const ImageData *img, RecolourData key)
-{
-	for (Variant &v : this->cache) {
-		if (v.sprite == img) {
-			const auto it = v.recoloured.find(key);
-			if (it == v.recoloured.end()) return nullptr;
-
-			v.last_accessed = Time();
-			return it->second.get();
-		}
-	}
-	return nullptr;
-}
-
-/**
  * Get the scaled instance of an image, if present.
  * @param img Source image.
  * @param scale Scale to apply.
@@ -71,25 +51,6 @@ ImageData *ImageVariants::GetScaled(const ImageData *img, float scale)
 		}
 	}
 	return nullptr;
-}
-
-/**
- * Insert a recoloured image into this cache.
- * @param img Source image.
- * @param key Recolouring used.
- * @param rgba RGBA data of the recoloured image. Takes ownership.
- */
-void ImageVariants::Insert(const ImageData *img, RecolourData key, uint8 *rgba)
-{
-	for (Variant &v : this->cache) {
-		if (v.sprite == img) {
-			v.recoloured.emplace(key, rgba);
-			v.last_accessed = Time();
-			return;
-		}
-	}
-	this->cache.emplace_back(img);
-	this->cache.back().recoloured.emplace(key, rgba);
 }
 
 /**
@@ -405,17 +366,13 @@ uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *re
  * Get this image with a gradient shift and/or recolouring applied.
  * @param shift Gradient shift to apply to the image.
  * @param recolour Recolouring to apply to the image.
- * @return The altered image's RGBA pixel values.
+ * @return The altered image's RGBA pixel values. Ownership is passed to the caller.
  */
-const uint8 *ImageData::GetRecoloured(GradientShift shift, const Recolouring &recolour) const
+std::unique_ptr<uint8[]> ImageData::GetRecoloured(GradientShift shift, const Recolouring &recolour) const
 {
-	RecolourData map_key(shift, recolour.ToCondensed());
-	const uint8 *cached = _image_variants.GetRecoloured(this, map_key);
-	if (cached != nullptr) return cached;
-
 	ShiftFunc af = GetAlphaShiftFunc(shift);
-	uint8 *result = new uint8[this->width * this->height * 4];
-	uint8 *ptr = result;
+	std::unique_ptr<uint8[]> result(new uint8[this->width * this->height * 4]);
+	uint8 *ptr = result.get();
 	const uint8 *recol_ptr = this->recol.get();
 
 	if (this->is_8bpp) {
@@ -451,7 +408,6 @@ const uint8 *ImageData::GetRecoloured(GradientShift shift, const Recolouring &re
 		}
 	}
 
-	_image_variants.Insert(this, map_key, result);
 	return result;
 }
 

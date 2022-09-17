@@ -31,7 +31,7 @@ public:
 	void Load32bpp(RcdFileReader *rcd_file, size_t length);
 
 	uint32 GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *recolour = nullptr, GradientShift shift = GS_NORMAL) const;
-	const uint8 *GetRecoloured(GradientShift shift, const Recolouring &recolour) const;
+	std::unique_ptr<uint8[]> GetRecoloured(GradientShift shift, const Recolouring &recolour) const;
 
 	ImageData *Scale(float factor) const;
 
@@ -59,7 +59,6 @@ class ImageVariants {
 public:
 	ImageVariants();
 
-	uint8 *GetRecoloured(const ImageData *img, RecolourData key);
 	ImageData *GetScaled(const ImageData *img, float scale);
 
 	void Insert(const ImageData *img, RecolourData key, uint8 *rgba);
@@ -78,7 +77,6 @@ private:
 		explicit Variant(const ImageData *img);
 
 		const ImageData *sprite;                                           ///< The source image.
-		std::map<RecolourData, std::unique_ptr<uint8[]>> recoloured;       ///< Copies of this image with various alterations.
 		std::vector<std::pair<float, std::unique_ptr<ImageData>>> scaled;  ///< Scaled copies of this image and their scaling factor.
 		Realtime last_accessed;                                            ///< When this variant was last fetched from the cache.
 
@@ -88,7 +86,7 @@ private:
 		 */
 		uint32 Size() const
 		{
-			return this->recoloured.size() + this->scaled.size();
+			return this->scaled.size();
 		}
 	};
 

@@ -879,7 +879,8 @@ GLuint VideoSystem::GetImageTexture(const ImageData *img, const Recolouring &rec
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img->width, img->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img->GetRecoloured(shift, recolour));
+	std::unique_ptr<uint8[]> rgba = img->GetRecoloured(shift, recolour);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img->width, img->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgba.get());
 	this->image_textures.emplace(map_key, t);
 	return t;
 }
