@@ -918,7 +918,7 @@ Offset  Length  Version  Description
    8       4      1-     Ground type.
   12       1      1-     Instance type.
   13      0/2     1-     Instance data (skipped for voxels without a ride instance).
-   ?       2      1-     Fence bits.
+   ?       2      2-     Fence bits.
    ?       4      1-     "lxov".
 ======  ======  =======  ===============================================================
 
@@ -926,6 +926,9 @@ Version history
 ...............
 
 - 1 (20210402) Initial version.
+- 2 (????????) Added fence bits.
+- 3 (????????) ????????.
+- 4 (20220918) Changed instance data layout.
 
 
 Blocks

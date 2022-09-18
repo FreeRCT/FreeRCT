@@ -48,7 +48,8 @@ private:
 	bool MoveSelection(bool move_forward);
 
 	Rectangle16 path_type_button_size;             ///< Size of the path type buttons.
-	const ImageData *path_type_sprites[PAT_COUNT]; ///< Sprite to use for showing the path type in the Gui.
+	const ImageData *normal_path_type_sprites[PAT_COUNT]; ///< Sprite to use for showing the normal path type in the Gui.
+	const ImageData *queue_path_type_sprites [PAT_COUNT]; ///< Sprite to use for showing the queue path type in the Gui.
 	bool normal_path_types[PAT_COUNT];             ///< Which path types are normal paths.
 	bool queue_path_types[PAT_COUNT];              ///< Which path types are queue paths.
 
@@ -56,6 +57,7 @@ private:
 	XYZPoint16 build_pos;     ///< Position of directional build. Invalid if x coordinate is negative.
 	TileEdge build_direction; ///< Direction of building (#INVALID_EDGE if no direction decided).
 	PathType path_type;       ///< Selected type of path to use for building.
+	PathStatus path_status;   ///< Selected status of path to use for building.
 	TrackSlope sel_slope;     ///< Selected slope (#TSL_INVALID if not slope decided).
 	ClickableSprite mouse_at; ///< Sprite below the mouse cursor (#CS_NONE means none).
 	bool single_tile_mode;    ///< If set, build single tiles at the ground, else build directional
@@ -167,29 +169,23 @@ static const WidgetPart _path_build_gui_parts[] = {
 PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE)
 {
 	for (int i = 0; i < PAT_COUNT; i++) {
-		switch (_sprite_manager.GetPathStatus(PathType(i))) {
-			case PAS_UNUSED:
-				this->normal_path_types[i] = false;
-				this->queue_path_types[i]  = false;
-				this->path_type_sprites[i] = nullptr;
-				break;
+		PathType p = static_cast<PathType>(i);
+		if (_sprite_manager.HasPath(p, PAS_NORMAL_PATH)) {
+			this->normal_path_types[i] = true;
+			this->normal_path_type_sprites[i] = _sprite_manager.GetSprite(DEFAULT_ZOOM, &SpriteStorage::GetPathSprite, p, PAS_NORMAL_PATH, PATH_NE_NW_SE_SW, VOR_NORTH);
+			this->path_type_button_size.MergeArea(GetSpriteSize(this->normal_path_type_sprites[i]));
+		} else {
+			this->normal_path_types[i] = false;
+			this->normal_path_type_sprites[i] = nullptr;
+		}
 
-			case PAS_NORMAL_PATH:
-				this->normal_path_types[i] = true;
-				this->queue_path_types[i]  = false;
-				this->path_type_sprites[i] = _sprite_manager.GetGuiSpriteStore().GetPathSprite(i, PATH_NE_NW_SE_SW, VOR_NORTH);
-				this->path_type_button_size.MergeArea(GetSpriteSize(this->path_type_sprites[i]));
-				break;
-
-			case PAS_QUEUE_PATH:
-				this->normal_path_types[i] = false;
-				this->queue_path_types[i]  = true;
-				this->path_type_sprites[i] = _sprite_manager.GetGuiSpriteStore().GetPathSprite(i, PATH_NE_SW, VOR_NORTH);
-				this->path_type_button_size.MergeArea(GetSpriteSize(this->path_type_sprites[i]));
-				break;
-
-			default:
-				NOT_REACHED();
+		if (_sprite_manager.HasPath(p, PAS_QUEUE_PATH)) {
+			this->queue_path_types[i] = true;
+			this->queue_path_type_sprites[i] = _sprite_manager.GetSprite(DEFAULT_ZOOM, &SpriteStorage::GetPathSprite, p, PAS_QUEUE_PATH, PATH_NE_NW_SE_SW, VOR_NORTH);
+			this->path_type_button_size.MergeArea(GetSpriteSize(this->queue_path_type_sprites[i]));
+		} else {
+			this->queue_path_types[i] = false;
+			this->queue_path_type_sprites[i] = nullptr;
 		}
 	}
 
@@ -197,18 +193,21 @@ PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE)
 
 	/* Select an initial path type. */
 	this->path_type = PAT_INVALID;
+	this->path_status = PAS_UNUSED;
 	for (int i = 0; i < PAT_COUNT; i++) {
 		if (this->normal_path_types[i]) {
 			this->path_type = (PathType)i;
+			this->path_status = PAS_NORMAL_PATH;
 			break;
 		}
 		if (this->path_type == PAT_INVALID && this->queue_path_types[i]) {
 			this->path_type = (PathType)i; // Queue path is better than an invalid one, continue searching.
+			this->path_status = PAS_QUEUE_PATH;
 		}
 	}
 
 	this->SetSelector(&this->ride_selector);
-	if (this->path_type == PAT_INVALID) {
+	if (this->path_type == PAT_INVALID || this->path_status == PAS_UNUSED) {
 		this->ride_selector.SetSize(0, 0);
 	} else {
 		this->ride_selector.SetSize(1, 1);
@@ -251,7 +250,7 @@ void PathBuildGui::TryAddRemovePath(uint8 m_state)
 
 void PathBuildGui::SelectorMouseMoveEvent(Viewport *vp, [[maybe_unused]] const Point16 &pos)
 {
-	if (this->path_type == PAT_INVALID) return;
+	if (this->path_type == PAT_INVALID || this->path_status == PAS_UNUSED) return;
 
 	FinderData fdata(CS_GROUND | CS_PATH, FW_TILE);
 	this->mouse_at = vp->ComputeCursorPosition(&fdata);
@@ -266,7 +265,7 @@ void PathBuildGui::SelectorMouseMoveEvent(Viewport *vp, [[maybe_unused]] const P
 
 void PathBuildGui::SelectorMouseButtonEvent(MouseButtons state)
 {
-	if (this->ride_selector.area.width == 0 || this->path_type == PAT_INVALID) return;
+	if (this->ride_selector.area.width == 0 || this->path_type == PAT_INVALID || this->path_status == PAS_UNUSED) return;
 
 	if (this->single_tile_mode) {
 		_video.SetMouseDragging(state, true, false);
@@ -353,7 +352,7 @@ void PathBuildGui::SetupSelector()
 	if (!vtd.cursor_enabled) return;
 	VoxelRideData &vrd = vtd.ride_info[add_pos.z - vtd.lowest];
 	vrd.sri = SRI_PATH;
-	vrd.instance_data = MakePathInstanceData(path_slope, this->path_type);
+	vrd.instance_data = MakePathInstanceData(path_slope, this->path_type, this->path_status);
 }
 
 /**
@@ -362,7 +361,7 @@ void PathBuildGui::SetupSelector()
  */
 void PathBuildGui::BuildSinglePath(const XYZPoint16 &pos)
 {
-	assert(this->path_type != PAT_INVALID);
+	assert(this->path_type != PAT_INVALID && this->path_status != PAS_UNUSED);
 
 	Voxel *v = _world.GetCreateVoxel(pos, false);
 	if (v == nullptr || v->GetGroundType() == GTP_INVALID) return; // No voxel or no ground here.
@@ -372,21 +371,21 @@ void PathBuildGui::BuildSinglePath(const XYZPoint16 &pos)
 		/* Rebuilding the same path type can be useful for queue paths after their neighbours have
 		 * changed, as queue paths prefer to connect to other queue paths.
 		 */
-		ChangePath(pos, this->path_type, false, true);
+		ChangePath(pos, this->path_type, this->path_status, false, true);
 		return;
 	}
 	if (sri != SRI_FREE) return; // Some other ride here.
 
 	TileSlope ts = ExpandTileSlope(v->GetGroundSlope());
 	if (ts == SL_FLAT) {
-		BuildFlatPath(pos, this->path_type, false, true);
+		BuildFlatPath(pos, this->path_type, this->path_status, false, true);
 		return;
 	}
 
 	ts ^= TSB_NORTH | TSB_EAST | TSB_SOUTH | TSB_WEST; // Swap raised and not raised corners.
 	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
 		if (ts == _corners_at_edge[edge]) { // 'edge' is at the low end due to swapping.
-			BuildUpwardPath(pos, edge, this->path_type, false, true);
+			BuildUpwardPath(pos, edge, this->path_type, this->path_status, false, true);
 			return;
 		}
 	}
@@ -419,7 +418,7 @@ void PathBuildGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 		case PATH_GUI_NORMAL_PATH2:
 		case PATH_GUI_NORMAL_PATH3:
 			if (this->normal_path_types[wid_num - PATH_GUI_NORMAL_PATH0]) {
-				const ImageData *img = this->path_type_sprites[wid_num - PATH_GUI_NORMAL_PATH0];
+				const ImageData *img = this->normal_path_type_sprites[wid_num - PATH_GUI_NORMAL_PATH0];
 				if (img != nullptr) {
 					int dx = (wid->pos.width - path_type_button_size.width) / 2;
 					int dy = (wid->pos.height - path_type_button_size.height) / 2;
@@ -434,7 +433,7 @@ void PathBuildGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 		case PATH_GUI_QUEUE_PATH2:
 		case PATH_GUI_QUEUE_PATH3:
 			if (this->queue_path_types[wid_num - PATH_GUI_QUEUE_PATH0]) {
-				const ImageData *img = this->path_type_sprites[wid_num - PATH_GUI_QUEUE_PATH0];
+				const ImageData *img = this->queue_path_type_sprites[wid_num - PATH_GUI_QUEUE_PATH0];
 				if (img != nullptr) {
 					int dx = (wid->pos.width - path_type_button_size.width) / 2;
 					int dy = (wid->pos.height - path_type_button_size.height) / 2;
@@ -493,6 +492,7 @@ void PathBuildGui::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &
 		case PATH_GUI_NORMAL_PATH3:
 			if (this->normal_path_types[number - PATH_GUI_NORMAL_PATH0]) {
 				this->path_type = static_cast<PathType>(number - PATH_GUI_NORMAL_PATH0);
+				this->path_status = PAS_NORMAL_PATH;
 				this->SetButtons();
 				this->SetupSelector();
 			}
@@ -504,6 +504,7 @@ void PathBuildGui::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &
 		case PATH_GUI_QUEUE_PATH3:
 			if (this->queue_path_types[number - PATH_GUI_QUEUE_PATH0]) {
 				this->path_type = static_cast<PathType>(number - PATH_GUI_QUEUE_PATH0);
+				this->path_status = PAS_QUEUE_PATH;
 				this->SetButtons();
 				this->SetupSelector();
 			}
@@ -675,14 +676,15 @@ void PathBuildGui::SetButtons()
 	for (int i = 0; i < PAT_COUNT; i++) {
 		if (this->normal_path_types[i]) {
 			this->SetWidgetShaded(PATH_GUI_NORMAL_PATH0 + i, false);
-			this->SetWidgetShaded(PATH_GUI_QUEUE_PATH0 + i, true);
-			this->SetWidgetPressed(PATH_GUI_NORMAL_PATH0 + i, (i == this->path_type));
-		} else if (this->queue_path_types[i]) {
-			this->SetWidgetShaded(PATH_GUI_NORMAL_PATH0 + i, true);
-			this->SetWidgetShaded(PATH_GUI_QUEUE_PATH0 + i, false);
-			this->SetWidgetPressed(PATH_GUI_QUEUE_PATH0 + i, (i == this->path_type));
+			this->SetWidgetPressed(PATH_GUI_NORMAL_PATH0 + i, (i == this->path_type && this->path_status == PAS_NORMAL_PATH));
 		} else {
 			this->SetWidgetShaded(PATH_GUI_NORMAL_PATH0 + i, true);
+		}
+
+		if (this->queue_path_types[i]) {
+			this->SetWidgetShaded(PATH_GUI_QUEUE_PATH0 + i, false);
+			this->SetWidgetPressed(PATH_GUI_QUEUE_PATH0 + i, (i == this->path_type && this->path_status == PAS_QUEUE_PATH));
+		} else {
 			this->SetWidgetShaded(PATH_GUI_QUEUE_PATH0 + i, true);
 		}
 	}
@@ -695,7 +697,7 @@ void PathBuildGui::SetButtons()
 /** Add a path tile to the current position and orientation in the directional build mode. */
 void PathBuildGui::BuyPathTile()
 {
-	if (this->path_type == PAT_INVALID) return;
+	if (this->path_type == PAT_INVALID || this->path_status == PAS_UNUSED) return;
 	if (this->single_tile_mode) return;
 	if (this->build_pos.x < 0) return;
 	if (this->build_direction == INVALID_EDGE) return;
@@ -704,16 +706,16 @@ void PathBuildGui::BuyPathTile()
 	switch (this->sel_slope) {
 		case TSL_UP: {
 			TileEdge start_edge = static_cast<TileEdge>((this->build_direction + 2) % 4);
-			BuildUpwardPath(path_pos, start_edge, this->path_type, false, true);
+			BuildUpwardPath(path_pos, start_edge, this->path_type, this->path_status, false, true);
 			break;
 		}
 		case TSL_FLAT:
-			BuildFlatPath(path_pos, this->path_type, false, true);
+			BuildFlatPath(path_pos, this->path_type, this->path_status, false, true);
 			break;
 
 		case TSL_DOWN: {
 			TileEdge start_edge = static_cast<TileEdge>((this->build_direction + 2) % 4);
-			BuildDownwardPath(path_pos, start_edge, this->path_type, false, true);
+			BuildDownwardPath(path_pos, start_edge, this->path_type, this->path_status, false, true);
 			path_pos.z--;
 			break;
 		}
@@ -730,7 +732,7 @@ void PathBuildGui::BuyPathTile()
 /** Remove a path tile from the game in directional mode. */
 void PathBuildGui::RemovePathTile()
 {
-	if (this->path_type == PAT_INVALID) return;
+	if (this->path_type == PAT_INVALID || this->path_status == PAS_UNUSED) return;
 	if (this->single_tile_mode) return;
 	if (this->build_pos.x < 0) return;
 	if (this->build_direction == INVALID_EDGE) return;
@@ -753,7 +755,7 @@ void PathBuildGui::RemovePathTile()
  */
 bool PathBuildGui::MoveSelection(bool move_forward)
 {
-	if (this->path_type == PAT_INVALID) return false;
+	if (this->path_type == PAT_INVALID || this->path_status == PAS_UNUSED) return false;
 	if (this->single_tile_mode) return false; // Single tile mode has no direction.
 	if (this->build_pos.x < 0) return false;
 	if (this->build_direction == INVALID_EDGE) return false;

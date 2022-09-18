@@ -99,18 +99,6 @@ public:
 };
 
 /**
- * %Path sprites.
- * @ingroup sprites_group
- */
-class Path {
-public:
-	Path();
-
-	PathStatus status; ///< Status of this path.
-	ImageData *sprites[PATH_COUNT]; ///< %Path sprites, may contain \c nullptr sprites.
-};
-
-/**
  * %Path decoration sprites.
  * @ingroup sprites_group
  */
@@ -614,14 +602,14 @@ public:
 	/**
 	 * Get a path tile sprite.
 	 * @param type Type of path. @see PathType
+	 * @param status Status of path. @see PathStatus
 	 * @param slope Slope of the path (in #VOR_NORTH orientation).
 	 * @param orient Display orientation.
 	 * @return Requested sprite if available.
-	 * @todo [low] \a type is not used due to lack of other path types (sprites).
 	 */
-	const ImageData *GetPathSprite(uint8 type, uint8 slope, ViewOrientation orient) const
+	const ImageData *GetPathSprite(PathType type, PathStatus status, uint8 slope, ViewOrientation orient) const
 	{
-		return this->path_sprites[type].sprites[_path_rotation[slope][orient]];
+		return this->path_sprites[type * PAS_COUNT * PATH_COUNT + status * PATH_COUNT + _path_rotation[slope][orient]];
 	}
 
 	/**
@@ -736,13 +724,10 @@ public:
 	SurfaceData tile_select;          ///< Tile selection sprites.
 	TileCorners tile_corners;         ///< Tile corner sprites.
 	Fence *fence[FENCE_COUNT];        ///< Available fence types.
-	Path path_sprites[PAT_COUNT];     ///< %Path sprites.
+	ImageData *path_sprites[PAT_COUNT * PAS_COUNT * PATH_COUNT];  ///< Path sprites.
 	PathDecoration path_decoration;   ///< %Path decoration sprites.
 	DisplayedObject build_arrows;     ///< Arrows displaying build direction of paths and tracks.
 	AnimationSpritesMap animations;   ///< %Animation sprites ordered by animation type.
-
-protected:
-	void Clear();
 };
 
 /**
@@ -764,8 +749,7 @@ public:
 	const Fence *GetFence(FenceType fence, int zoom) const;
 	const FrameSet *GetFrameSet(const ImageSetKey &key) const;
 	const TimedAnimation *GetTimedAnimation(const ImageSetKey &key) const;
-
-	PathStatus GetPathStatus(PathType path_type);
+	bool HasPath(PathType type, PathStatus status) const;
 
 	/**
 	 * Get a sprite from the sprite storage. If the sprite is only available at a different resolution, it will be scaled.

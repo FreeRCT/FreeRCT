@@ -11,11 +11,11 @@
 #define PATH_BUILD_H
 
 bool PathExistsAtBottomEdge(XYZPoint16 voxel_pos, TileEdge edge);
-bool BuildUpwardPath(const XYZPoint16 &voxel_pos, TileEdge edge, PathType path_type, bool test_only, bool pay);
-bool BuildFlatPath(const XYZPoint16 &voxel_pos, PathType path_type, bool test_only, bool pay);
-bool BuildDownwardPath(XYZPoint16 voxel_pos, TileEdge edge, PathType path_type, bool test_only, bool pay);
+bool BuildUpwardPath(const XYZPoint16 &voxel_pos, TileEdge edge, PathType path_type, PathStatus path_status, bool test_only, bool pay);
+bool BuildFlatPath(const XYZPoint16 &voxel_pos, PathType path_type, PathStatus path_status, bool test_only, bool pay);
+bool BuildDownwardPath(XYZPoint16 voxel_pos, TileEdge edge, PathType path_type, PathStatus path_status, bool test_only, bool pay);
 bool RemovePath(const XYZPoint16 &voxel_pos, bool test_only, bool pay);
-bool ChangePath(const XYZPoint16 &voxel_pos, PathType path_type, bool test_only, bool pay);
+bool ChangePath(const XYZPoint16 &voxel_pos, PathType path_type, PathStatus path_status, bool test_only, bool pay);
 uint8 CanBuildPathFromEdge(const XYZPoint16 &voxel_pos, TileEdge edge);
 uint8 GetPathAttachPoints(const XYZPoint16 &voxel_pos);
 

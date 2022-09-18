@@ -111,9 +111,11 @@ enum PathType {
 
 /** Path status. */
 enum PathStatus {
-	PAS_UNUSED,      ///< %Path is not loaded.
-	PAS_NORMAL_PATH, ///< %Path to walk on.
-	PAS_QUEUE_PATH,  ///< %Path to queue on.
+	PAS_NORMAL_PATH,  ///< Path to walk on.
+	PAS_QUEUE_PATH,   ///< Path to queue on.
+
+	PAS_COUNT,       ///< Number of valid path states.
+	PAS_UNUSED,      ///< Path is not loaded.
 };
 
 extern const PathSprites _path_up_from_edge[EDGE_COUNT];

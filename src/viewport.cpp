@@ -504,7 +504,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 
 		DrawData dd;
 		dd.Set(slice, voxel_pos.z, SO_PATH, _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetPathSprite,
-				GetPathType(instance_data), GetImplodedPathSlope(instance_data), this->orient),
+				GetPathType(instance_data), GetPathStatus(instance_data), GetImplodedPathSlope(instance_data), this->orient),
 				north_point, nullptr, highlight ? GS_SEMI_TRANSPARENT : GS_INVALID);
 		this->draw_images.insert(dd);
 
@@ -824,7 +824,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 		/* Looking for a path? */
 		uint16 instance_data = voxel->GetInstanceData();
 		const ImageData *img = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetPathSprite,
-				GetPathType(instance_data), GetImplodedPathSlope(instance_data), this->orient);
+				GetPathType(instance_data), GetPathStatus(instance_data), GetImplodedPathSlope(instance_data), this->orient);
 		DrawData dd;
 		dd.Set(slice, voxel_pos.z, SO_PATH, img, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth));
 		if (img != nullptr && (!this->found || this->data < dd)) {

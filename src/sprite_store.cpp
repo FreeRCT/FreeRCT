@@ -461,11 +461,6 @@ void Fence::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 	}
 }
 
-Path::Path() : status(PAS_UNUSED)
-{
-	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = nullptr;
-}
-
 /**
  * Load a path sprites block from a RCD file.
  * @param rcd_file RCD file used for loading.
@@ -491,11 +486,9 @@ void SpriteManager::LoadPATH(RcdFileReader *rcd_file, const ImageMap &sprites)
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
 	if (ss == nullptr) rcd_file->Error("Sprite storage not found");
-	Path *path = &ss->path_sprites[pt];
-	for (uint sprnum = 0; sprnum < PATH_COUNT; sprnum++) {
-		LoadSpriteFromFile(rcd_file, sprites, &path->sprites[sprnum]);
-	}
-	path->status = ((type & 0x8000) != 0) ? PAS_QUEUE_PATH : PAS_NORMAL_PATH;
+
+	const int base = pt * PAS_COUNT * PATH_COUNT + (((type & 0x8000) != 0) ? PAS_QUEUE_PATH : PAS_NORMAL_PATH) * PATH_COUNT;
+	for (uint i = 0; i < PATH_COUNT; ++i) LoadSpriteFromFile(rcd_file, sprites, &ss->path_sprites[base + i]);
 }
 
 PathDecoration::PathDecoration()
@@ -1325,6 +1318,7 @@ bool GuiSprites::HasSufficientGraphics() const
 SpriteStorage::SpriteStorage(uint16 _size) : size(_size)
 {
 	for (uint8 i = 0; i < FENCE_TYPE_COUNT; i++) this->fence[i] = nullptr;
+	for (ImageData *& img : this->path_sprites) img = nullptr;
 }
 
 /**
@@ -1883,13 +1877,19 @@ const TimedAnimation *SpriteManager::GetTimedAnimation(const ImageSetKey &key) c
 }
 
 /**
- * Get the status of a path type.
- * @param path_type %Path type to query.
- * @return Status of the path type.
+ * Check if a combination of path type and status has been loaded.
+ * @param type Type of path. @see PathType
+ * @param status Status of path. @see PathStatus
+ * @return Path is available.
  */
-PathStatus SpriteManager::GetPathStatus(PathType path_type)
+bool SpriteManager::HasPath(PathType type, PathStatus status) const
 {
-	// NOCOM static info really doesn't belong in zoom-specific data!
-	const Path &path = this->store[DEFAULT_ZOOM].path_sprites[path_type];
-	return path.status;
+	for (const SpriteStorage &ss : this->store) {
+		for (uint i = 0; i < PATH_COUNT; ++i) {
+			if (ss.path_sprites[type * PAS_COUNT * PATH_COUNT + status * PATH_COUNT + i] != nullptr) {
+				return true;
+			}
+		}
+	}
+	return false;
 }

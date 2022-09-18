@@ -37,7 +37,7 @@ void Voxel::ClearVoxel()
 }
 
 static const uint32 CURRENT_VERSION_VSTK  = 3;   ///< Currently supported version of the VSTK pattern.
-static const uint32 CURRENT_VERSION_Voxel = 3;   ///< Currently supported version of the voxel pattern.
+static const uint32 CURRENT_VERSION_Voxel = 4;   ///< Currently supported version of the voxel pattern.
 
 /**
  * Load a voxel from the save game.
@@ -47,7 +47,7 @@ void Voxel::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("voxl");
 	this->ClearVoxel();
-	if (version >= 1 && version <= 3) {
+	if (version >= 1 && version <= CURRENT_VERSION_Voxel) {
 		this->ground = ldr.GetLong(); /// \todo Check sanity of the data.
 		this->instance = ldr.GetByte();
 		if (this->instance == SRI_FREE) {
@@ -59,6 +59,10 @@ void Voxel::Load(Loader &ldr)
 		}
 
 		if (version >= 2) this->fences = ldr.GetWord();
+		if (version == 3 && this->instance == SRI_PATH) {
+			int t = GB(instance_data, 6, 2);
+			this->instance_data = MakePathInstanceData(GB(instance_data, 0, 6), static_cast<PathType>(t), t == PAT_TILED ? PAS_QUEUE_PATH : PAS_NORMAL_PATH);
+		}
 	} else {
 		ldr.VersionMismatch(version, CURRENT_VERSION_Voxel);
 	}

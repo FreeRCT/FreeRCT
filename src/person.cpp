@@ -1033,7 +1033,7 @@ uint8 Guest::GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_w
 
 	/* If walking on a queue path, enable queue mode. */
 	// \todo Only walk in queue mode when going to a ride.
-	*queue_path = _sprite_manager.GetPathStatus(GetPathType(v->GetInstanceData())) == PAS_QUEUE_PATH;
+	*queue_path = GetPathStatus(v->GetInstanceData()) == PAS_QUEUE_PATH;
 	*seen_wanted_ride = false;
 
 	uint8 shops = 0;       // Number of exits with a shop with normal desire to go there.

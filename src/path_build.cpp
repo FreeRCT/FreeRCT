@@ -21,11 +21,12 @@
  * Build a path at a tile, and claim the voxels above it as well.
  * @param voxel_pos Coordinate of the voxel.
  * @param path_type The type of path to build.
+ * @param path_status Whether to build a queue or normal path.
  * @param path_spr Imploded sprite number.
  * @param pay Whether to pay money for this path.
  * @see RemovePathAtTile
  */
-static void BuildPathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, uint8 path_spr, bool pay)
+static void BuildPathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, PathStatus path_status, uint8 path_spr, bool pay)
 {
 	VoxelStack *avs = _world.GetModifyStack(voxel_pos.x, voxel_pos.y);
 
@@ -50,8 +51,8 @@ static void BuildPathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, uin
 	}
 
 	av->SetInstance(SRI_PATH);
-	uint8 slope = AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, _sprite_manager.GetPathStatus(path_type));
-	av->SetInstanceData(MakePathInstanceData(slope, path_type));
+	uint8 slope = AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, path_status);
+	av->SetInstanceData(MakePathInstanceData(slope, path_type, path_status));
 
 	av = avs->GetCreate(voxel_pos.z + 1, true);
 	av->ClearVoxel();
@@ -108,10 +109,11 @@ static void RemovePathAtTile(const XYZPoint16 &voxel_pos, uint8 path_spr, bool p
  * Change the path type of a currently existing path.
  * @param voxel_pos Coordinate of the voxel.
  * @param path_type The type of path to change to.
+ * @param path_status Whether to build a queue or normal path.
  * @param path_spr Imploded sprite number.
  * @param pay Whether to pay money for this path.
  */
-static void ChangePathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, uint8 path_spr, bool pay)
+static void ChangePathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, PathStatus path_status, uint8 path_spr, bool pay)
 {
 	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, CONSTRUCTION_COST_PATH_CHANGE)) return;
 	if (_game_control.action_test_mode) {
@@ -128,8 +130,8 @@ static void ChangePathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, ui
 	if (path_spr < PATH_FLAT_COUNT)
 		path_spr = PATH_EMPTY;
 
-	uint8 slope = AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, _sprite_manager.GetPathStatus(path_type));
-	av->SetInstanceData(MakePathInstanceData(slope, path_type));
+	uint8 slope = AddRemovePathEdges(voxel_pos, path_spr, EDGE_ALL, path_status);
+	av->SetInstanceData(MakePathInstanceData(slope, path_type, path_status));
 
 	if (pay) {
 		_finances_manager.PayRideConstruct(CONSTRUCTION_COST_PATH_CHANGE);
@@ -170,11 +172,12 @@ bool PathExistsAtBottomEdge(XYZPoint16 voxel_pos, TileEdge edge)
  * @param voxel_pos Coordinate of the voxel.
  * @param edge Entry edge.
  * @param path_type For building (ie not \a test_only), the type of path to build.
+ * @param path_status Whether to build a queue or normal path.
  * @param test_only Only test whether it could be created.
  * @param pay Whether to pay money for this path.
  * @return Whether the path is or could be built.
  */
-bool BuildUpwardPath(const XYZPoint16 &voxel_pos, TileEdge edge, PathType path_type, bool test_only, bool pay)
+bool BuildUpwardPath(const XYZPoint16 &voxel_pos, TileEdge edge, PathType path_type, PathStatus path_status, bool test_only, bool pay)
 {
 	/* xy position should be valid, and allow path building. */
 	if (!IsVoxelstackInsideWorld(voxel_pos.x, voxel_pos.y)) return false;
@@ -204,7 +207,7 @@ bool BuildUpwardPath(const XYZPoint16 &voxel_pos, TileEdge edge, PathType path_t
 		}
 	}
 
-	if (!test_only) BuildPathAtTile(voxel_pos, path_type, _path_up_from_edge[edge], pay);
+	if (!test_only) BuildPathAtTile(voxel_pos, path_type, path_status, _path_up_from_edge[edge], pay);
 	return true;
 }
 
@@ -212,11 +215,12 @@ bool BuildUpwardPath(const XYZPoint16 &voxel_pos, TileEdge edge, PathType path_t
  * In the given voxel, can a flat path be build in the voxel?
  * @param voxel_pos Coordinate of the voxel.
  * @param path_type For building (ie not \a test_only), the type of path to build.
+ * @param path_status Whether to build a queue or normal path.
  * @param test_only Only test whether it could be created.
  * @param pay Whether to pay money for this path.
  * @return Whether the path is or could be built.
  */
-bool BuildFlatPath(const XYZPoint16 &voxel_pos, PathType path_type, bool test_only, bool pay)
+bool BuildFlatPath(const XYZPoint16 &voxel_pos, PathType path_type, PathStatus path_status, bool test_only, bool pay)
 {
 	/* xy position should be valid, and allow path building. */
 	if (!IsVoxelstackInsideWorld(voxel_pos.x, voxel_pos.y)) return false;
@@ -240,7 +244,7 @@ bool BuildFlatPath(const XYZPoint16 &voxel_pos, PathType path_type, bool test_on
 		}
 	}
 
-	if (!test_only) BuildPathAtTile(voxel_pos, path_type, PATH_EMPTY, pay);
+	if (!test_only) BuildPathAtTile(voxel_pos, path_type, path_status, PATH_EMPTY, pay);
 	return true;
 }
 
@@ -249,11 +253,12 @@ bool BuildFlatPath(const XYZPoint16 &voxel_pos, PathType path_type, bool test_on
  * @param voxel_pos Coordinate of the voxel.
  * @param edge Entry edge.
  * @param path_type For building (ie not \a test_only), the type of path to build.
+ * @param path_status Whether to build a queue or normal path.
  * @param test_only Only test whether it could be created.
  * @param pay Whether to pay money for this path.
  * @return Whether the path is or could be built.
  */
-bool BuildDownwardPath(XYZPoint16 voxel_pos, TileEdge edge, PathType path_type, bool test_only, bool pay)
+bool BuildDownwardPath(XYZPoint16 voxel_pos, TileEdge edge, PathType path_type, PathStatus path_status, bool test_only, bool pay)
 {
 	/* xy position should be valid, and allow path building. */
 	if (!IsVoxelstackInsideWorld(voxel_pos.x, voxel_pos.y)) return false;
@@ -285,7 +290,7 @@ bool BuildDownwardPath(XYZPoint16 voxel_pos, TileEdge edge, PathType path_type, 
 
 	if (!test_only) {
 		voxel_pos.z--;
-		BuildPathAtTile(voxel_pos, path_type, _path_down_from_edge[edge], pay);
+		BuildPathAtTile(voxel_pos, path_type, path_status, _path_down_from_edge[edge], pay);
 	}
 	return true;
 }
@@ -326,11 +331,12 @@ bool RemovePath(const XYZPoint16 &voxel_pos, bool test_only, bool pay)
  * (Try to) change the path type of the current path at the given voxel.
  * @param voxel_pos Coordinate of the voxel.
  * @param path_type For changing (ie not \a test_only), the type of path to change to.
+ * @param path_status Whether to build a queue or normal path.
  * @param test_only Only test whether it could be changed.
  * @param pay Whether to pay money for this path.
  * @return Whether the path's type could be changed.
  */
-bool ChangePath(const XYZPoint16 &voxel_pos, PathType path_type, bool test_only, bool pay)
+bool ChangePath(const XYZPoint16 &voxel_pos, PathType path_type, PathStatus path_status, bool test_only, bool pay)
 {
 	const VoxelStack *vs = _world.GetStack(voxel_pos.x, voxel_pos.y);
 	const Voxel *v = vs->Get(voxel_pos.z);
@@ -345,7 +351,7 @@ bool ChangePath(const XYZPoint16 &voxel_pos, PathType path_type, bool test_only,
 		assert(v->GetInstance() == SRI_PATH && !HasValidPath(v->GetInstanceData()));
 	}
 
-	if (!test_only) ChangePathAtTile(voxel_pos, path_type, ps, pay);
+	if (!test_only) ChangePathAtTile(voxel_pos, path_type, path_status, ps, pay);
 	return true;
 }
 
@@ -378,9 +384,9 @@ uint8 CanBuildPathFromEdge(const XYZPoint16 &voxel_pos, TileEdge edge)
 
 	uint8 slopes = 0;
 	// XXX Check for already existing paths.
-	if (BuildDownwardPath(voxel_pos, edge, PAT_INVALID, true, false)) slopes |= 1 << TSL_DOWN;
-	if (BuildFlatPath(voxel_pos, PAT_INVALID, true, false)) slopes |= 1 << TSL_FLAT;
-	if (BuildUpwardPath(voxel_pos, edge, PAT_INVALID, true, false)) slopes |= 1 << TSL_UP;
+	if (BuildDownwardPath(voxel_pos, edge, PAT_INVALID, PAS_UNUSED, true, false)) slopes |= 1 << TSL_DOWN;
+	if (BuildFlatPath(voxel_pos, PAT_INVALID, PAS_UNUSED, true, false)) slopes |= 1 << TSL_FLAT;
+	if (BuildUpwardPath(voxel_pos, edge, PAT_INVALID, PAS_UNUSED, true, false)) slopes |= 1 << TSL_UP;
 	return slopes;
 }
 
