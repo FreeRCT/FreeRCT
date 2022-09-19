@@ -513,14 +513,6 @@ PathDecoration::PathDecoration()
 		this->flat_litter[tp] = nullptr;
 		this->flat_vomit[tp] = nullptr;
 	}
-
-	/* Initialize counts. */
-	this->flat_litter_count = 0;
-	this->flat_vomit_count = 0;
-	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-		this->ramp_litter_count[edge] = 0;
-		this->ramp_vomit_count[edge] = 0;
-	}
 }
 
 /**
@@ -577,21 +569,6 @@ void SpriteManager::LoadPDEC(RcdFileReader *rcd_file, const ImageMap &sprites)
 		for (int tp = 0; tp < 4; tp++) {
 			LoadSpriteFromFile(rcd_file, sprites, &pdec->ramp_vomit[edge][tp]);
 		}
-	}
-
-	/* Data loaded, setup the counts. */
-	for (pdec->flat_litter_count = 0; pdec->flat_litter_count < 4; pdec->flat_litter_count++) if (pdec->flat_litter[pdec->flat_litter_count] == nullptr) break;
-	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-		int count = 0;
-		while (count < 4 && pdec->ramp_litter[edge][count] != nullptr) count++;
-		pdec->ramp_litter_count[edge] = count;
-	}
-
-	for (pdec->flat_vomit_count = 0; pdec->flat_vomit_count < 4; pdec->flat_vomit_count++) if (pdec->flat_vomit[pdec->flat_vomit_count] == nullptr) break;
-	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-		int count = 0;
-		while (count < 4 && pdec->ramp_vomit[edge][count] != nullptr) count++;
-		pdec->ramp_vomit_count[edge] = count;
 	}
 }
 

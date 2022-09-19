@@ -158,7 +158,7 @@ public:
 		XYZPoint16 offset;        ///< Image offset inside the voxel.
 		bool semi_transparent;    ///< Draw this item semi-transparent.
 	};
-	std::vector<PathObjectSprite> GetSprites(uint8 orientation) const;
+	std::vector<PathObjectSprite> GetSprites(uint8 orientation, int zoom) const;
 	bool GetExistsOnTileEdge(TileEdge e) const;
 	bool GetDemolishedOnTileEdge(TileEdge e) const;
 
@@ -214,7 +214,7 @@ public:
 	uint8 CountDemolishedItems(const XYZPoint16 &pos) const;
 	PathObjectInstance *GetPathObject(const XYZPoint16 &pos);
 
-	std::vector<PathObjectInstance::PathObjectSprite> DrawPathObjects(const XYZPoint16 &pos, uint8 orientation) const;
+	std::vector<PathObjectInstance::PathObjectSprite> DrawPathObjects(const XYZPoint16 &pos, uint8 orientation, int zoom) const;
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr) const;

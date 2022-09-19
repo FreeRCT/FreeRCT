@@ -508,7 +508,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 				north_point, nullptr, highlight ? GS_SEMI_TRANSPARENT : GS_INVALID);
 		this->draw_images.insert(dd);
 
-		for (const PathObjectInstance::PathObjectSprite &image : _scenery.DrawPathObjects(voxel_pos, this->orient)) {
+		for (const PathObjectInstance::PathObjectSprite &image : _scenery.DrawPathObjects(voxel_pos, this->orient, this->zoom)) {
 			const int x_off = ComputeX(image.offset.x, image.offset.y);
 			const int y_off = ComputeY(image.offset.x, image.offset.y, image.offset.z);
 			Point32 pos(north_point.x + this->north_offsets[this->orient].x + x_off,

@@ -104,6 +104,7 @@ public:
  */
 class PathDecoration {
 public:
+	static constexpr int LITTER_VOMIT_COUNT = 4;  ///< Number of different litter or vomit sprites.
 	PathDecoration();
 
 	ImageData *litterbin[4];        ///< Normal (non-demolished, non-full) litter bins.
@@ -118,11 +119,6 @@ public:
 	ImageData *ramp_litter[4][4]; ///< For each ramp, 4 types of litter (may be \c nullptr).
 	ImageData *flat_vomit[4];     ///< 4 types of vomit at flat path tile (may be \c nullptr).
 	ImageData *ramp_vomit[4][4];  ///< For each ramp, 4 types of vomit at flat path tile (may be \c nullptr).
-
-	int flat_litter_count;    ///< Number of litter graphics for flat path tiles.
-	int flat_vomit_count;     ///< Number of vomit  graphics for flat path tiles.
-	int ramp_litter_count[4]; ///< Number of litter graphics for each type of ramp.
-	int ramp_vomit_count[4];  ///< Number of vomit  graphics for each type of ramp.
 };
 
 /**
@@ -713,6 +709,98 @@ public:
 	const ImageData *GetRampPlatformSprite(int i) const
 	{
 		return this->platform.ramp[i];
+	}
+
+	/**
+	 * Get a litter sprite.
+	 * @param ramp Ramp direction of the path (#INVALID_EDGE for flat paths).
+	 * @param index Sprite index.
+	 * @return The sprite.
+	 */
+	const ImageData *GetLitterSprite(TileEdge ramp, int index) const
+	{
+		return (ramp == INVALID_EDGE ? this->path_decoration.flat_litter : this->path_decoration.ramp_litter[ramp])[index];
+	}
+
+	/**
+	 * Get a demolished bench sprite.
+	 * @param orient View orientation.
+	 * @return The sprite.
+	 */
+	const ImageData *GetDemolishedBenchSprite(uint8 orient) const
+	{
+		return this->path_decoration.demolished_bench[orient];
+	}
+
+	/**
+	 * Get a demolished bin sprite.
+	 * @param orient View orientation.
+	 * @return The sprite.
+	 */
+	const ImageData *GetDemolishedBinSprite(uint8 orient) const
+	{
+		return this->path_decoration.demolished_bin[orient];
+	}
+
+	/**
+	 * Get a demolished lamp sprite.
+	 * @param orient View orientation.
+	 * @return The sprite.
+	 */
+	const ImageData *GetDemolishedLampSprite(uint8 orient) const
+	{
+		return this->path_decoration.demolished_lamp[orient];
+	}
+
+	/**
+	 * Get a normal bench sprite.
+	 * @param orient View orientation.
+	 * @return The sprite.
+	 */
+	const ImageData *GetNormalBenchSprite(uint8 orient) const
+	{
+		return this->path_decoration.bench[orient];
+	}
+
+	/**
+	 * Get a normal bin sprite.
+	 * @param orient View orientation.
+	 * @return The sprite.
+	 */
+	const ImageData *GetNormalBinSprite(uint8 orient) const
+	{
+		return this->path_decoration.litterbin[orient];
+	}
+
+	/**
+	 * Get a normal lamp sprite.
+	 * @param orient View orientation.
+	 * @return The sprite.
+	 */
+	const ImageData *GetNormalLampSprite(uint8 orient) const
+	{
+		return this->path_decoration.lamp_post[orient];
+	}
+
+	/**
+	 * Get an overflowing bin sprite.
+	 * @param orient View orientation.
+	 * @return The sprite.
+	 */
+	const ImageData *GetOverflowBinSprite(uint8 orient) const
+	{
+		return this->path_decoration.overflow_bin[orient];
+	}
+
+	/**
+	 * Get a vomit sprite.
+	 * @param ramp Ramp direction of the path (#INVALID_EDGE for flat paths).
+	 * @param index Sprite index.
+	 * @return The sprite.
+	 */
+	const ImageData *GetVomitSprite(TileEdge ramp, int index) const
+	{
+		return (ramp == INVALID_EDGE ? this->path_decoration.flat_vomit : this->path_decoration.ramp_vomit[ramp])[index];
 	}
 
 	const uint16 size; ///< Width of the tile.
