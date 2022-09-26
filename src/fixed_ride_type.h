@@ -51,7 +51,7 @@ public:
 	const TimedAnimation *animation_starting; ///< Ride graphics when the ride is starting to work
 	const TimedAnimation *animation_working;  ///< Ride graphics when the ride is working
 	const TimedAnimation *animation_stopping; ///< Ride graphics when the ride is stopping to work
-	ImageData* previews[4];                   ///< Previews for the ride construction window.
+	const ImageData* previews[4];             ///< Previews for the ride construction window.
 };
 
 /** Fixed rides. */

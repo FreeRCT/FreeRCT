@@ -416,10 +416,10 @@ std::unique_ptr<uint8[]> ImageData::GetRecoloured(GradientShift shift, const Rec
  * @param factor Factor by which to scale.
  * @return The scaled instance.
  */
-ImageData *ImageData::Scale(float factor) const
+const ImageData *ImageData::Scale(float factor) const
 {
 	constexpr float EPSILON = 0.01;  ///< Threshold for float comparisons.
-	if (fabs(factor - 1.0f) < EPSILON) return const_cast<ImageData*>(this);
+	if (fabs(factor - 1.0f) < EPSILON) return this;
 
 	ImageData *cached = _image_variants.GetScaled(this, factor);
 	if (cached != nullptr) return cached;

@@ -168,7 +168,7 @@ public:
 
 	void Load(RcdFileReader *rcd_file, const ImageMap &sprites);
 
-	ImageData* GetSprite(uint16 x, uint16 y, uint8 orientation, int zoom) const;
+	const ImageData* GetSprite(uint16 x, uint16 y, uint8 orientation, int zoom) const;
 
 	uint16 width_x;                   ///< The number of voxels in x direction.
 	uint16 width_y;                   ///< The number of voxels in y direction.

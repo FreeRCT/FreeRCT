@@ -33,7 +33,7 @@ public:
 	uint32 GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *recolour = nullptr, GradientShift shift = GS_NORMAL) const;
 	std::unique_ptr<uint8[]> GetRecoloured(GradientShift shift, const Recolouring &recolour) const;
 
-	ImageData *Scale(float factor) const;
+	const ImageData *Scale(float factor) const;
 
 	/**
 	 * Is the sprite just a single pixel?

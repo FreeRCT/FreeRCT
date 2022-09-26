@@ -362,7 +362,7 @@ void FrameSet::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
  * @param zoom Zoom scale index of the image. If the frame set does not contain images at this scale, another existing scale will be resized to create it.
  * @return The image.
  */
-ImageData* FrameSet::GetSprite(uint16 x, uint16 y, uint8 orientation, int zoom) const
+const ImageData* FrameSet::GetSprite(uint16 x, uint16 y, uint8 orientation, int zoom) const
 {
 	assert(x < this->width_x && y < this->width_y);
 	const int desired_tile_w = TileWidth(zoom);
