@@ -497,8 +497,8 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	SmallRideInstance sri = (voxel == nullptr) ? SRI_FREE : voxel->GetInstance();
 	uint16 instance_data = (voxel == nullptr) ? 0 : voxel->GetInstanceData();
 	bool highlight = false;
-	int16 gui_sprite = -1;
-	if (this->selector != nullptr) highlight = this->selector->GetRide(voxel, voxel_pos, &sri, &instance_data, &gui_sprite);
+	const ImageData *background_sprite = nullptr;
+	if (this->selector != nullptr) highlight = this->selector->GetRide(voxel, voxel_pos, &sri, &instance_data, &background_sprite);
 	if (sri == SRI_PATH && HasValidPath(instance_data)) { // A path (and not something reserved above it).
 		platform_shape = _path_rotation[GetImplodedPathSlope(instance_data)][this->orient];
 
@@ -531,9 +531,9 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			this->draw_images.insert(dd[i]);
 		}
 	}
-	if (gui_sprite >= 0) {
+	if (background_sprite != nullptr) {
 		DrawData dd;
-		dd.Set(slice, voxel_pos.z, SO_CURSOR, _sprite_manager.GetTableSprite(gui_sprite), north_point);
+		dd.Set(slice, voxel_pos.z, SO_CURSOR, background_sprite, north_point);
 		this->draw_images.insert(dd);
 	}
 

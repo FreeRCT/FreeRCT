@@ -698,7 +698,7 @@ void CoasterInstanceWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &
 		this->entrance_exit_placement.SetPosition(location.x, location.y);
 		this->entrance_exit_placement.AddVoxel(location);
 		this->entrance_exit_placement.SetupRideInfoSpace();
-		this->entrance_exit_placement.SetRideData(location, static_cast<SmallRideInstance>(this->ci->GetIndex()), SHF_ENTRANCE_BITS, -1);
+		this->entrance_exit_placement.SetRideData(location, static_cast<SmallRideInstance>(this->ci->GetIndex()), SHF_ENTRANCE_BITS, nullptr);
 		placed = true;
 		break;
 	}
@@ -821,10 +821,12 @@ void TrackPieceMouseMode::UpdateTileData()
 	for (const auto &tv : this->pos_piece.piece->track_voxels) this->AddVoxel(this->pos_piece.base_voxel + tv->dxyz);
 
 	this->SetupRideInfoSpace();
+	const Viewport *vp = _window_manager.GetViewport();
 	for (const auto &tv : this->pos_piece.piece->track_voxels) {
 		XYZPoint16 p(this->pos_piece.base_voxel + tv->dxyz);
 		this->SetRideData(p, this->ci->GetRideNumber(), this->ci->GetInstanceData(tv.get()), (tv->dxyz.x == 0 && tv->dxyz.y == 0 && tv->dxyz.z == 0) ?
-				SPR_GUI_BUILDARROW_START + (4 + this->pos_piece.piece->entry_connect - _window_manager.GetViewport()->orientation) % 4 : -1);
+				_sprite_manager.GetSprite(vp->zoom, &SpriteStorage::GetArrowSprite,
+						this->pos_piece.piece->entry_connect, vp->orientation) : nullptr);
 	}
 }
 

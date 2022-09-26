@@ -1763,9 +1763,8 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 	if (number >= SPR_GUI_BANK_START   && number < SPR_GUI_BANK_END) return _gui_sprites.bank_select[number - SPR_GUI_BANK_START];
 	if (number >= SPR_GUI_TOOLBAR_BEGIN && number < SPR_GUI_TOOLBAR_END) return _gui_sprites.toolbar_images[number - SPR_GUI_TOOLBAR_BEGIN];
 
-	// NOCOM build arrows don't belong here
 	if (number >= SPR_GUI_BUILDARROW_START && number < SPR_GUI_BUILDARROW_END) {
-		return this->store[DEFAULT_ZOOM /* NOCOM */].GetArrowSprite(number - SPR_GUI_BUILDARROW_START, VOR_NORTH);
+		return this->store[DEFAULT_ZOOM].GetArrowSprite(number - SPR_GUI_BUILDARROW_START, VOR_NORTH);
 	}
 
 	switch (number) {
