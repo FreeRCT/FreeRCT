@@ -426,12 +426,12 @@ ImageData *ImageData::Scale(float factor) const
 
 	ImageData *img = new ImageData;
 	img->is_8bpp = this->is_8bpp;
-	img->width = round(this->width * factor);
-	img->height = round(this->height * factor);
-	img->xoffset = round(this->xoffset * factor);
-	img->yoffset = round(this->yoffset * factor);
+	img->width = roundf(this->width * factor);
+	img->height = roundf(this->height * factor);
+	img->xoffset = roundf(this->xoffset * factor);
+	img->yoffset = roundf(this->yoffset * factor);
 
-	const int nrecol = (img->is_8bpp ? 1 : 2);
+	const size_t nrecol = (img->is_8bpp ? 1 : 2);
 	img->recol.reset(new uint8[img->width * img->height * nrecol]);
 	img->rgba.reset(new uint8[img->width * img->height * 4]);
 
@@ -447,7 +447,7 @@ ImageData *ImageData::Scale(float factor) const
 
 				newptr = &img->recol[nrecol * (y * img->width + x)];
 				oldptr = &this->recol[nrecol * (oldy * this->width + oldx)];
-				for (int i = 0; i < nrecol; ++i) *(newptr++) = *(oldptr++);
+				for (size_t i = 0; i < nrecol; ++i) *(newptr++) = *(oldptr++);
 			}
 		}
 	} else {
@@ -471,7 +471,7 @@ ImageData *ImageData::Scale(float factor) const
 
 				newptr = &img->recol[nrecol * (y * img->width + x)];
 				const uint8 *oldptr = &this->recol[nrecol * (oldy1 * this->width + oldx1)];
-				for (int i = 0; i < nrecol; ++i) *(newptr++) = *(oldptr++);
+				for (size_t i = 0; i < nrecol; ++i) *(newptr++) = *(oldptr++);
 			}
 		}
 	}

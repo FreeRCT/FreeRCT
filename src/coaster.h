@@ -10,6 +10,7 @@
 #ifndef COASTER_H
 #define COASTER_H
 
+#include <array>
 #include <map>
 #include <vector>
 #include "map.h"
