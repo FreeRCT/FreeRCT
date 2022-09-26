@@ -432,7 +432,7 @@ ImageData *ImageData::Scale(float factor) const
 	img->yoffset = roundf(this->yoffset * factor);
 
 	const size_t nrecol = (img->is_8bpp ? 1 : 2);
-	img->recol.reset(new uint8[img->width * img->height * nrecol]);
+	img->recol.reset(new uint8[nrecol * img->width * img->height]);
 	img->rgba.reset(new uint8[img->width * img->height * 4]);
 
 	if (factor > 1.f) {
