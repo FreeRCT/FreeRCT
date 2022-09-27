@@ -1,5 +1,5 @@
 :Author: The FreeRCT Team
-:Version: 2022-09-16
+:Version: 2022-09-27
 
 .. contents::
    :depth: 3
@@ -564,7 +564,7 @@ ANSP
 ~~~~
 Attributes:
 
-- ``tile_width`` - Zoom scale of the sprites. Supported is only 64.
+- ``tile_width`` - Zoom scale of the sprites.
 - ``person_type`` - The person type.
 - ``anim_type`` - The type of the animation.
 
@@ -583,7 +583,7 @@ BDIR
 ~~~~
 Attributes:
 
-- ``tile_width`` - Zoom scale of the sprites. Supported is only 64.
+- ``tile_width`` - Zoom scale of the sprites.
 - ``ne, se, sw, nw`` - Sprites for all four orientations.
 
 CARS
@@ -625,7 +625,7 @@ FENC
 ~~~~
 Attributes:
 
-- ``width`` - Zoom scale of the sprites. Supported is only 64.
+- ``width`` - Zoom scale of the sprites.
 - ``type`` - Type of the fence.
 - ``ne_hor, se_hor, sw_hor, nw_hor`` - Horizontal fence graphics of the four edges.
 - ``ne_n, se_e, sw_s, nw_w, ne_e, se_s, sw_w, nw_n`` - Fence graphics of the four edges with one side raised.
@@ -699,7 +699,7 @@ FUND
 ~~~~
 Attributes:
 
-- ``tile_width, z_height`` - Zoom scale of the sprites. Supported are only 64×16.
+- ``tile_width, z_height`` - Zoom scale of the sprites.
 - ``found_type`` - Type of the foundation.
 - ``se_e0`` - Southeast foundation with visible east wall sprite.
 - ``se_0s`` - Southeast foundation with visible south wall sprite.
@@ -873,7 +873,7 @@ PATH
 ~~~~
 Attributes:
 
-- ``tile_width, z_height`` - Zoom scale of the sprites. Supported are only 64×16.
+- ``tile_width, z_height`` - Zoom scale of the sprites.
 - ``path_type`` - Path type.
 - ``empty`` - Unconnected path sprite.
 - ``ne`` - Northeast connected path sprite.
@@ -931,7 +931,7 @@ PDEC
 ~~~~
 Attributes:
 
-- ``tile_width`` - Zoom scale of the sprites. Supported is only 64.
+- ``tile_width`` - Zoom scale of the sprites.
 - ``lamp_post_ne, lamp_post_se, lamp_post_sw, lamp_post_nw`` - Lamp post sprites for all four orientations.
 - ``demolished_post_ne, demolished_post_se, demolished_post_sw, demolished_post_nw`` - Demolished lamp post sprites for all four orientations.
 - ``litter_bin_ne, litter_bin_se, litter_bin_sw, litter_bin_nw`` - Litter bin sprites for all four orientations.
@@ -946,7 +946,7 @@ PLAT
 ~~~~
 Attributes:
 
-- ``tile_width, z_height`` - Zoom scale of the sprites. Supported are only 64×16.
+- ``tile_width, z_height`` - Zoom scale of the sprites.
 - ``platform_type`` - Type of the platform.
 - ``ns`` - North-south platform sprite.
 - ``ew`` - East-west platform sprite.
@@ -1039,7 +1039,7 @@ SUPP
 ~~~~
 Attributes:
 
-- ``tile_width, z_height`` - Zoom scale of the sprites. Supported are only 64×16.
+- ``tile_width, z_height`` - Zoom scale of the sprites.
 - ``support_type`` - Supports type.
 - ``s_ns`` - Single-height for flat terrain north-south support sprite.
 - ``s_ew`` - Single-height for flat terrain east-west support sprite.
@@ -1070,7 +1070,7 @@ SURF
 ~~~~
 Attributes:
 
-- ``tile_width, z_height`` - Zoom scale of the sprites. Supported are only 64×16.
+- ``tile_width, z_height`` - Zoom scale of the sprites.
 - ``surf_type`` - Type of the surface.
 - ``n#`` - Flat surface sprite.
 - ``n#n`` - Raised north corner surface sprite.

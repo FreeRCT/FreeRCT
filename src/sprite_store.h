@@ -107,18 +107,18 @@ public:
 	static constexpr int LITTER_VOMIT_COUNT = 4;  ///< Number of different litter or vomit sprites.
 	PathDecoration();
 
-	ImageData *litterbin[4];        ///< Normal (non-demolished, non-full) litter bins.
-	ImageData *overflow_bin[4];     ///< Overflowing (non-demolished) litter bins.
-	ImageData *demolished_bin[4];   ///< Demolished litter bins.
-	ImageData *lamp_post[4];        ///< Lamp posts (non-demolished).
-	ImageData *demolished_lamp[4];  ///< Demolished lamp posts.
-	ImageData *bench[4];            ///< Normal (non-demolished) benches.
-	ImageData *demolished_bench[4]; ///< Demolished benches.
+	ImageData *litterbin       [EDGE_COUNT];  ///< Normal (non-demolished, non-full) litter bins.
+	ImageData *overflow_bin    [EDGE_COUNT];  ///< Overflowing (non-demolished) litter bins.
+	ImageData *demolished_bin  [EDGE_COUNT];  ///< Demolished litter bins.
+	ImageData *lamp_post       [EDGE_COUNT];  ///< Lamp posts (non-demolished).
+	ImageData *demolished_lamp [EDGE_COUNT];  ///< Demolished lamp posts.
+	ImageData *bench           [EDGE_COUNT];  ///< Normal (non-demolished) benches.
+	ImageData *demolished_bench[EDGE_COUNT];  ///< Demolished benches.
 
-	ImageData *flat_litter[4];    ///< 4 types of litter at flat path tile (may be \c nullptr).
-	ImageData *ramp_litter[4][4]; ///< For each ramp, 4 types of litter (may be \c nullptr).
-	ImageData *flat_vomit[4];     ///< 4 types of vomit at flat path tile (may be \c nullptr).
-	ImageData *ramp_vomit[4][4];  ///< For each ramp, 4 types of vomit at flat path tile (may be \c nullptr).
+	ImageData *flat_litter            [LITTER_VOMIT_COUNT];  ///< 4 types of litter at flat path tile (may be \c nullptr).
+	ImageData *ramp_litter[EDGE_COUNT][LITTER_VOMIT_COUNT];  ///< For each ramp, 4 types of litter (may be \c nullptr).
+	ImageData *flat_vomit             [LITTER_VOMIT_COUNT];  ///< 4 types of vomit at flat path tile (may be \c nullptr).
+	ImageData *ramp_vomit [EDGE_COUNT][LITTER_VOMIT_COUNT];  ///< For each ramp, 4 types of vomit at flat path tile (may be \c nullptr).
 };
 
 /**
@@ -851,11 +851,11 @@ public:
 	{
 		for (int z = zoom; z < ZOOM_SCALES_COUNT; ++z) {
 			const ImageData *img = (this->store.at(z).*f)(args...);
-			if (img != nullptr) return img->Scale(static_cast<float>(TileWidth(zoom)) / TileWidth(z));
+			if (img != nullptr) return img->Scale(img->width * TileWidth(zoom) / TileWidth(z));
 		}
 		for (int z = zoom - 1; z >= 0; --z) {
 			const ImageData *img = (this->store.at(z).*f)(args...);
-			if (img != nullptr) return img->Scale(static_cast<float>(TileWidth(zoom)) / TileWidth(z));
+			if (img != nullptr) return img->Scale(img->width * TileWidth(zoom) / TileWidth(z));
 		}
 		return nullptr;
 	}

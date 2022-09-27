@@ -111,8 +111,8 @@ enum PathType {
 
 /** Path status. */
 enum PathStatus {
-	PAS_NORMAL_PATH,  ///< Path to walk on.
-	PAS_QUEUE_PATH,   ///< Path to queue on.
+	PAS_NORMAL_PATH, ///< %Path to walk on.
+	PAS_QUEUE_PATH,  ///< %Path to queue on.
 
 	PAS_COUNT,       ///< Number of valid path states.
 	PAS_UNUSED,      ///< Path is not loaded.

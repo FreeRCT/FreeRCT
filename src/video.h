@@ -13,7 +13,7 @@
 #include "stdafx.h"
 #include "geometry.h"
 #include "palette.h"
-#include "time.h"
+#include "time_func.h"
 #include "window_constants.h"
 
 #include <map>

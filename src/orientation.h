@@ -97,20 +97,31 @@ XYZPoint16 UnorientatedOffset(const uint8 orientation, const int x, const int y)
 
 /** Information about the graphics sizes at a zoom scale. */
 struct ZoomScale {
+	/**
+	 * Constructor.
+	 * @param h Tile height.
+	 * @note Tile width is computed automatically.
+	 */
+	constexpr ZoomScale(int h) : tile_width(4 * h), tile_height(h)
+	{
+	}
+
 	int tile_width;   ///< Width  of a tile in pixels.
 	int tile_height;  ///< Height of a tile in pixels.
 };
 
 /** Available zoom scales, sorted from smallest to biggest. */
 constexpr ZoomScale _zoom_scales[] = {
-	{ 16,  4},
-	{ 32,  8},
-	{ 64, 16},
-	{128, 32},
-	{256, 64},
+	{ 4},
+	{ 8},
+	{16},
+	{24},
+	{32},
+	{48},
+	{64},
 };
 constexpr int ZOOM_SCALES_COUNT = lengthof(_zoom_scales);  ///< Number of available zoom scales.
-constexpr int DEFAULT_ZOOM = ZOOM_SCALES_COUNT / 2;        ///< Default zoom scale index.
+constexpr int DEFAULT_ZOOM = 2;                            ///< Default zoom scale index.
 
 int GetZoomScaleByWidth(int w);
 int GetZoomScaleByHeight(int h);

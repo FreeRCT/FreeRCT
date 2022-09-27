@@ -13,7 +13,7 @@
 #include <map>
 #include <memory>
 #include "palette.h"
-#include "time.h"
+#include "time_func.h"
 
 static const uint32 INVALID_JUMP = UINT32_MAX; ///< Invalid jump destination in image data.
 
@@ -33,7 +33,7 @@ public:
 	uint32 GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *recolour = nullptr, GradientShift shift = GS_NORMAL) const;
 	std::unique_ptr<uint8[]> GetRecoloured(GradientShift shift, const Recolouring &recolour) const;
 
-	const ImageData *Scale(float factor) const;
+	const ImageData *Scale(uint16 desired_width) const;
 
 	/**
 	 * Is the sprite just a single pixel?
@@ -59,10 +59,10 @@ class ImageVariants {
 public:
 	ImageVariants();
 
-	ImageData *GetScaled(const ImageData *img, float scale);
+	ImageData *GetScaled(const ImageData *img, uint16 width);
 
 	void Insert(const ImageData *img, RecolourData key, uint8 *rgba);
-	void Insert(const ImageData *img, float scale, ImageData *scaled);
+	void Insert(const ImageData *img, ImageData *scaled);
 	void DropStale();
 
 	/** Frequent maintenance tasks. */
@@ -76,9 +76,9 @@ private:
 	struct Variant {
 		explicit Variant(const ImageData *img);
 
-		const ImageData *sprite;                                           ///< The source image.
-		std::vector<std::pair<float, std::unique_ptr<ImageData>>> scaled;  ///< Scaled copies of this image and their scaling factor.
-		Realtime last_accessed;                                            ///< When this variant was last fetched from the cache.
+		const ImageData *sprite;                         ///< The source image.
+		std::vector<std::unique_ptr<ImageData>> scaled;  ///< Scaled copies of this image and their scaling factor.
+		Realtime last_accessed;                          ///< When this variant was last fetched from the cache.
 
 		/**
 		 * Get the number of data entries in this Variant.

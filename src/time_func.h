@@ -5,7 +5,7 @@
  * See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/** @file time.h Functions for measuring time. */
+/** @file time_func.h Functions for measuring time. */
 
 #ifndef TIME_H
 #define TIME_H

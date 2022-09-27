@@ -33,18 +33,17 @@ ImageVariants::Variant::Variant(const ImageData *img) : sprite(img), last_access
 /**
  * Get the scaled instance of an image, if present.
  * @param img Source image.
- * @param scale Scale to apply.
+ * @param width Width of the scaled image.
  * @return The image's RGBA data or \c nullptr.
  */
-ImageData *ImageVariants::GetScaled(const ImageData *img, float scale)
+ImageData *ImageVariants::GetScaled(const ImageData *img, uint16 width)
 {
-	constexpr float EPSILON = 0.01;  ///< Threshold for float comparisons.
 	for (Variant &v : this->cache) {
 		if (v.sprite == img) {
-			for (const auto &pair : v.scaled) {
-				if (fabs(scale - pair.first) < EPSILON) {
+			for (const auto &image : v.scaled) {
+				if (image->width == width) {
 					v.last_accessed = Time();
-					return pair.second.get();
+					return image.get();
 				}
 			}
 			return nullptr;
@@ -59,17 +58,17 @@ ImageData *ImageVariants::GetScaled(const ImageData *img, float scale)
  * @param scale Scaling factor.
  * @param scaled Scaled image. Takes ownership.
  */
-void ImageVariants::Insert(const ImageData *img, float scale, ImageData *scaled)
+void ImageVariants::Insert(const ImageData *img, ImageData *scaled)
 {
 	for (Variant &v : this->cache) {
 		if (v.sprite == img) {
-			v.scaled.emplace_back(scale, scaled);
+			v.scaled.emplace_back(scaled);
 			v.last_accessed = Time();
 			return;
 		}
 	}
 	this->cache.emplace_back(img);
-	this->cache.back().scaled.emplace_back(scale, scaled);
+	this->cache.back().scaled.emplace_back(scaled);
 }
 
 /** Delete images from the cache that haven't been accessed for some time. */
@@ -416,26 +415,25 @@ std::unique_ptr<uint8[]> ImageData::GetRecoloured(GradientShift shift, const Rec
  * @param factor Factor by which to scale.
  * @return The scaled instance.
  */
-const ImageData *ImageData::Scale(float factor) const
+const ImageData *ImageData::Scale(uint16 desired_width) const
 {
-	constexpr float EPSILON = 0.01;  ///< Threshold for float comparisons.
-	if (fabs(factor - 1.0f) < EPSILON) return this;
+	if (desired_width == this->width) return this;
 
-	ImageData *cached = _image_variants.GetScaled(this, factor);
+	ImageData *cached = _image_variants.GetScaled(this, desired_width);
 	if (cached != nullptr) return cached;
 
 	ImageData *img = new ImageData;
 	img->is_8bpp = this->is_8bpp;
-	img->width = roundf(this->width * factor);
-	img->height = roundf(this->height * factor);
-	img->xoffset = roundf(this->xoffset * factor);
-	img->yoffset = roundf(this->yoffset * factor);
+	img->width   = desired_width;
+	img->height  = this->height  * desired_width / this->width;
+	img->xoffset = this->xoffset * desired_width / this->width;
+	img->yoffset = this->yoffset * desired_width / this->width;
 
 	const size_t nrecol = (img->is_8bpp ? 1 : 2);
 	img->recol.reset(new uint8[nrecol * img->width * img->height]);
 	img->rgba.reset(new uint8[img->width * img->height * 4]);
 
-	if (factor > 1.f) {
+	if (desired_width > this->width) {
 		/* Upscaling. Each old pixel is copied to multiple new pixels. */
 		for (uint16 x = 0; x < img->width; ++x) {
 			for (uint16 y = 0; y < img->height; ++y) {
@@ -476,7 +474,7 @@ const ImageData *ImageData::Scale(float factor) const
 		}
 	}
 
-	_image_variants.Insert(this, factor, img);
+	_image_variants.Insert(this, img);
 	return img;
 }
 

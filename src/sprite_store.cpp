@@ -385,7 +385,7 @@ const ImageData* FrameSet::GetSprite(uint16 x, uint16 y, uint8 orientation, int 
 	assert(index >= 0);
 	ImageData *img_to_scale = this->sprites[orientation][x * this->width_y * this->scales + y * this->scales + index];
 	if (img_to_scale == nullptr) return nullptr;
-	return img_to_scale->Scale(static_cast<float>(desired_tile_w) / this->width[index]);
+	return img_to_scale->Scale(img_to_scale->width * desired_tile_w / this->width[index]);
 }
 
 TimedAnimation::TimedAnimation() : frames(0)

@@ -71,7 +71,7 @@ const ImageData *CarType::GetCar(uint pitch, uint roll, uint yaw, uint16 tile_wi
 	assert(index >= 0);
 	ImageData *img_to_scale = this->cars[index][array_index];
 	if (img_to_scale == nullptr) return nullptr;
-	return img_to_scale->Scale(static_cast<float>(tile_width) / this->tile_width[index]);
+	return img_to_scale->Scale(img_to_scale->width * tile_width / this->tile_width[index]);
 }
 
 /**
@@ -104,7 +104,7 @@ const ImageData *CarType::GetGuestOverlay(uint pitch, uint roll, uint yaw, uint1
 	assert(index >= 0);
 	ImageData *img_to_scale = this->guest_overlays[index][array_index];
 	if (img_to_scale == nullptr) return nullptr;
-	return img_to_scale->Scale(static_cast<float>(tile_width) / this->tile_width[index]);
+	return img_to_scale->Scale(img_to_scale->width * tile_width / this->tile_width[index]);
 }
 
 /**
