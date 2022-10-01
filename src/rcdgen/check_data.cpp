@@ -11,7 +11,9 @@
 #include <map>
 #include <vector>
 #include <memory>
+#include <cstdlib>
 #include <ctime>
+#include <sstream>
 #include "ast.h"
 #include "nodes.h"
 #include "string_storage.h"
@@ -2810,6 +2812,15 @@ static std::shared_ptr<INFOBlock> ConvertINFONode(std::shared_ptr<NodeGroup> ng)
 
 	char buffer[32];
 	time_t cur_time = time(nullptr);
+	const char *source_date_epoch = getenv("SOURCE_DATE_EPOCH");
+	if (source_date_epoch != nullptr) {
+		std::istringstream iss(source_date_epoch);
+		iss >> cur_time;
+		if (iss.fail() || !iss.eof()) {
+			fprintf(stderr, "Error: Cannot parse SOURCE_DATE_EPOCH as integer: %s\n", source_date_epoch);
+			cur_time = time(nullptr);
+		}
+	}
 	struct tm *now = gmtime(&cur_time);
 	strftime(buffer, lengthof(buffer), "%Y%m%dT%H%M%S", now);
 	blk->build = buffer;
