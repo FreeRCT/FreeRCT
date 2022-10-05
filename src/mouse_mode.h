@@ -54,10 +54,11 @@ public:
 	 * @param voxel_pos Position of the voxel in the world.
 	 * @param [inout] sri Ride instance that should be rendered.
 	 * @param [inout] instance_data Instance data that should be rendered.
-	 * @param [inout] gui_sprite Gui sprite that should be rendered (\c -1 for none).
+	 * @param [inout] sprite Background sprite that should be rendered, if any.
 	 * @return Whether to highlight returned ride.
 	 */
-	virtual bool GetRide([[maybe_unused]] const Voxel *voxel, [[maybe_unused]] const XYZPoint16 &voxel_pos, [[maybe_unused]] SmallRideInstance *sri, [[maybe_unused]] uint16 *instance_data, [[maybe_unused]] int16 *gui_sprite)
+	virtual bool GetRide([[maybe_unused]] const Voxel *voxel, [[maybe_unused]] const XYZPoint16 &voxel_pos,
+			[[maybe_unused]] SmallRideInstance *sri, [[maybe_unused]] uint16 *instance_data, [[maybe_unused]] const ImageData **sprite)
 	{
 		return false;
 	}
@@ -237,14 +238,14 @@ public:
 
 /** Ride information of a voxel. */
 struct VoxelRideData {
-	SmallRideInstance sri; ///< Instance using the voxel.
-	uint16 instance_data;  ///< Data of the instance.
-	int16 gui_sprite;      ///< Gui sprite to render.
+	SmallRideInstance sri;    ///< Instance using the voxel.
+	uint16 instance_data;     ///< Data of the instance.
+	const ImageData *sprite;  ///< Background sprite to render.
 
 	/** Initialization of the voxel ride data. */
 	inline void Setup() {
 		this->sri = SRI_FREE;
-		this->gui_sprite = -1;
+		this->sprite = nullptr;
 	}
 };
 
@@ -402,7 +403,7 @@ public:
 	{
 	}
 
-	bool GetRide([[maybe_unused]] const Voxel *voxel, const XYZPoint16 &voxel_pos, SmallRideInstance *sri, uint16 *instance_data, int16 *gui_sprite) override
+	bool GetRide([[maybe_unused]] const Voxel *voxel, const XYZPoint16 &voxel_pos, SmallRideInstance *sri, uint16 *instance_data, const ImageData **sprite) override
 	{
 		uint32 index = this->GetTileIndex(voxel_pos.x, voxel_pos.y);
 		if (index == INVALID_TILE_INDEX) return false;
@@ -413,7 +414,7 @@ public:
 		const VoxelRideData &vrd = td.ride_info[voxel_pos.z - td.lowest];
 		*sri = vrd.sri;
 		*instance_data = vrd.instance_data;
-		*gui_sprite = vrd.gui_sprite;
+		*sprite = vrd.sprite;
 		return true;
 	}
 
@@ -422,16 +423,16 @@ public:
 	 * @param pos World position.
 	 * @param sri Ride instance number.
 	 * @param instance_data Instance data.
-	 * @param gui_sprite Gui sprite.
+	 * @param sprite Backgroud sprite, if any.
 	 */
-	void SetRideData(const XYZPoint16 &pos, SmallRideInstance sri, uint16 instance_data, int16 gui_sprite)
+	void SetRideData(const XYZPoint16 &pos, SmallRideInstance sri, uint16 instance_data, const ImageData *sprite)
 	{
 		VoxelTileData<VoxelRideData> &td = this->GetTileData(pos);
 		if (!td.cursor_enabled) return;
 		VoxelRideData &vrd = td.ride_info[pos.z - td.lowest];
 		vrd.sri = sri;
 		vrd.instance_data = instance_data;
-		vrd.gui_sprite = gui_sprite;
+		vrd.sprite = sprite;
 	}
 };
 

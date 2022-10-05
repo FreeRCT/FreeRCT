@@ -1,0 +1,62 @@
+// Alternative entrance
+RIEE {
+	internal_name: "alternative_entrance";
+	type: "entrance";
+
+	recolour {
+		original: blue;
+		replace: bitset(grey, green_brown, orange_brown, yellow, dark_red, dark_green, light_green, green, pink_brown, dark_purple, blue, jade_green, purple, red, orange, sea_green, pink, brown);
+	}
+	texts: strings { key: "entrance-alt"; }
+
+	fg: FSET {
+		tile_width: 64;
+		width_x: 1;
+		width_y: 1;
+		ne_0_0: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/entrance_alt/64_0001.png";
+			recolour: "../sprites/ride_entrance_exit/entrance_alt/64m_0001.png";
+		}
+		se_0_0: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/entrance_alt/64_0002.png";
+			recolour: "../sprites/ride_entrance_exit/entrance_alt/64m_0002.png";
+		}
+		sw_0_0: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/entrance_alt/64_0003.png";
+			recolour: "../sprites/ride_entrance_exit/entrance_alt/64m_0003.png";
+		}
+		nw_0_0: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/entrance_alt/64_0004.png";
+			recolour: "../sprites/ride_entrance_exit/entrance_alt/64m_0004.png";
+		}
+	}
+	bg: FSET {
+		tile_width: 64;
+		width_x: 1;
+		width_y: 1;
+		ne_0_0: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/entrance_alt/64_0005.png";
+			recolour: "../sprites/ride_entrance_exit/entrance_alt/64m_0005.png";
+		}
+		se_0_0: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/entrance_alt/64_0006.png";
+			recolour: "../sprites/ride_entrance_exit/entrance_alt/64m_0006.png";
+		}
+		sw_0_0: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/entrance_alt/64_0007.png";
+			recolour: "../sprites/ride_entrance_exit/entrance_alt/64m_0007.png";
+		}
+		nw_0_0: sprite {
+			x_base: 0; y_base: 0; x_offset: -32; y_offset: 32-71; width: 64; height: 71;
+			file: "../sprites/ride_entrance_exit/entrance_alt/64_0008.png";
+			recolour: "../sprites/ride_entrance_exit/entrance_alt/64m_0008.png";
+		}
+	}
+}

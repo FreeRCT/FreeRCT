@@ -593,10 +593,12 @@ public:
 	virtual ~FSETBlock() = default;
 
 	int Write(FileWriter *fw) override;
+	int Write(FileWriter *fw, int rot);
 
-	int tile_width; ///< Zoom-width of a tile of the surface.
 	int width_x;    ///< The number of voxels in x direction.
 	int width_y;    ///< The number of voxels in y direction.
+	int scales;     ///< Number of zoom scales.
+	std::unique_ptr<uint16[]> tile_width;                     ///< Width of a tile for each scale.
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> ne_views; ///< Unrotated views.
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> se_views; ///< Rotated 90 degrees.
 	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> sw_views; ///< Rotated 180 degrees.
@@ -630,12 +632,9 @@ public:
 
 	std::string internal_name;                ///< The type's internal name.
 	bool is_entrance;                         ///< True if this is an entrance, false if it's an exit.
-	int tile_width;                           ///< Zoom-width of a tile of the surface.
 	std::shared_ptr<StringBundle> texts;      ///< The entrance/exit's strings.
-	std::shared_ptr<SpriteBlock> ne_views[2]; ///< Unrotated view.
-	std::shared_ptr<SpriteBlock> se_views[2]; ///< Rotated 90 degrees.
-	std::shared_ptr<SpriteBlock> sw_views[2]; ///< Rotated 180 degrees.
-	std::shared_ptr<SpriteBlock> nw_views[2]; ///< Rotated 270 degrees.
+	std::shared_ptr<FSETBlock> bg;            ///< Background sprites.
+	std::shared_ptr<FSETBlock> fg;            ///< Foreground sprites.
 	Recolouring recol[3];                     ///< Recolour definitions of the entrance/exit.
 };
 
@@ -992,9 +991,8 @@ public:
 	int dy;    ///< Relative Y position of the voxel.
 	int dz;    ///< Relative Z position of the voxel.
 	int flags; ///< Flags of the voxel (space corners, platform direction).
-
-	std::array<std::shared_ptr<SpriteBlock>, 4> back;  ///< Back coaster sprites.
-	std::array<std::shared_ptr<SpriteBlock>, 4> front; ///< Front coaster sprites.
+	std::shared_ptr<FSETBlock> bg;            ///< Background sprites.
+	std::shared_ptr<FSETBlock> fg;            ///< Foreground sprites.
 };
 
 /** Class for storing a 'connection' between track pieces. */
@@ -1081,14 +1079,14 @@ public:
 
 	int Write(FileWriter *fw) override;
 
-	int tile_width;     ///< Zoom-width of a tile of the surface.
-	int z_height;       ///< Change in Z height (in pixels) when going up or down a tile level.
+	int scales;                            ///< Number of zoom scales.
+	std::unique_ptr<uint16[]> tile_width;  ///< Width of a tile for each scale.
 	int length;         ///< Length of the car.
 	int inter_length;   ///< Length between two cars.
 	int num_passengers; ///< Number of passengers in a car.
 	int num_entrances;  ///< Number of entrances to/from a car.
-	std::array<std::shared_ptr<SpriteBlock>, 16*16*16> sprites;      ///< Car sprites.
-	std::unique_ptr<std::shared_ptr<SpriteBlock>[]> guest_overlays;  ///< Guest overlay sprites.
+	std::unique_ptr<std::array<std::shared_ptr<SpriteBlock>, 16*16*16>[]> sprites;      ///< Car sprites.
+	std::unique_ptr<std::unique_ptr<std::shared_ptr<SpriteBlock>[]>[]> guest_overlays;  ///< Guest overlay sprites.
 	uint64 nr_guest_overlays;                                        ///< Number of guest overlay sprites.
 	Recolouring recol[3];                                            ///< Recolour definitions of the car.
 };
@@ -1109,16 +1107,9 @@ public:
 
 	int Write(FileWriter *fw) override;
 
-	int tile_width; ///< Zoom-width of a tile of the surface.
+	std::shared_ptr<FSETBlock> bg;            ///< Background sprites.
+	std::shared_ptr<FSETBlock> fg;            ///< Foreground sprites.
 	uint8 type;     ///< Type of platform.
-	std::shared_ptr<SpriteBlock> ne_sw_back;  ///< Background platform sprite of the NE to SW direction.
-	std::shared_ptr<SpriteBlock> ne_sw_front; ///< Foreground platform sprite of the NE to SW direction.
-	std::shared_ptr<SpriteBlock> se_nw_back;  ///< Background platform sprite of the SE to NW direction.
-	std::shared_ptr<SpriteBlock> se_nw_front; ///< Foreground platform sprite of the SE to NW direction.
-	std::shared_ptr<SpriteBlock> sw_ne_back;  ///< Background platform sprite of the SW to NE direction.
-	std::shared_ptr<SpriteBlock> sw_ne_front; ///< Foreground platform sprite of the SW to NE direction.
-	std::shared_ptr<SpriteBlock> nw_se_back;  ///< Background platform sprite of the NW to SE direction.
-	std::shared_ptr<SpriteBlock> nw_se_front; ///< Foreground platform sprite of the NW to SE direction.
 };
 
 /** 'FENC' game block. */

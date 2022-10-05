@@ -55,14 +55,13 @@ uint8 RideEntranceExitType::exit_height = 3;
 /**
  * Load a type of ride entrance or exit from the RCD file.
  * @param rcd_file Rcd file being loaded.
- * @param sprites Already loaded sprites.
  * @param texts Already loaded texts.
  */
-void RideEntranceExitType::Load(RcdFileReader *rcd_file, const ImageMap &sprites, const TextMap &texts)
+void RideEntranceExitType::Load(RcdFileReader *rcd_file, const TextMap &texts)
 {
-	rcd_file->CheckVersion(2);
+	rcd_file->CheckVersion(3);
 	int length = rcd_file->size;
-	length -= 51;
+	length -= 25;
 	rcd_file->CheckMinLength(length, 0, "header");
 	this->is_entrance = rcd_file->GetUInt8() > 0;
 
@@ -74,15 +73,11 @@ void RideEntranceExitType::Load(RcdFileReader *rcd_file, const ImageMap &sprites
 	this->recolour_description_2 = base + (ENTRANCE_EXIT_DESCRIPTION_RECOLOUR2 - STR_GENERIC_ENTRANCE_EXIT_START);
 	this->recolour_description_3 = base + (ENTRANCE_EXIT_DESCRIPTION_RECOLOUR3 - STR_GENERIC_ENTRANCE_EXIT_START);
 
-	const int width = rcd_file->GetUInt16();
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 2; j++) {
-			ImageData *view;
-			LoadSpriteFromFile(rcd_file, sprites, &view);
-			if (width != 64) continue; /// \todo Widths other than 64.
-			this->images[i][j] = view;
-		}
-	}
+	this->bg = _sprite_manager.GetFrameSet(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
+	this->fg = _sprite_manager.GetFrameSet(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
+	if (this->bg == nullptr || this->fg == nullptr) rcd_file->Error("Invalid graphics");
+	if (this->bg->width_x != 1 || this->fg->width_x != 1 || this->bg->width_y != 1 || this->fg->width_y != 1) rcd_file->Error("Invalid dimension");
+
 	for (int i = 0; i < 3; i++) {
 		uint32 recolour = rcd_file->GetUInt32();
 		this->recolours.Set(i, RecolourEntry(recolour));
@@ -267,11 +262,12 @@ const RideType *RideInstance::GetRideType() const
 }
 
 /**
- * \fn void RideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const
+ * \fn void RideInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, int zoom, const ImageData *sprites[4], uint8 *platform) const
  * Get the sprites to display for the provided voxel number.
  * @param vox The voxel's absolute coordinates.
  * @param voxel_number Number of the voxel to draw (copied from the world voxel data).
  * @param orient View orientation.
+ * @param zoom Zoom scale index.
  * @param sprites [out] Sprites to draw, from back to front, #SO_PLATFORM_BACK, #SO_RIDE, #SO_RIDE_FRONT, and #SO_PLATFORM_FRONT.
  * @param platform [out] Shape of the support platform, if needed. @see PathSprites
  */

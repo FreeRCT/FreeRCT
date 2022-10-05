@@ -528,7 +528,7 @@ void GentleThrillRideManagerWindow::SelectorMouseMoveEvent(Viewport *vp, const P
 		entrance_exit_placement.SetSize(1, 1);
 		entrance_exit_placement.AddVoxel(location);
 		entrance_exit_placement.SetupRideInfoSpace();
-		entrance_exit_placement.SetRideData(location, static_cast<SmallRideInstance>(this->ride->GetIndex()), SHF_ENTRANCE_BITS, -1);
+		entrance_exit_placement.SetRideData(location, static_cast<SmallRideInstance>(this->ride->GetIndex()), SHF_ENTRANCE_BITS, nullptr);
 	} else {
 		if (this->is_placing_entrance) {
 			this->ride->temp_entrance_pos = XYZPoint16::invalid();

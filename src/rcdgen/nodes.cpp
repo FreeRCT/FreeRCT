@@ -959,7 +959,7 @@ int SHOPBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-FSETBlock::FSETBlock() : GameBlock("FSET", 1)
+FSETBlock::FSETBlock() : GameBlock("FSET", 2)
 {
 	this->unrotated_views_only = false;
 	this->unrotated_views_only_allowed = false;
@@ -967,35 +967,42 @@ FSETBlock::FSETBlock() : GameBlock("FSET", 1)
 
 int FSETBlock::Write(FileWriter *fw)
 {
+	return this->Write(fw, 0);
+}
+
+/**
+ * Write this frame set after rotating it \a rot times first.
+ * @param fw Output stream to write the set to.
+ * @param rot Number of -90 degrees rotation to apply first.
+ * @return Block index in the file.
+ */
+int FSETBlock::Write(FileWriter *fw, int rot)
+{
 	if (!this->unrotated_views_only_allowed && this->unrotated_views_only) {
 		fprintf(stderr, "Error: FSET block which requires all views to be specified has specified only the unrotated views");
 		::exit(1);
 	}
+
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 16 + (16 * this->width_x * this->width_y) - 12);
-	fb->SaveUInt16(this->tile_width);
+	fb->StartSave(this->blk_name, this->version, 15 + (16 * this->width_x * this->width_y * this->scales) + 2 * this->scales - 12);
+
+	fb->SaveUInt8(this->scales);
 	fb->SaveUInt8(this->width_x);
 	fb->SaveUInt8(this->width_y);
-	for (int x = 0; x < this->width_x; ++x) {
-		for (int y = 0; y < this->width_y; ++y) {
-			fb->SaveUInt32(this->ne_views[x * this->width_y + y]->Write(fw));
+	for (int i = 0; i < this->scales; ++i) fb->SaveUInt16(this->tile_width[i]);
+
+	const std::unique_ptr<std::shared_ptr<SpriteBlock>[]> *arrays[] = {&this->ne_views, &this->se_views, &this->sw_views, &this->nw_views};
+	for (int view = 0; view < 4; ++view) {
+		int rotated = (view + 4 - rot) & 3;
+		for (int x = 0; x < this->width_x; ++x) {
+			for (int y = 0; y < this->width_y; ++y) {
+				for (int z = 0; z < this->scales; ++z) {
+					fb->SaveUInt32((*arrays[rotated])[x * this->width_y * this->scales + y * this->scales + z]->Write(fw));
+				}
+			}
 		}
 	}
-	for (int x = 0; x < this->width_x; ++x) {
-		for (int y = 0; y < this->width_y; ++y) {
-			fb->SaveUInt32(this->se_views[x * this->width_y + y]->Write(fw));
-		}
-	}
-	for (int x = 0; x < this->width_x; ++x) {
-		for (int y = 0; y < this->width_y; ++y) {
-			fb->SaveUInt32(this->sw_views[x * this->width_y + y]->Write(fw));
-		}
-	}
-	for (int x = 0; x < this->width_x; ++x) {
-		for (int y = 0; y < this->width_y; ++y) {
-			fb->SaveUInt32(this->nw_views[x * this->width_y + y]->Write(fw));
-		}
-	}
+
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }
@@ -1024,21 +1031,18 @@ int TIMABlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-RIEEBlock::RIEEBlock() : GameBlock("RIEE", 2)
+RIEEBlock::RIEEBlock() : GameBlock("RIEE", 3)
 {
 }
 
 int RIEEBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 63 + this->internal_name.size() + 1 - 12);
+	fb->StartSave(this->blk_name, this->version, 37 + this->internal_name.size() + 1 - 12);
 	fb->SaveUInt8(this->is_entrance ? 1 : 0);
 	fb->SaveUInt32(this->texts->Write(fw));
-	fb->SaveUInt16(this->tile_width);
-	for (std::shared_ptr<SpriteBlock>& v : this->ne_views) fb->SaveUInt32(v->Write(fw));
-	for (std::shared_ptr<SpriteBlock>& v : this->se_views) fb->SaveUInt32(v->Write(fw));
-	for (std::shared_ptr<SpriteBlock>& v : this->sw_views) fb->SaveUInt32(v->Write(fw));
-	for (std::shared_ptr<SpriteBlock>& v : this->nw_views) fb->SaveUInt32(v->Write(fw));
+	fb->SaveUInt32(this->bg->Write(fw));
+	fb->SaveUInt32(this->fg->Write(fw));
 	for (Recolouring& r : this->recol) fb->SaveUInt32(r.Encode());
 	fb->SaveText(this->internal_name);
 	fb->CheckEndSave();
@@ -1448,22 +1452,8 @@ static int RotateFlags(int flags, int count)
  */
 void TrackVoxel::Write(FileWriter *fw, FileBlock *fb, int rot)
 {
-	for (int i = 0; i < 4; i++) {
-		int j = (i + 4 - rot) & 3;
-		if (this->back[j] == nullptr) {
-			fb->SaveUInt32(0);
-		} else {
-			fb->SaveUInt32(this->back[j]->Write(fw));
-		}
-	}
-	for (int i = 0; i < 4; i++) {
-		int j = (i + 4 - rot) & 3;
-		if (this->front[j] == nullptr) {
-			fb->SaveUInt32(0);
-		} else {
-			fb->SaveUInt32(this->front[j]->Write(fw));
-		}
-	}
+	fb->SaveUInt32(this->bg == nullptr ? 0 : this->bg->Write(fw, rot));
+	fb->SaveUInt32(this->fg == nullptr ? 0 : this->fg->Write(fw, rot));
 	int nx = this->dx;
 	int ny = this->dy;
 	RotateXY(&nx, &ny, rot);
@@ -1770,10 +1760,10 @@ void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWr
 {
 	for (int rot = 0; rot < 4; rot++) {
 		FileBlock *fb = new FileBlock;
-		int size = 26 - 12 + 36 * this->track_voxels.size() + 4;
+		int size = 26 - 12 + 12 * this->track_voxels.size() + 4;
 		size += GetCarEntrySize(this->car_xpos) + GetCarEntrySize(this->car_ypos) + GetCarEntrySize(this->car_zpos);
 		size += GetCarEntrySize(this->car_pitch) + GetCarEntrySize(this->car_roll) + GetCarEntrySize(this->car_yaw);
-		fb->StartSave("TRCK", 5, size);
+		fb->StartSave("TRCK", 6, size);
 		fb->SaveUInt8(this->entry->Encode(connections, rot));
 		fb->SaveUInt8(this->exit->Encode(connections, rot));
 		int nx = this->exit_dx;
@@ -1851,22 +1841,30 @@ int RCSTBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-CARSBlock::CARSBlock() : GameBlock("CARS", 3)
+CARSBlock::CARSBlock() : GameBlock("CARS", 4)
 {
 }
 
 int CARSBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 2 + 2 + 4 + 4 + 2 + 2 + 16 * 16 * 16 * 4 * (1 + this->num_passengers) + 4 * 3);
-	fb->SaveUInt16(this->tile_width);
-	fb->SaveUInt16(this->z_height);
+	fb->StartSave(this->blk_name, this->version, 1 + 2 * this->scales + 4 + 4 + 2 + 2 + 16 * 16 * 16 * 4 * (1 + this->num_passengers) * this->scales + 4 * 3);
+	fb->SaveUInt8(this->scales);
+	for (int z = 0; z < this->scales; ++z) fb->SaveUInt16(this->tile_width[z]);
 	fb->SaveUInt32(this->length);
 	fb->SaveUInt32(this->inter_length);
 	fb->SaveUInt16(this->num_passengers);
 	fb->SaveUInt16(this->num_entrances);
-	for (auto &index : this->sprites) fb->SaveUInt32(index->Write(fw));
-	for (uint32 index = 0; index < this->num_passengers * 16*16*16; index++) fb->SaveUInt32(this->guest_overlays[index]->Write(fw));
+	for (int z = 0; z < this->scales; ++z) {
+		for (auto &index : this->sprites[z]) {
+			fb->SaveUInt32(index->Write(fw));
+		}
+	}
+	for (int z = 0; z < this->scales; ++z) {
+		for (uint32 index = 0; index < this->num_passengers * 16*16*16; ++index) {
+			fb->SaveUInt32(this->guest_overlays[z][index]->Write(fw));
+		}
+	}
 	fb->SaveUInt32(this->recol[0].Encode());
 	fb->SaveUInt32(this->recol[1].Encode());
 	fb->SaveUInt32(this->recol[2].Encode());
@@ -1874,24 +1872,17 @@ int CARSBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-CSPLBlock::CSPLBlock() : GameBlock("CSPL", 2)
+CSPLBlock::CSPLBlock() : GameBlock("CSPL", 3)
 {
 }
 
 int CSPLBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 2 + 1 + 8 * 4);
-	fb->SaveUInt16(this->tile_width);
+	fb->StartSave(this->blk_name, this->version, 1 + 2 * 4);
 	fb->SaveUInt8(this->type);
-	fb->SaveUInt32(this->ne_sw_back->Write(fw));
-	fb->SaveUInt32(this->ne_sw_front->Write(fw));
-	fb->SaveUInt32(this->se_nw_back->Write(fw));
-	fb->SaveUInt32(this->se_nw_front->Write(fw));
-	fb->SaveUInt32(this->sw_ne_back->Write(fw));
-	fb->SaveUInt32(this->sw_ne_front->Write(fw));
-	fb->SaveUInt32(this->nw_se_back->Write(fw));
-	fb->SaveUInt32(this->nw_se_front->Write(fw));
+	fb->SaveUInt32(this->bg->Write(fw));
+	fb->SaveUInt32(this->fg->Write(fw));
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }

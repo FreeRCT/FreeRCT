@@ -84,10 +84,12 @@ enum DropdownMain {
  * @ingroup gui_group
  */
 enum DropdownView {
-	DDV_MINIMAP,      ///< Open the minimap.
-	DDV_GRID,         ///< Toggle terrain grid.
-	DDV_UNDERGROUND,  ///< Toggle underground view.
-	DDV_UNDERWATER,   ///< Toggle underwater view.
+	DDV_MINIMAP,           ///< Open the minimap.
+	DDV_ZOOM_IN,           ///< Increase zoom.
+	DDV_ZOOM_OUT,          ///< Decrease zoom.
+	DDV_GRID,              ///< Toggle terrain grid.
+	DDV_UNDERGROUND,       ///< Toggle underground view.
+	DDV_UNDERWATER,        ///< Toggle underwater view.
 	DDV_WIRE_RIDES,        ///< Toggle wireframe view for rides.
 	DDV_WIRE_SCENERY,      ///< Toggle wireframe view for scenery items.
 	DDV_HIDE_PEOPLE,       ///< Toggle visibility of people.
@@ -190,46 +192,51 @@ void ToolbarWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 
 			break;
 		}
 		case TB_DROPDOWN_VIEW: {
+			const Viewport *vp = _window_manager.GetViewport();
 			DropdownList itemlist;
 			/* Keep the order consistent with the DropdownView ordering! */
 			/* DDV_MINIMAP */
 			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP));
+			/* DDV_ZOOM_IN */
+			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_IN, vp->CanZoomIn() ? DDIF_NONE : DDIF_DISABLED));
+			/* DDV_ZOOM_OUT */
+			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_OUT, vp->CanZoomOut() ? DDIF_NONE : DDIF_DISABLED));
 			/* DDV_GRID */
 			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_GRID, DDIF_SELECTABLE |
-					(_window_manager.GetViewport()->grid ? DDIF_SELECTED : DDIF_NONE)));
+					(vp->GetDisplayFlag(DF_GRID) ? DDIF_SELECTED : DDIF_NONE)));
 			/* DDV_UNDERGROUND */
 			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND, DDIF_SELECTABLE |
-					(_window_manager.GetViewport()->underground_mode ? DDIF_SELECTED : DDIF_NONE)));
+					(vp->GetDisplayFlag(DF_UNDERGROUND_MODE) ? DDIF_SELECTED : DDIF_NONE)));
 			/* DDV_UNDERWATER */
 			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_UNDERWATER, DDIF_SELECTABLE |
-					(_window_manager.GetViewport()->underwater_mode ? DDIF_SELECTED : DDIF_NONE)));
+					(vp->GetDisplayFlag(DF_UNDERWATER_MODE) ? DDIF_SELECTED : DDIF_NONE)));
 			/* DDV_WIRE_RIDES */
 			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_RIDES, DDIF_SELECTABLE |
-					(_window_manager.GetViewport()->wireframe_rides ? DDIF_SELECTED : DDIF_NONE)));
+					(vp->GetDisplayFlag(DF_WIREFRAME_RIDES) ? DDIF_SELECTED : DDIF_NONE)));
 			/* DDV_WIRE_SCENERY */
 			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_SCENERY, DDIF_SELECTABLE |
-					(_window_manager.GetViewport()->wireframe_scenery ? DDIF_SELECTED : DDIF_NONE)));
+					(vp->GetDisplayFlag(DF_WIREFRAME_SCENERY) ? DDIF_SELECTED : DDIF_NONE)));
 			/* DDV_HIDE_PEOPLE */
 			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_PEOPLE, DDIF_SELECTABLE |
-					(_window_manager.GetViewport()->hide_people ? DDIF_SELECTED : DDIF_NONE)));
+					(vp->GetDisplayFlag(DF_HIDE_PEOPLE) ? DDIF_SELECTED : DDIF_NONE)));
 			/* DDV_HIDE_SUPPORTS */
 			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SUPPORTS, DDIF_SELECTABLE |
-					(_window_manager.GetViewport()->hide_supports ? DDIF_SELECTED : DDIF_NONE)));
+					(vp->GetDisplayFlag(DF_HIDE_SUPPORTS) ? DDIF_SELECTED : DDIF_NONE)));
 			/* DDV_HIDE_SURFACES */
 			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SURFACES, DDIF_SELECTABLE |
-					(_window_manager.GetViewport()->hide_surfaces ? DDIF_SELECTED : DDIF_NONE)));
+					(vp->GetDisplayFlag(DF_HIDE_SURFACES) ? DDIF_SELECTED : DDIF_NONE)));
 			/* DDV_HIDE_FOUNDATIONS */
 			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_FOUNDATIONS, DDIF_SELECTABLE |
-					(_window_manager.GetViewport()->hide_foundations ? DDIF_SELECTED : DDIF_NONE)));
+					(vp->GetDisplayFlag(DF_HIDE_FOUNDATIONS) ? DDIF_SELECTED : DDIF_NONE)));
 			/* DDV_HEIGHT_RIDES */
 			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_RIDES, DDIF_SELECTABLE |
-					(_window_manager.GetViewport()->height_markers_rides ? DDIF_SELECTED : DDIF_NONE)));
+					(vp->GetDisplayFlag(DF_HEIGHT_MARKERS_RIDES) ? DDIF_SELECTED : DDIF_NONE)));
 			/* DDV_HEIGHT_PATHS */
 			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_PATHS, DDIF_SELECTABLE |
-					(_window_manager.GetViewport()->height_markers_paths ? DDIF_SELECTED : DDIF_NONE)));
+					(vp->GetDisplayFlag(DF_HEIGHT_MARKERS_PATHS) ? DDIF_SELECTED : DDIF_NONE)));
 			/* DDV_HEIGHT_TERRAIN */
 			itemlist.push_back(DropdownItem(GUI_TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_TERRAIN, DDIF_SELECTABLE |
-					(_window_manager.GetViewport()->height_markers_terrain ? DDIF_SELECTED : DDIF_NONE)));
+					(vp->GetDisplayFlag(DF_HEIGHT_MARKERS_TERRAIN) ? DDIF_SELECTED : DDIF_NONE)));
 
 			this->ShowDropdownMenu(number, itemlist, -1);
 			break;
@@ -324,23 +331,25 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 						case DDV_MINIMAP:
 							ShowMinimap();
 							break;
-						case DDV_UNDERGROUND:
-							_window_manager.GetViewport()->ToggleUndergroundMode();
+						case DDV_ZOOM_IN:
+							_window_manager.GetViewport()->ZoomIn();
+							break;
+						case DDV_ZOOM_OUT:
+							_window_manager.GetViewport()->ZoomOut();
 							break;
 
-#define TOGGLE(what) _window_manager.GetViewport()->what = !_window_manager.GetViewport()->what
-						case DDV_UNDERWATER:       TOGGLE(underwater_mode); break;
-						case DDV_GRID:             TOGGLE(grid); break;
-						case DDV_WIRE_RIDES:       TOGGLE(wireframe_rides); break;
-						case DDV_WIRE_SCENERY:     TOGGLE(wireframe_scenery); break;
-						case DDV_HIDE_PEOPLE:      TOGGLE(hide_people); break;
-						case DDV_HIDE_SUPPORTS:    TOGGLE(hide_supports); break;
-						case DDV_HIDE_SURFACES:    TOGGLE(hide_surfaces); break;
-						case DDV_HIDE_FOUNDATIONS: TOGGLE(hide_foundations); break;
-						case DDV_HEIGHT_RIDES:     TOGGLE(height_markers_rides); break;
-						case DDV_HEIGHT_PATHS:     TOGGLE(height_markers_paths); break;
-						case DDV_HEIGHT_TERRAIN:   TOGGLE(height_markers_terrain); break;
-#undef TOGGLE
+						case DDV_UNDERGROUND:      _window_manager.GetViewport()->ToggleDisplayFlag(DF_UNDERGROUND_MODE); break;
+						case DDV_UNDERWATER:       _window_manager.GetViewport()->ToggleDisplayFlag(DF_UNDERWATER_MODE); break;
+						case DDV_GRID:             _window_manager.GetViewport()->ToggleDisplayFlag(DF_GRID); break;
+						case DDV_WIRE_RIDES:       _window_manager.GetViewport()->ToggleDisplayFlag(DF_WIREFRAME_RIDES); break;
+						case DDV_WIRE_SCENERY:     _window_manager.GetViewport()->ToggleDisplayFlag(DF_WIREFRAME_SCENERY); break;
+						case DDV_HIDE_PEOPLE:      _window_manager.GetViewport()->ToggleDisplayFlag(DF_HIDE_PEOPLE); break;
+						case DDV_HIDE_SUPPORTS:    _window_manager.GetViewport()->ToggleDisplayFlag(DF_HIDE_SUPPORTS); break;
+						case DDV_HIDE_SURFACES:    _window_manager.GetViewport()->ToggleDisplayFlag(DF_HIDE_SURFACES); break;
+						case DDV_HIDE_FOUNDATIONS: _window_manager.GetViewport()->ToggleDisplayFlag(DF_HIDE_FOUNDATIONS); break;
+						case DDV_HEIGHT_RIDES:     _window_manager.GetViewport()->ToggleDisplayFlag(DF_HEIGHT_MARKERS_RIDES); break;
+						case DDV_HEIGHT_PATHS:     _window_manager.GetViewport()->ToggleDisplayFlag(DF_HEIGHT_MARKERS_PATHS); break;
+						case DDV_HEIGHT_TERRAIN:   _window_manager.GetViewport()->ToggleDisplayFlag(DF_HEIGHT_MARKERS_TERRAIN); break;
 
 						default: NOT_REACHED();
 					}

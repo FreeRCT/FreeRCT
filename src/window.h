@@ -29,6 +29,7 @@ enum DropdownItemFlags {
 	DDIF_NONE = 0,        ///< Nothing special about this item.
 	DDIF_SELECTABLE = 1,  ///< The item can be selected like a checkbox.
 	DDIF_SELECTED = 2,    ///< The item is currently selected. Only valid in combination with #DDIF_SELECTABLE.
+	DDIF_DISABLED = 4,    ///< This item can not be clicked by the user.
 };
 DECLARE_ENUM_AS_BIT_SET(DropdownItemFlags)
 

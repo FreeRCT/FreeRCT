@@ -64,3 +64,25 @@ XYZPoint16 UnorientatedOffset(const uint8 orientation, const int x, const int y)
 	}
 	NOT_REACHED();
 }
+
+/**
+ * Get the zoom scale with a given tile width.
+ * @param w Desired tile width.
+ * @return The scale index, or \c -1 if not found.
+ */
+int GetZoomScaleByWidth(int w)
+{
+	for (int i = 0; i < ZOOM_SCALES_COUNT; ++i) if (_zoom_scales[i].tile_width == w) return i;
+	return -1;
+}
+
+/**
+ * Get the zoom scale with a given tile height.
+ * @param w Desired tile height.
+ * @return The scale index, or \c -1 if not found.
+ */
+int GetZoomScaleByHeight(int h)
+{
+	for (int i = 0; i < ZOOM_SCALES_COUNT; ++i) if (_zoom_scales[i].tile_height == h) return i;
+	return -1;
+}

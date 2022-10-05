@@ -15,27 +15,20 @@
 #include "finances.h"
 #include "map.h"
 
-TrackVoxel::TrackVoxel()
+TrackVoxel::TrackVoxel() : bg(nullptr), fg(nullptr)
 {
-	std::fill_n(this->back, lengthof(this->back), nullptr);
-	std::fill_n(this->front, lengthof(this->front), nullptr);
 }
 
 /**
  * Load a track voxel.
  * @param rcd_file Data file being loaded.
  * @param length Length of the voxel (according to the file).
- * @param sprites Already loaded sprite blocks.
  */
-void TrackVoxel::Load(RcdFileReader *rcd_file, size_t length, const ImageMap &sprites)
+void TrackVoxel::Load(RcdFileReader *rcd_file, size_t length)
 {
-	rcd_file->CheckExactLength(length, 4 * 4 + 4 * 4 + 3 + 1, "track voxel");
-	for (uint i = 0; i < 4; i++) {
-		LoadSpriteFromFile(rcd_file, sprites, &this->back[i]);
-	}
-	for (uint i = 0; i < 4; i++) {
-		LoadSpriteFromFile(rcd_file, sprites, &this->front[i]);
-	}
+	rcd_file->CheckExactLength(length, 1 + 1 + 1 + 1 + 2 * 4, "track voxel");
+	this->bg = _sprite_manager.GetFrameSet(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
+	this->fg = _sprite_manager.GetFrameSet(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
 	this->dxyz.x = rcd_file->GetInt8();
 	this->dxyz.y = rcd_file->GetInt8();
 	this->dxyz.z = rcd_file->GetInt8();
@@ -176,11 +169,10 @@ void TrackPiece::RemoveFromWorld([[maybe_unused]] const uint16 ride_index, const
 /**
  * Load a track piece.
  * @param rcd_file Data file being loaded.
- * @param sprites Already loaded sprite blocks.
  */
-void TrackPiece::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
+void TrackPiece::Load(RcdFileReader *rcd_file)
 {
-	rcd_file->CheckVersion(5);
+	rcd_file->CheckVersion(6);
 	int length = rcd_file->size;
 	length -= 2 + 3 + 1 + 2 + 4 + 2;
 	rcd_file->CheckMinLength(length, 0, "header");
@@ -195,12 +187,12 @@ void TrackPiece::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 	this->cost = rcd_file->GetUInt32();
 	uint16 voxel_count = rcd_file->GetUInt16();
 
-	length -= 36u * voxel_count;
+	length -= 12 * voxel_count;
 	rcd_file->CheckMinLength(length, 0, "voxels");
 
 	for (uint16 i = 0; i < voxel_count; i++) {
 		this->track_voxels.emplace_back(new TrackVoxel);
-		this->track_voxels.back()->Load(rcd_file, 36, sprites);
+		this->track_voxels.back()->Load(rcd_file, 12);
 	}
 	length -= 4;
 	rcd_file->CheckMinLength(length, 0, "pieces");

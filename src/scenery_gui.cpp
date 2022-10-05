@@ -258,8 +258,8 @@ void SceneryGui::SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos)
 		for (int8 x = 0; x < this->selected_type->width_x; x++) {
 			for (int8 y = 0; y < this->selected_type->width_y; y++) {
 				const XYZPoint16 pos = this->instance->vox_pos + OrientatedOffset(this->instance->orientation, x, y);
-				this->scenery_sel.SetRideData(pos, SRI_SCENERY, voxel_data,
-						(x == 0 && y == 0) ? (SPR_GUI_BUILDARROW_START + (4 + this->instance->orientation - vp->orientation) % 4) : -1);
+				this->scenery_sel.SetRideData(pos, SRI_SCENERY, voxel_data, (x == 0 && y == 0) ?
+						_sprite_manager.GetSprite(vp->zoom, &SpriteStorage::GetArrowSprite, this->instance->orientation, vp->orientation) : nullptr);
 			}
 		}
 

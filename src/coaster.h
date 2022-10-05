@@ -10,6 +10,7 @@
 #ifndef COASTER_H
 #define COASTER_H
 
+#include <array>
 #include <map>
 #include <vector>
 #include "map.h"
@@ -37,39 +38,15 @@ enum CoasterPlatformType {
 /** A type of car riding at a track. */
 class CarType {
 public:
-	CarType();
-
 	void Load(RcdFileReader *rcd_file, const ImageMap &sprites);
 
-	/**
-	 * Retrieve an image of the car at a given \a pitch, \a roll, and \a yaw orientation.
-	 * @param pitch Required pitch of the car.
-	 * @param roll Required roll of the car.
-	 * @param yaw Required yaw of the car.
-	 * @return Image of the car in the requested orientation, if available.
-	 */
-	const ImageData *GetCar(uint pitch, uint roll, uint yaw) const
-	{
-		return this->cars[(pitch & 0xf) | ((roll & 0xf) << 4) | ((yaw & 0xf) << 8)];
-	}
+	const ImageData *GetCar(uint pitch, uint roll, uint yaw, uint16 tile_width) const;
+	const ImageData *GetGuestOverlay(uint pitch, uint roll, uint yaw, uint16 tile_width, uint slot) const;
 
-	/**
-	 * Retrieve a guest overlay sprite at a given \a pitch, \a roll, and \a yaw orientation.
-	 * @param pitch Required pitch of the car.
-	 * @param roll Required roll of the car.
-	 * @param yaw Required yaw of the car.
-	 * @param slot Seat number of the guest to overlay.
-	 * @return The overlay in the requested orientation, if available.
-	 */
-	const ImageData *GetGuestOverlay(uint pitch, uint roll, uint yaw, uint slot) const
-	{
-		return this->guest_overlays[slot * 16u*16u*16u + ((pitch & 0xf) | ((roll & 0xf) << 4) | ((yaw & 0xf) << 8))];
-	}
-
-	ImageData *cars[4096];                        ///< Images of the car, in all possible orientations.
-	std::unique_ptr<ImageData*[]> guest_overlays; ///< Images for the guest overlays, in all possible orientations.
-	uint16 tile_width;       ///< Tile width of the images.
-	uint16 z_height;         ///< Change in z-height of the images.
+	int scales;                                   ///< Number of zoom scales.
+	std::unique_ptr<uint16[]> tile_width;         ///< Width of a tile for each scale.
+	std::unique_ptr<std::array<ImageData*, 4096>[]> cars;            ///< Images of the car, in all possible orientations.
+	std::unique_ptr<std::unique_ptr<ImageData*[]>[]> guest_overlays; ///< Images for the guest overlays, in all possible orientations.
 	uint32 car_length;       ///< Length of a car in 1/256 pixel.
 	uint32 inter_car_length; ///< Length between two car in 1/256 pixel.
 	uint16 num_passengers;   ///< Number of passenger of a car.
@@ -113,16 +90,9 @@ class CoasterPlatform {
 public:
 	CoasterPlatform();
 
-	int tile_width;           ///< Width of the tile of these sprites.
 	CoasterPlatformType type; ///< Type of platform.
-	ImageData *ne_sw_back;    ///< Background sprite for the NE-SW direction.
-	ImageData *ne_sw_front;   ///< Foreground sprite for the NE-SW direction.
-	ImageData *se_nw_back;    ///< Background sprite for the SE-NW direction.
-	ImageData *se_nw_front;   ///< Foreground sprite for the SE-NW direction.
-	ImageData *sw_ne_back;    ///< Background sprite for the SW_NE direction.
-	ImageData *sw_ne_front;   ///< Foreground sprite for the SW_NE direction.
-	ImageData *nw_se_back;    ///< Background sprite for the NW_SE direction.
-	ImageData *nw_se_front;   ///< Foreground sprite for the NW_SE direction.
+	const FrameSet *bg;       ///< The platform background graphics.
+	const FrameSet *fg;       ///< The platform foreground graphics.
 };
 
 extern CoasterPlatform _coaster_platforms[];
@@ -138,8 +108,8 @@ class DisplayCoasterCar : public VoxelObject {
 public:
 	DisplayCoasterCar();
 
-	const ImageData *GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const override;
-	VoxelObject::Overlays GetOverlays(const SpriteStorage *sprites, ViewOrientation orient) const override;
+	const ImageData *GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const override;
+	VoxelObject::Overlays GetOverlays(ViewOrientation orient, int zoom) const override;
 
 	void Set(const XYZPoint16 &vox_pos, const XYZPoint16 &pix_pos, uint8 pitch, uint8 roll, uint8 yaw);
 	void PreRemove();
@@ -254,7 +224,7 @@ public:
 	void OpenRide() override;
 	void RecalculateRatings() override;
 
-	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const override;
+	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, int zoom, const ImageData *sprites[4], uint8 *platform) const override;
 	uint8 GetEntranceDirections(const XYZPoint16 &vox) const override;
 	RideEntryResult EnterRide(int guest, const XYZPoint16 &vox, TileEdge entry) override;
 	XYZPoint32 GetExit(int guest, TileEdge entry_edge) override;
@@ -330,6 +300,6 @@ public:
 	std::map<uint32, CoasterIntensityStatistics> intensity_statistics;  ///< Intensity along the track.
 };
 
-void LoadCoasterPlatform(RcdFileReader *rcd_file, const ImageMap &sprites);
+void LoadCoasterPlatform(RcdFileReader *rcd_file);
 
 #endif

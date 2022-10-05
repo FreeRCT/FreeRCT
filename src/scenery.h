@@ -76,7 +76,7 @@ public:
 	~SceneryInstance();
 
 	StringID CanPlace() const;
-	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const;
+	void GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, int zoom, const ImageData *sprites[4], uint8 *platform) const;
 	void OnAnimate(int delay);
 	bool IsDry() const;
 	bool ShouldBeWatered() const;
@@ -158,7 +158,7 @@ public:
 		XYZPoint16 offset;        ///< Image offset inside the voxel.
 		bool semi_transparent;    ///< Draw this item semi-transparent.
 	};
-	std::vector<PathObjectSprite> GetSprites(uint8 orientation) const;
+	std::vector<PathObjectSprite> GetSprites(uint8 orientation, int zoom) const;
 	bool GetExistsOnTileEdge(TileEdge e) const;
 	bool GetDemolishedOnTileEdge(TileEdge e) const;
 
@@ -214,7 +214,7 @@ public:
 	uint8 CountDemolishedItems(const XYZPoint16 &pos) const;
 	PathObjectInstance *GetPathObject(const XYZPoint16 &pos);
 
-	std::vector<PathObjectInstance::PathObjectSprite> DrawPathObjects(const XYZPoint16 &pos, uint8 orientation) const;
+	std::vector<PathObjectInstance::PathObjectSprite> DrawPathObjects(const XYZPoint16 &pos, uint8 orientation, int zoom) const;
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr) const;

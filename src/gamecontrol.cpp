@@ -76,6 +76,7 @@ static int speed_factor(GameSpeed speed)
 */
 void OnNewFrame(const uint32 frame_delay)
 {
+	_image_variants.Tick();
 	_window_manager.Tick();
 	_inbox.Tick(frame_delay);
 	for (int i = speed_factor(_game_control.speed); i > 0; i--) {
@@ -260,7 +261,7 @@ void GameControl::NewLevel()
 			_scenery.AddItem(item);
 		}
 		for (int i = 0; i < 6; i++) {
-			BuildFlatPath(XYZPoint16(9, i, 8), PAT_CONCRETE, false, false);
+			BuildFlatPath(XYZPoint16(9, i, 8), PAT_CONCRETE, PAS_NORMAL_PATH, false, false);
 		}
 	}
 

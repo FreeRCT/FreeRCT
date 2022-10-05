@@ -314,12 +314,9 @@ Fence::Fence() : type(FENCE_TYPE_INVALID), width(0)
 Fence::~Fence()
 = default;
 
-FrameSet::FrameSet() : width(0), width_x(0), width_y(0)
+FrameSet::FrameSet() : width_x(0), width_y(0), scales(0)
 {
 }
-
-FrameSet::~FrameSet()
-= default;
 
 /**
  * Load a frame set block from a RCD file.
@@ -328,24 +325,67 @@ FrameSet::~FrameSet()
  */
 void FrameSet::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	rcd_file->CheckVersion(1);
-	rcd_file->CheckMinLength(rcd_file->size, 4, "header");
+	rcd_file->CheckVersion(2);
+	rcd_file->CheckMinLength(rcd_file->size, 3, "header");
 
-	this->width = rcd_file->GetUInt16();
+	this->scales = rcd_file->GetUInt8();
 	this->width_x = rcd_file->GetUInt8();
 	this->width_y = rcd_file->GetUInt8();
-	rcd_file->CheckExactLength(rcd_file->size, 4 + 16 * this->width_x * this->width_y, "frame");
+	if (this->scales < 1) rcd_file->Error("No scales");
+	if (this->scales > 10) rcd_file->Error("Too many scales");  // Arbitrary sanity limit.
+	if (this->width_x < 1 || this->width_y < 1) rcd_file->Error("Dimension is zero");
+	if (this->width_x > 80 || this->width_y > 80) rcd_file->Error("Dimension too big");  // Arbitrary sanity limit.
+	rcd_file->CheckExactLength(rcd_file->size, 3 + 16 * this->width_x * this->width_y * this->scales + 2 * this->scales, "frame");
+
+	this->width.reset(new uint16[this->scales]);
+	for (int i = 0; i < this->scales; ++i) this->width[i] = rcd_file->GetUInt16();
+
 	for (int i = 0; i < 4; ++i) {
-		this->sprites[i].reset(new ImageData*[this->width_x * this->width_y]);
+		this->sprites[i].reset(new ImageData*[this->width_x * this->width_y * this->scales]);
 		for (int x = 0; x < this->width_x; ++x) {
 			for (int y = 0; y < this->width_y; ++y) {
-				ImageData *view;
-				LoadSpriteFromFile(rcd_file, sprites, &view);
-				if (this->width != 64) continue; /// \todo Widths other than 64.
-				this->sprites[i][x * this->width_y + y] = view;
+				for (int z = 0; z < this->scales; ++z) {
+					ImageData *view;
+					LoadSpriteFromFile(rcd_file, sprites, &view);
+					this->sprites[i][x * this->width_y * this->scales + y * this->scales + z] = view;
+				}
 			}
 		}
 	}
+}
+
+/**
+ * Get a sprite from the frame set.
+ * @param x Relative X coordinate in the object.
+ * @param y Relative Y coordinate in the object.
+ * @param orientation View orientation.
+ * @param zoom Zoom scale index of the image. If the frame set does not contain images at this scale, another existing scale will be resized to create it.
+ * @return The image.
+ */
+const ImageData* FrameSet::GetSprite(uint16 x, uint16 y, uint8 orientation, int zoom) const
+{
+	assert(x < this->width_x && y < this->width_y);
+	const int desired_tile_w = TileWidth(zoom);
+
+	int smallest_bigger_index = -1;
+	int biggest_smaller_index = -1;
+
+	for (int z = 0; z < this->scales; ++z) {
+		if (this->width[z] == desired_tile_w) {
+			return this->sprites[orientation][x * this->width_y * this->scales + y * this->scales + z];
+		} else if (this->width[z] > desired_tile_w) {
+			if (smallest_bigger_index < 0 || this->width[z] < this->width[smallest_bigger_index]) smallest_bigger_index = z;
+		} else {
+			if (biggest_smaller_index < 0 || this->width[z] > this->width[biggest_smaller_index]) biggest_smaller_index = z;
+		}
+	}
+
+	/* No match. Downscale an image if possible; otherwise upscale one. */
+	int index = smallest_bigger_index >= 0 ? smallest_bigger_index : biggest_smaller_index;
+	assert(index >= 0);
+	ImageData *img_to_scale = this->sprites[orientation][x * this->width_y * this->scales + y * this->scales + index];
+	if (img_to_scale == nullptr) return nullptr;
+	return img_to_scale->Scale(img_to_scale->width * desired_tile_w / this->width[index]);
 }
 
 TimedAnimation::TimedAnimation() : frames(0)
@@ -421,11 +461,6 @@ void Fence::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 	}
 }
 
-Path::Path() : status(PAS_UNUSED)
-{
-	for (uint i = 0; i < lengthof(this->sprites); i++) this->sprites[i] = nullptr;
-}
-
 /**
  * Load a path sprites block from a RCD file.
  * @param rcd_file RCD file used for loading.
@@ -451,11 +486,9 @@ void SpriteManager::LoadPATH(RcdFileReader *rcd_file, const ImageMap &sprites)
 
 	SpriteStorage *ss = this->GetSpriteStore(width);
 	if (ss == nullptr) rcd_file->Error("Sprite storage not found");
-	Path *path = &ss->path_sprites[pt];
-	for (uint sprnum = 0; sprnum < PATH_COUNT; sprnum++) {
-		LoadSpriteFromFile(rcd_file, sprites, &path->sprites[sprnum]);
-	}
-	path->status = ((type & 0x8000) != 0) ? PAS_QUEUE_PATH : PAS_NORMAL_PATH;
+
+	const int base = pt * PAS_COUNT * PATH_COUNT + (((type & 0x8000) != 0) ? PAS_QUEUE_PATH : PAS_NORMAL_PATH) * PATH_COUNT;
+	for (uint i = 0; i < PATH_COUNT; ++i) LoadSpriteFromFile(rcd_file, sprites, &ss->path_sprites[base + i]);
 }
 
 PathDecoration::PathDecoration()
@@ -479,14 +512,6 @@ PathDecoration::PathDecoration()
 	for (int tp = 0; tp < 4; tp++) {
 		this->flat_litter[tp] = nullptr;
 		this->flat_vomit[tp] = nullptr;
-	}
-
-	/* Initialize counts. */
-	this->flat_litter_count = 0;
-	this->flat_vomit_count = 0;
-	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-		this->ramp_litter_count[edge] = 0;
-		this->ramp_vomit_count[edge] = 0;
 	}
 }
 
@@ -544,21 +569,6 @@ void SpriteManager::LoadPDEC(RcdFileReader *rcd_file, const ImageMap &sprites)
 		for (int tp = 0; tp < 4; tp++) {
 			LoadSpriteFromFile(rcd_file, sprites, &pdec->ramp_vomit[edge][tp]);
 		}
-	}
-
-	/* Data loaded, setup the counts. */
-	for (pdec->flat_litter_count = 0; pdec->flat_litter_count < 4; pdec->flat_litter_count++) if (pdec->flat_litter[pdec->flat_litter_count] == nullptr) break;
-	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-		int count = 0;
-		while (count < 4 && pdec->ramp_litter[edge][count] != nullptr) count++;
-		pdec->ramp_litter_count[edge] = count;
-	}
-
-	for (pdec->flat_vomit_count = 0; pdec->flat_vomit_count < 4; pdec->flat_vomit_count++) if (pdec->flat_vomit[pdec->flat_vomit_count] == nullptr) break;
-	for (TileEdge edge = EDGE_BEGIN; edge < EDGE_COUNT; edge++) {
-		int count = 0;
-		while (count < 4 && pdec->ramp_vomit[edge][count] != nullptr) count++;
-		pdec->ramp_vomit_count[edge] = count;
 	}
 }
 
@@ -1285,6 +1295,7 @@ bool GuiSprites::HasSufficientGraphics() const
 SpriteStorage::SpriteStorage(uint16 _size) : size(_size)
 {
 	for (uint8 i = 0; i < FENCE_TYPE_COUNT; i++) this->fence[i] = nullptr;
+	for (ImageData *& img : this->path_sprites) img = nullptr;
 }
 
 /**
@@ -1331,9 +1342,13 @@ void SpriteStorage::AddFence(Fence *fnc)
 }
 
 /** Sprite manager constructor. */
-SpriteManager::SpriteManager() : store(64)
+SpriteManager::SpriteManager()
 {
 	_gui_sprites.Clear();
+
+	this->store.reserve(ZOOM_SCALES_COUNT);
+	for (int z = 0; z < ZOOM_SCALES_COUNT; ++z) this->store.emplace_back(TileWidth(z));
+	this->store.shrink_to_fit();
 }
 
 /** Sprite manager destructor. */
@@ -1406,8 +1421,13 @@ void SpriteManager::Load(const char *filename)
 		if (strcmp(rcd_file.name, "FENC") == 0) {
 			std::unique_ptr<Fence> block(new Fence);
 			block->Load(&rcd_file, sprites);
-			this->store.AddFence(block.get());
-			this->AddBlock(std::move(block));
+			SpriteStorage *ss = this->GetSpriteStore(block->width);
+			if (ss != nullptr) {
+				ss->AddFence(block.get());
+				this->AddBlock(std::move(block));
+			} else {
+				printf("WARNING: Not loading fence with tile width %u\n", block->width);
+			}
 			continue;
 		}
 
@@ -1468,7 +1488,7 @@ void SpriteManager::Load(const char *filename)
 				throw LoadingError("ANIM: Unknown animation.");
 			}
 			this->AddAnimation(anim.get());
-			this->store.RemoveAnimations(anim->anim_type, (PersonType)anim->person_type);
+			for (SpriteStorage &ss : this->store) ss.RemoveAnimations(anim->anim_type, (PersonType)anim->person_type);
 			this->AddBlock(std::move(anim));
 			continue;
 		}
@@ -1479,8 +1499,15 @@ void SpriteManager::Load(const char *filename)
 			if (an_spr->person_type == PERSON_INVALID || an_spr->anim_type == ANIM_INVALID) {
 				throw LoadingError("ANSP: Unknown animation.");
 			}
-			this->store.AddAnimationSprites(an_spr.get());
-			this->AddBlock(std::move(an_spr));
+
+			SpriteStorage *ss = this->GetSpriteStore(an_spr->width);
+			if (ss != nullptr) {
+				ss->AddAnimationSprites(an_spr.get());
+				this->AddBlock(std::move(an_spr));
+			} else {
+				printf("WARNING: Not loading animation sprites with tile width %u\n", an_spr->width);
+			}
+
 			continue;
 		}
 
@@ -1507,14 +1534,14 @@ void SpriteManager::Load(const char *filename)
 		if (strcmp(rcd_file.name, "FSET") == 0) {
 			std::unique_ptr<FrameSet> fset(new FrameSet);
 			fset->Load(&rcd_file, sprites);
-			this->store.frame_sets[ImageSetKey(filename, blk_num)] = std::move(fset);
+			this->frame_sets[ImageSetKey(filename, blk_num)] = std::move(fset);
 			continue;
 		}
 
 		if (strcmp(rcd_file.name, "TIMA") == 0) {
 			std::unique_ptr<TimedAnimation> anim(new TimedAnimation);
 			anim->Load(&rcd_file, sprites);
-			this->store.timed_animations[ImageSetKey(filename, blk_num)] = std::move(anim);
+			this->timed_animations[ImageSetKey(filename, blk_num)] = std::move(anim);
 			continue;
 		}
 
@@ -1527,7 +1554,7 @@ void SpriteManager::Load(const char *filename)
 
 		if (strcmp(rcd_file.name, "RIEE") == 0) {
 			std::unique_ptr<RideEntranceExitType> e(new RideEntranceExitType);
-			e->Load(&rcd_file, sprites, texts);
+			e->Load(&rcd_file, texts);
 			_rides_manager.AddRideEntranceExitType(e);
 			continue;
 		}
@@ -1541,7 +1568,7 @@ void SpriteManager::Load(const char *filename)
 
 		if (strcmp(rcd_file.name, "TRCK") == 0) {
 			auto tp = std::make_shared<TrackPiece>();
-			tp->Load(&rcd_file, sprites);
+			tp->Load(&rcd_file);
 			track_pieces.insert({blk_num, tp});
 			continue;
 		}
@@ -1554,7 +1581,7 @@ void SpriteManager::Load(const char *filename)
 		}
 
 		if (strcmp(rcd_file.name, "CSPL") == 0) {
-			LoadCoasterPlatform(&rcd_file, sprites);
+			LoadCoasterPlatform(&rcd_file);
 			continue;
 		}
 
@@ -1576,10 +1603,11 @@ void SpriteManager::Load(const char *filename)
  * @param width Tile width of the sprites.
  * @return Sprite storage object for the given width if it exists, else \c nullptr.
  */
-SpriteStorage *SpriteManager::GetSpriteStore(uint16 width)
+SpriteStorage *SpriteManager::GetSpriteStore(int width)
 {
-	if (width == 64) return &this->store;
-	return nullptr;
+	width = GetZoomScaleByWidth(width);
+	if (width < 0) return nullptr;
+	return &this->store[width];
 }
 
 /** Load all useful RCD files found by #_rcd_collection, into the program. */
@@ -1603,18 +1631,6 @@ void SpriteManager::LoadRcdFiles()
 inline void SpriteManager::AddBlock(std::unique_ptr<RcdBlock> block)
 {
 	this->blocks.push_back(std::move(block));
-}
-
-/**
- * Get a sprite store of a given size.
- * @param size Requested size.
- * @return Sprite store with sprites of the requested size, if it exists, else \c nullptr.
- * @todo Add support for other sprite sizes as well.
- */
-const SpriteStorage *SpriteManager::GetSprites(uint16 size) const
-{
-	if (size != 64) return nullptr;
-	return &this->store;
 }
 
 /**
@@ -1748,7 +1764,7 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 	if (number >= SPR_GUI_TOOLBAR_BEGIN && number < SPR_GUI_TOOLBAR_END) return _gui_sprites.toolbar_images[number - SPR_GUI_TOOLBAR_BEGIN];
 
 	if (number >= SPR_GUI_BUILDARROW_START && number < SPR_GUI_BUILDARROW_END) {
-		return this->store.GetArrowSprite(number - SPR_GUI_BUILDARROW_START, VOR_NORTH);
+		return this->store[DEFAULT_ZOOM].GetArrowSprite(number - SPR_GUI_BUILDARROW_START, VOR_NORTH);
 	}
 
 	switch (number) {
@@ -1778,9 +1794,9 @@ const ImageData *SpriteManager::GetTableSprite(uint16 number) const
 		case SPR_GUI_SPEED_2:            return _gui_sprites.speed_2;
 		case SPR_GUI_SPEED_4:            return _gui_sprites.speed_4;
 		case SPR_GUI_SPEED_8:            return _gui_sprites.speed_8;
-		case SPR_GUI_BENCH:              return this->store.path_decoration.bench    [0];
-		case SPR_GUI_BIN:                return this->store.path_decoration.litterbin[0];
-		case SPR_GUI_LAMP:               return this->store.path_decoration.lamp_post[0];
+		case SPR_GUI_BENCH:              return this->store[DEFAULT_ZOOM].path_decoration.bench    [0];
+		case SPR_GUI_BIN:                return this->store[DEFAULT_ZOOM].path_decoration.litterbin[0];
+		case SPR_GUI_LAMP:               return this->store[DEFAULT_ZOOM].path_decoration.lamp_post[0];
 		default:                     return nullptr;
 	}
 }
@@ -1805,12 +1821,13 @@ const Animation *SpriteManager::GetAnimation(AnimationType anim_type, PersonType
 /**
  * Get the fence rcd data for a given fence type
  * @param fence_type The fence type (@see FenceType)
+ * @param zoom Zoom scale.
  * @return Fence object or nullptr
  */
-const Fence *SpriteManager::GetFence(FenceType fence_type) const
+const Fence *SpriteManager::GetFence(FenceType fence_type, int zoom) const
 {
 	assert(fence_type < FENCE_TYPE_COUNT);
-	return this->store.fence[fence_type];
+	return this->store[zoom].fence[fence_type];
 }
 
 /**
@@ -1820,8 +1837,8 @@ const Fence *SpriteManager::GetFence(FenceType fence_type) const
  */
 const FrameSet *SpriteManager::GetFrameSet(const ImageSetKey &key) const
 {
-	auto it = this->store.frame_sets.find(key);
-	return it == this->store.frame_sets.end() ? nullptr : it->second.get();
+	auto it = this->frame_sets.find(key);
+	return it == this->frame_sets.end() ? nullptr : it->second.get();
 }
 
 /**
@@ -1831,17 +1848,24 @@ const FrameSet *SpriteManager::GetFrameSet(const ImageSetKey &key) const
  */
 const TimedAnimation *SpriteManager::GetTimedAnimation(const ImageSetKey &key) const
 {
-	auto it = this->store.timed_animations.find(key);
-	return it == this->store.timed_animations.end() ? nullptr : it->second.get();
+	auto it = this->timed_animations.find(key);
+	return it == this->timed_animations.end() ? nullptr : it->second.get();
 }
 
 /**
- * Get the status of a path type.
- * @param path_type %Path type to query.
- * @return Status of the path type.
+ * Check if a combination of path type and status has been loaded.
+ * @param type Type of path. @see PathType
+ * @param status Status of path. @see PathStatus
+ * @return Path is available.
  */
-PathStatus SpriteManager::GetPathStatus(PathType path_type)
+bool SpriteManager::HasPath(PathType type, PathStatus status) const
 {
-	const Path &path = this->store.path_sprites[path_type];
-	return path.status;
+	for (const SpriteStorage &ss : this->store) {
+		for (uint i = 0; i < PATH_COUNT; ++i) {
+			if (ss.path_sprites[type * PAS_COUNT * PATH_COUNT + status * PATH_COUNT + i] != nullptr) {
+				return true;
+			}
+		}
+	}
+	return false;
 }

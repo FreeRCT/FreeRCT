@@ -283,7 +283,7 @@ bool TravelQueuePath(XYZPoint16 *voxel_pos, TileEdge *entry)
 		if (new_pos == *voxel_pos) return false; // Cycle detected.
 
 		/* Stop if we found a non-queue path. */
-		if (_sprite_manager.GetPathStatus(GetPathType(vx->GetInstanceData())) != PAS_QUEUE_PATH) return true;
+		if (GetPathStatus(vx->GetInstanceData()) != PAS_QUEUE_PATH) return true;
 
 		/* At this point:
 		 * voxel_pos, edge (and *entry) contain the last valid voxel edge.
@@ -410,7 +410,7 @@ static bool ExamineNeighbourPathEdge(const XYZPoint16 &voxel_pos, TileEdge edge,
 			if (slope != _path_down_from_edge[edge]) return false;
 		}
 
-		PathStatus status = _sprite_manager.GetPathStatus(GetPathType(instance_data));
+		PathStatus status = GetPathStatus(instance_data);
 		if (add_edges && status == PAS_QUEUE_PATH) { // Only try to connect to queue paths if they are not yet connected to 2 (or more) neighbours.
 			if (GetQuePathEdgeConnectCount(slope) > 1) return false;
 		}

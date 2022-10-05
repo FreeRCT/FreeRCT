@@ -17,14 +17,24 @@ class Viewport;
 class Person;
 class RideInstance;
 
-/**
- * Known mouse modes.
- * @ingroup viewport_group
- */
-enum ViewportMouseMode {
-	MM_INACTIVE,       ///< Inactive mode.
-	MM_COUNT,          ///< Number of mouse modes.
+/** Flags changing the rendering of the viewport. */
+enum DisplayFlags {
+	DF_NONE                   = 0,        ///< No flags set.
+	DF_FPS                    = 1 <<  0,  ///< Whether to draw an FPS counter.
+	DF_UNDERGROUND_MODE       = 1 <<  1,  ///< Whether underground mode is displayed in this viewport.
+	DF_UNDERWATER_MODE        = 1 <<  2,  ///< Whether underwater mode is displayed in this viewport.
+	DF_GRID                   = 1 <<  3,  ///< Draw a grid overlay over the terrain.
+	DF_WIREFRAME_RIDES        = 1 <<  4,  ///< Draw rides as wireframes.
+	DF_WIREFRAME_SCENERY      = 1 <<  5,  ///< Draw scenery items as wireframes.
+	DF_HIDE_PEOPLE            = 1 <<  6,  ///< Do not draw people.
+	DF_HIDE_SUPPORTS          = 1 <<  7,  ///< Do not draw supports.
+	DF_HIDE_SURFACES          = 1 <<  8,  ///< Do not draw terrain surfaces.
+	DF_HIDE_FOUNDATIONS       = 1 <<  9,  ///< Do not draw vertical foundations.
+	DF_HEIGHT_MARKERS_RIDES   = 1 << 10,  ///< Draw height markers on rides.
+	DF_HEIGHT_MARKERS_PATHS   = 1 << 11,  ///< Draw height markers on paths.
+	DF_HEIGHT_MARKERS_TERRAIN = 1 << 12,  ///< Draw height markers on the terrain.
 };
+DECLARE_ENUM_AS_BIT_SET(DisplayFlags)
 
 /**
  * Sprites that trigger an action when clicked on.
@@ -135,30 +145,51 @@ public:
 	int32 ComputeY(int32 xpos, int32 ypos, int32 zpos);
 	Point32 ComputeScreenCoordinate(const XYZPoint32 &pixel) const;
 
-	bool IsUndergroundModeAvailable() const;
-	void SetUndergroundMode();
-	void ToggleUndergroundMode();
+	/**
+	 * Check whether a given display flag is currently active.
+	 * @param f Flag to query.
+	 * @return The flag is active.
+	 */
+	inline bool GetDisplayFlag(DisplayFlags f) const
+	{
+		return (this->display_flags & f) != 0;
+	}
+
+	/**
+	 * Set whether a given display flag is currently active.
+	 * @param f Flag to set.
+	 * @param on The flag is active.
+	 */
+	inline void SetDisplayFlag(DisplayFlags f, bool on)
+	{
+		if (on) {
+			this->display_flags |= f;
+		} else {
+			this->display_flags &= ~f;
+		}
+	}
+
+	/**
+	 * Toggle whether a given display flag is currently active.
+	 * @param f Flag to toggle.
+	 */
+	inline void ToggleDisplayFlag(DisplayFlags f)
+	{
+		this->SetDisplayFlag(f, !this->GetDisplayFlag(f));
+	}
+
+	bool CanZoomOut() const;
+	bool CanZoomIn() const;
+	void ZoomOut();
+	void ZoomIn();
+
 	void AddFloatawayMoneyAmount(const Money &money, const XYZPoint16 &voxel);
 
 	XYZPoint32 view_pos;         ///< Position of the centre point of the viewport.
-	uint16 tile_width;           ///< Width of a tile.
-	uint16 tile_height;          ///< Height of a tile.
+	int zoom;                    ///< The current zoom scale (an index in #_zoom_scales).
 	ViewOrientation orientation; ///< Direction of view.
 	Point16 mouse_pos;           ///< Last known position of the mouse.
-	bool draw_fps;               ///< Whether to draw an FPS counter.
-	bool additions_enabled;      ///< Flashing of world additions is enabled.
-	bool underground_mode;       ///< Whether underground mode is displayed in this viewport.
-	bool underwater_mode;        ///< Whether underwater mode is displayed in this viewport.
-	bool grid;                    ///< Draw a grid overlay over the terrain.
-	bool wireframe_rides;         ///< Draw rides as wireframes.
-	bool wireframe_scenery;       ///< Draw scenery items as wireframes.
-	bool hide_people;             ///< Do not draw people.
-	bool hide_supports;           ///< Do not draw supports.
-	bool hide_surfaces;           ///< Do not draw terrain surfaces.
-	bool hide_foundations;        ///< Do not draw vertical foundations.
-	bool height_markers_rides;    ///< Draw height markers on rides.
-	bool height_markers_paths;    ///< Draw height markers on paths.
-	bool height_markers_terrain;  ///< Draw height markers on the terrain.
+	DisplayFlags display_flags;  ///< Currently active display flags.
 	std::vector<FloatawayText> floataway_texts;  ///< Currently active floataway texts.
 
 protected:

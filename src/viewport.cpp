@@ -118,7 +118,7 @@ public:
 	 */
 	inline int32 ComputeX(int32 x, int32 y)
 	{
-		return ComputeXFunction(x, y, this->orient, this->tile_width);
+		return ComputeXFunction(x, y, this->orient, TileWidth(this->zoom));
 	}
 
 	/**
@@ -130,19 +130,14 @@ public:
 	 */
 	inline int32 ComputeY(int32 x, int32 y, int32 z)
 	{
-		return ComputeYFunction(x, y, z, this->orient, this->tile_width, this->tile_height);
+		return ComputeYFunction(x, y, z, this->orient, TileWidth(this->zoom), TileHeight(this->zoom));
 	}
 
 	XYZPoint32 view_pos;          ///< Position of the centre point of the display.
-	uint16 tile_width;            ///< Width of a tile.
-	uint16 tile_height;           ///< Height of a tile.
+	int zoom;                    ///< The current zoom scale (an index in #_zoom_scales).
 	ViewOrientation orient;       ///< Direction of view.
-	const SpriteStorage *sprites; ///< Sprite collection of the right size.
 	Viewport *vp;                 ///< Parent viewport for accessing the cursors if not \c nullptr.
 	MouseModeSelector *selector;  ///< Mouse mode selector.
-	bool underground_mode;        ///< Whether to draw underground mode sprites (else draw normal surface sprites).
-	bool underwater_mode;         ///< Whether to draw underwater mode sprites (else draw normal water sprites).
-	bool grid;                    ///< Whether to draw a grid overlay around terrain tiles.
 
 	Rectangle32 rect; ///< Screen area of interest.
 
@@ -193,6 +188,7 @@ struct DrawData {
 		this->base = base;
 		this->recolour = recolour;
 		this->gs = gs;
+		assert(this->sprite != nullptr);
 	}
 
 	const ImageData *sprite;     ///< Mouse cursor to draw.
@@ -280,15 +276,8 @@ VoxelCollector::VoxelCollector(Viewport *vp)
 	this->vp = vp;
 	this->selector = nullptr;
 	this->view_pos = vp->view_pos;
-	this->tile_width = vp->tile_width;
-	this->tile_height = vp->tile_height;
+	this->zoom = vp->zoom;
 	this->orient = vp->orientation;
-	this->underground_mode = vp->underground_mode;
-	this->underwater_mode = vp->underwater_mode;
-	this->grid = vp->grid;
-
-	this->sprites = _sprite_manager.GetSprites(this->tile_width);
-	assert(this->sprites != nullptr);
 }
 
 /* Destructor. */
@@ -332,8 +321,8 @@ void VoxelCollector::Collect()
 		for (uint ypos = 0; ypos < _world.GetYSize(); ypos++) {
 			int32 world_y = (ypos + ((this->orient == VOR_SOUTH || this->orient == VOR_EAST) ? 1 : 0)) * 256;
 			int32 north_x = ComputeX(world_x, world_y);
-			if (north_x + this->tile_width / 2 <= static_cast<int32>(this->rect.base.x)) continue;  // Right of voxel column is at left of window.
-			if (north_x - this->tile_width / 2 >= static_cast<int32>(this->rect.base.x + this->rect.width)) continue;  // Left of the window.
+			if (north_x + TileWidth(this->zoom) / 2 <= static_cast<int32>(this->rect.base.x)) continue;  // Right of voxel column is at left of window.
+			if (north_x - TileWidth(this->zoom) / 2 >= static_cast<int32>(this->rect.base.x + this->rect.width)) continue;  // Left of the window.
 
 			const VoxelStack *stack = _world.GetStack(xpos, ypos);
 
@@ -352,8 +341,8 @@ void VoxelCollector::Collect()
 
 			for (; zpos <= top; zpos++) {
 				int32 north_y = this->ComputeY(world_x, world_y, zpos * 256);
-				if (north_y - this->tile_height >= static_cast<int32>(this->rect.base.y + this->rect.height)) continue;  // Voxel is below the window.
-				if (north_y + this->tile_width / 2 + this->tile_height <= static_cast<int32>(this->rect.base.y)) break;  // Above the window and rising!
+				if (north_y - TileHeight(this->zoom) >= static_cast<int32>(this->rect.base.y + this->rect.height)) continue;  // Voxel is below the window.
+				if (north_y + TileWidth(this->zoom) / 2 + TileHeight(this->zoom) <= static_cast<int32>(this->rect.base.y)) break;  // Above the window and rising!
 
 				int count = zpos - stack->base;
 				const Voxel *voxel = (count >= 0 && count < stack->height) ? stack->voxels[count].get() : nullptr;
@@ -374,9 +363,9 @@ SpriteCollector::SpriteCollector(Viewport *vp) : VoxelCollector(vp)
 	this->yoffset = 0;
 
 	this->north_offsets[VOR_NORTH].x = 0;                     this->north_offsets[VOR_NORTH].y = 0;
-	this->north_offsets[VOR_EAST].x  = -this->tile_width / 2; this->north_offsets[VOR_EAST].y  = this->tile_width / 4;
-	this->north_offsets[VOR_SOUTH].x = 0;                     this->north_offsets[VOR_SOUTH].y = this->tile_width / 2;
-	this->north_offsets[VOR_WEST].x  = this->tile_width / 2;  this->north_offsets[VOR_WEST].y  = this->tile_width / 4;
+	this->north_offsets[VOR_EAST].x  = -TileWidth(this->zoom) / 2; this->north_offsets[VOR_EAST].y  = TileWidth(this->zoom) / 4;
+	this->north_offsets[VOR_SOUTH].x = 0;                     this->north_offsets[VOR_SOUTH].y = TileWidth(this->zoom) / 2;
+	this->north_offsets[VOR_WEST].x  = TileWidth(this->zoom) / 2;  this->north_offsets[VOR_WEST].y  = TileWidth(this->zoom) / 4;
 }
 
 SpriteCollector::~SpriteCollector()
@@ -408,17 +397,17 @@ const ImageData *SpriteCollector::GetCursorSpriteAtPos(CursorType ctype, [[maybe
 		case CUR_TYPE_SOUTH:
 		case CUR_TYPE_WEST: {
 			ViewOrientation vor = SubtractOrientations((ViewOrientation)(ctype - CUR_TYPE_NORTH), this->orient);
-			return this->sprites->GetCornerSprite(tslope, this->orient, vor);
+			return _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetCornerSprite, tslope, this->orient, vor);
 		}
 
 		case CUR_TYPE_TILE:
-			return this->sprites->GetCursorSprite(tslope, this->orient);
+			return _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetCursorSprite, tslope, this->orient);
 
 		case CUR_TYPE_ARROW_NE:
 		case CUR_TYPE_ARROW_SE:
 		case CUR_TYPE_ARROW_SW:
 		case CUR_TYPE_ARROW_NW:
-			return this->sprites->GetArrowSprite(ctype - CUR_TYPE_ARROW_NE, this->orient);
+			return _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetArrowSprite, ctype - CUR_TYPE_ARROW_NE, this->orient);
 
 		default:
 			return nullptr;
@@ -446,6 +435,7 @@ void SpriteCollector::SetupSupports(const VoxelStack *stack, [[maybe_unused]] ui
  * @param pos Position of the voxel being drawn.
  * @param base_pos Base position of the sprite in the screen.
  * @param orient View orientation.
+ * @param zoom Viewport zoom index.
  * @param number Ride instance number (\c SRI_SCENERY for scenery items).
  * @param voxel_number Instance data of the voxel.
  * @param dd [out] Data to draw (4 entries).
@@ -453,7 +443,7 @@ void SpriteCollector::SetupSupports(const VoxelStack *stack, [[maybe_unused]] ui
  * @return The number of \a dd entries filled.
  */
 static int DrawRideOrScenery(int32 slice, const XYZPoint16 & pos, const Point32 base_pos,
-		ViewOrientation orient, uint16 number, uint16 voxel_number, DrawData *dd, uint8 *platform)
+		ViewOrientation orient, int zoom, uint16 number, uint16 voxel_number, DrawData *dd, uint8 *platform)
 {
 	if (platform != nullptr) *platform = PATH_INVALID;
 	const ImageData *sprites[4];
@@ -462,11 +452,11 @@ static int DrawRideOrScenery(int32 slice, const XYZPoint16 & pos, const Point32 
 	if (number == SRI_SCENERY) {
 		const SceneryInstance *si = _scenery.GetItem(pos);
 		if (si == nullptr) return 0;
-		si->GetSprites(pos, voxel_number, orient, sprites, platform);
+		si->GetSprites(pos, voxel_number, orient, zoom, sprites, platform);
 	} else {
 		const RideInstance *ri = _rides_manager.GetRideInstance(number);
 		if (ri == nullptr) return 0;
-		ri->GetSprites(pos, voxel_number, orient, sprites, platform);
+		ri->GetSprites(pos, voxel_number, orient, zoom, sprites, platform);
 		recolour = ri->GetRecolours(pos);
 	}
 
@@ -507,46 +497,48 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	SmallRideInstance sri = (voxel == nullptr) ? SRI_FREE : voxel->GetInstance();
 	uint16 instance_data = (voxel == nullptr) ? 0 : voxel->GetInstanceData();
 	bool highlight = false;
-	int16 gui_sprite = -1;
-	if (this->selector != nullptr) highlight = this->selector->GetRide(voxel, voxel_pos, &sri, &instance_data, &gui_sprite);
+	const ImageData *background_sprite = nullptr;
+	if (this->selector != nullptr) highlight = this->selector->GetRide(voxel, voxel_pos, &sri, &instance_data, &background_sprite);
 	if (sri == SRI_PATH && HasValidPath(instance_data)) { // A path (and not something reserved above it).
 		platform_shape = _path_rotation[GetImplodedPathSlope(instance_data)][this->orient];
 
 		DrawData dd;
-		dd.Set(slice, voxel_pos.z, SO_PATH, this->sprites->GetPathSprite(GetPathType(instance_data), GetImplodedPathSlope(instance_data), this->orient),
+		dd.Set(slice, voxel_pos.z, SO_PATH, _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetPathSprite,
+				GetPathType(instance_data), GetPathStatus(instance_data), GetImplodedPathSlope(instance_data), this->orient),
 				north_point, nullptr, highlight ? GS_SEMI_TRANSPARENT : GS_INVALID);
 		this->draw_images.insert(dd);
 
-		for (const PathObjectInstance::PathObjectSprite &image : _scenery.DrawPathObjects(voxel_pos, this->orient)) {
+		for (const PathObjectInstance::PathObjectSprite &image : _scenery.DrawPathObjects(voxel_pos, this->orient, this->zoom)) {
 			const int x_off = ComputeX(image.offset.x, image.offset.y);
 			const int y_off = ComputeY(image.offset.x, image.offset.y, image.offset.z);
 			Point32 pos(north_point.x + this->north_offsets[this->orient].x + x_off,
 			            north_point.y + this->north_offsets[this->orient].y + y_off);
 
 			dd.Set(slice, voxel_pos.z, SO_PATH_OBJECTS, image.sprite, pos, nullptr,
-					image.semi_transparent ? GS_SEMI_TRANSPARENT : this->vp->wireframe_scenery ? GS_WIREFRAME : GS_INVALID);
+					image.semi_transparent ? GS_SEMI_TRANSPARENT : this->vp->GetDisplayFlag(DF_WIREFRAME_SCENERY) ? GS_WIREFRAME : GS_INVALID);
 			this->draw_images.insert(dd);
 		}
 	} else if (sri >= SRI_FULL_RIDES || sri == SRI_SCENERY) { // A normal ride, or a scenery item.
 		DrawData dd[4];
-		int count = DrawRideOrScenery(slice, voxel_pos, north_point, this->orient, sri, instance_data, dd, &platform_shape);
+		int count = DrawRideOrScenery(slice, voxel_pos, north_point, this->orient, this->zoom, sri, instance_data, dd, &platform_shape);
 		for (int i = 0; i < count; i++) {
 			if (highlight) {
 				dd[i].gs = GS_SEMI_TRANSPARENT;
-			} else if ((this->vp->wireframe_rides && sri >= SRI_FULL_RIDES) || (this->vp->wireframe_scenery && sri == SRI_SCENERY)) {
+			} else if ((this->vp->GetDisplayFlag(DF_WIREFRAME_RIDES) && sri >= SRI_FULL_RIDES) ||
+					(this->vp->GetDisplayFlag(DF_WIREFRAME_SCENERY) && sri == SRI_SCENERY)) {
 				dd[i].gs = GS_WIREFRAME;
 			}
 			this->draw_images.insert(dd[i]);
 		}
 	}
-	if (gui_sprite >= 0) {
+	if (background_sprite != nullptr) {
 		DrawData dd;
-		dd.Set(slice, voxel_pos.z, SO_CURSOR, _sprite_manager.GetTableSprite(gui_sprite), north_point);
+		dd.Set(slice, voxel_pos.z, SO_CURSOR, background_sprite, north_point);
 		this->draw_images.insert(dd);
 	}
 
 	/* Foundations. */
-	if (voxel != nullptr && voxel->GetFoundationType() != FDT_INVALID && !this->vp->hide_foundations) {
+	if (voxel != nullptr && voxel->GetFoundationType() != FDT_INVALID && !this->vp->GetDisplayFlag(DF_HIDE_FOUNDATIONS)) {
 		uint8 fslope = voxel->GetFoundationSlope();
 		uint8 sw, se; // SW foundations, SE foundations.
 		switch (this->orient) {
@@ -556,9 +548,8 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			case VOR_WEST:  sw = GB(fslope, 2, 2); se = GB(fslope, 0, 2); break;
 			default: NOT_REACHED();
 		}
-		const Foundation *fnd = &this->sprites->foundation[FDT_GROUND];
 		if (sw != 0) {
-			const ImageData *img = fnd->sprites[3 + sw - 1];
+			const ImageData *img = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetFoundationSprite, FDT_GROUND, 3 + sw - 1);
 			if (img != nullptr) {
 				DrawData dd;
 				dd.Set(slice, voxel_pos.z, SO_FOUNDATION, img, north_point);
@@ -566,7 +557,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			}
 		}
 		if (se != 0) {
-			const ImageData *img = fnd->sprites[se - 1];
+			const ImageData *img = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetFoundationSprite, FDT_GROUND, se - 1);
 			if (img != nullptr) {
 				DrawData dd;
 				dd.Set(slice, voxel_pos.z, SO_FOUNDATION, img, north_point);
@@ -577,15 +568,16 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 
 	/* Ground surface. */
 	uint8 gslope = SL_FLAT;
-	if (voxel != nullptr && voxel->GetGroundType() != GTP_INVALID && !this->vp->hide_surfaces) {
+	if (voxel != nullptr && voxel->GetGroundType() != GTP_INVALID && !this->vp->GetDisplayFlag(DF_HIDE_SURFACES)) {
 		uint8 slope = voxel->GetGroundSlope();
-		uint8 type = (this->underground_mode) ? GTP_UNDERGROUND : voxel->GetGroundType();
+		uint8 type = (this->vp->GetDisplayFlag(DF_UNDERGROUND_MODE)) ? GTP_UNDERGROUND : voxel->GetGroundType();
 		DrawData dd;
-		dd.Set(slice, voxel_pos.z, SO_GROUND, this->sprites->GetSurfaceSprite(type, slope, this->orient), north_point);
+		dd.Set(slice, voxel_pos.z, SO_GROUND, _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetSurfaceSprite, type, slope, this->orient), north_point);
 		this->draw_images.insert(dd);
 
-		if (this->grid) {
-			dd.Set(slice, voxel_pos.z, SO_GROUND, this->sprites->GetCursorSprite(slope, this->orient), north_point, nullptr, GS_SEMI_TRANSPARENT);
+		if (this->vp->GetDisplayFlag(DF_GRID)) {
+			dd.Set(slice, voxel_pos.z, SO_GROUND, _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetCursorSprite, slope, this->orient),
+					north_point, nullptr, GS_SEMI_TRANSPARENT);
 			this->draw_images.insert(dd);
 		}
 
@@ -628,7 +620,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			if (fence_type != FENCE_TYPE_INVALID) {
 				DrawData dd;
 				dd.Set(slice, voxel_pos.z, IsBackEdge(this->orient, edge) ? SO_FENCE_BACK : SO_FENCE_FRONT,
-						this->sprites->GetFenceSprite(fence_type, edge, gslope, this->orient), north_point);
+						_sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetFenceSprite, fence_type, edge, gslope, this->orient), north_point);
 				if (IsImplodedSteepSlope(gslope) && !IsImplodedSteepSlopeTop(gslope)) dd.z_height++;
 				if (GB(fences, 16 + edge, 1) != 0) dd.gs = GS_SEMI_TRANSPARENT;
 				this->draw_images.insert(dd);
@@ -651,15 +643,15 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 	}
 
 	/* Add platforms. */
-	if (platform_shape != PATH_INVALID && !this->vp->hide_supports) {
+	if (platform_shape != PATH_INVALID && !this->vp->GetDisplayFlag(DF_HIDE_SUPPORTS)) {
 		/* Platform gets automatically added when drawing a path or ride, without drawing ground. */
-		ImageData *pl_spr;
+		const ImageData *pl_spr;
 		switch (platform_shape) {
-			case PATH_RAMP_NE: pl_spr = this->sprites->platform.ramp[2]; break;
-			case PATH_RAMP_NW: pl_spr = this->sprites->platform.ramp[1]; break;
-			case PATH_RAMP_SE: pl_spr = this->sprites->platform.ramp[3]; break;
-			case PATH_RAMP_SW: pl_spr = this->sprites->platform.ramp[0]; break;
-			default: pl_spr = this->sprites->platform.flat[this->orient & 1]; break;
+			case PATH_RAMP_NE: pl_spr = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetRampPlatformSprite, 2); break;
+			case PATH_RAMP_NW: pl_spr = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetRampPlatformSprite, 1); break;
+			case PATH_RAMP_SE: pl_spr = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetRampPlatformSprite, 3); break;
+			case PATH_RAMP_SW: pl_spr = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetRampPlatformSprite, 0); break;
+			default: pl_spr = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetFlatPlatformSprite, this->orient & 1); break;
 		}
 		if (pl_spr != nullptr) {
 			DrawData dd;
@@ -674,7 +666,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 		this->ground_height = -1;
 		uint8 slope = this->ground_slope;
 		while (height < voxel_pos.z) {
-			int yoffset = (voxel_pos.z - height) * this->vp->tile_height; // Compensate y position of support.
+			int yoffset = (voxel_pos.z - height) * TileHeight(this->vp->zoom);  // Compensate y position of support.
 			uint sprnum;
 			if (slope == SL_FLAT) {
 				if (height + 1 < voxel_pos.z) {
@@ -694,7 +686,7 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 				}
 				slope = SL_FLAT;
 			}
-			ImageData *img = this->sprites->support.sprites[sprnum];
+			const ImageData *img = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetSupportSprite, sprnum);
 			if (img != nullptr) {
 				DrawData dd;
 				dd.Set(slice, height, SO_SUPPORT, img, Point32(north_point.x, north_point.y + yoffset));
@@ -710,8 +702,8 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			!IsImplodedSteepSlope(voxel->GetGroundSlope()) || IsImplodedSteepSlopeTop(voxel->GetGroundSlope())) ? voxel_pos.z : (voxel_pos.z + 1);
 	while (vo != nullptr) {
 		const Recolouring *recolour;
-		const ImageData *anim_spr = vo->GetSprite(this->sprites, this->orient, &recolour);
-		if (anim_spr != nullptr && (!this->vp->hide_people || dynamic_cast<const Person*>(vo) == nullptr)) {
+		const ImageData *anim_spr = vo->GetSprite(this->orient, this->zoom, &recolour);
+		if (anim_spr != nullptr && (!this->vp->GetDisplayFlag(DF_HIDE_PEOPLE) || dynamic_cast<const Person*>(vo) == nullptr)) {
 			int x_off = ComputeX(vo->pix_pos.x, vo->pix_pos.y);
 			int y_off = ComputeY(vo->pix_pos.x, vo->pix_pos.y, vo->pix_pos.z);
 			Point32 pos(north_point.x + this->north_offsets[this->orient].x + x_off,
@@ -721,8 +713,8 @@ void SpriteCollector::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_p
 			dd.Set(slice, people_z_pos, SO_PERSON, anim_spr, pos, recolour);
 			this->draw_images.insert(dd);
 
-			if (!this->vp->hide_people) {
-				for (const VoxelObject::Overlay &overlay : vo->GetOverlays(this->sprites, this->orient)) {
+			if (!this->vp->GetDisplayFlag(DF_HIDE_PEOPLE)) {
+				for (const VoxelObject::Overlay &overlay : vo->GetOverlays(this->orient, this->zoom)) {
 					if (overlay.sprite != nullptr) {
 						dd.Set(slice, people_z_pos, SO_PERSON_OVERLAY, overlay.sprite, pos, overlay.recolour);
 						this->draw_images.insert(dd);
@@ -790,9 +782,9 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 	}
 	/* Looking for surface edge? */
 	if ((this->allowed & SO_GROUND_EDGE) != 0 && voxel->GetGroundType() != GTP_INVALID) {
-		const ImageData *spr = this->sprites->GetSurfaceSprite(GTP_CURSOR_EDGE_TEST, voxel->GetGroundSlope(), this->orient);
+		const ImageData *spr = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetSurfaceSprite, GTP_CURSOR_EDGE_TEST, voxel->GetGroundSlope(), this->orient);
 		DrawData dd;
-		dd.Set(slice, voxel_pos.z, SO_GROUND_EDGE, nullptr, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth));
+		dd.Set(slice, voxel_pos.z, SO_GROUND_EDGE, spr, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth));
 		if (spr != nullptr && (!this->found || this->data < dd)) {
 			uint32 pixel = spr->GetPixel(dd.base.x - spr->xoffset, dd.base.y - spr->yoffset);
 			if (pixel != 0) {
@@ -813,7 +805,7 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 		/* Looking for a ride? */
 		DrawData dd[4];
 		int count = DrawRideOrScenery(slice, voxel_pos, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth),
-				this->orient, number, voxel->GetInstanceData(), dd, nullptr);
+				this->orient, this->zoom, number, voxel->GetInstanceData(), dd, nullptr);
 		for (int i = 0; i < count; i++) {
 			if (!this->found || this->data < dd[i]) {
 				const ImageData *img = dd[i].sprite;
@@ -831,9 +823,10 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 	} else if ((this->allowed & CS_PATH) != 0 && HasValidPath(voxel)) {
 		/* Looking for a path? */
 		uint16 instance_data = voxel->GetInstanceData();
-		const ImageData *img = this->sprites->GetPathSprite(GetPathType(instance_data), GetImplodedPathSlope(instance_data), this->orient);
+		const ImageData *img = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetPathSprite,
+				GetPathType(instance_data), GetPathStatus(instance_data), GetImplodedPathSlope(instance_data), this->orient);
 		DrawData dd;
-		dd.Set(slice, voxel_pos.z, SO_PATH, nullptr, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth));
+		dd.Set(slice, voxel_pos.z, SO_PATH, img, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth));
 		if (img != nullptr && (!this->found || this->data < dd)) {
 			uint32 pixel = img->GetPixel(dd.base.x - img->xoffset, dd.base.y - img->yoffset);
 			if (GetA(pixel) != TRANSPARENT) {
@@ -845,9 +838,10 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 		}
 	} else if ((this->allowed & CS_GROUND) != 0 && voxel->GetGroundType() != GTP_INVALID) {
 		/* Looking for surface? */
-		const ImageData *spr = this->sprites->GetSurfaceSprite(GTP_CURSOR_TEST, voxel->GetGroundSlope(), this->orient);
+		const ImageData *spr = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetSurfaceSprite,
+				GTP_CURSOR_TEST, voxel->GetGroundSlope(), this->orient);
 		DrawData dd;
-		dd.Set(slice, voxel_pos.z, SO_GROUND, nullptr, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth));
+		dd.Set(slice, voxel_pos.z, SO_GROUND, spr, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth));
 		if (spr != nullptr && (!this->found || this->data < dd)) {
 			uint32 pixel = spr->GetPixel(dd.base.x - spr->xoffset, dd.base.y - spr->yoffset);
 			if (GetA(pixel) != TRANSPARENT) {
@@ -861,10 +855,11 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 		for (TileEdge t = EDGE_BEGIN; t < EDGE_COUNT; t++) {
 			if (GetFenceType(voxel->GetFences(), t) != FENCE_TYPE_LAND_BORDER) continue;
 
-			const ImageData *img = this->sprites->GetFenceSprite(FENCE_TYPE_LAND_BORDER, t, voxel->GetGroundSlope(), this->orient);
+			const ImageData *img = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetFenceSprite,
+					FENCE_TYPE_LAND_BORDER, t, voxel->GetGroundSlope(), this->orient);
 			if (img != nullptr) {
 				DrawData dd;
-				dd.Set(slice, voxel_pos.z, SO_FENCE_BACK, nullptr, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth));
+				dd.Set(slice, voxel_pos.z, SO_FENCE_BACK, img, Point32(this->rect.base.x - xnorth, this->rect.base.y - ynorth));
 				uint32 pixel = img->GetPixel(dd.base.x - img->xoffset, dd.base.y - img->yoffset);
 				if (GetA(pixel) != TRANSPARENT && (!this->found || this->data < dd)) {
 					this->found = true;
@@ -875,19 +870,20 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 			}
 		}
 	}
-	if ((this->allowed & CS_PERSON) != 0 && !this->vp->hide_people) {
+	if ((this->allowed & CS_PERSON) != 0 && !this->vp->GetDisplayFlag(DF_HIDE_PEOPLE)) {
 		/* Looking for persons? */
-		const VoxelObject *vo = voxel->voxel_objects;
-		while (vo != nullptr) {
-			const Person *pers = static_cast<const Person *>(vo);
-			assert(pers != nullptr && pers->walk != nullptr);
+		for (const VoxelObject *vo = voxel->voxel_objects; vo != nullptr; vo = vo->next_object) {
+			const Person *pers = dynamic_cast<const Person *>(vo);
+			if (pers == nullptr) continue;
+			assert(pers->walk != nullptr);
 			AnimationType anim_type = pers->walk->anim_type;
-			const ImageData *anim_spr = this->sprites->GetAnimationSprite(anim_type, pers->frame_index, pers->type, this->orient);
+			const ImageData *anim_spr = _sprite_manager.GetSprite(this->zoom, &SpriteStorage::GetAnimationSprite,
+					anim_type, pers->frame_index, pers->type, this->orient);
 			int x_off = ComputeX(pers->pix_pos.x, pers->pix_pos.y);
 			int y_off = ComputeY(pers->pix_pos.x, pers->pix_pos.y, pers->pix_pos.z);
 			DrawData dd;
-			dd.Set(slice, voxel_pos.z, SO_PERSON, nullptr, Point32(this->rect.base.x - xnorth - x_off, this->rect.base.y - ynorth - y_off));
-			if (anim_spr && (!this->found || this->data < dd)) {
+			dd.Set(slice, voxel_pos.z, SO_PERSON, anim_spr, Point32(this->rect.base.x - xnorth - x_off, this->rect.base.y - ynorth - y_off));
+			if (anim_spr != nullptr && (!this->found || this->data < dd)) {
 				uint32 pixel = anim_spr->GetPixel(dd.base.x - anim_spr->xoffset, dd.base.y - anim_spr->yoffset);
 				if (GetA(pixel) != TRANSPARENT) {
 					this->found = true;
@@ -897,7 +893,6 @@ void PixelFinder::CollectVoxel(const Voxel *voxel, const XYZPoint16 &voxel_pos, 
 					this->fdata->person = pers;
 				}
 			}
-			vo = vo->next_object;
 		}
 	}
 }
@@ -919,27 +914,14 @@ FloatawayText::FloatawayText(std::string text, XYZPoint32 pos, uint32 col)
  */
 Viewport::Viewport(const XYZPoint32 &init_view_pos) : Window(WC_MAINDISPLAY, ALL_WINDOWS_OF_TYPE),
 	view_pos(init_view_pos),
-	tile_width(64),
-	tile_height(16),
+	zoom(DEFAULT_ZOOM),
 	orientation(VOR_NORTH),
 	mouse_pos(0, 0),
 #ifndef NDEBUG
-	draw_fps(true),
+	display_flags(DF_FPS)
 #else
-	draw_fps(false),
+	display_flags(DF_NONE)
 #endif
-	underground_mode(false),
-	underwater_mode(false),
-	grid(false),
-	wireframe_rides(false),
-	wireframe_scenery(false),
-	hide_people(false),
-	hide_supports(false),
-	hide_surfaces(false),
-	hide_foundations(false),
-	height_markers_rides(false),
-	height_markers_paths(false),
-	height_markers_terrain(false)
 {
 	uint16 width  = _video.Width();
 	uint16 height = _video.Height();
@@ -954,30 +936,35 @@ Viewport::~Viewport()
 = default;
 
 /**
- * Can the viewport switch to underground mode view?
- * @return Whether underground mode view is available.
+ * Check if the zoom scale can be further decreased.
+ * @return We can zoom out.
  */
-bool Viewport::IsUndergroundModeAvailable() const
+bool Viewport::CanZoomOut() const
 {
-	const SpriteStorage *storage = _sprite_manager.GetSprites(this->tile_width);
-	return storage->surface[GTP_UNDERGROUND].HasAllSprites();
+	return this->zoom > 0;
 }
 
-/** Enable the underground mode view, if possible. */
-void Viewport::SetUndergroundMode()
+/**
+ * Check if the zoom scale can be further increased.
+ * @return We can zoom in.
+ */
+bool Viewport::CanZoomIn() const
 {
-	if (!IsUndergroundModeAvailable()) return;
-	this->underground_mode = true;
+	return this->zoom + 1 < static_cast<int>(lengthof(_zoom_scales));
 }
 
-/** Toggle the underground mode view on/off. */
-void Viewport::ToggleUndergroundMode()
+/** Decrease the zoom scale by one unit. */
+void Viewport::ZoomOut()
 {
-	if (this->underground_mode) {
-		this->underground_mode = false;
-	} else {
-		this->SetUndergroundMode();
-	}
+	assert(this->CanZoomOut());
+	--this->zoom;
+}
+
+/** Increase the zoom scale by one unit. */
+void Viewport::ZoomIn()
+{
+	assert(this->CanZoomIn());
+	++this->zoom;
 }
 
 /**
@@ -1002,7 +989,7 @@ void Viewport::AddFloatawayMoneyAmount(const Money &money, const XYZPoint16 &vox
  */
 int32 Viewport::ComputeX(int32 xpos, int32 ypos)
 {
-	return ComputeXFunction(xpos, ypos, this->orientation, this->tile_width);
+	return ComputeXFunction(xpos, ypos, this->orientation, TileWidth(this->zoom));
 }
 
 /**
@@ -1014,7 +1001,7 @@ int32 Viewport::ComputeX(int32 xpos, int32 ypos)
  */
 int32 Viewport::ComputeY(int32 xpos, int32 ypos, int32 zpos)
 {
-	return ComputeYFunction(xpos, ypos, zpos, this->orientation, this->tile_width, this->tile_height);
+	return ComputeYFunction(xpos, ypos, zpos, this->orientation, TileWidth(this->zoom), TileHeight(this->zoom));
 }
 
 /**
@@ -1029,11 +1016,11 @@ Point32 Viewport::ComputeScreenCoordinate(const XYZPoint32 &pixel) const
 	int32 dz = pixel.z - this->view_pos.z;
 
 	Point32 pos(this->rect.base.x + this->rect.width / 2, this->rect.base.y + this->rect.height / 2);
-	pos.x -= _orientation_signum_dy[this->orientation] * dx * this->tile_width / 512;
-	pos.x += _orientation_signum_dx[this->orientation] * dy * this->tile_width / 512;
-	pos.y += _orientation_signum_dy[this->orientation] * dx * this->tile_height / 256 * (this->orientation % 2 == 0 ? 1 : -1);
-	pos.y += _orientation_signum_dx[this->orientation] * dy * this->tile_height / 256 * (this->orientation % 2 == 0 ? 1 : -1);
-	pos.y -= this->tile_height * dz / 256;
+	pos.x -= _orientation_signum_dy[this->orientation] * dx * TileWidth(this->zoom) / 512;
+	pos.x += _orientation_signum_dx[this->orientation] * dy * TileWidth(this->zoom) / 512;
+	pos.y += _orientation_signum_dy[this->orientation] * dx * TileHeight(this->zoom) / 256 * (this->orientation % 2 == 0 ? 1 : -1);
+	pos.y += _orientation_signum_dx[this->orientation] * dy * TileHeight(this->zoom) / 256 * (this->orientation % 2 == 0 ? 1 : -1);
+	pos.y -= TileHeight(this->zoom) * dz / 256;
 	return pos;
 }
 
@@ -1056,11 +1043,11 @@ void Viewport::OnDraw(MouseModeSelector *selector)
 
 		/* Draw height markers if applicable. */
 		GuiTextColours marker_colour;
-		if (this->height_markers_rides && dd.order == SO_RIDE) {
+		if (this->GetDisplayFlag(DF_HEIGHT_MARKERS_RIDES) && dd.order == SO_RIDE) {
 			marker_colour = HEIGHT_MARKER_RIDES;
-		} else if (this->height_markers_paths && dd.order == SO_PATH) {
+		} else if (this->GetDisplayFlag(DF_HEIGHT_MARKERS_PATHS) && dd.order == SO_PATH) {
 			marker_colour = HEIGHT_MARKER_PATHS;
-		} else if (this->height_markers_terrain && dd.order == SO_GROUND) {
+		} else if (this->GetDisplayFlag(DF_HEIGHT_MARKERS_TERRAIN) && dd.order == SO_GROUND) {
 			marker_colour = HEIGHT_MARKER_TERRAIN;
 		} else {
 			continue;
@@ -1069,7 +1056,6 @@ void Viewport::OnDraw(MouseModeSelector *selector)
 		std::string text = std::to_string(dd.z_height);
 		int w, h;
 		_video.GetTextSize(text, &w, &h);
-		// Rectangle32 r(dd.base.x - w / 2, dd.base.y + this->tile_height - h / 2, w, h);
 		Rectangle32 r(dd.base.x + dd.sprite->xoffset + (dd.sprite->width - w) / 2, dd.base.y + dd.sprite->yoffset + (dd.sprite->height - h) / 2, w, h);
 		_video.FillRectangle(r, SetA(_palette[marker_colour], OPACITY_SEMI_TRANSPARENT));
 		_video.BlitText(text, _palette[TEXT_BLACK], r.base.x, r.base.y, r.width, ALG_CENTER);
@@ -1091,7 +1077,7 @@ void Viewport::OnDraw(MouseModeSelector *selector)
 		}
 	}
 
-	if (this->draw_fps) {
+	if (this->GetDisplayFlag(DF_FPS)) {
 		constexpr const int SPACING = 4;
 		/* FPS is only interesting for developers, no need to make this translatable. */
 		_video.BlitText(Format("FPS: %2.1f (avg. %2.1f)", _video.FPS(), _video.AvgFPS()),
@@ -1169,23 +1155,23 @@ Point32 Viewport::ComputeHorizontalTranslation(int dx, int dy)
 	Point32 new_xy;
 	switch (this->orientation) {
 		case VOR_NORTH:
-			new_xy.x = this->view_pos.x + dx * 256 / this->tile_width - dy * 512 / this->tile_width;
-			new_xy.y = this->view_pos.y - dx * 256 / this->tile_width - dy * 512 / this->tile_width;
+			new_xy.x = this->view_pos.x + dx * 256 / TileWidth(this->zoom) - dy * 512 / TileWidth(this->zoom);
+			new_xy.y = this->view_pos.y - dx * 256 / TileWidth(this->zoom) - dy * 512 / TileWidth(this->zoom);
 			break;
 
 		case VOR_EAST:
-			new_xy.x = this->view_pos.x - dx * 256 / this->tile_width - dy * 512 / this->tile_width;
-			new_xy.y = this->view_pos.y - dx * 256 / this->tile_width + dy * 512 / this->tile_width;
+			new_xy.x = this->view_pos.x - dx * 256 / TileWidth(this->zoom) - dy * 512 / TileWidth(this->zoom);
+			new_xy.y = this->view_pos.y - dx * 256 / TileWidth(this->zoom) + dy * 512 / TileWidth(this->zoom);
 			break;
 
 		case VOR_SOUTH:
-			new_xy.x = this->view_pos.x - dx * 256 / this->tile_width + dy * 512 / this->tile_width;
-			new_xy.y = this->view_pos.y + dx * 256 / this->tile_width + dy * 512 / this->tile_width;
+			new_xy.x = this->view_pos.x - dx * 256 / TileWidth(this->zoom) + dy * 512 / TileWidth(this->zoom);
+			new_xy.y = this->view_pos.y + dx * 256 / TileWidth(this->zoom) + dy * 512 / TileWidth(this->zoom);
 			break;
 
 		case VOR_WEST:
-			new_xy.x = this->view_pos.x + dx * 256 / this->tile_width + dy * 512 / this->tile_width;
-			new_xy.y = this->view_pos.y + dx * 256 / this->tile_width - dy * 512 / this->tile_width;
+			new_xy.x = this->view_pos.x + dx * 256 / TileWidth(this->zoom) + dy * 512 / TileWidth(this->zoom);
+			new_xy.y = this->view_pos.y + dx * 256 / TileWidth(this->zoom) - dy * 512 / TileWidth(this->zoom);
 			break;
 
 		default:
@@ -1219,7 +1205,7 @@ bool Viewport::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &s
 	/* \todo Make all keybindings configurable by the user. */
 	if (key_code == WMKC_SYMBOL) {
 		if (symbol == "f") {  // f to toggle the FPS counter.
-			this->draw_fps = !this->draw_fps;
+			this->ToggleDisplayFlag(DF_FPS);
 			return true;
 		}
 		if (_game_control.main_menu) {  // Main menu controls.
@@ -1320,8 +1306,16 @@ bool Viewport::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &s
 				return true;
 			}
 
+			if (symbol == "+" && this->CanZoomIn()) {  // + to zoom in.
+				this->ZoomIn();
+				return true;
+			}
+			if (symbol == "-" && this->CanZoomOut()) {  // - to zoom out.
+				this->ZoomOut();
+				return true;
+			}
 			if (symbol == "u") {  // u to toggle underground view.
-				this->ToggleUndergroundMode();
+				this->ToggleDisplayFlag(DF_UNDERGROUND_MODE);
 				return true;
 			}
 			if (symbol == "m") {  // m to open the minimap.

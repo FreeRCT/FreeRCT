@@ -334,7 +334,7 @@ void VideoSystem::FramebufferSizeCallback([[maybe_unused]] GLFWwindow *window, i
 void VideoSystem::KeyCallback([[maybe_unused]] GLFWwindow *window, int key, [[maybe_unused]] int scancode, int action, int mods)
 {
 	assert(window == _video.window);
-	if (action != GLFW_PRESS) return;
+	if (action != GLFW_PRESS && action != GLFW_REPEAT) return;
 
 	WmKeyMod mod_mask = WMKM_NONE;
 	if ((mods & GLFW_MOD_CONTROL) != 0) mod_mask |= WMKM_CTRL;
@@ -879,7 +879,8 @@ GLuint VideoSystem::GetImageTexture(const ImageData *img, const Recolouring &rec
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img->width, img->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img->GetRecoloured(shift, recolour));
+	std::unique_ptr<uint8[]> rgba = img->GetRecoloured(shift, recolour);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img->width, img->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgba.get());
 	this->image_textures.emplace(map_key, t);
 	return t;
 }

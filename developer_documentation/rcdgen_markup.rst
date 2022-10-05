@@ -1,5 +1,5 @@
 :Author: The FreeRCT Team
-:Version: 2022-09-09
+:Version: 2022-09-27
 
 .. contents::
    :depth: 3
@@ -513,10 +513,8 @@ Attributes:
 - ``dx`` - Relative X position of the voxel.
 - ``dy`` - Relative Y position of the voxel.
 - ``dz`` - Relative Z position of the voxel.
-
-Additionally, the voxel may contain sprite graphics named
-``n_back, s_back, w_back, e_back, n_front, s_front, w_front, e_front``.
-All sprites are optional. They represent the background and foreground graphics of the voxel for the various orientations respectively.
+- ``bg`` - *Optional*. Background graphics FSET_ block.
+- ``fg`` - *Optional*. Foreground graphics FSET_ block.
 
 splines
 ~~~~~~~
@@ -566,7 +564,7 @@ ANSP
 ~~~~
 Attributes:
 
-- ``tile_width`` - Zoom scale of the sprites. Supported is only 64.
+- ``tile_width`` - Zoom scale of the sprites.
 - ``person_type`` - The person type.
 - ``anim_type`` - The type of the animation.
 
@@ -585,38 +583,49 @@ BDIR
 ~~~~
 Attributes:
 
-- ``tile_width`` - Zoom scale of the sprites. Supported is only 64.
+- ``tile_width`` - Zoom scale of the sprites.
 - ``ne, se, sw, nw`` - Sprites for all four orientations.
 
 CARS
 ~~~~
 Attributes:
 
-- ``tile_width, z_height`` - Zoom scale of the sprites. Supported are only 64×16.
 - ``length`` - Length of the car in 1/65,536 of a voxel.
 - ``inter_length`` - Spacing between cars in 1/65,536 of a voxel.
 - ``num_passengers`` - Number of passengers the car can hold.
 - ``num_entrances`` - Number of entrances in the car.
-- ``guest_sheet`` - *Optional*. The animation's guest overlay sheet_.
-- ``car_pPrRyY`` - The sprites for all orientations of the car, for values of *P* (pitch), *R* (roll), and *Y* (yaw) from 0 to 15 each.
 - Optionally, up to three unnamed recolour_ nodes specifying the car's recolouring information.
+
+Scales
+......
+The scales of the car's images may be specified either with a single attribute ``tile_width``, or with the attributes:
+
+- ``scales`` - Number W of zoom scales in the set.
+- ``tile_width_W`` - Each zoom scale's tile width.
+
+Sprites
+.......
+
+If the scales are specified with a single ``tile_width`` parameter, the sprites are named:
+
+- ``car_pPrRyY`` - The sprites for all orientations of the car, for values of *P* (pitch), *R* (roll), and *Y* (yaw) from 0 to 15 each.
+- ``guest_sheet`` - The animation's guest overlay sheet_.
+
+Otherwise, they are named ``car_pPrRyYwW`` and ``guest_sheet_W`` for each tile width ``W``.
 
 CSPL
 ~~~~
 Attributes:
 
-- ``tile_width`` - Zoom scale of the sprites. Supported is only 64.
 - ``type`` - Type of the platform.
-- ``ne_sw_back, ne_sw_front`` - Background and foreground sprite for the northeast-southwest orientation.
-- ``se_nw_back, se_nw_front`` - Background and foreground sprite for the southeast-northwest orientation.
-- ``sw_ne_back, sw_ne_front`` - Background and foreground sprite for the southwest-northeast orientation.
-- ``nw_se_back, nw_se_front`` - Background and foreground sprite for the northwest-southeast orientation.
+- ``bg`` - Background graphics FSET_ block.
+- ``fg`` - Foreground graphics FSET_ block.
 
 FENC
 ~~~~
 Attributes:
 
-- ``width`` - Zoom scale of the sprites. Supported is only 64.
+- ``width`` - Zoom scale of the sprites.
 - ``type`` - Type of the fence.
 - ``ne_hor, se_hor, sw_hor, nw_hor`` - Horizontal fence graphics of the four edges.
 - ``ne_n, se_e, sw_s, nw_w, ne_e, se_s, sw_w, nw_n`` - Fence graphics of the four edges with one side raised.
@@ -664,14 +673,22 @@ FSET
 ~~~~
 Attributes:
 
-- ``tile_width`` - Zoom scale of the sprites. Supported is only 64.
 - ``width_x, width_y`` - Number of voxels in X and Y direction occupied by the animation.
+
+Scales
+......
+The scales of the images in the set may be specified either with a single attribute ``tile_width``, or with the attributes:
+
+- ``scales`` - Number Z of zoom scales in the set.
+- ``tile_width_Z`` - Each zoom scale's tile width.
 
 Sprites
 .......
 The FSET contains one sprite for each of the (X×Y) voxels for each of the four orientations.
 
-The sprite for voxel (X,Y) at orientation O is named ``O_Y_X`` (where O is ``ne, se, sw, nw``).
+If the scales are specified with a single ``tile_width`` parameter,
+the sprite for voxel (X,Y) at orientation O is named ``O_Y_X`` (where O is ``ne, se, sw, nw``).
+Otherwise, the sprite is named ``O_Y_X_W`` for each tile width ``W``.
 
 If the optional boolean switch ``unrotated_views_only`` is set, only north-east sprites are used for all orientations;
 sprites for the other orientations may be omitted.
@@ -682,7 +699,7 @@ FUND
 ~~~~
 Attributes:
 
-- ``tile_width, z_height`` - Zoom scale of the sprites. Supported are only 64×16.
+- ``tile_width, z_height`` - Zoom scale of the sprites.
 - ``found_type`` - Type of the foundation.
 - ``se_e0`` - Southeast foundation with visible east wall sprite.
 - ``se_0s`` - Southeast foundation with visible south wall sprite.
@@ -856,7 +873,7 @@ PATH
 ~~~~
 Attributes:
 
-- ``tile_width, z_height`` - Zoom scale of the sprites. Supported are only 64×16.
+- ``tile_width, z_height`` - Zoom scale of the sprites.
 - ``path_type`` - Path type.
 - ``empty`` - Unconnected path sprite.
 - ``ne`` - Northeast connected path sprite.
@@ -914,7 +931,7 @@ PDEC
 ~~~~
 Attributes:
 
-- ``tile_width`` - Zoom scale of the sprites. Supported is only 64.
+- ``tile_width`` - Zoom scale of the sprites.
 - ``lamp_post_ne, lamp_post_se, lamp_post_sw, lamp_post_nw`` - Lamp post sprites for all four orientations.
 - ``demolished_post_ne, demolished_post_se, demolished_post_sw, demolished_post_nw`` - Demolished lamp post sprites for all four orientations.
 - ``litter_bin_ne, litter_bin_se, litter_bin_sw, litter_bin_nw`` - Litter bin sprites for all four orientations.
@@ -929,7 +946,7 @@ PLAT
 ~~~~
 Attributes:
 
-- ``tile_width, z_height`` - Zoom scale of the sprites. Supported are only 64×16.
+- ``tile_width, z_height`` - Zoom scale of the sprites.
 - ``platform_type`` - Type of the platform.
 - ``ns`` - North-south platform sprite.
 - ``ew`` - East-west platform sprite.
@@ -971,11 +988,10 @@ RIEE
 ~~~~
 Attributes:
 
-- ``tile_width`` - Zoom scale of the sprites. Supported is only 64.
 - ``internal_name`` - Internal name of the entrance/exit type.
 - ``type`` - ``"entrance"`` or ``"exit"``.
-- ``ne_bg, se_bg, sw_bg, nw_bg`` - Background sprites for all four orientations.
-- ``ne_fg, se_fg, sw_fg, nw_fg`` - Foreground sprites for all four orientations.
+- ``bg`` - Background graphics FSET_ block.
+- ``fg`` - Foreground graphics FSET_ block.
 - ``texts`` - strings_ node containing the object's texts.
 
 SCNY
@@ -1023,7 +1039,7 @@ SUPP
 ~~~~
 Attributes:
 
-- ``tile_width, z_height`` - Zoom scale of the sprites. Supported are only 64×16.
+- ``tile_width, z_height`` - Zoom scale of the sprites.
 - ``support_type`` - Supports type.
 - ``s_ns`` - Single-height for flat terrain north-south support sprite.
 - ``s_ew`` - Single-height for flat terrain east-west support sprite.
@@ -1054,7 +1070,7 @@ SURF
 ~~~~
 Attributes:
 
-- ``tile_width, z_height`` - Zoom scale of the sprites. Supported are only 64×16.
+- ``tile_width, z_height`` - Zoom scale of the sprites.
 - ``surf_type`` - Type of the surface.
 - ``n#`` - Flat surface sprite.
 - ``n#n`` - Raised north corner surface sprite.

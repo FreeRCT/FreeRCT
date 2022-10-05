@@ -112,11 +112,11 @@ Person::~Person()
 	NotifyChange(WC_PERSON_INFO, this->id, CHG_PERSON_DELETED, 0);
 }
 
-const ImageData *Person::GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
+const ImageData *Person::GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const
 {
 	*recolour = &this->recolour;
 	AnimationType anim_type = this->walk->anim_type;
-	return sprites->GetAnimationSprite(anim_type, this->frame_index, this->type, orient);
+	return _sprite_manager.GetSprite(zoom, &SpriteStorage::GetAnimationSprite, anim_type, this->frame_index, this->type, orient);
 }
 
 /**
@@ -1033,7 +1033,7 @@ uint8 Guest::GetExitDirections(const Voxel *v, TileEdge start_edge, bool *seen_w
 
 	/* If walking on a queue path, enable queue mode. */
 	// \todo Only walk in queue mode when going to a ride.
-	*queue_path = _sprite_manager.GetPathStatus(GetPathType(v->GetInstanceData())) == PAS_QUEUE_PATH;
+	*queue_path = GetPathStatus(v->GetInstanceData()) == PAS_QUEUE_PATH;
 	*seen_wanted_ride = false;
 
 	uint8 shops = 0;       // Number of exits with a shop with normal desire to go there.

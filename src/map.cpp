@@ -37,7 +37,7 @@ void Voxel::ClearVoxel()
 }
 
 static const uint32 CURRENT_VERSION_VSTK  = 3;   ///< Currently supported version of the VSTK pattern.
-static const uint32 CURRENT_VERSION_Voxel = 3;   ///< Currently supported version of the voxel pattern.
+static const uint32 CURRENT_VERSION_Voxel = 4;   ///< Currently supported version of the voxel pattern.
 
 /**
  * Load a voxel from the save game.
@@ -47,7 +47,7 @@ void Voxel::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("voxl");
 	this->ClearVoxel();
-	if (version >= 1 && version <= 3) {
+	if (version >= 1 && version <= CURRENT_VERSION_Voxel) {
 		this->ground = ldr.GetLong(); /// \todo Check sanity of the data.
 		this->instance = ldr.GetByte();
 		if (this->instance == SRI_FREE) {
@@ -59,6 +59,10 @@ void Voxel::Load(Loader &ldr)
 		}
 
 		if (version >= 2) this->fences = ldr.GetWord();
+		if (version == 3 && this->instance == SRI_PATH) {
+			int t = GB(instance_data, 6, 2);
+			this->instance_data = MakePathInstanceData(GB(instance_data, 0, 6), static_cast<PathType>(t), t == PAT_TILED ? PAS_QUEUE_PATH : PAS_NORMAL_PATH);
+		}
 	} else {
 		ldr.VersionMismatch(version, CURRENT_VERSION_Voxel);
 	}
@@ -92,10 +96,11 @@ VoxelObject::~VoxelObject()
 }
 
 /**
- * \fn const ImageData *VoxelObject::GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
+ * \fn const ImageData *VoxelObject::GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const
  * Get the sprite to draw for the voxel object.
  * @param sprites Sprites at the right size for drawing.
  * @param orient Direction of view.
+ * @param zoom Zoom scale.
  * @param recolour [out] Recolour mapping if present, else \c nullptr.
  * @return Sprite to display for the voxel object.
  */
@@ -104,9 +109,10 @@ VoxelObject::~VoxelObject()
  * Get the overlay sprite(s) to draw for the voxel object.
  * @param sprites Sprites at the right size for drawing.
  * @param orient Direction of view.
+ * @param zoom Zoom scale.
  * @return Sprites to overlay for the voxel object, with their respective recolourings.
  */
-VoxelObject::Overlays VoxelObject::GetOverlays([[maybe_unused]] const SpriteStorage *sprites, [[maybe_unused]] ViewOrientation orient) const
+VoxelObject::Overlays VoxelObject::GetOverlays([[maybe_unused]] ViewOrientation orient, [[maybe_unused]] int zoom) const
 {
 	return {};
 }

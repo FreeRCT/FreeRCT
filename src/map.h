@@ -312,8 +312,8 @@ public:
 	};
 	typedef std::vector<Overlay> Overlays;
 
-	virtual const ImageData *GetSprite(const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const = 0;
-	virtual Overlays GetOverlays(const SpriteStorage *sprites, ViewOrientation orient) const;
+	virtual const ImageData *GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const = 0;
+	virtual Overlays GetOverlays(ViewOrientation orient, int zoom) const;
 
 	/**
 	 * Add itself to the voxel objects chain.
@@ -476,18 +476,36 @@ static inline PathSprites GetImplodedPathSlope(const Voxel *v)
  */
 static inline PathType GetPathType(uint16 instance_data)
 {
-	return (PathType)GB(instance_data, 6, 2);
+	return static_cast<PathType>(GB(instance_data, 7, 5));
+}
+
+/**
+ * Get the status type from the path voxel instance data.
+ * @param instance_data Instance data to examine.
+ * @return Status of path.
+ * @pre instance data must be a valid path.
+ */
+static inline PathStatus GetPathStatus(uint16 instance_data)
+{
+	return static_cast<PathStatus>(GB(instance_data, 6, 1));
 }
 
 /**
  * Construct instance data for a valid path.
  * @param slope Imploded slope of the path.
  * @param path_type Type of the path.
+ * @param path_status Whether it's a queue or normal path.
  * @return Instance data of a valid path.
  */
-static inline uint16 MakePathInstanceData(uint8 slope, PathType path_type)
+static inline uint16 MakePathInstanceData(uint8 slope, PathType path_type, PathStatus path_status)
 {
-	return slope | (path_type << 6);
+	/* Data layout:
+	 * Lowest 6 bits for the imploded slope.
+	 * 1 bit for the path status.
+	 * 5 bits for the path type.
+	 * 4 bits currently unused (reserved for future additions, maybe railing types?).
+	 */
+	return slope | (path_status << 6) | (path_type << 7);
 }
 
 /**

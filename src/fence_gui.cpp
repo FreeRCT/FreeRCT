@@ -82,7 +82,7 @@ public:
 	TileEdge fence_edge;       ///< Edge where new fence has been placed, #INVALID_EDGE for no placed fence.
 	FencesMouseMode fence_sel; ///< Mouse selector for building fences.
 private:
-	void OnClickFence(const Fence *fence);
+	void OnClickFence(FenceType fence);
 };
 
 /**
@@ -160,7 +160,7 @@ void FenceGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 		case FENCE_BUTTON_WOOD:
 		case FENCE_BUTTON_HEDGE:
 		case FENCE_BUTTON_BRICK: {
-			const Fence *fence = _sprite_manager.GetFence(FenceType(FENCE_TYPE_BUILDABLE_BEGIN + wid_num - FENCE_BUTTON_FIRST));
+			const Fence *fence = _sprite_manager.GetFence(FenceType(FENCE_TYPE_BUILDABLE_BEGIN + wid_num - FENCE_BUTTON_FIRST), DEFAULT_ZOOM);
 			if (fence == nullptr) break;
 
 			const ImageData *sprite = fence->sprites[FENCE_NE_FLAT];
@@ -179,13 +179,13 @@ void FenceGui::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)
 {
 	switch (number) {
 		case FENCE_BUTTON_WOOD:
-			OnClickFence(_sprite_manager.GetFence(FENCE_TYPE_WOODEN));
+			OnClickFence(FENCE_TYPE_WOODEN);
 			return;
 		case FENCE_BUTTON_HEDGE:
-			OnClickFence(_sprite_manager.GetFence(FENCE_TYPE_CONIFER_HEDGE));
+			OnClickFence(FENCE_TYPE_CONIFER_HEDGE);
 			return;
 		case FENCE_BUTTON_BRICK:
-			OnClickFence(_sprite_manager.GetFence(FENCE_TYPE_BRICK_WALL));
+			OnClickFence(FENCE_TYPE_BRICK_WALL);
 			return;
 
 		default:
@@ -195,22 +195,21 @@ void FenceGui::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)
 
 /**
  * Handle a click on a fence in the GUI.
- * @param fence The clicked fence.
+ * @param fence The clicked fence type.
  */
-void FenceGui::OnClickFence(const Fence *fence)
+void FenceGui::OnClickFence(FenceType fence)
 {
-	FenceType clicked_type = (FenceType)fence->type;
-	assert(clicked_type != FENCE_TYPE_INVALID);
+	assert(fence != FENCE_TYPE_INVALID);
 
-	this->GetWidget<LeafWidget>(FENCE_BUTTON_WOOD )->SetPressed(clicked_type == FENCE_TYPE_WOODEN       );
-	this->GetWidget<LeafWidget>(FENCE_BUTTON_HEDGE)->SetPressed(clicked_type == FENCE_TYPE_CONIFER_HEDGE);
-	this->GetWidget<LeafWidget>(FENCE_BUTTON_BRICK)->SetPressed(clicked_type == FENCE_TYPE_BRICK_WALL   );
+	this->GetWidget<LeafWidget>(FENCE_BUTTON_WOOD )->SetPressed(fence == FENCE_TYPE_WOODEN       );
+	this->GetWidget<LeafWidget>(FENCE_BUTTON_HEDGE)->SetPressed(fence == FENCE_TYPE_CONIFER_HEDGE);
+	this->GetWidget<LeafWidget>(FENCE_BUTTON_BRICK)->SetPressed(fence == FENCE_TYPE_BRICK_WALL   );
 
 	if (this->fence_type == FENCE_TYPE_INVALID) {
 		this->fence_sel.SetSize(1, 1);
 		this->SetSelector(&this->fence_sel);
 	}
-	this->fence_type = clicked_type;
+	this->fence_type = fence;
 }
 
 void FenceGui::SelectorMouseMoveEvent(Viewport *vp, [[maybe_unused]] const Point16 &pos)

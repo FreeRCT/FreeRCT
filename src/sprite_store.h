@@ -19,6 +19,7 @@
 #include "track_piece.h"
 #include "weather.h"
 #include "gui_sprites.h"
+#include "sprite_data.h"
 #include <map>
 #include <set>
 
@@ -98,42 +99,26 @@ public:
 };
 
 /**
- * %Path sprites.
- * @ingroup sprites_group
- */
-class Path {
-public:
-	Path();
-
-	PathStatus status; ///< Status of this path.
-	ImageData *sprites[PATH_COUNT]; ///< %Path sprites, may contain \c nullptr sprites.
-};
-
-/**
  * %Path decoration sprites.
  * @ingroup sprites_group
  */
 class PathDecoration {
 public:
+	static constexpr int LITTER_VOMIT_COUNT = 4;  ///< Number of different litter or vomit sprites.
 	PathDecoration();
 
-	ImageData *litterbin[4];        ///< Normal (non-demolished, non-full) litter bins.
-	ImageData *overflow_bin[4];     ///< Overflowing (non-demolished) litter bins.
-	ImageData *demolished_bin[4];   ///< Demolished litter bins.
-	ImageData *lamp_post[4];        ///< Lamp posts (non-demolished).
-	ImageData *demolished_lamp[4];  ///< Demolished lamp posts.
-	ImageData *bench[4];            ///< Normal (non-demolished) benches.
-	ImageData *demolished_bench[4]; ///< Demolished benches.
+	ImageData *litterbin       [EDGE_COUNT];  ///< Normal (non-demolished, non-full) litter bins.
+	ImageData *overflow_bin    [EDGE_COUNT];  ///< Overflowing (non-demolished) litter bins.
+	ImageData *demolished_bin  [EDGE_COUNT];  ///< Demolished litter bins.
+	ImageData *lamp_post       [EDGE_COUNT];  ///< Lamp posts (non-demolished).
+	ImageData *demolished_lamp [EDGE_COUNT];  ///< Demolished lamp posts.
+	ImageData *bench           [EDGE_COUNT];  ///< Normal (non-demolished) benches.
+	ImageData *demolished_bench[EDGE_COUNT];  ///< Demolished benches.
 
-	ImageData *flat_litter[4];    ///< 4 types of litter at flat path tile (may be \c nullptr).
-	ImageData *ramp_litter[4][4]; ///< For each ramp, 4 types of litter (may be \c nullptr).
-	ImageData *flat_vomit[4];     ///< 4 types of vomit at flat path tile (may be \c nullptr).
-	ImageData *ramp_vomit[4][4];  ///< For each ramp, 4 types of vomit at flat path tile (may be \c nullptr).
-
-	int flat_litter_count;    ///< Number of litter graphics for flat path tiles.
-	int flat_vomit_count;     ///< Number of vomit  graphics for flat path tiles.
-	int ramp_litter_count[4]; ///< Number of litter graphics for each type of ramp.
-	int ramp_vomit_count[4];  ///< Number of vomit  graphics for each type of ramp.
+	ImageData *flat_litter            [LITTER_VOMIT_COUNT];  ///< 4 types of litter at flat path tile (may be \c nullptr).
+	ImageData *ramp_litter[EDGE_COUNT][LITTER_VOMIT_COUNT];  ///< For each ramp, 4 types of litter (may be \c nullptr).
+	ImageData *flat_vomit             [LITTER_VOMIT_COUNT];  ///< 4 types of vomit at flat path tile (may be \c nullptr).
+	ImageData *ramp_vomit [EDGE_COUNT][LITTER_VOMIT_COUNT];  ///< For each ramp, 4 types of vomit at flat path tile (may be \c nullptr).
 };
 
 /**
@@ -180,14 +165,18 @@ public:
 class FrameSet : public RcdBlock {
 public:
 	FrameSet();
-	~FrameSet();
 
 	void Load(RcdFileReader *rcd_file, const ImageMap &sprites);
 
-	uint16 width;   ///< Width of a tile.
-	uint16 width_x; ///< The number of voxels in x direction.
-	uint16 width_y; ///< The number of voxels in y direction.
-	std::unique_ptr<ImageData*[]> sprites[4]; ///< Sprites for the ne,se,sw,nw orientations.
+	const ImageData* GetSprite(uint16 x, uint16 y, uint8 orientation, int zoom) const;
+
+	uint16 width_x;                   ///< The number of voxels in x direction.
+	uint16 width_y;                   ///< The number of voxels in y direction.
+
+private:
+	int scales;                                ///< Number of zoom scales.
+	std::unique_ptr<uint16[]> width;           ///< Width of a tile for each scale.
+	std::unique_ptr<ImageData*[]> sprites[4];  ///< Sprites for the ne,se,sw,nw orientations.
 };
 typedef std::pair<std::string, int> ImageSetKey;         ///< Pair of <RCD file name, RCD block number>.
 typedef std::map<ImageSetKey, std::unique_ptr<FrameSet>> FrameSetsMap;  ///< Map of available frame sets.
@@ -609,14 +598,14 @@ public:
 	/**
 	 * Get a path tile sprite.
 	 * @param type Type of path. @see PathType
+	 * @param status Status of path. @see PathStatus
 	 * @param slope Slope of the path (in #VOR_NORTH orientation).
 	 * @param orient Display orientation.
 	 * @return Requested sprite if available.
-	 * @todo [low] \a type is not used due to lack of other path types (sprites).
 	 */
-	const ImageData *GetPathSprite(uint8 type, uint8 slope, ViewOrientation orient) const
+	const ImageData *GetPathSprite(PathType type, PathStatus status, uint8 slope, ViewOrientation orient) const
 	{
-		return this->path_sprites[type].sprites[_path_rotation[slope][orient]];
+		return this->path_sprites[type * PAS_COUNT * PATH_COUNT + status * PATH_COUNT + _path_rotation[slope][orient]];
 	}
 
 	/**
@@ -681,6 +670,139 @@ public:
 		return nullptr;
 	}
 
+	/**
+	 * Get a foundation sprite.
+	 * @param f Foundation type.
+	 * @param i Sprite index.
+	 * @return The sprite.
+	 */
+	const ImageData *GetFoundationSprite(int f, int i) const
+	{
+		return this->foundation[f].sprites[i];
+	}
+
+	/**
+	 * Get a support sprite.
+	 * @param i Sprite index.
+	 * @return The sprite.
+	 */
+	const ImageData *GetSupportSprite(int i) const
+	{
+		return this->support.sprites[i];
+	}
+
+	/**
+	 * Get a flat platform sprite.
+	 * @param i Sprite index.
+	 * @return The sprite.
+	 */
+	const ImageData *GetFlatPlatformSprite(int i) const
+	{
+		return this->platform.flat[i];
+	}
+
+	/**
+	 * Get a ramped platform sprite.
+	 * @param i Sprite index.
+	 * @return The sprite.
+	 */
+	const ImageData *GetRampPlatformSprite(int i) const
+	{
+		return this->platform.ramp[i];
+	}
+
+	/**
+	 * Get a litter sprite.
+	 * @param ramp Ramp direction of the path (#INVALID_EDGE for flat paths).
+	 * @param index Sprite index.
+	 * @return The sprite.
+	 */
+	const ImageData *GetLitterSprite(TileEdge ramp, int index) const
+	{
+		return (ramp == INVALID_EDGE ? this->path_decoration.flat_litter : this->path_decoration.ramp_litter[ramp])[index];
+	}
+
+	/**
+	 * Get a demolished bench sprite.
+	 * @param orient View orientation.
+	 * @return The sprite.
+	 */
+	const ImageData *GetDemolishedBenchSprite(uint8 orient) const
+	{
+		return this->path_decoration.demolished_bench[orient];
+	}
+
+	/**
+	 * Get a demolished bin sprite.
+	 * @param orient View orientation.
+	 * @return The sprite.
+	 */
+	const ImageData *GetDemolishedBinSprite(uint8 orient) const
+	{
+		return this->path_decoration.demolished_bin[orient];
+	}
+
+	/**
+	 * Get a demolished lamp sprite.
+	 * @param orient View orientation.
+	 * @return The sprite.
+	 */
+	const ImageData *GetDemolishedLampSprite(uint8 orient) const
+	{
+		return this->path_decoration.demolished_lamp[orient];
+	}
+
+	/**
+	 * Get a normal bench sprite.
+	 * @param orient View orientation.
+	 * @return The sprite.
+	 */
+	const ImageData *GetNormalBenchSprite(uint8 orient) const
+	{
+		return this->path_decoration.bench[orient];
+	}
+
+	/**
+	 * Get a normal bin sprite.
+	 * @param orient View orientation.
+	 * @return The sprite.
+	 */
+	const ImageData *GetNormalBinSprite(uint8 orient) const
+	{
+		return this->path_decoration.litterbin[orient];
+	}
+
+	/**
+	 * Get a normal lamp sprite.
+	 * @param orient View orientation.
+	 * @return The sprite.
+	 */
+	const ImageData *GetNormalLampSprite(uint8 orient) const
+	{
+		return this->path_decoration.lamp_post[orient];
+	}
+
+	/**
+	 * Get an overflowing bin sprite.
+	 * @param orient View orientation.
+	 * @return The sprite.
+	 */
+	const ImageData *GetOverflowBinSprite(uint8 orient) const
+	{
+		return this->path_decoration.overflow_bin[orient];
+	}
+
+	/**
+	 * Get a vomit sprite.
+	 * @param ramp Ramp direction of the path (#INVALID_EDGE for flat paths).
+	 * @param index Sprite index.
+	 * @return The sprite.
+	 */
+	const ImageData *GetVomitSprite(TileEdge ramp, int index) const
+	{
+		return (ramp == INVALID_EDGE ? this->path_decoration.flat_vomit : this->path_decoration.ramp_vomit[ramp])[index];
+	}
+
 	const uint16 size; ///< Width of the tile.
 
 	SurfaceData surface[GTP_COUNT];   ///< Surface data.
@@ -690,15 +812,10 @@ public:
 	SurfaceData tile_select;          ///< Tile selection sprites.
 	TileCorners tile_corners;         ///< Tile corner sprites.
 	Fence *fence[FENCE_COUNT];        ///< Available fence types.
-	Path path_sprites[PAT_COUNT];     ///< %Path sprites.
+	ImageData *path_sprites[PAT_COUNT * PAS_COUNT * PATH_COUNT];  ///< Path sprites.
 	PathDecoration path_decoration;   ///< %Path decoration sprites.
 	DisplayedObject build_arrows;     ///< Arrows displaying build direction of paths and tracks.
 	AnimationSpritesMap animations;   ///< %Animation sprites ordered by animation type.
-	FrameSetsMap frame_sets;             ///< Frame sets.
-	TimedAnimationsMap timed_animations; ///< Timed animations.
-
-protected:
-	void Clear();
 };
 
 /**
@@ -713,25 +830,56 @@ public:
 	void LoadRcdFiles();
 	void AddBlock(std::unique_ptr<RcdBlock> block);
 
-	const SpriteStorage *GetSprites(uint16 size) const;
 	void AddAnimation(Animation *anim);
 	const ImageData *GetTableSprite(uint16 number) const;
 	const Rectangle16 &GetTableSpriteSize(uint16 number);
 	const Animation *GetAnimation(AnimationType anim_type, PersonType per_type) const;
-	const Fence *GetFence(FenceType fence) const;
+	const Fence *GetFence(FenceType fence, int zoom) const;
 	const FrameSet *GetFrameSet(const ImageSetKey &key) const;
 	const TimedAnimation *GetTimedAnimation(const ImageSetKey &key) const;
+	bool HasPath(PathType type, PathStatus status) const;
 
-	PathStatus GetPathStatus(PathType path_type);
+	/**
+	 * Get a sprite from the sprite storage. If the sprite is only available at a different resolution, it will be scaled.
+	 * @param zoom Zoom scale.
+	 * @param f Functor to extract the image from a sprite storage.
+	 * @param args Arguments to forward to the functor.
+	 * @return The image.
+	 */
+	template<typename Fn, typename... Args>
+	const ImageData *GetSprite(int zoom, Fn f, Args... args)
+	{
+		for (int z = zoom; z < ZOOM_SCALES_COUNT; ++z) {
+			const ImageData *img = (this->store.at(z).*f)(args...);
+			if (img != nullptr) return img->Scale(img->width * TileWidth(zoom) / TileWidth(z));
+		}
+		for (int z = zoom - 1; z >= 0; --z) {
+			const ImageData *img = (this->store.at(z).*f)(args...);
+			if (img != nullptr) return img->Scale(img->width * TileWidth(zoom) / TileWidth(z));
+		}
+		return nullptr;
+	}
+
+	/**
+	 * Get the sprite storage at the size to use in the Gui.
+	 * @return The sprite storage.
+	 */
+	inline SpriteStorage &GetGuiSpriteStore()
+	{
+		return this->store.at(DEFAULT_ZOOM);
+	}
 
 protected:
 	void Load(const char *fname);
-	SpriteStorage *GetSpriteStore(uint16 width);
 
 	std::vector<std::unique_ptr<RcdBlock>> blocks;  ///< List of loaded RCD data blocks.
 
-	SpriteStorage store;      ///< Sprite storage of size 64.
-	AnimationsMap animations; ///< Available animations.
+	SpriteStorage *GetSpriteStore(int width);
+
+	std::vector<SpriteStorage> store;        ///< Sprite storage for each zoom scale.
+	AnimationsMap animations;                ///< Available animations.
+	FrameSetsMap frame_sets;                 ///< Available frame sets.
+	TimedAnimationsMap timed_animations;     ///< Available timed animations.
 
 private:
 	void LoadSURF(RcdFileReader *rcd_file, const ImageMap &sprites);

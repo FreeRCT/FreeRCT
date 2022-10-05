@@ -42,9 +42,69 @@ CarType *GetNewCarType()
 	return &_car_types[index];
 }
 
-CarType::CarType()
+/**
+ * Retrieve an image of the car at a given \a pitch, \a roll, and \a yaw orientation.
+ * @param pitch Required pitch of the car.
+ * @param roll Required roll of the car.
+ * @param yaw Required yaw of the car.
+ * @param tile_width Desired scale tile width.
+ * @return Image of the car in the requested orientation, if available.
+ */
+const ImageData *CarType::GetCar(uint pitch, uint roll, uint yaw, uint16 tile_width) const
 {
-	std::fill_n(this->cars, lengthof(this->cars), nullptr);
+	const int array_index = (pitch & 0xf) | ((roll & 0xf) << 4) | ((yaw & 0xf) << 8);
+	int smallest_bigger_index = -1;
+	int biggest_smaller_index = -1;
+
+	for (int z = 0; z < this->scales; ++z) {
+		if (this->tile_width[z] == tile_width) {
+			return this->cars[z][array_index];
+		} else if (this->tile_width[z] > tile_width) {
+			if (smallest_bigger_index < 0 || this->tile_width[z] < this->tile_width[smallest_bigger_index]) smallest_bigger_index = z;
+		} else {
+			if (biggest_smaller_index < 0 || this->tile_width[z] > this->tile_width[biggest_smaller_index]) biggest_smaller_index = z;
+		}
+	}
+
+	/* No match. Downscale an image if possible; otherwise upscale one. */
+	int index = smallest_bigger_index >= 0 ? smallest_bigger_index : biggest_smaller_index;
+	assert(index >= 0);
+	ImageData *img_to_scale = this->cars[index][array_index];
+	if (img_to_scale == nullptr) return nullptr;
+	return img_to_scale->Scale(img_to_scale->width * tile_width / this->tile_width[index]);
+}
+
+/**
+ * Retrieve a guest overlay sprite at a given \a pitch, \a roll, and \a yaw orientation.
+ * @param pitch Required pitch of the car.
+ * @param roll Required roll of the car.
+ * @param yaw Required yaw of the car.
+ * @param tile_width Desired scale tile width.
+ * @param slot Seat number of the guest to overlay.
+ * @return The overlay in the requested orientation, if available.
+ */
+const ImageData *CarType::GetGuestOverlay(uint pitch, uint roll, uint yaw, uint16 tile_width, uint slot) const
+{
+	const int array_index = slot * 16u*16u*16u + ((pitch & 0xf) | ((roll & 0xf) << 4) | ((yaw & 0xf) << 8));
+	int smallest_bigger_index = -1;
+	int biggest_smaller_index = -1;
+
+	for (int z = 0; z < this->scales; ++z) {
+		if (this->tile_width[z] == tile_width) {
+			return this->guest_overlays[z][array_index];
+		} else if (this->tile_width[z] > tile_width) {
+			if (smallest_bigger_index < 0 || this->tile_width[z] < this->tile_width[smallest_bigger_index]) smallest_bigger_index = z;
+		} else {
+			if (biggest_smaller_index < 0 || this->tile_width[z] > this->tile_width[biggest_smaller_index]) biggest_smaller_index = z;
+		}
+	}
+
+	/* No match. Downscale an image if possible; otherwise upscale one. */
+	int index = smallest_bigger_index >= 0 ? smallest_bigger_index : biggest_smaller_index;
+	assert(index >= 0);
+	ImageData *img_to_scale = this->guest_overlays[index][array_index];
+	if (img_to_scale == nullptr) return nullptr;
+	return img_to_scale->Scale(img_to_scale->width * tile_width / this->tile_width[index]);
 }
 
 /**
@@ -54,16 +114,18 @@ CarType::CarType()
  */
 void CarType::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	rcd_file->CheckVersion(3);
+	rcd_file->CheckVersion(4);
 	int length = rcd_file->size;
-	length -= 2 + 2 + 4 + 4 + 2 + 2 + 16384 + 4 * 3;
+	rcd_file->CheckMinLength(length, 1, "header");
+
+	this->scales = rcd_file->GetUInt8();
+	length -= 1 + 2 * this->scales + 4 + 4 + 2 + 2 + 16384 * this->scales + 4 * 3;
 	rcd_file->CheckMinLength(length, 0, "header");
 
-	this->tile_width = rcd_file->GetUInt16();
-	if (this->tile_width != 64) rcd_file->Error("Unsupported tile width %d", this->tile_width);  // Do not allow anything else than 64 pixels tile width.
-
-	this->z_height = rcd_file->GetUInt16();
-	if (this->z_height != this->tile_width / 4) rcd_file->Error("Wrong Z height");
+	this->tile_width.reset(new uint16[this->scales]);
+	for (int z = 0; z < this->scales; ++z) this->tile_width[z] = rcd_file->GetUInt16();
+	this->cars.reset(new std::array<ImageData*, 4096>[this->scales]);
+	this->guest_overlays.reset(new std::unique_ptr<ImageData*[]>[this->scales]);
 
 	this->car_length = rcd_file->GetUInt32();
 	if (this->car_length > 65535) rcd_file->Error("Car too long");  // Assumption is that a car fits in a single tile, at least some of the time.
@@ -77,16 +139,21 @@ void CarType::Load(RcdFileReader *rcd_file, const ImageMap &sprites)
 	uint16 pass_per_row = this->num_passengers / this->num_entrances;
 	if (this->num_passengers != pass_per_row * this->num_entrances) rcd_file->Error("Passenger counts don't match up");
 
-	for (uint i = 0; i < 4096; i++) {
-		LoadSpriteFromFile(rcd_file, sprites, &this->cars[i]);
+	for (int z = 0; z < this->scales; ++z) {
+		for (uint i = 0; i < 4096; i++) {
+			LoadSpriteFromFile(rcd_file, sprites, &this->cars[z][i]);
+		}
+		if (this->cars[z][0] == nullptr) rcd_file->Error("No car type");
 	}
 
-	if (this->cars[0] == nullptr) rcd_file->Error("No car type");
 	const int64 nr_overlays = 4096 * this->num_passengers;
-	rcd_file->CheckExactLength(length, 4 * nr_overlays, "guest overlays");
-	this->guest_overlays.reset(new ImageData*[nr_overlays]);
-	for (int64 i = 0; i < nr_overlays; i++) {
-		LoadSpriteFromFile(rcd_file, sprites, &this->guest_overlays[i]);
+	rcd_file->CheckExactLength(length, 4 * nr_overlays * this->scales, "guest overlays");
+
+	for (int z = 0; z < this->scales; ++z) {
+	this->guest_overlays[z].reset(new ImageData*[nr_overlays]);
+		for (int64 i = 0; i < nr_overlays; i++) {
+			LoadSpriteFromFile(rcd_file, sprites, &this->guest_overlays[z][i]);
+		}
 	}
 
 	for (int i = 0; i < 3; i++) {
@@ -205,60 +272,49 @@ int CoasterType::GetTrackVoxelIndex(const TrackVoxel *tvx) const
 }
 
 /** Default constructor, no sprites available yet. */
-CoasterPlatform::CoasterPlatform()
-:
-	ne_sw_back(nullptr), ne_sw_front(nullptr), se_nw_back(nullptr), se_nw_front(nullptr),
-	sw_ne_back(nullptr), sw_ne_front(nullptr), nw_se_back(nullptr), nw_se_front(nullptr)
+CoasterPlatform::CoasterPlatform() : bg(nullptr), fg(nullptr)
 {
 }
 
 /**
  * Load a coaster platform (CSPL) block.
  * @param rcd_file Data file being loaded.
- * @param sprites Sprites already loaded from the RCD file.
  */
-void LoadCoasterPlatform(RcdFileReader *rcd_file, const ImageMap &sprites)
+void LoadCoasterPlatform(RcdFileReader *rcd_file)
 {
-	rcd_file->CheckVersion(2);
-	rcd_file->CheckExactLength(rcd_file->size, 2 + 1 + 8 * 4, "header");
+	rcd_file->CheckVersion(3);
+	rcd_file->CheckExactLength(rcd_file->size, 1 + 2 * 4, "header");
 
-	uint16 width = rcd_file->GetUInt16();
-	if (width != 64) rcd_file->Error("Wrong width");
 	uint8 type = rcd_file->GetUInt8();
 	if (type >= CPT_COUNT) rcd_file->Error("Unknown type");
 
 	CoasterPlatform &platform = _coaster_platforms[type];
-	platform.tile_width = width;
 	platform.type = static_cast<CoasterPlatformType>(type);
 
-	LoadSpriteFromFile(rcd_file, sprites, &platform.ne_sw_back);
-	LoadSpriteFromFile(rcd_file, sprites, &platform.ne_sw_front);
-	LoadSpriteFromFile(rcd_file, sprites, &platform.se_nw_back);
-	LoadSpriteFromFile(rcd_file, sprites, &platform.se_nw_front);
-	LoadSpriteFromFile(rcd_file, sprites, &platform.sw_ne_back);
-	LoadSpriteFromFile(rcd_file, sprites, &platform.sw_ne_front);
-	LoadSpriteFromFile(rcd_file, sprites, &platform.nw_se_back);
-	LoadSpriteFromFile(rcd_file, sprites, &platform.nw_se_front);
+	platform.bg = _sprite_manager.GetFrameSet(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
+	platform.fg = _sprite_manager.GetFrameSet(ImageSetKey(rcd_file->filename, rcd_file->GetUInt32()));
+	if (platform.bg == nullptr || platform.fg == nullptr) rcd_file->Error("Invalid graphics");
+	if (platform.bg->width_x != 1 || platform.fg->width_x != 1 || platform.bg->width_y != 1 || platform.fg->width_y != 1) rcd_file->Error("Invalid dimension");
 }
 
 DisplayCoasterCar::DisplayCoasterCar() : yaw(0xff), owning_car(nullptr)  // Mark everything as invalid.
 {
 }
 
-const ImageData *DisplayCoasterCar::GetSprite([[maybe_unused]] const SpriteStorage *sprites, ViewOrientation orient, const Recolouring **recolour) const
+const ImageData *DisplayCoasterCar::GetSprite(ViewOrientation orient, int zoom, const Recolouring **recolour) const
 {
 	*recolour = &this->owning_car->owning_train->coaster->recolours;
-	return this->car_type->GetCar(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF);
+	return this->car_type->GetCar(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF, TileWidth(zoom));
 }
 
-VoxelObject::Overlays DisplayCoasterCar::GetOverlays([[maybe_unused]] const SpriteStorage *sprites, ViewOrientation orient) const
+VoxelObject::Overlays DisplayCoasterCar::GetOverlays(ViewOrientation orient, int zoom) const
 {
 	Overlays result;
 	if (this->owning_car == nullptr) return result;
 	for (int i = 0; i < this->car_type->num_passengers; i++) {
 		if (this->owning_car->guests[i] != nullptr) {
 			result.push_back(Overlay {
-					this->car_type->GetGuestOverlay(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF, i),
+					this->car_type->GetGuestOverlay(this->pitch, this->roll, (this->yaw + orient * 4) & 0xF, TileWidth(zoom), i),
 					&this->owning_car->guests[i]->recolour});
 		}
 	}
@@ -890,7 +946,7 @@ void CoasterInstance::InitializeItemPricesAndStatistics()
 	}
 }
 
-void CoasterInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, const ImageData *sprites[4], uint8 *platform) const
+void CoasterInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uint8 orient, int zoom, const ImageData *sprites[4], uint8 *platform) const
 {
 	const CoasterType *ct = this->GetCoasterType();
 
@@ -900,16 +956,14 @@ void CoasterInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uin
 		return (4 + o - orient) & 3;
 	};
 	if (this->IsEntranceLocation(vox)) {
-		const ImageData *const *array = _rides_manager.entrances[this->entrance_type]->images[orientation_index(EntranceExitRotation(vox, nullptr))];
-		sprites[1] = array[0];
-		sprites[2] = array[1];
+		sprites[1] = _rides_manager.entrances[this->entrance_type]->bg->GetSprite(0, 0, orientation_index(EntranceExitRotation(vox, nullptr)), zoom);
+		sprites[2] = _rides_manager.entrances[this->entrance_type]->fg->GetSprite(0, 0, orientation_index(EntranceExitRotation(vox, nullptr)), zoom);
 		if (platform != nullptr) *platform = PATH_NE_NW_SE_SW;
 		return;
 	}
 	if (this->IsExitLocation(vox)) {
-		const ImageData *const *array = _rides_manager.exits[this->exit_type]->images[orientation_index(EntranceExitRotation(vox, nullptr))];
-		sprites[1] = array[0];
-		sprites[2] = array[1];
+		sprites[1] = _rides_manager.exits[this->exit_type]->bg->GetSprite(0, 0, orientation_index(EntranceExitRotation(vox, nullptr)), zoom);
+		sprites[2] = _rides_manager.exits[this->exit_type]->fg->GetSprite(0, 0, orientation_index(EntranceExitRotation(vox, nullptr)), zoom);
 		if (platform != nullptr) *platform = PATH_NE_NW_SE_SW;
 		return;
 	}
@@ -922,37 +976,16 @@ void CoasterInstance::GetSprites(const XYZPoint16 &vox, uint16 voxel_number, uin
 	assert(voxel_number < ct->voxels.size());
 	const TrackVoxel *tv = ct->voxels[voxel_number];
 
-	sprites[1] = tv->back[orient];  // SO_RIDE
-	sprites[2] = tv->front[orient]; // SO_RIDE_FRONT
-	if ((tv->back[orient] == nullptr && tv->front[orient] == nullptr) || !tv->HasPlatform() || ct->platform_type >= CPT_COUNT) {
+	sprites[1] = tv->bg == nullptr ? nullptr : tv->bg->GetSprite(0, 0, orient, zoom);  // SO_RIDE
+	sprites[2] = tv->fg == nullptr ? nullptr : tv->fg->GetSprite(0, 0, orient, zoom);  // SO_RIDE_FRONT
+	if ((sprites[1] == nullptr && sprites[2] == nullptr) || !tv->HasPlatform() || ct->platform_type >= CPT_COUNT) {
 		sprites[0] = nullptr; // SO_PLATFORM_BACK
 		sprites[3] = nullptr; // SO_PLATFORM_FRONT
 	} else {
 		const CoasterPlatform &platform = _coaster_platforms[ct->platform_type];
 		TileEdge edge = static_cast<TileEdge>(orientation_index(tv->GetPlatformDirection()));
-		switch (edge) {
-			case EDGE_NE:
-				sprites[0] = platform.ne_sw_back;
-				sprites[3] = platform.ne_sw_front;
-				break;
-
-			case EDGE_SE:
-				sprites[0] = platform.se_nw_back;
-				sprites[3] = platform.se_nw_front;
-				break;
-
-			case EDGE_SW:
-				sprites[0] = platform.sw_ne_back;
-				sprites[3] = platform.sw_ne_front;
-				break;
-
-			case EDGE_NW:
-				sprites[0] = platform.nw_se_back;
-				sprites[3] = platform.nw_se_front;
-				break;
-
-			default: NOT_REACHED();
-		}
+		sprites[0] = platform.bg->GetSprite(0, 0, edge, zoom);
+		sprites[3] = platform.fg->GetSprite(0, 0, edge, zoom);
 	}
 }
 

@@ -12,10 +12,88 @@
 #include "sprite_data.h"
 #include "fileio.h"
 #include "bitmath.h"
+#include "video.h"
 
+#include <cmath>
 #include <vector>
 
-static const uint32 IMAGE_BATCH_SIZE = 1024;  ///< Number of images that are batch-preallocated (arbitrary number).
+constexpr uint32 IMAGE_BATCH_SIZE  = 1024;  ///< Number of images that are batch-preallocated (arbitrary number).
+constexpr uint32 MAX_CACHE_ENTRIES = 3000;  ///< Maximum number of cached sprites (arbitrary number).
+constexpr uint32 MAX_CACHE_SIZE    =  800;  ///< Maximum number of cache entries (arbitrary number).
+
+ImageVariants::ImageVariants()
+{
+	this->cache.reserve(MAX_CACHE_SIZE);
+}
+
+ImageVariants::Variant::Variant(const ImageData *img) : sprite(img), last_accessed(Time())
+{
+}
+
+/**
+ * Get the scaled instance of an image, if present.
+ * @param img Source image.
+ * @param width Width of the scaled image.
+ * @return The image's RGBA data or \c nullptr.
+ */
+ImageData *ImageVariants::GetScaled(const ImageData *img, uint16 width)
+{
+	for (Variant &v : this->cache) {
+		if (v.sprite == img) {
+			for (const auto &image : v.scaled) {
+				if (image->width == width) {
+					v.last_accessed = Time();
+					return image.get();
+				}
+			}
+			return nullptr;
+		}
+	}
+	return nullptr;
+}
+
+/**
+ * Insert a scaled image into this cache.
+ * @param img Source image.
+ * @param scale Scaling factor.
+ * @param scaled Scaled image. Takes ownership.
+ */
+void ImageVariants::Insert(const ImageData *img, ImageData *scaled)
+{
+	for (Variant &v : this->cache) {
+		if (v.sprite == img) {
+			v.scaled.emplace_back(scaled);
+			v.last_accessed = Time();
+			return;
+		}
+	}
+	this->cache.emplace_back(img);
+	this->cache.back().scaled.emplace_back(scaled);
+}
+
+/** Delete images from the cache that haven't been accessed for some time. */
+void ImageVariants::DropStale()
+{
+	uint32 cache_size = this->cache.size();
+	uint32 entries = 0;
+	for (const Variant &v : this->cache) entries += v.Size();
+
+	while (entries > MAX_CACHE_ENTRIES || cache_size > MAX_CACHE_SIZE) {
+		uint32 oldest_index = 0;
+		for (uint32 i = 1; i < cache_size; ++i) {
+			if (this->cache.at(i).last_accessed < this->cache.at(oldest_index).last_accessed) {
+				oldest_index = i;
+			}
+		}
+
+		entries -= this->cache.at(oldest_index).Size();
+		this->cache.at(oldest_index) = std::move(this->cache.back());
+		this->cache.pop_back();
+		--cache_size;
+	}
+}
+
+ImageVariants _image_variants;  ///< Singleton image variants tracker.
 
 static std::vector<std::unique_ptr<ImageData[]>> _sprites;  ///< Available sprites to the program.
 static uint32 _sprites_loaded;                              ///< Total number of sprites loaded.
@@ -287,14 +365,10 @@ uint32 ImageData::GetPixel(uint16 xoffset, uint16 yoffset, const Recolouring *re
  * Get this image with a gradient shift and/or recolouring applied.
  * @param shift Gradient shift to apply to the image.
  * @param recolour Recolouring to apply to the image.
- * @return The altered image's RGBA pixel values.
+ * @return The altered image's RGBA pixel values. Ownership is passed to the caller.
  */
-const uint8 *ImageData::GetRecoloured(GradientShift shift, const Recolouring &recolour) const
+std::unique_ptr<uint8[]> ImageData::GetRecoloured(GradientShift shift, const Recolouring &recolour) const
 {
-	RecolourData map_key(shift, recolour.ToCondensed());
-	const auto it = this->recoloured.find(map_key);
-	if (it != this->recoloured.end()) return it->second.get();
-
 	ShiftFunc af = GetAlphaShiftFunc(shift);
 	std::unique_ptr<uint8[]> result(new uint8[this->width * this->height * 4]);
 	uint8 *ptr = result.get();
@@ -333,9 +407,75 @@ const uint8 *ImageData::GetRecoloured(GradientShift shift, const Recolouring &re
 		}
 	}
 
-	ptr = result.get();
-	this->recoloured.emplace(map_key, std::move(result));
-	return ptr;
+	return result;
+}
+
+/**
+ * Scale this image to a different size.
+ * @param factor Factor by which to scale.
+ * @return The scaled instance.
+ */
+const ImageData *ImageData::Scale(uint16 desired_width) const
+{
+	if (desired_width == this->width) return this;
+
+	ImageData *cached = _image_variants.GetScaled(this, desired_width);
+	if (cached != nullptr) return cached;
+
+	ImageData *img = new ImageData;
+	img->is_8bpp = this->is_8bpp;
+	img->width   = desired_width;
+	img->height  = this->height  * desired_width / this->width;
+	img->xoffset = this->xoffset * desired_width / this->width;
+	img->yoffset = this->yoffset * desired_width / this->width;
+
+	const size_t nrecol = (img->is_8bpp ? 1 : 2);
+	img->recol.reset(new uint8[nrecol * img->width * img->height]);
+	img->rgba.reset(new uint8[img->width * img->height * 4]);
+
+	if (desired_width > this->width) {
+		/* Upscaling. Each old pixel is copied to multiple new pixels. */
+		for (uint16 x = 0; x < img->width; ++x) {
+			for (uint16 y = 0; y < img->height; ++y) {
+				uint16 oldx = this->width * x / img->width;
+				uint16 oldy = this->height * y / img->height;
+				uint8 *newptr = &img->rgba[4 * (y * img->width + x)];
+				const uint8 *oldptr = &this->rgba[4 * (oldy * this->width + oldx)];
+				for (int i = 0; i < 4; ++i) *(newptr++) = *(oldptr++);
+
+				newptr = &img->recol[nrecol * (y * img->width + x)];
+				oldptr = &this->recol[nrecol * (oldy * this->width + oldx)];
+				for (size_t i = 0; i < nrecol; ++i) *(newptr++) = *(oldptr++);
+			}
+		}
+	} else {
+		/* Downscaling. Each new pixel is averaged from multiple old pixels. */
+		for (uint16 x = 0; x < img->width; ++x) {
+			for (uint16 y = 0; y < img->height; ++y) {
+				uint16 oldx1 = this->width * x / img->width;
+				uint16 oldy1 = this->height * y / img->height;
+				uint16 oldx2 = this->width * (x + 1) / img->width;
+				uint16 oldy2 = this->height * (y + 1) / img->height;
+				assert(oldx2 > oldx1 && oldy2 > oldy1);
+				int avg[] = {0, 0, 0, 0};
+				for (uint16 oldx = oldx1; oldx < oldx2; ++oldx) {
+					for (uint16 oldy = oldy1; oldy < oldy2; ++oldy) {
+						const uint8 *oldptr = &this->rgba[4 * (oldy * this->width + oldx)];
+						for (int i = 0; i < 4; ++i) avg[i] += *(oldptr++);
+					}
+				}
+				uint8 *newptr = &img->rgba[4 * (y * img->width + x)];
+				for (int i = 0; i < 4; ++i) *(newptr++) = avg[i] / ((oldx2 - oldx1) * (oldy2 - oldy1));
+
+				newptr = &img->recol[nrecol * (y * img->width + x)];
+				const uint8 *oldptr = &this->recol[nrecol * (oldy1 * this->width + oldx1)];
+				for (size_t i = 0; i < nrecol; ++i) *(newptr++) = *(oldptr++);
+			}
+		}
+	}
+
+	_image_variants.Insert(this, img);
+	return img;
 }
 
 /**

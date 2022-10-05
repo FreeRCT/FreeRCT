@@ -698,7 +698,7 @@ void CoasterInstanceWindow::SelectorMouseMoveEvent(Viewport *vp, const Point16 &
 		this->entrance_exit_placement.SetPosition(location.x, location.y);
 		this->entrance_exit_placement.AddVoxel(location);
 		this->entrance_exit_placement.SetupRideInfoSpace();
-		this->entrance_exit_placement.SetRideData(location, static_cast<SmallRideInstance>(this->ci->GetIndex()), SHF_ENTRANCE_BITS, -1);
+		this->entrance_exit_placement.SetRideData(location, static_cast<SmallRideInstance>(this->ci->GetIndex()), SHF_ENTRANCE_BITS, nullptr);
 		placed = true;
 		break;
 	}
@@ -821,10 +821,12 @@ void TrackPieceMouseMode::UpdateTileData()
 	for (const auto &tv : this->pos_piece.piece->track_voxels) this->AddVoxel(this->pos_piece.base_voxel + tv->dxyz);
 
 	this->SetupRideInfoSpace();
+	const Viewport *vp = _window_manager.GetViewport();
 	for (const auto &tv : this->pos_piece.piece->track_voxels) {
 		XYZPoint16 p(this->pos_piece.base_voxel + tv->dxyz);
 		this->SetRideData(p, this->ci->GetRideNumber(), this->ci->GetInstanceData(tv.get()), (tv->dxyz.x == 0 && tv->dxyz.y == 0 && tv->dxyz.z == 0) ?
-				SPR_GUI_BUILDARROW_START + (4 + this->pos_piece.piece->entry_connect - _window_manager.GetViewport()->orientation) % 4 : -1);
+				_sprite_manager.GetSprite(vp->zoom, &SpriteStorage::GetArrowSprite,
+						this->pos_piece.piece->entry_connect, vp->orientation) : nullptr);
 	}
 }
 
@@ -1155,36 +1157,22 @@ void CoasterBuildWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid)
 	/* Render the track piece's preview. \todo Needs testing with a multi-voxel track piece. */
 	std::map<XYZPoint16, std::vector<const ImageData*>> sprites;
 	for (const auto &tv : this->piece_selector.pos_piece.piece->track_voxels) {
-		if (tv->back [orient] != nullptr) sprites[tv->dxyz].push_back(tv->back [orient]);
-		if (tv->front[orient] != nullptr) sprites[tv->dxyz].push_back(tv->front[orient]);
+		const CoasterPlatform *platform = tv->HasPlatform() ? &_coaster_platforms[this->ci->GetCoasterType()->platform_type] : nullptr;
+		int platform_orient = (tv->GetPlatformDirection() + 4 - orient) % 4;
 
-		if (tv->HasPlatform()) {
-			const CoasterPlatform &platform = _coaster_platforms[this->ci->GetCoasterType()->platform_type];
-			switch ((tv->GetPlatformDirection() + 4 - orient) % 4) {
-				case EDGE_NE:
-					sprites[tv->dxyz].push_back(platform.ne_sw_back);
-					sprites[tv->dxyz].push_back(platform.ne_sw_front);
-					break;
-				case EDGE_SE:
-					sprites[tv->dxyz].push_back(platform.se_nw_back);
-					sprites[tv->dxyz].push_back(platform.se_nw_front);
-					break;
-				case EDGE_SW:
-					sprites[tv->dxyz].push_back(platform.sw_ne_back);
-					sprites[tv->dxyz].push_back(platform.sw_ne_front);
-					break;
-				case EDGE_NW:
-					sprites[tv->dxyz].push_back(platform.nw_se_back);
-					sprites[tv->dxyz].push_back(platform.nw_se_front);
-					break;
-				default: NOT_REACHED();
-			}
-		}
+		if (platform != nullptr) sprites[tv->dxyz].push_back(platform->bg->GetSprite(0, 0, platform_orient, DEFAULT_ZOOM));
+
+		const ImageData *img = tv->bg == nullptr ? nullptr : tv->bg->GetSprite(0, 0, orient, DEFAULT_ZOOM);
+		if (img != nullptr) sprites[tv->dxyz].push_back(img);
+		img = tv->fg == nullptr ? nullptr : tv->fg->GetSprite(0, 0, orient, DEFAULT_ZOOM);
+		if (img != nullptr) sprites[tv->dxyz].push_back(img);
+
+		if (platform != nullptr) sprites[tv->dxyz].push_back(platform->fg->GetSprite(0, 0, platform_orient, DEFAULT_ZOOM));
 	}
 	for (const auto &pair : sprites) {
 		const Point32 p(
-				x + wid->pos.width  / 2 + (pair.first.y - pair.first.x               ) * vp->tile_width,
-				y + wid->pos.height / 2 + (pair.first.x + pair.first.y - pair.first.z) * vp->tile_height);
+				x + wid->pos.width  / 2 + (pair.first.y - pair.first.x               ) * TileWidth(vp->zoom),
+				y + wid->pos.height / 2 + (pair.first.x + pair.first.y - pair.first.z) * TileHeight(vp->zoom));
 		for (const ImageData *i : pair.second) _video.BlitImage(p, i);
 	}
 

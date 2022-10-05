@@ -32,15 +32,20 @@ RCST {
 			dx: 0; dy: 0; dz: 0;
 			flags: bitset(north, east, south, west);
 
-			(w_back, n_back): sheet {
-				x_base: 0; y_base: 0; x_step: 64; y_step: 64;
-				file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-				x_offset: -32; y_offset: -40; width: 64; height: 64;
-			}
-			(e_back, s_back): sheet {
-				x_base: 0; y_base: 0; x_step: 64; y_step: 64;
-				file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-				x_offset: -32; y_offset: -40; width: 64; height: 64;
+			bg: FSET {
+				tile_width: 64;
+				width_x: 1;
+				width_y: 1;
+				(nw_0_0, ne_0_0) : sheet {
+					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
+					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
+				(se_0_0, sw_0_0) : sheet {
+					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
+					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
 			}
 		}
 		track_voxel {
@@ -68,15 +73,20 @@ RCST {
 		track_voxel {
 			dx: 0; dy: 0; dz: 0; flags: swne + bitset(north, east, south, west);
 
-			(w_back, n_back): sheet {
-				x_base: 0; y_base: 0; x_step: 64; y_step: 64;
-				file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-				x_offset: -32; y_offset: -40; width: 64; height: 64;
-			}
-			(e_back, s_back): sheet {
-				x_base: 0; y_base: 0; x_step: 64; y_step: 64;
-				file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-				x_offset: -32; y_offset: -40; width: 64; height: 64;
+			bg: FSET {
+				tile_width: 64;
+				width_x: 1;
+				width_y: 1;
+				(nw_0_0, ne_0_0) : sheet {
+					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
+					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
+				(sw_0_0, se_0_0) : sheet {
+					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
+					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
 			}
 		}
 		track_voxel {
@@ -104,10 +114,15 @@ RCST {
 		track_voxel {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
-			(w_back, s_back, e_back, n_back): sheet {
-				x_base: 0; y_base: 64; x_step: 64; y_step: 64;
-				file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-				x_offset: -32; y_offset: -40; width: 64; height: 64;
+			bg: FSET {
+				tile_width: 64;
+				width_x: 1;
+				width_y: 1;
+				(nw_0_0, sw_0_0, se_0_0, ne_0_0) : sheet {
+					x_base: 0; y_base: 64; x_step: 64; y_step: 64;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
+					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
 			}
 		}
 		track_voxel {
@@ -133,10 +148,15 @@ RCST {
 		track_voxel {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
-			(s_back, e_back, n_back, w_back): sheet {
-				x_base: 0; y_base: 64; x_step: 64; y_step: 64;
-				file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-				x_offset: -32; y_offset: -40; width: 64; height: 64;
+			bg: FSET {
+				tile_width: 64;
+				width_x: 1;
+				width_y: 1;
+				(sw_0_0, se_0_0, ne_0_0, nw_0_0) : sheet {
+					x_base: 0; y_base: 64; x_step: 64; y_step: 64;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
+					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
 			}
 		}
 		track_voxel {
@@ -164,10 +184,15 @@ RCST {
 		track_voxel {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
-			(w_back, s_back, e_back, n_back): sheet {
-				x_base: 0; y_base: 128; x_step: 64; y_step: 64;
-				file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-				x_offset: -32; y_offset: -40; width: 64; height: 64;
+			bg: FSET {
+				tile_width: 64;
+				width_x: 1;
+				width_y: 1;
+				(nw_0_0, sw_0_0, se_0_0, ne_0_0) : sheet {
+					x_base: 0; y_base: 128; x_step: 64; y_step: 64;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
+					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
 			}
 		}
 		track_voxel {
@@ -193,10 +218,15 @@ RCST {
 		track_voxel {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
-			(w_back, s_back, e_back, n_back): sheet {
-				x_base: 0; y_base: 256; x_step: 64; y_step: 64;
-				file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-				x_offset: -32; y_offset: -24; width: 64; height: 64;
+			bg: FSET {
+				tile_width: 64;
+				width_x: 1;
+				width_y: 1;
+				(nw_0_0, sw_0_0, se_0_0, ne_0_0) : sheet {
+					x_base: 0; y_base: 256; x_step: 64; y_step: 64;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
+					x_offset: -32; y_offset: -24; width: 64; height: 64;
+				}
 			}
 		}
 		track_voxel {
@@ -225,10 +255,15 @@ RCST {
 		track_voxel {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
-			(w_back, s_back, e_back, n_back): sheet {
-				x_base: 0; y_base: 192; x_step: 64; y_step: 64;
-				file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-				x_offset: -32; y_offset: -24; width: 64; height: 64;
+			bg: FSET {
+				tile_width: 64;
+				width_x: 1;
+				width_y: 1;
+				(nw_0_0, sw_0_0, se_0_0, ne_0_0) : sheet {
+					x_base: 0; y_base: 192; x_step: 64; y_step: 64;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
+					x_offset: -32; y_offset: -24; width: 64; height: 64;
+				}
 			}
 		}
 		track_voxel {
@@ -257,10 +292,15 @@ RCST {
 		track_voxel {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
-			(e_back, n_back, w_back, s_back): sheet {
-				x_base: 0; y_base: 192; x_step: 64; y_step: 64;
-				file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-				x_offset: -32; y_offset: -24; width: 64; height: 64;
+			bg: FSET {
+				tile_width: 64;
+				width_x: 1;
+				width_y: 1;
+				(se_0_0, ne_0_0, nw_0_0, sw_0_0) : sheet {
+					x_base: 0; y_base: 192; x_step: 64; y_step: 64;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
+					x_offset: -32; y_offset: -24; width: 64; height: 64;
+				}
 			}
 		}
 		track_voxel {
@@ -289,10 +329,15 @@ RCST {
 		track_voxel {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
-			(e_back, n_back, w_back, s_back): sheet {
-				x_base: 0; y_base: 256; x_step: 64; y_step: 64;
-				file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-				x_offset: -32; y_offset: -24; width: 64; height: 64;
+			bg: FSET {
+				tile_width: 64;
+				width_x: 1;
+				width_y: 1;
+				(se_0_0, ne_0_0, nw_0_0, sw_0_0) : sheet {
+					x_base: 0; y_base: 256; x_step: 64; y_step: 64;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
+					x_offset: -32; y_offset: -24; width: 64; height: 64;
+				}
 			}
 		}
 		track_voxel {
@@ -321,10 +366,15 @@ RCST {
 		track_voxel {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
-			(e_back, n_back, w_back, s_back): sheet {
-				x_base: 0; y_base: 128; x_step: 64; y_step: 64;
-				file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-				x_offset: -32; y_offset: -40; width: 64; height: 64;
+			bg: FSET {
+				tile_width: 64;
+				width_x: 1;
+				width_y: 1;
+				(se_0_0, ne_0_0, nw_0_0, sw_0_0) : sheet {
+					x_base: 0; y_base: 128; x_step: 64; y_step: 64;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
+					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
 			}
 		}
 		track_voxel {
@@ -353,10 +403,15 @@ RCST {
 		track_voxel {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
-			(w_back, s_back, e_back, n_back) : sheet {
-				x_base: 0; y_base: 320; x_step: 64; y_step: 64;
-				file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-				x_offset: -32; y_offset: -40; width: 64; height: 64;
+			bg: FSET {
+				tile_width: 64;
+				width_x: 1;
+				width_y: 1;
+				(nw_0_0, sw_0_0, se_0_0, ne_0_0) : sheet {
+					x_base: 0; y_base: 320; x_step: 64; y_step: 64;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
+					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
 			}
 		}
 		track_voxel {
@@ -383,10 +438,15 @@ RCST {
 		track_voxel {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
-			(w_back, s_back, e_back, n_back): sheet {
-				x_base: 0; y_base: 384; x_step: 64; y_step: 64;
-				file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-				x_offset: -32; y_offset: -24; width: 64; height: 64;
+			bg: FSET {
+				tile_width: 64;
+				width_x: 1;
+				width_y: 1;
+				(nw_0_0, sw_0_0, se_0_0, ne_0_0) : sheet {
+					x_base: 0; y_base: 384; x_step: 64; y_step: 64;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
+					x_offset: -32; y_offset: -24; width: 64; height: 64;
+				}
 			}
 		}
 		track_voxel {
@@ -416,10 +476,15 @@ RCST {
 		track_voxel {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
-			(e_back, n_back, w_back, s_back): sheet {
-				x_base: 0; y_base: 448; x_step: 64; y_step: 64;
-				file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
-				x_offset: -32; y_offset: -24; width: 64; height: 64;
+			bg: FSET {
+				tile_width: 64;
+				width_x: 1;
+				width_y: 1;
+				(se_0_0, ne_0_0, nw_0_0, sw_0_0) : sheet {
+					x_base: 0; y_base: 448; x_step: 64; y_step: 64;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
+					x_offset: -32; y_offset: -24; width: 64; height: 64;
+				}
 			}
 		}
 		track_voxel {
@@ -433,7 +498,6 @@ RCST {
 
 CARS {
 	tile_width: 64;
-	z_height:  16;
 	length: 45000; // Arbitrary length of a car, needs further tweaking.
 	inter_length: 5000;
 	num_passengers: 4;
@@ -531,50 +595,55 @@ CARS {
 }
 
 CSPL { // Coaster platforms.
-	tile_width: 64;
 	type: wood;
-
-	// Platform itself has no direction.
-	ne_sw_back: sprite {
-		x_base: 0; y_base: 0;
-		file: "../sprites/tracks/platforms2.png";
-		width: 62; height: 31; x_offset: -30; y_offset: -10;
+	bg: FSET {
+		tile_width: 64;
+		width_x: 1;
+		width_y: 1;
+		ne_0_0: sprite {
+			x_base: 0; y_base: 0;
+			file: "../sprites/tracks/platforms2.png";
+			width: 62; height: 31; x_offset: -30; y_offset: -10;
+		}
+		sw_0_0: sprite {
+			x_base: 0; y_base: 0;
+			file: "../sprites/tracks/platforms2.png";
+			width: 62; height: 31; x_offset: -30; y_offset: -10;
+		}
+		nw_0_0: sprite {
+			x_base: 65; y_base: 0;
+			file: "../sprites/tracks/platforms2.png";
+			width: 62; height: 31; x_offset: -30; y_offset: -10;
+		}
+		se_0_0: sprite {
+			x_base: 65; y_base: 0;
+			file: "../sprites/tracks/platforms2.png";
+			width: 62; height: 31; x_offset: -30; y_offset: -10;
+		}
 	}
-	ne_sw_front: sprite {
-		x_base: 0; y_base: 34;
-		file: "../sprites/tracks/platforms2.png";
-		width: 62; height: 31; x_offset: -30; y_offset: -10;
+	fg: FSET {
+		tile_width: 64;
+		width_x: 1;
+		width_y: 1;
+		ne_0_0: sprite {
+			x_base: 0; y_base: 34;
+			file: "../sprites/tracks/platforms2.png";
+			width: 62; height: 31; x_offset: -30; y_offset: -10;
+		}
+		sw_0_0: sprite {
+			x_base: 0; y_base: 34;
+			file: "../sprites/tracks/platforms2.png";
+			width: 62; height: 31; x_offset: -30; y_offset: -10;
+		}
+		nw_0_0: sprite {
+			x_base: 65; y_base: 34;
+			file: "../sprites/tracks/platforms2.png";
+			width: 62; height: 31; x_offset: -30; y_offset: -10;
+		}
+		se_0_0: sprite {
+			x_base: 65; y_base: 34;
+			file: "../sprites/tracks/platforms2.png";
+			width: 62; height: 31; x_offset: -30; y_offset: -10;
+		}
 	}
-	sw_ne_back: sprite {
-		x_base: 0; y_base: 0;
-		file: "../sprites/tracks/platforms2.png";
-		width: 62; height: 31; x_offset: -30; y_offset: -10;
-	}
-	sw_ne_front: sprite {
-		x_base: 0; y_base: 34;
-		file: "../sprites/tracks/platforms2.png";
-		width: 62; height: 31; x_offset: -30; y_offset: -10;
-	}
-
-	// Platform itself has no direction.
-	nw_se_back: sprite {
-		x_base: 65; y_base: 0;
-		file: "../sprites/tracks/platforms2.png";
-		width: 62; height: 31; x_offset: -30; y_offset: -10;
-	}
-	nw_se_front: sprite {
-		x_base: 65; y_base: 34;
-		file: "../sprites/tracks/platforms2.png";
-		width: 62; height: 31; x_offset: -30; y_offset: -10;
-	}
-	se_nw_back: sprite {
-		x_base: 65; y_base: 0;
-		file: "../sprites/tracks/platforms2.png";
-		width: 62; height: 31; x_offset: -30; y_offset: -10;
-	}
-	se_nw_front: sprite {
-		x_base: 65; y_base: 34;
-		file: "../sprites/tracks/platforms2.png";
-		width: 62; height: 31; x_offset: -30; y_offset: -10;
-	}
-	}
+}

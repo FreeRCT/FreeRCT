@@ -79,7 +79,7 @@ void ShopType::Load(RcdFileReader *rcd_file, [[maybe_unused]] const ImageMap &sp
 		rcd_file->Error("Idle animation does not fit");
 	}
 	for (int i = 0; i < 4; i++) {
-		previews[i] = animation_idle->sprites[i][0];
+		previews[i] = animation_idle->GetSprite(0, 0, i, DEFAULT_ZOOM);
 	}
 	this->working_duration = 0;       // Shops don't have working phases.
 	this->default_idle_duration = 1;  // Ignored.

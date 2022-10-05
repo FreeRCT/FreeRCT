@@ -1,5 +1,5 @@
 :Author: Alberth
-:Version: 2022-09-09
+:Version: 2022-09-16
 
 .. contents::
    :depth: 3
@@ -612,31 +612,38 @@ Version history
 
 Frame Sets
 ~~~~~~~~~~
-A set of sprites for an object (e.g. a ride) that occupies (x*y) tiles. FreeRCT can read block version 1.
+A set of sprites for an object (e.g. a ride) that occupies (x*y) tiles. FreeRCT can read block version 2.
 
-===============  =======  =======  =================================================================
-Offset           Length   Version  Description
-===============  =======  =======  =================================================================
-   0              4        1-      Magic string 'FSET'.
-   4              4        1-      Version number of the block.
-   8              4        1-      Length of the block excluding magic string, version, and length.
-  12              2        1-      Zoom-width of a tile of the surface.
-  14              1        1-      Number x of tiles in x direction.
-  15              1        1-      Number y of tiles in y direction.
-  16              4*x*y    1-      Unrotated views (ne), for each tile.
-  16+4*x*y        4*x*y    1-      Views after 1 quarter negative rotation (se).
-  16+8*x*y        4*x*y    1-      Views after 2 quarter negative rotations (sw).
-  16+12*x*y       4*x*y    1-      Views after 3 quarter negative rotations (nw).
-  16+16*x*y                        Total length.
-===============  =======  =======  =================================================================
+=================  =======  =======  =================================================================
+Offset             Length   Version  Description
+=================  =======  =======  =================================================================
+   0               4        1-       Magic string 'FSET'.
+   4               4        1-       Version number of the block.
+   8               4        1-       Length of the block excluding magic string, version, and length.
+  12               1        2-       Number z of zoom scales in the set.
+  --               2        1-1      Zoom-width of a tile of the surface.
+  13               1        1-       Number x of tiles in x direction.
+  14               1        1-       Number y of tiles in y direction.
+  15               2*z      2-       Zoom-width of a tile of the surface, for each zoom scale.
+  --               4*x*y    1-1      Unrotated views (ne), for each tile.
+  --               4*x*y    1-1      Views after 1 quarter negative rotation (se).
+  --               4*x*y    1-1      Views after 2 quarter negative rotations (sw).
+  --               4*x*y    1-1      Views after 3 quarter negative rotations (nw).
+  15+2*z           4*x*y*z  2-       Unrotated views (ne), for each tile.
+  15+2*z+4*x*y*z   4*x*y*z  2-       Views after 1 quarter negative rotation (se).
+  15+2*z+8*x*y*z   4*x*y*z  2-       Views after 2 quarter negative rotations (sw).
+  15+2*z+12*x*y*z  4*x*y*z  2-       Views after 3 quarter negative rotations (nw).
+  15+2*z+16*x*y*z                    Total length.
+=================  =======  =======  =================================================================
 
-A view consists of a sprite block reference for each tile of the object,
-with x as the minor index and y as the major index.
+A view consists of a sprite block reference for each tile and zoom scale of the object.
+The index order from minor to major is x - y - z.
 
 Version history
 ...............
 
 - 1 (20210131) Initial version.
+- 2 (20220915) Add zoom.
 
 
 Timed animations
@@ -673,19 +680,21 @@ Offset       Length   Version  Description
    8          4        1-      Length of the block excluding magic string, version, and length.
   12          1        1-      Magic number 1 for entrances or 0 for exits.
   13          4        1-      Strings of the entrance/exit type (reference to a TEXT block).
-  17          2        1-      Zoom-width of a tile of the surface.
-  19          4        1-      Unrotated (ne) image, background sprite.
-  23          4        1-      ne image, foreground sprite.
-  27          4        1-      se image, background.
-  31          4        1-      se image, foreground.
-  35          4        1-      sw image, background.
-  39          4        1-      sw image, foreground.
-  43          4        1-      nw image, background.
-  47          4        1-      nw image, foreground.
-  51          4        1-      First recolouring specification.
-  55          4        1-      Second recolouring specification.
-  59          4        1-      Third recolouring specification.
-  63          ?        2-      Characters of the type's internal name, nul-terminated.
+  --          2        1-1     Zoom-width of a tile of the surface.
+  --          4        1-1     Unrotated (ne) image, background sprite.
+  --          4        1-1     ne image, foreground sprite.
+  --          4        1-1     se image, background.
+  --          4        1-1     se image, foreground.
+  --          4        1-1     sw image, background.
+  --          4        1-1     sw image, foreground.
+  --          4        1-1     nw image, background.
+  --          4        1-1     nw image, foreground.
+  17          4        3-      Background images (reference to an FSET block).
+  21          4        3-      Foreground images (reference to an FSET block).
+  25          4        1-      First recolouring specification.
+  29          4        1-      Second recolouring specification.
+  33          4        1-      Third recolouring specification.
+  37          ?        2-      Characters of the type's internal name, nul-terminated.
    ?                           Total length.
 ===========  =======  =======  ==================================================================
 
@@ -694,6 +703,7 @@ Version history
 
 - 1 (20210206) Initial version.
 - 2 (20220829) Added internal name.
+- 3 (20220915) Use FSET for graphics.
 
 
 Gentle and thrill rides
@@ -1308,9 +1318,9 @@ Offset   Length  Version  Field name          Description
   18        2      2-     track_flags         Flags of the track piece (version 2 is 1 byte).
   20        4      2-     cost                Cost of this track piece.
   24        2      1-                         Number of voxels in this track piece (called 'n').
-  26      36*n     1-                         Voxel definitions
-26+36*n     4      4-     <calculated>        Length of the piece, in 1/256 pixels.
-30+36*n     ?      4-     car_xpos            Car x position.
+  26      12*n     1-                         Voxel definitions
+26+12*n     4      4-     <calculated>        Length of the piece, in 1/256 pixels.
+30+12*n     ?      4-     car_xpos            Car x position.
    ?        ?      4-     car_ypos            Car y position.
    ?        ?      4-     car_xpos            Car z position.
    ?        ?      4-     car_pitch           Car pitch (may be empty).
@@ -1335,19 +1345,21 @@ A voxel definition is
 =======  ======  =======  ==================  ================================================================
 Offset   Length  Version  Field name          Description
 =======  ======  =======  ==================  ================================================================
-   0       4       1-     n_back              Reference to the background tracks for north view.
-   4       4       2-     e_back              Reference to the background tracks for east view.
-   8       4       2-     s_back              Reference to the background tracks for south view.
-  12       4       2-     w_back              Reference to the background tracks for west view.
-  16       4       2-     n_front             Reference to the front tracks for north view.
-  20       4       2-     e_front             Reference to the front tracks for east view.
-  24       4       2-     s_front             Reference to the front tracks for south view.
-  28       4       2-     w_front             Reference to the front tracks for west view.
-  32       1       1-     dx                  Relative X position of the voxel.
-  33       1       1-     dy                  Relative Y position of the voxel.
-  34       1       1-     dz                  Relative Z position of the voxel.
-  35       1       1-     flags               Flags of the voxel (space requirements, platforms).
-  36                                          Total length of a voxel definition.
+  --       4       1-5    n_back              Reference to the background tracks for north view.
+  --       4       2-5    e_back              Reference to the background tracks for east view.
+  --       4       2-5    s_back              Reference to the background tracks for south view.
+  --       4       2-5    w_back              Reference to the background tracks for west view.
+  --       4       2-5    n_front             Reference to the front tracks for north view.
+  --       4       2-5    e_front             Reference to the front tracks for east view.
+  --       4       2-5    s_front             Reference to the front tracks for south view.
+  --       4       2-5    w_front             Reference to the front tracks for west view.
+   0       4       6-     bg                  Background images (reference to an FSET block).
+   4       4       6-     fg                  Foreground images (reference to an FSET block).
+   8       1       1-     dx                  Relative X position of the voxel.
+   9       1       1-     dy                  Relative Y position of the voxel.
+  10       1       1-     dz                  Relative Z position of the voxel.
+  11       1       1-     flags               Flags of the voxel (space requirements, platforms).
+  12                                          Total length of a voxel definition.
 =======  ======  =======  ==================  ================================================================
 
 The flags are defined as follows:
@@ -1406,30 +1418,34 @@ Version history
 - 4 (20131117) Moved platform bits from track piece to track voxel.
 - 5 (20131218) Added length of the track piece, and ``car_xpos``, ``car_ypos``,
   ``car_zpos``, ``car_pitch``, ``car_roll``, and ``car_yaw`` entries.
+- 6 (20220915) Use FSET for graphics.
 
 Coaster cars
 ~~~~~~~~~~~~
-Sprites for cars on the coaster tracks. Currently at version 3.
+Sprites for cars on the coaster tracks. Currently at version 4.
 
-==========================  =====================  =======  =================================  ================================================================
-Offset                      Length                 Version  Field name                         Description
-==========================  =====================  =======  =================================  ================================================================
-   0                            4                     1-                                       Magic string 'CARS'.
-   4                            4                     1-                                       Version number of the block.
-   8                            4                     1-                                       Length of the block excluding magic string, version, and length.
-  12                            2                     1-     tile_width                        Zoom-width of a tile.
-  14                            2                     1-     z_height                          Change in Z height of the tiles.
-  16                            4                     1-     length                            Length of a car (in 1/65,536 unit).
-  20                            4                     2-     inter_length                      Length between two cars (in 1/65,536 unit).
-  24                            2                     1-     num_passengers                    Number of passengers that can be carried.
-  26                            2                     1-     num_entrances                     Number of rows for entering/exiting the car.
-  28                          16384                   1-     car_p\ **P**\ r\ **R**\ y\ **Y**  4096 (16 * 16 * 16) sprites with different pitch, roll, and yaw.
- 16412                       16384*num_passengers     3-                                       num_passengers sets of 4096 guest overlay sprites each.
-16412+16384*num_passengers      4                     3-                                       First recolouring specification.
-16416+16384*num_passengers      4                     3-                                       Second recolouring specification.
-16420+16384*num_passengers      4                     3-                                       Third recolouring specification.
-16424+16384*num_passengers                                                                     Total length of the block.
-==========================  =====================  =======  =================================  ================================================================
+==========================  =====================  =======  ===========================================================================================
+Offset                      Length                 Version   Description
+==========================  =====================  =======  ===========================================================================================
+   0                            4                     1-     Magic string 'CARS'.
+   4                            4                     1-     Version number of the block.
+   8                            4                     1-     Length of the block excluding magic string, version, and length.
+  --                            2                     1-3    Zoom-width of a tile.
+  --                            2                     1-3    Change in Z height of the tiles.
+  12                            1                     4-     Number z of zoom scales in the set.
+  13                           2*z                    4-     Zoom-width of a tile for each zoom scale.
+  13+2*z                        4                     1-     Length of a car (in 1/65,536 unit).
+  17+2*z                        4                     2-     Length between two cars (in 1/65,536 unit).
+  19+2*z                        2                     1-     Number n of passengers that can be carried.
+  21+2*z                        2                     1-     Number of rows for entering/exiting the car.
+  --                          16384                   1-3    4096 (16 * 16 * 16) sprites with different pitch, roll, and yaw.
+  23+2*z                      16384*z                 4-     For each zoom scale, 4096 (16 * 16 * 16) sprites with different pitch, roll, and yaw.
+ 23+16386*z                   16384*z*g               3-     n sets of 4096 guest overlay sprites each.
+23+16386*z+16384*z*g            4                     3-     First recolouring specification.
+27+16386*z+16384*z*g            4                     3-     Second recolouring specification.
+31+16386*z+16384*z*g            4                     3-     Third recolouring specification.
+35+16386*z+16384*z*g                                         Total length of the block.
+==========================  =====================  =======  ===========================================================================================
 
 with
 
@@ -1448,6 +1464,7 @@ Version history
 - 1 (20131020) Initial version.
 - 2 (20140201) Added inter-car length field.
 - 3 (20210409) Added recolourings and guests overlays.
+- 4 (20220916) Add zoom.
 
 
 Coaster platforms
@@ -1460,17 +1477,19 @@ Offset   Length  Version  Field name   Description
    0        4      1-                  Magic string 'CSPL'.
    4        4      1-                  Version number of the block.
    8        4      1-                  Length of the block excluding magic string, version, and length.
-  12        2      1-     tile_width   Zoom-width of a tile.
-  14        1      1-     type         Type of the platform, see `Roller coaster tracks`_.
-  15        4      1-     ne_sw_back   Background platform sprite of the NE to SW direction.
-  19        4      1-     ne_sw_front  Foreground platform sprite of the NE to SW direction.
-  23        4      2-     se_nw_back   Background platform sprite of the SE to NW direction.
-  27        4      2-     se_nw_front  Foreground platform sprite of the SE to NW direction.
-  31        4      2-     sw_ne_back   Background platform sprite of the SW to NE direction.
-  35        4      2-     sw_ne_front  Foreground platform sprite of the SW to NE direction.
-  39        4      1-     nw_se_back   Background platform sprite of the NW to SE direction.
-  43        4      1-     nw_se_front  Foreground platform sprite of the NW to SE direction.
-  47                                   Total length of the block.
+  --        2      1-2    tile_width   Zoom-width of a tile.
+  12        1      1-     type         Type of the platform, see `Roller coaster tracks`_.
+  --        4      1-2    ne_sw_back   Background platform sprite of the NE to SW direction.
+  --        4      1-2    ne_sw_front  Foreground platform sprite of the NE to SW direction.
+  --        4      2-2    se_nw_back   Background platform sprite of the SE to NW direction.
+  --        4      2-2    se_nw_front  Foreground platform sprite of the SE to NW direction.
+  --        4      2-2    sw_ne_back   Background platform sprite of the SW to NE direction.
+  --        4      2-2    sw_ne_front  Foreground platform sprite of the SW to NE direction.
+  --        4      1-2    nw_se_back   Background platform sprite of the NW to SE direction.
+  --        4      1-2    nw_se_front  Foreground platform sprite of the NW to SE direction.
+  13        4      3-     bg           Background images (reference to an FSET block).
+  17        4      3-     fg           Foreground images (reference to an FSET block).
+  21                                   Total length of the block.
 =======  ======  =======  ===========  ================================================================
 
 The direction of a platform is the same as the movement direction of a coaster train.
@@ -1480,6 +1499,7 @@ Version history
 
 - 1 (20131120) Initial version.
 - 2 (20131123) Added the missing directions SE to NW, and SW to NE.
+- 3 (20220915) Use FSET for graphics.
 
 
 GUI

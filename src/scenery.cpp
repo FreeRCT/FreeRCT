@@ -114,23 +114,8 @@ void PathObjectInstance::RecomputeExistenceState()
 
 	if (this->type->ignore_edges) {
 		if (this->state == 0xFF) {
-			const PathDecoration &pdec = _sprite_manager.GetSprites(64)->path_decoration;
-			uint8 count;
-			if (is_ramp) {
-				this->data[0] = path_slope_imploded - PATH_FLAT_COUNT;
-				count = (this->type == &PathObjectType::LITTER ? pdec.ramp_litter_count : pdec.ramp_vomit_count)[this->data[0]];
-			} else {
-				this->data[0] = INVALID_EDGE;
-				count = (this->type == &PathObjectType::LITTER ? pdec.flat_litter_count : pdec.flat_vomit_count);
-			}
-
-			assert(count > 0);
-			if (count > 1) {
-				Random r;
-				this->state = r.Uniform(count - 1);
-			} else {
-				this->state = 0;
-			}
+			Random r;
+			this->state = r.Uniform(PathDecoration::LITTER_VOMIT_COUNT - 1);
 		}
 		return;
 	}
@@ -235,27 +220,15 @@ void PathObjectInstance::RemoveGuestsFromBench(const TileEdge e)
 /**
  * Get all sprites that should be drawn for this object.
  * @param orientation Viewport orientation.
+ * @param zoom Zoom scale.
  * @return All sprites to draw.
  */
-std::vector<PathObjectInstance::PathObjectSprite> PathObjectInstance::GetSprites(const uint8 orientation) const
+std::vector<PathObjectInstance::PathObjectSprite> PathObjectInstance::GetSprites(const uint8 orientation, const int zoom) const
 {
-	const PathDecoration &pdec = _sprite_manager.GetSprites(64)->path_decoration;
-
 	if (this->type->ignore_edges) {
-		switch (this->data[0]) {
-			case INVALID_EDGE:
-				return {PathObjectInstance::PathObjectSprite((
-						this->type == &PathObjectType::LITTER ? pdec.flat_litter : pdec.flat_vomit)[this->state], this->pix_pos)};
-
-			case EDGE_NE:
-			case EDGE_SE:
-			case EDGE_SW:
-			case EDGE_NW:
-				return {PathObjectInstance::PathObjectSprite((
-						this->type == &PathObjectType::LITTER ? pdec.ramp_litter : pdec.ramp_vomit)[this->data[0]][this->state], this->pix_pos)};
-
-			default: NOT_REACHED();
-		}
+		return {PathObjectInstance::PathObjectSprite(
+			_sprite_manager.GetSprite(zoom, this->type == &PathObjectType::LITTER ? &SpriteStorage::GetLitterSprite : &SpriteStorage::GetVomitSprite,
+			static_cast<TileEdge>(this->data[0]), this->state), this->pix_pos)};
 	} else {
 		std::vector<PathObjectSprite> result;
 		XYZPoint16 offset;
@@ -275,24 +248,24 @@ std::vector<PathObjectInstance::PathObjectSprite> PathObjectInstance::GetSprites
 
 			if (this->GetDemolishedOnTileEdge(e)) {
 				if (this->type == &PathObjectType::BENCH) {
-					result.emplace_back(pdec.demolished_bench[orient], offset);
+					result.emplace_back(_sprite_manager.GetSprite(zoom, &SpriteStorage::GetDemolishedBenchSprite, orient), offset);
 				} else if (this->type == &PathObjectType::LAMP) {
-					result.emplace_back(pdec.demolished_lamp[orient], offset);
+					result.emplace_back(_sprite_manager.GetSprite(zoom, &SpriteStorage::GetDemolishedLampSprite, orient), offset);
 				} else if (this->type == &PathObjectType::LITTERBIN) {
-					result.emplace_back(pdec.demolished_bin[orient], offset);
+					result.emplace_back(_sprite_manager.GetSprite(zoom, &SpriteStorage::GetDemolishedBinSprite, orient), offset);
 				} else {
 					NOT_REACHED();
 				}
 			} else {
 				if (this->type == &PathObjectType::BENCH) {
-					result.emplace_back(pdec.bench[orient], offset);
+					result.emplace_back(_sprite_manager.GetSprite(zoom, &SpriteStorage::GetNormalBenchSprite, orient), offset);
 				} else if (this->type == &PathObjectType::LAMP) {
-					result.emplace_back(pdec.lamp_post[orient], offset);
+					result.emplace_back(_sprite_manager.GetSprite(zoom, &SpriteStorage::GetNormalLampSprite, orient), offset);
 				} else if (this->type == &PathObjectType::LITTERBIN) {
 					if (this->data[e] < PathObjectType::BIN_FULL_CAPACITY) {
-						result.emplace_back(pdec.litterbin[orient], offset);
+						result.emplace_back(_sprite_manager.GetSprite(zoom, &SpriteStorage::GetNormalBinSprite, orient), offset);
 					} else {
-						result.emplace_back(pdec.overflow_bin[orient], offset);
+						result.emplace_back(_sprite_manager.GetSprite(zoom, &SpriteStorage::GetOverflowBinSprite, orient), offset);
 					}
 				} else {
 					NOT_REACHED();
@@ -655,10 +628,12 @@ void SceneryInstance::RemoveFromWorld()
  * @param vox The voxel's absolute coordinates.
  * @param voxel_number Number of the voxel to draw (copied from the world voxel data).
  * @param orient View orientation.
+ * @param zoom Zoom scale index.
  * @param sprites [out] Sprites to draw, from back to front, #SO_PLATFORM_BACK, #SO_RIDE, #SO_RIDE_FRONT, and #SO_PLATFORM_FRONT.
  * @param platform [out] Shape of the support platform, if needed. @see PathSprites
  */
-void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_number, const uint8 orient, const ImageData *sprites[4], [[maybe_unused]] uint8 *platform) const
+void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_number, const uint8 orient,
+		int zoom, const ImageData *sprites[4], [[maybe_unused]] uint8 *platform) const
 {
 	sprites[0] = nullptr;
 	sprites[1] = nullptr;
@@ -667,9 +642,7 @@ void SceneryInstance::GetSprites(const XYZPoint16 &vox, const uint16 voxel_numbe
 	if (voxel_number == INVALID_VOXEL_DATA) return;
 	const XYZPoint16 unrotated_pos = UnorientatedOffset(this->orientation, vox.x - this->vox_pos.x, vox.y - this->vox_pos.y);
 	const TimedAnimation *anim = (this->IsDry() ? this->type->dry_animation : this->type->main_animation);
-	sprites[1] = anim->views[anim->GetFrame(this->animtime, true)]
-			->sprites[(this->orientation + 4 - orient) & 3]
-					[unrotated_pos.x * this->type->width_y + unrotated_pos.y];
+	sprites[1] = anim->views[anim->GetFrame(this->animtime, true)]->GetSprite(unrotated_pos.x, unrotated_pos.y, (this->orientation + 4 - orient) & 3, zoom);
 }
 
 /**
@@ -929,15 +902,16 @@ void SceneryManager::RemoveLitterAndVomit(const XYZPoint16 &pos)
  * Get all path objects that should be drawn at a given path.
  * @param pos Coordinate of the path.
  * @param orientation Viewport orientation.
+ * @param zoom Zoom scale index.
  * @return All path objects to draw.
  */
-std::vector<PathObjectInstance::PathObjectSprite> SceneryManager::DrawPathObjects(const XYZPoint16 &pos, const uint8 orientation) const
+std::vector<PathObjectInstance::PathObjectSprite> SceneryManager::DrawPathObjects(const XYZPoint16 &pos, const uint8 orientation, const int zoom) const
 {
 	std::vector<PathObjectInstance::PathObjectSprite> result;
 
 	for (const auto &pair : this->litter_and_vomit) {
 		if (pair.first == pos) {
-			for (const PathObjectInstance::PathObjectSprite &image : pair.second->GetSprites(orientation)) {
+			for (const PathObjectInstance::PathObjectSprite &image : pair.second->GetSprites(orientation, zoom)) {
 				result.push_back(image);
 			}
 		}
@@ -945,13 +919,13 @@ std::vector<PathObjectInstance::PathObjectSprite> SceneryManager::DrawPathObject
 
 	auto it = this->all_path_objects.find(pos);
 	if (it != this->all_path_objects.end()) {
-		for (const PathObjectInstance::PathObjectSprite &image : it->second->GetSprites(orientation)) {
+		for (const PathObjectInstance::PathObjectSprite &image : it->second->GetSprites(orientation, zoom)) {
 			result.push_back(image);
 		}
 	}
 
 	if (this->temp_path_object != nullptr && this->temp_path_object->vox_pos == pos) {
-		for (PathObjectInstance::PathObjectSprite image : this->temp_path_object->GetSprites(orientation)) {
+		for (PathObjectInstance::PathObjectSprite image : this->temp_path_object->GetSprites(orientation, zoom)) {
 			image.semi_transparent = true;
 			result.push_back(image);
 		}
