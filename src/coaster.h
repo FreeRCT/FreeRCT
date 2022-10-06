@@ -69,6 +69,7 @@ public:
 	void Load(RcdFileReader *rcd_file, const TextMap &texts, const TrackPiecesMap &piece_map);
 
 	int GetTrackVoxelIndex(const TrackVoxel *tvx) const;
+	int GetPieceIndex(ConstTrackPiecePtr p) const;
 
 	uint16 coaster_kind;       ///< Kind of coaster. @see CoasterKind
 	uint8 platform_type;       ///< Type of platform. @see CoasterPlatformType
@@ -277,6 +278,7 @@ public:
 
 	void Load(Loader &ldr) override;
 	void Save(Saver &svr) override;
+	void SaveDesign(const std::string &file, const std::string &design_name) const;
 
 	void RemoveStationsFromWorld();
 	void InsertStationsIntoWorld();

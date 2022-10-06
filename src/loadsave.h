@@ -18,13 +18,14 @@
 struct Scenario;
 
 static const std::string SAVEGAME_DIRECTORY("save");  ///< The directory where savegames are stored, relative to the user data directory.
+static const std::string TRACK_DESIGN_DIRECTORY("tracks");  ///< The directory where track designs are stored, relative to the user data directory.
 
 /** Class for loading a save game. */
 class Loader {
 public:
 	Loader(FILE *fp);
 
-	uint32 OpenPattern(const char *name, bool may_fail = false);
+	uint32 OpenPattern(const char *name, bool may_fail = false, bool name_only = false);
 	void ClosePattern();
 
 	uint8 GetByte();
@@ -50,6 +51,7 @@ class Saver {
 public:
 	Saver(FILE *fp);
 
+	void StartPattern(const char *name);
 	void StartPattern(const char *name, uint32 version);
 	void EndPattern();
 

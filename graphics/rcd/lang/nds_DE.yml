@@ -372,6 +372,7 @@ strings:
 			one:   "%1% Wagen"
 			other: "%1% Wagens"
 		COASTER_MANAGER_EDIT:           "Spoor bewarken"
+		COASTER_MANAGER_SAVE_DESIGN:    "Spoormodell sekern"
 		COASTER_MANAGER_NO_GRAPHS_YET:  "Noch nich meten"
 		COASTER_MANAGER_GRAPH_SPEED:          "Gauheid"
 		COASTER_MANAGER_GRAPH_VERT_G:         "Vertikaal G"

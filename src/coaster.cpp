@@ -271,6 +271,21 @@ int CoasterType::GetTrackVoxelIndex(const TrackVoxel *tvx) const
 	return std::distance(this->voxels.begin(), match);
 }
 
+/**
+ * Get the index of the provided piece.
+ * @param p Track piece to look for.
+ * @return Index of the provided piece in this coaster type or \c -1 for not found.
+ */
+int CoasterType::GetPieceIndex(ConstTrackPiecePtr p) const
+{
+	for (uint j = 0; j < this->pieces.size(); ++j) {
+		if (p == this->pieces[j]) {
+			return j;
+		}
+	}
+	return -1;
+}
+
 /** Default constructor, no sprites available yet. */
 CoasterPlatform::CoasterPlatform() : bg(nullptr), fg(nullptr)
 {
@@ -1967,13 +1982,8 @@ void CoasterInstance::Save(Saver &svr)
 
 	for (int i = 0; i < this->capacity; i++) {
 		if (this->pieces[i].piece != nullptr) {
-			for (uint j = 0; j < ct->pieces.size(); j++) {
-				if (this->pieces[i].piece == ct->pieces[j]) {
-					svr.PutLong(j);
-					this->pieces[i].Save(svr);
-					break;
-				}
-			}
+			svr.PutLong(ct->GetPieceIndex(this->pieces[i].piece));
+			this->pieces[i].Save(svr);
 		}
 	}
 
@@ -2014,4 +2024,41 @@ void CoasterInstance::Save(Saver &svr)
 		svr.PutLong(pair.second.horizontal_g);
 	}
 	svr.EndPattern();
+}
+
+/**
+ * Save this coaster's track design.
+ * @param file File to save to.
+ * @param design_name Name for the design.
+ */
+void CoasterInstance::SaveDesign(const std::string &file, const std::string &design_name) const
+{
+	const CoasterType *ct = this->GetCoasterType();
+	TrackedRideDesign design;
+
+	design.ride = ct->InternalName();
+	design.name = design_name;
+	design.excitement_rating = this->excitement_rating;
+	design.intensity_rating  = this->intensity_rating;
+	design.nausea_rating     = this->nausea_rating;
+
+	for (int i = 0; i < this->capacity; ++i) {
+		if (this->pieces[i].piece != nullptr) {
+			design.pieces.emplace_back(ct->GetPieceIndex(this->pieces[i].piece), this->pieces[i].base_voxel);
+		}
+	}
+
+	ct->designs.push_back(design);
+
+	try {
+		FILE *fp = fopen(file.c_str(), "wb");
+		if (fp == nullptr) throw LoadingError("Could not open file for writing");
+
+		Saver svr(fp);
+		design.Save(svr);
+
+		fclose(fp);
+	} catch (const LoadingError &e) {
+		fprintf(stderr, "WARNING: Error saving track design to '%s': %s\n", file.c_str(), e.what());
+	}
 }

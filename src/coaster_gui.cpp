@@ -85,6 +85,7 @@ enum CoasterInstanceWidgets {
 	CIW_TITLEBAR,            ///< Titlebar widget.
 	CIW_REMOVE,              ///< Remove button widget.
 	CIW_EDIT,                ///< Edit coaster widget.
+	CIW_SAVE_DESIGN,         ///< Save track design widget.
 	CIW_OPEN_RIDE_PANEL,     ///< Open coaster button.
 	CIW_TEST_RIDE_PANEL,     ///< Test coaster button.
 	CIW_CLOSE_RIDE_PANEL,    ///< Close coaster button.
@@ -222,8 +223,9 @@ static const WidgetPart _coaster_instance_gui_parts[] = {
 					Widget(WT_EMPTY, CIW_GRAPH, COL_RANGE_DARK_RED), SetMinimalSize(GRAPH_HEIGHT, GRAPH_HEIGHT), SetFill(1, 1), SetResize(1, 1),
 
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(1, 2), SetEqualSize(true, true),
+			Intermediate(1, 3), SetEqualSize(true, true),
 				Widget(WT_TEXT_PUSHBUTTON, CIW_EDIT, COL_RANGE_DARK_RED), SetData(GUI_COASTER_MANAGER_EDIT, STR_NULL), SetFill(1, 1),
+				Widget(WT_TEXT_PUSHBUTTON, CIW_SAVE_DESIGN, COL_RANGE_DARK_RED), SetData(GUI_COASTER_MANAGER_SAVE_DESIGN, STR_NULL), SetFill(1, 1),
 				Widget(WT_TEXT_PUSHBUTTON, CIW_REMOVE, COL_RANGE_DARK_RED), SetData(GUI_ENTITY_REMOVE, GUI_ENTITY_REMOVE_TOOLTIP),
 	EndContainer(),
 };
@@ -464,6 +466,11 @@ void CoasterInstanceWindow::OnClick(WidgetNumber widget, [[maybe_unused]] const 
 			this->ci->CloseRide();
 			ShowCoasterBuildGui(this->ci);
 			delete this;  // The user must not change ride settings while the coaster is under construction.
+			break;
+
+		case CIW_SAVE_DESIGN:
+			// NOCOM sanitize filename & allow setting track name
+			this->ci->SaveDesign(TrackDesignDirectory() + DIR_SEP + this->ci->name + ".ftk", this->ci->name);
 			break;
 
 		case CIW_MAINTENANCE_INCREASE:

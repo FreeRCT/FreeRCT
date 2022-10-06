@@ -371,6 +371,7 @@ strings:
 			one:   "%1% car"
 			other: "%1% cars"
 		COASTER_MANAGER_EDIT:           "Edit track"
+		COASTER_MANAGER_SAVE_DESIGN:    "Save track design"
 		COASTER_MANAGER_NO_GRAPHS_YET:  "No measurements yet"
 		COASTER_MANAGER_GRAPH_SPEED:          "Speed"
 		COASTER_MANAGER_GRAPH_VERT_G:         "Vertical G"

@@ -372,6 +372,7 @@ strings:
 			one:   "%1% Wagen"
 			other: "%1% Wagen"
 		COASTER_MANAGER_EDIT:           "Strecke bearbeiten"
+		COASTER_MANAGER_SAVE_DESIGN:    "Streckenentwurf speichern"
 		COASTER_MANAGER_NO_GRAPHS_YET:  "Noch keine Messungen"
 		COASTER_MANAGER_GRAPH_SPEED:          "Geschwindigkeit"
 		COASTER_MANAGER_GRAPH_VERT_G:         "Vertikale G"

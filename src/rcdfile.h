@@ -34,6 +34,7 @@ public:
 	void AddFile(const RcdFileInfo &rcd);
 
 	std::map<std::string, RcdFileInfo> rcdfiles; ///< Found unique RCD files, mapping of uri to the Rcd file information.
+	std::vector<std::string>           ftkfiles; ///< Found unique FTK file paths.
 
 private:
 	const char *ScanFileForMetaInfo(const char *fname);

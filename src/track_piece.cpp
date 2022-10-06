@@ -333,3 +333,63 @@ void PositionedTrackPiece::Save(Saver &svr)
 	svr.PutLongLong(this->return_cost);
 	svr.EndPattern();
 }
+
+constexpr uint32 CURRENT_VERSION_TrackedRideDesign = 1;   ///< Currently supported version of %TrackedRideDesign.
+
+/**
+ * Load a tracked ride design from a file.
+ * @param ldr Loader to read from.
+ */
+TrackedRideDesign::TrackedRideDesign(Loader &ldr)
+{
+	const uint32 version = ldr.OpenPattern("FTKD");
+	if (version < 1 || version > CURRENT_VERSION_TrackedRideDesign) ldr.VersionMismatch(version, CURRENT_VERSION_TrackedRideDesign);
+
+	this->ride = ldr.GetText();
+	this->name = ldr.GetText();
+	this->excitement_rating = ldr.GetLong();
+	this->intensity_rating  = ldr.GetLong();
+	this->nausea_rating     = ldr.GetLong();
+
+	uint32 nr_pieces = ldr.GetLong();
+	this->pieces.reserve(nr_pieces);
+	for (; nr_pieces > 0; --nr_pieces) {
+		ldr.OpenPattern("trpc", false, true);
+		const uint32 track_piece_id = ldr.GetLong();
+		XYZPoint16 p;
+		p.x = ldr.GetWord();
+		p.y = ldr.GetWord();
+		p.z = ldr.GetWord();
+		ldr.ClosePattern();
+		this->pieces.emplace_back(track_piece_id, p);
+	}
+
+	ldr.ClosePattern();
+}
+
+/**
+ * Save this tracked ride design to the disk.
+ * @param svr Stream to write to.
+ */
+void TrackedRideDesign::Save(Saver &svr) const
+{
+	svr.StartPattern("FTKD", CURRENT_VERSION_TrackedRideDesign);
+
+	svr.PutText(this->ride);
+	svr.PutText(this->name);
+	svr.PutLong(this->excitement_rating);
+	svr.PutLong(this->intensity_rating);
+	svr.PutLong(this->nausea_rating);
+
+	svr.PutLong(this->pieces.size());
+	for (const AbstractTrackPiece &p : this->pieces) {
+		svr.StartPattern("trpc");
+		svr.PutLong(p.piece_id);
+		svr.PutWord(p.base_voxel.x);
+		svr.PutWord(p.base_voxel.y);
+		svr.PutWord(p.base_voxel.z);
+		svr.EndPattern();
+	}
+
+	svr.EndPattern();
+}
