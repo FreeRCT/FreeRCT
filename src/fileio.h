@@ -11,6 +11,8 @@
 #define FILEIO_H
 
 #include "string_func.h"
+#include <filesystem>
+#include <vector>
 
 /** An error that occurs while loading a data file. */
 struct LoadingError : public std::exception {
@@ -22,33 +24,7 @@ private:
 	std::string message;
 };
 
-/**
- * Base class for reading the contents of a directory.
- * Intended use:
- * - After creation (with the #MakeDirectoryReader function), call #OpenPath to open the directory.
- * - A new entry of the directory is returned with every call to #NextEntry.
- * - At the end, call #ClosePath to allow the object to clean up, and get ready for a next use.
- *
- * Alternatively, use #MakePath to construct a path you want to examine.
- * @ingroup fileio_group
- */
-class DirectoryReader {
-public:
-	DirectoryReader() = default;
-	virtual ~DirectoryReader() = default;
-
-	virtual void OpenPath(const char *path) = 0;
-	virtual const char *NextEntry() = 0;
-	virtual void ClosePath() = 0;
-
-	const char *NextFile();
-	virtual const char *MakePath(const char *directory, const char *fname) = 0;
-
-	virtual bool EntryIsFile() = 0;
-	virtual bool EntryIsDirectory() = 0;
-};
-
-extern const char *DIR_SEP;  ///< Directory separator character.
+constexpr  char DIR_SEP = '/';  ///< Directory separator character.
 
 /**
  * Class for reading an RCD file.
@@ -56,7 +32,7 @@ extern const char *DIR_SEP;  ///< Directory separator character.
  */
 class RcdFileReader {
 public:
-	RcdFileReader(const char *fname);
+	RcdFileReader(const std::string &fname);
 	~RcdFileReader();
 
 	bool CheckFileHeader(const char *hdr_name, uint32 version);
@@ -102,14 +78,14 @@ private:
 	size_t file_size; ///< Size of the opened file.
 };
 
-bool PathIsFile(const char *path);
-bool PathIsDirectory(const char *path);
+bool PathIsFile(const std::string &path);
+bool PathIsDirectory(const std::string &path);
+std::vector<std::string> GetAllEntries(const std::string &path);
+std::vector<std::string> GetAllFileEntries(const std::string &path);
 
-DirectoryReader *MakeDirectoryReader();
-
-void MakeDirectory(std::string path);
-void CopyBinaryFile(const char *src, const char *dest);
-void RemoveFile(const char *path);
+void MakeDirectory(const std::string &path);
+void CopyBinaryFile(const std::string &src, const std::string &dest);
+void RemoveFile(const std::string &path);
 
 const std::string &GetUserHomeDirectory();
 

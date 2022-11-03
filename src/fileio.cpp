@@ -16,16 +16,13 @@
 #include "fileio.h"
 #include "rev.h"
 #ifdef LINUX
-	#include "unix/fileio_unix.h"
 	#include <dirent.h>
 	#include <errno.h>
 	#include <unistd.h>
 #elif WINDOWS
-	#include "windows/fileio_windows.h"
 	#include <direct.h> // contains chdir in windows
 #endif
 #include <sys/types.h>
-#include <sys/stat.h>
 
 /**
  * Constructor.
@@ -51,85 +48,86 @@ const char* LoadingError::what() const noexcept
 }
 
 /**
- * @fn void DirectoryReader::OpenPath(const char *path)
- * Set up the directory reader object for reading a directory.
- * @param path Path to the directory.
- * @note Failure is not reported here, but #NextEntry will not return anything useful.
+ * Scan a given directory and return all entries.
+ * @param path Directory to scan.
  */
-
-/**
- * @fn const char *DirectoryReader::NextEntry()
- * Get next entry of the directory contents.
- * @return Pointer to name of next entry (as a file path suitable for opening a file). Returns \c nullptr if not next entry exists.
- * @note The memory returned is owned by the #DirectoryReader object, and should not be released.
- */
-
-/**
- * @fn void DirectoryReader::ClosePath()
- * Denote no further interest in reading the contents of the current directory.
- */
-
-/**
- * @fn const char *DirectoryReader::MakePath(const char *directory, const char *fname)
- * Construct a path from a directory and a file name.
- * @param directory Directory part of the path.
- * @param fname File name part of the path.
- * @return The combined path to the file.
- */
-
-/**
- * @fn bool DirectoryReader::EntryIsFile()
- * Test whether the last returned entry from #NextEntry is a file.
- * @return Whether the entry is a file.
- */
-
-/**
- * @fn bool DirectoryReader::EntryIsDirectory()
- * Test whether the last returned entry from #NextEntry is a directory.
- * @return Whether the entry is a directory.
- */
-
-/**
- * Get the next file entry.
- * Pulls entries from #NextEntry, until the end is reached or until a file is returned.
- * @return Next file entry, if available.
- */
-const char *DirectoryReader::NextFile()
+std::vector<std::string> GetAllEntries(const std::string &path)
 {
-	const char *entry;
+	std::vector<std::string> entries;
+	if (!PathIsDirectory(path)) return entries;
 
-	do {
-		entry = this->NextEntry();
-	} while (entry != nullptr && !this->EntryIsFile());
-	return entry;
+	for (const auto &entry : std::filesystem::directory_iterator(path)) {
+		std::string entryName = entry.path().string();
+		entries.push_back(entryName);
+	}
+	return entries;
+}
+
+/**
+ * Scan a given directory and return all file entries.
+ * @param path Directory to scan.
+ */
+std::vector<std::string> GetAllFileEntries(const std::string &path)
+{
+	std::vector<std::string> entries;
+	if (!PathIsDirectory(path)) return entries;
+
+	for (const auto &entry : std::filesystem::directory_iterator(path)) {
+		if (entry.is_regular_file()) {
+			std::string entryName = entry.path().string();
+			entries.push_back(entryName);
+		}
+	}
+	return entries;
 }
 
 
 /**
- * Construct a directory reader object (specific for the operating system).
- * @return A directory reader.
- * @ingroup fileio_group
+ * Delete the given file.
+ * @param path Path to delete.
  */
-DirectoryReader *MakeDirectoryReader()
+void RemoveFile(const std::string &path)
 {
-#ifdef LINUX
-	return new UnixDirectoryReader();
-#elif WINDOWS
-	return new WindowsDirectoryReader();
-#else
-	assert_compile(false);
-#endif
+
+	if (!PathIsFile(path)) return;
+
+	std::filesystem::remove(path);
+}
+
+/**
+ * Test whether the given path points to a normal file.
+ * @param path Path to investigate.
+ * @return Whether the given path points to a normal file.
+ */
+bool PathIsFile(const std::string &path)
+{
+	std::filesystem::path fs(path);
+
+	return std::filesystem::exists(fs) && std::filesystem::is_regular_file(fs);
+}
+
+/**
+ * Test whether the given path points to a directory.
+ * @param path Path to investigate.
+ * @return Whether the given path points to a directory.
+ */
+bool PathIsDirectory(const std::string &path)
+{
+	std::filesystem::path fs(path);
+
+	return std::filesystem::exists(fs) && std::filesystem::is_directory(fs);
+
 }
 
 /**
  * RCD file reader constructor, loading data from a file.
  * @param fname Name of the file to load.
  */
-RcdFileReader::RcdFileReader(const char *fname)
+RcdFileReader::RcdFileReader(const std::string &fname)
 : filename(fname), file_pos(0), file_size(0)
 {
 	this->name[4] = '\0';
-	this->fp = fopen(fname, "rb");
+	this->fp = fopen(fname.c_str(), "rb");
 	if (this->fp == nullptr) return;
 
 	if (fseek(this->fp, 0L, SEEK_END) != 0) {
@@ -336,28 +334,14 @@ bool RcdFileReader::GetBlob(void *address, size_t length)
  * @param path Path of the directory.
  * @todo At the time of writing (2021-06-30) this is tested only on Linux. Before using it anywhere else, test this on all platforms (especially Windows).
  */
-void MakeDirectory(std::string path)
+void MakeDirectory(const std::string &path)
 {
-	if (path.empty() || PathIsDirectory(path.c_str())) return;
+	if (path.empty() || PathIsDirectory(path)) return;
 
-	/* Strip trailing path separators. */
-	while (StrEndsWith(path.c_str(), DIR_SEP, false)) {
-		for (size_t i = strlen(DIR_SEP); i > 0; --i) {
-			path.pop_back();
-		}
+	bool check = std::filesystem::create_directories(path);
+	if (!check) {
+		error("Failed creating directory '%s'\n", path.c_str());
 	}
-
-	/* Recursively create parent directories. */
-	const size_t sep_pos = path.rfind(DIR_SEP);
-	if (sep_pos != std::string::npos) MakeDirectory(path.substr(0, sep_pos));
-
-#ifdef _WIN32
-	if (CreateDirectory(path.c_str(), NULL)) return;
-	error("Failed creating directory '%s'\n", path.c_str());
-#else
-	if (mkdir(path.c_str(), 0x1FF) == 0) return;
-	error("Failed creating directory '%s' (%s)\n", path.c_str(), strerror(errno));
-#endif
 }
 
 /**
@@ -365,28 +349,19 @@ void MakeDirectory(std::string path)
  * @param src Source file.
  * @param dest Destination file.
  */
-void CopyBinaryFile(const char *src, const char *dest)
+void CopyBinaryFile(const std::string &src, const std::string &dest)
 {
-	FILE *in_file = nullptr;
-	in_file = fopen(src, "rb");
-	if (in_file == nullptr) {
-		error("Could not open file for reading: %s\n", src);
+
+	if (src.empty() || !PathIsFile(src)) {
+		error("Path is empty or not a file: %s\n", src.c_str());
 	}
 
-	FILE *out_file = nullptr;
-	out_file = fopen(dest, "wb");
-	if (out_file == nullptr) {
-		error("Could not open file for writing: %s\n", dest);
+	if (dest.empty() || !PathIsFile(dest)) {
+		error("Path is empty or not a file: %s\n", dest.c_str());
 	}
 
-	for (;;) {
-		int byte = getc(in_file);
-		if (byte == EOF) break;
-		putc(byte, out_file);
-	}
+	std::filesystem::copy_file(src, dest, std::filesystem::copy_options::overwrite_existing);
 
-	fclose(in_file);
-	fclose(out_file);
 }
 
 /**
@@ -419,7 +394,7 @@ std::string FindDataFile(const std::string &name)
 	for (std::string path : {std::string("."), std::string(".."), std::string("..") + DIR_SEP + "..", freerct_install_prefix()}) {
 		path += DIR_SEP;
 		path += name;
-		if (PathIsFile(path.c_str())) return path;
+		if (PathIsFile(path)) return path;
 	}
 	error("Data file %s is missing, the installation seems to be broken!\n", name.c_str());
 }

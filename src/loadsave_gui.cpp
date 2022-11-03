@@ -142,17 +142,12 @@ static const WidgetPart _loadsave_gui_parts[] = {
 LoadSaveGui::LoadSaveGui(const Type t) : GuiWindow(WC_LOADSAVE, ALL_WINDOWS_OF_TYPE), type(t), current_sort(nullptr)
 {
 	/* Get all .fct files in the directory. */
-	std::unique_ptr<DirectoryReader> dr(MakeDirectoryReader());
-	dr->OpenPath((freerct_userdata_prefix() + DIR_SEP + SAVEGAME_DIRECTORY).c_str());
-	for (;;) {
-		const char *str = dr->NextEntry();
-		if (str == nullptr) break;
-		std::string name(str);
+
+	for (const std::string &name : GetAllEntries((freerct_userdata_prefix() + DIR_SEP + SAVEGAME_DIRECTORY))) {
 		if (name.size() > 4 && name.compare(name.size() - 4, 4, ".fct") == 0) {
 			this->all_files.push_back(PreloadGameFile(name.c_str()));
 		}
 	}
-	dr->ClosePath();
 
 	this->SetupWidgetTree(_loadsave_gui_parts, lengthof(_loadsave_gui_parts));
 	this->SetScrolledWidget(LSW_LIST, LSW_SCROLLBAR);
@@ -325,7 +320,7 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 			std::string path = SavegameDirectory();
 			path += this->FinalFilename();
 			ShowConfirmationPrompt(GUI_LOADSAVE_CONFIRM_TITLE, GUI_LOADSAVE_CONFIRM_DELETE, [path]() {
-				RemoveFile(path.c_str());
+				RemoveFile(path);
 				Window *w = GetWindowByType(WC_LOADSAVE, ALL_WINDOWS_OF_TYPE);
 				if (w != nullptr) static_cast<LoadSaveGui*>(w)->FileDeleted(path);
 			});
