@@ -1456,13 +1456,12 @@ void CoasterBuildWindow::BuildTrackPiece()
 	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, this->piece_selector.pos_piece.piece->cost)) return;
 
 	/* Add the piece to the coaster instance. */
-	int ptp_index;
+	int ptp_index = -1;
 	if (this->design < 0) {
 		ptp_index = this->ci->AddPositionedPiece(this->piece_selector.pos_piece);
 	} else {
 		const CoasterType *ct = this->ci->GetCoasterType();
 		const TrackedRideDesign &trd = ct->designs.at(this->design);
-		this->design_preview_piece.reset(new TrackPiece);
 
 		XYZPoint16 pos = this->piece_selector.pos_piece.base_voxel;
 		for (const TrackedRideDesign::AbstractTrackPiece &abstract_piece : trd.pieces) {
