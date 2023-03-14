@@ -1266,6 +1266,7 @@ void CoasterBuildWindow::SetupSelection()
 				tv->dxyz += relative_pos;
 				this->design_preview_piece->track_voxels.emplace_back(tv);
 			}
+			this->design_preview_piece->cost += piece->cost;
 			relative_pos += piece->exit_dxyz;
 		}
 
@@ -1476,7 +1477,6 @@ void CoasterBuildWindow::BuildTrackPiece()
 
 	assert(ptp_index >= 0);  // We already checked that placing this design is permitted.
 
-	this->piece_selector.pos_piece.return_cost = -this->piece_selector.pos_piece.piece->cost;
 	this->ci->PlaceTrackPieceInWorld(this->piece_selector.pos_piece); // Add the piece to the world.
 
 	_finances_manager.PayRideConstruct(this->piece_selector.pos_piece.piece->cost);

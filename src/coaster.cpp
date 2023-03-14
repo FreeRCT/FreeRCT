@@ -291,6 +291,7 @@ int CoasterType::GetPieceIndex(ConstTrackPiecePtr p) const
  * @param p Track piece to look for.
  * @param orientation Rotation to apply.
  * @return Index of the provided piece in this coaster type or \c -1 if no such piece exists.
+ * @todo Test this with more complicated track pieces.
  */
 int CoasterType::GetRotatedPieceIndex(ConstTrackPiecePtr p, uint8 orientation) const
 {
@@ -304,8 +305,6 @@ int CoasterType::GetRotatedPieceIndex(ConstTrackPiecePtr p, uint8 orientation) c
 		if (p->GetBanking() != piece->GetBanking()) continue;
 		if (p->GetSlope  () != piece->GetSlope  ()) continue;
 		if (p->GetBend   () != piece->GetBend   ()) continue;
-		if ((p->entry_connect + orientation) % 4 != piece->entry_connect) continue;
-		if ((p->exit_connect  + orientation) % 4 != piece->exit_connect ) continue;
 		/* TileEdge considers NORTH to be the identity while this function treats EAST as identity. */
 		if (OrientatedOffset((orientation + VOR_EAST) % 4, p->exit_dxyz.x, p->exit_dxyz.y, p->exit_dxyz.z) != piece->exit_dxyz) continue;
 
@@ -1336,6 +1335,7 @@ int CoasterInstance::AddPositionedPiece(const PositionedTrackPiece &placed)
 	for (int i = 0; i < this->capacity; i++) {
 		if (this->pieces[i].piece == nullptr) {
 			this->pieces[i] = placed;
+			this->pieces[i].return_cost = -this->pieces[i].piece->cost;
 			if (placed.piece->IsStartingPiece()) this->UpdateStations();
 			return i;
 		}
