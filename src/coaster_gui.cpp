@@ -469,7 +469,7 @@ void CoasterInstanceWindow::OnClick(WidgetNumber widget, [[maybe_unused]] const 
 			break;
 
 		case CIW_SAVE_DESIGN:
-			// NOCOM sanitize filename & allow setting track name
+			/* \todo Sanitize illegal filename characters, confirm before overwriting, and allow the user to set the track name. */
 			this->ci->SaveDesign(TrackDesignDirectory() + DIR_SEP + this->ci->name + ".ftk", this->ci->name);
 			break;
 
@@ -1167,7 +1167,7 @@ void CoasterBuildWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid)
 	const Viewport *vp = _window_manager.GetViewport();
 	const int orient = vp->orientation;
 
-	/* Render the track piece's preview. \todo Needs testing with a multi-voxel track piece. */
+	/* Render the track piece's preview. */
 	std::map<XYZPoint16, std::vector<const ImageData*>> sprites;
 	for (const auto &tv : this->piece_selector.pos_piece.piece->track_voxels) {
 		const CoasterPlatform *platform = tv->HasPlatform() ? &_coaster_platforms[this->ci->GetCoasterType()->platform_type] : nullptr;
