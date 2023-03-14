@@ -221,6 +221,8 @@ static const char *_gui_string_names[] = {
 	"RIDE_SELECT_RIDE_TOOLTIP",
 	"RIDE_SELECT_ROT_POS_TOOLTIP",
 	"RIDE_SELECT_ROT_NEG_TOOLTIP",
+	"RIDE_SELECT_CUSTOM_DESIGN",
+	"RIDE_SELECT_NO_DESIGNS",
 
 	/* Generic ride manager window strings. */
 	"RIDE_MANAGER_ENTRANCE_FEE_TEXT",

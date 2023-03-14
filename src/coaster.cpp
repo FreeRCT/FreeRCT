@@ -266,7 +266,7 @@ const StringID *CoasterType::GetInstanceNames() const
  */
 int CoasterType::GetTrackVoxelIndex(const TrackVoxel *tvx) const
 {
-	auto match = std::find_if(this->voxels.begin(), this->voxels.end(), [tvx](const TrackVoxel *tv){ return tv == tvx; });
+	auto match = std::find_if(this->voxels.begin(), this->voxels.end(), [tvx](const TrackVoxel *tv){ return tv->id == tvx->id; });
 	assert(match != this->voxels.end());
 	return std::distance(this->voxels.begin(), match);
 }
@@ -283,6 +283,54 @@ int CoasterType::GetPieceIndex(ConstTrackPiecePtr p) const
 			return j;
 		}
 	}
+	return -1;
+}
+
+/**
+ * Get the index of a rotated version of the provided piece.
+ * @param p Track piece to look for.
+ * @param orientation Rotation to apply.
+ * @return Index of the provided piece in this coaster type or \c -1 if no such piece exists.
+ */
+int CoasterType::GetRotatedPieceIndex(ConstTrackPiecePtr p, uint8 orientation) const
+{
+	for (uint j = 0; j < this->pieces.size(); ++j) {
+		ConstTrackPiecePtr piece = this->pieces.at(j);
+		/* Check if these pieces are identical in all their properties after rotation. */
+		if (p->speed != piece->speed) continue;
+		if (p->cost  != piece->cost ) continue;
+		if (p->track_voxels.size() != piece->track_voxels.size()) continue;
+		if (p->IsStartingPiece  () != piece->IsStartingPiece  ()) continue;
+		if (p->GetBanking() != piece->GetBanking()) continue;
+		if (p->GetSlope  () != piece->GetSlope  ()) continue;
+		if (p->GetBend   () != piece->GetBend   ()) continue;
+		if ((p->entry_connect + orientation) % 4 != piece->entry_connect) continue;
+		if ((p->exit_connect  + orientation) % 4 != piece->exit_connect ) continue;
+		/* TileEdge considers NORTH to be the identity while this function treats EAST as identity. */
+		if (OrientatedOffset((orientation + VOR_EAST) % 4, p->exit_dxyz.x, p->exit_dxyz.y, p->exit_dxyz.z) != piece->exit_dxyz) continue;
+
+		bool is_similar = true;
+		for (uint k = 0; k < p->track_voxels.size(); ++k) {
+			const TrackVoxel &v1 = *p->track_voxels.at(k);
+			const TrackVoxel &v2 = *piece->track_voxels.at(k);
+
+			if (v1.HasPlatform() != v2.HasPlatform()) {
+				is_similar = false;
+				break;
+			}
+			if (v1.HasPlatform() && ((v1.GetPlatformDirection() + orientation) % 4) != v2.GetPlatformDirection()) {
+				is_similar = false;
+				break;
+			}
+			if (OrientatedOffset((orientation + VOR_EAST) % 4, v1.dxyz.x, v1.dxyz.y, v1.dxyz.z) != v2.dxyz) {
+				is_similar = false;
+				break;
+			}
+		}
+		if (is_similar) return j;
+	}
+
+	assert(orientation != TC_NORTH);
 	return -1;
 }
 

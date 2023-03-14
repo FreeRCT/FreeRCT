@@ -70,6 +70,7 @@ public:
 
 	int GetTrackVoxelIndex(const TrackVoxel *tvx) const;
 	int GetPieceIndex(ConstTrackPiecePtr p) const;
+	int GetRotatedPieceIndex(ConstTrackPiecePtr p, uint8 orientation) const;
 
 	uint16 coaster_kind;       ///< Kind of coaster. @see CoasterKind
 	uint8 platform_type;       ///< Type of platform. @see CoasterPlatformType

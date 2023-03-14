@@ -222,6 +222,8 @@ strings:
 		RIDE_SELECT_RIDE_TOOLTIP:    "Klick, um de utköört Bude uttokören"
 		RIDE_SELECT_ROT_POS_TOOLTIP: "Klick, um de Bude tegen de Klockwiesersinn to dreihen"
 		RIDE_SELECT_ROT_NEG_TOOLTIP: "Klick, um de Bude na de Klockwiesersinn to dreihen"
+		RIDE_SELECT_CUSTOM_DESIGN:   "Eegenes Spoormodell bauen …"
+		RIDE_SELECT_NO_DESIGNS:      "Keene Spoormodellen sekert"
 
 		# Generic ride manager window strings.
 		RIDE_MANAGER_ENTRANCE_FEE_TEXT: "Intree:"

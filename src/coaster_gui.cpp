@@ -967,7 +967,7 @@ enum BoolSelect {
  */
 class CoasterBuildWindow : public GuiWindow {
 public:
-	CoasterBuildWindow(CoasterInstance *instance);
+	CoasterBuildWindow(CoasterInstance *instance, int16 design);
 	~CoasterBuildWindow();
 
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
@@ -980,6 +980,7 @@ public:
 
 private:
 	CoasterInstance *ci; ///< Roller coaster instance to build or edit.
+	int16 design;        ///< Saved track design index (may be \c -1).
 
 	PositionedTrackPiece *cur_piece;     ///< Current track piece, if available (else \c nullptr).
 	bool cur_after;                      ///< Position relative to #cur_piece, \c false means before, \c true means after.
@@ -998,14 +999,19 @@ private:
 	void BuildTrackPiece();
 	void UpdateSelectedPiece();
 
-	TrackPieceMouseMode piece_selector; ///< Selector for displaying new track pieces.
+	TrackPieceMouseMode piece_selector;                ///< Selector for displaying new track pieces.
+	std::shared_ptr<TrackPiece> design_preview_piece;  ///< Pseudo-TrackPiece to represent the selected design, if any.
 };
 
 /**
  * Constructor of the roller coaster build window. The provided instance may be completely empty.
  * @param ci Coaster instance to build or modify.
+ * @param design Saved track design index to build (may be \c -1).
  */
-CoasterBuildWindow::CoasterBuildWindow(CoasterInstance *instance) : GuiWindow(WC_COASTER_BUILD, instance->GetIndex()), ci(instance), piece_selector(instance)
+CoasterBuildWindow::CoasterBuildWindow(CoasterInstance *instance, int16 design)
+:
+	GuiWindow(WC_COASTER_BUILD, instance->GetIndex()), ci(instance),
+	design(design >= static_cast<int>(ci->GetCoasterType()->designs.size()) ? -1 : design), piece_selector(instance)
 {
 	this->SetupWidgetTree(_coaster_construction_gui_parts, lengthof(_coaster_construction_gui_parts));
 
@@ -1178,7 +1184,7 @@ void CoasterBuildWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid)
 	}
 	for (const auto &pair : sprites) {
 		const Point32 p(
-				x + wid->pos.width  / 2 + (pair.first.y - pair.first.x               ) * TileWidth(vp->zoom),
+				x + wid->pos.width  / 2 + (pair.first.y - pair.first.x               ) * TileWidth(vp->zoom) / 2,
 				y + wid->pos.height / 2 + (pair.first.x + pair.first.y - pair.first.z) * TileHeight(vp->zoom));
 		for (const ImageData *i : pair.second) _video.BlitImage(p, i);
 	}
@@ -1244,7 +1250,28 @@ void CoasterBuildWindow::SetupSelection()
 	uint avail_power = 0;
 	this->sel_piece = nullptr;
 
-	if (this->cur_piece == nullptr || this->cur_sel == nullptr) {
+	if (this->design >= 0) {
+		/* Copy all track voxels of the saved design into a single pseudo-trackpiece. */
+		const CoasterType *ct = this->ci->GetCoasterType();
+		const TrackedRideDesign &trd = ct->designs.at(this->design);
+		this->design_preview_piece.reset(new TrackPiece);
+
+		XYZPoint16 relative_pos(0, 0, 0);
+		for (const TrackedRideDesign::AbstractTrackPiece &abstract_piece : trd.pieces) {
+			int piece_id = ct->GetRotatedPieceIndex(ct->pieces.at(abstract_piece.piece_id), this->build_direction);
+			assert(piece_id >= 0);
+			ConstTrackPiecePtr piece = ct->pieces.at(piece_id);
+			for (const auto &track_voxel : piece->track_voxels) {
+				TrackVoxel *tv = new TrackVoxel(*track_voxel);
+				tv->dxyz += relative_pos;
+				this->design_preview_piece->track_voxels.emplace_back(tv);
+			}
+			relative_pos += piece->exit_dxyz;
+		}
+
+		this->sel_piece = this->design_preview_piece;
+		directions = EDGE_ALL;
+	} else if (this->cur_piece == nullptr || this->cur_sel == nullptr) {
 		/* Only consider track pieces when there is no current positioned track piece. */
 
 		const CoasterType *ct = this->ci->GetCoasterType();
@@ -1428,21 +1455,42 @@ void CoasterBuildWindow::BuildTrackPiece()
 	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, this->piece_selector.pos_piece.piece->cost)) return;
 
 	/* Add the piece to the coaster instance. */
-	int ptp_index = this->ci->AddPositionedPiece(this->piece_selector.pos_piece);
-	if (ptp_index >= 0) {
-		this->piece_selector.pos_piece.return_cost = -this->piece_selector.pos_piece.piece->cost;
-		this->ci->PlaceTrackPieceInWorld(this->piece_selector.pos_piece); // Add the piece to the world.
+	int ptp_index;
+	if (this->design < 0) {
+		ptp_index = this->ci->AddPositionedPiece(this->piece_selector.pos_piece);
+	} else {
+		const CoasterType *ct = this->ci->GetCoasterType();
+		const TrackedRideDesign &trd = ct->designs.at(this->design);
+		this->design_preview_piece.reset(new TrackPiece);
 
-		_finances_manager.PayRideConstruct(this->piece_selector.pos_piece.piece->cost);
-		_window_manager.GetViewport()->AddFloatawayMoneyAmount(this->piece_selector.pos_piece.piece->cost, this->piece_selector.pos_piece.base_voxel);
-
-		/* Piece was added, change the setup for the next piece. */
-		this->cur_piece = &this->ci->pieces[ptp_index];
-
-		this->UpdateSelectedPiece();
-
-		this->cur_after = true;
+		XYZPoint16 pos = this->piece_selector.pos_piece.base_voxel;
+		for (const TrackedRideDesign::AbstractTrackPiece &abstract_piece : trd.pieces) {
+			int piece_id = ct->GetRotatedPieceIndex(ct->pieces.at(abstract_piece.piece_id), this->build_direction);
+			assert(piece_id >= 0);
+			ConstTrackPiecePtr piece = ct->pieces.at(piece_id);
+			ptp_index = this->ci->AddPositionedPiece(PositionedTrackPiece(pos, piece));
+			assert(ptp_index >= 0);  // We already checked that placing this design is permitted.
+			pos += piece->exit_dxyz;
+		}
 	}
+
+	assert(ptp_index >= 0);  // We already checked that placing this design is permitted.
+
+	this->piece_selector.pos_piece.return_cost = -this->piece_selector.pos_piece.piece->cost;
+	this->ci->PlaceTrackPieceInWorld(this->piece_selector.pos_piece); // Add the piece to the world.
+
+	_finances_manager.PayRideConstruct(this->piece_selector.pos_piece.piece->cost);
+	_window_manager.GetViewport()->AddFloatawayMoneyAmount(this->piece_selector.pos_piece.piece->cost, this->piece_selector.pos_piece.base_voxel);
+
+	/* Piece was added, change the setup for the next piece. */
+	this->cur_piece = &this->ci->pieces[ptp_index];
+
+	this->design_preview_piece.reset();
+	this->design = -1;
+
+	this->UpdateSelectedPiece();
+
+	this->cur_after = true;
 }
 
 /** Update the instance variable cur_sel to reflect changes in the value of the current piece (cur_piece). */
@@ -1457,11 +1505,12 @@ void CoasterBuildWindow::UpdateSelectedPiece()
 /**
  * Open a roller coaster build/edit window for the given roller coaster.
  * @param coaster Coaster instance to modify.
+ * @param design Saved track design index to build (may be \c -1).
  */
-void ShowCoasterBuildGui(CoasterInstance *coaster)
+void ShowCoasterBuildGui(CoasterInstance *coaster, int16 design)
 {
 	if (coaster->GetKind() != RTK_COASTER) return;
 	if (HighlightWindowByType(WC_COASTER_BUILD, coaster->GetIndex()) != nullptr) return;
 
-	new CoasterBuildWindow(coaster);
+	new CoasterBuildWindow(coaster, design);
 }

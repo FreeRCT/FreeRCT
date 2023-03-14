@@ -15,7 +15,7 @@
 #include "finances.h"
 #include "map.h"
 
-TrackVoxel::TrackVoxel() : bg(nullptr), fg(nullptr)
+TrackVoxel::TrackVoxel() : id(0), bg(nullptr), fg(nullptr)
 {
 }
 
@@ -33,6 +33,9 @@ void TrackVoxel::Load(RcdFileReader *rcd_file, size_t length)
 	this->dxyz.y = rcd_file->GetInt8();
 	this->dxyz.z = rcd_file->GetInt8();
 	this->flags = rcd_file->GetUInt8();
+
+	static uint32 _last_id(0);
+	this->id = ++_last_id;
 }
 
 TrackCurve::TrackCurve()

@@ -43,6 +43,7 @@ struct TrackVoxel {
 		return static_cast<TileEdge>(GB(this->flags, 4, 3) - 1);
 	}
 
+	uint32 id;                ///< Unique track voxel ID for disambiguation.
 	const FrameSet *bg;       ///< The track background graphics.
 	const FrameSet *fg;       ///< The track foreground graphics.
 	XYZPoint16 dxyz;     ///< Relative position of the voxel.

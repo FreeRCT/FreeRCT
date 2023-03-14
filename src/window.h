@@ -393,7 +393,7 @@ void ShowTerraformGui();
 void ShowFinancesGui();
 void ShowParkManagementGui(ParkManagementGuiTabs tab);
 void ShowCoasterManagementGui(RideInstance *coaster);
-void ShowCoasterBuildGui(CoasterInstance *coaster);
+void ShowCoasterBuildGui(CoasterInstance *coaster, int16 design = -1);
 void ShowRideBuildGui(FixedRideInstance *instance);
 void ShowSettingGui();
 void ShowInboxGui();

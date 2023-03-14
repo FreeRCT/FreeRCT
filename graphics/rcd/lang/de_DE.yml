@@ -222,6 +222,8 @@ strings:
 		RIDE_SELECT_RIDE_TOOLTIP:    "Gewählte Attraktion auswählen"
 		RIDE_SELECT_ROT_POS_TOOLTIP: "Attraktion gegen den Uhrzeigersinn drehen"
 		RIDE_SELECT_ROT_NEG_TOOLTIP: "Attraktion im Uhrzeigersinn drehen"
+		RIDE_SELECT_CUSTOM_DESIGN:   "Eigener Streckenentwurf …"
+		RIDE_SELECT_NO_DESIGNS:      "Keine Streckenentwürfe gespeichert"
 
 		# Generic ride manager window strings.
 		RIDE_MANAGER_ENTRANCE_FEE_TEXT: "Eintrittspreis:"
