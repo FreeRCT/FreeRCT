@@ -122,8 +122,9 @@ void InboxGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) con
  * @param msg Message to draw.
  * @param rect Rectangle on the screen.
  * @param narrow Whether to use a condensed layout.
+ * @param obscure_fraction Fraction of the message to obscure (\c 0 to disable).
  */
-void DrawMessage(const Message *msg, const Rectangle32 &rect, const bool narrow)
+void DrawMessage(const Message *msg, const Rectangle32 &rect, const bool narrow, const float obscure_fraction)
 {
 	const int text_w = rect.width - rect.height - 3 * MESSAGE_PADDING;
 	const int text_y = (narrow ? MESSAGE_PADDING : GetTextHeight()) + MESSAGE_PADDING;
@@ -146,6 +147,11 @@ void DrawMessage(const Message *msg, const Rectangle32 &rect, const bool narrow)
 	if (!narrow) {
 		_str_params.SetDate(1, msg->timestamp);
 		DrawString(STR_ARG1, TEXT_WHITE, rect.base.x + MESSAGE_PADDING, rect.base.y, text_w);
+	}
+
+	if (obscure_fraction > 0.f) {
+		int obscure_w = text_w * obscure_fraction;
+		_video.FillRectangle(Rectangle32(rect.base.x + text_w - obscure_w, rect.base.y, obscure_w, rect.height), 0xff);
 	}
 
 	int sprite_to_draw;

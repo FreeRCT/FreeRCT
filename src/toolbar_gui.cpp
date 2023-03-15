@@ -619,7 +619,9 @@ void BottomToolbarWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid
 
 		case BTB_MESSAGE:
 			if (_inbox.display_message != nullptr) {
-				DrawMessage(_inbox.display_message, Rectangle32(this->GetWidgetScreenX(wid), this->GetWidgetScreenY(wid), wid->pos.width, wid->pos.height), true);
+				constexpr float MESSAGE_FADEIN_TIME = 2000.f;  ///< Time in milliseconds how long a message takes to fully appear in the preview pane.
+				DrawMessage(_inbox.display_message, Rectangle32(this->GetWidgetScreenX(wid), this->GetWidgetScreenY(wid), wid->pos.width, wid->pos.height),
+						true, 1.f - _inbox.display_time / MESSAGE_FADEIN_TIME);
 			}
 			break;
 	}
