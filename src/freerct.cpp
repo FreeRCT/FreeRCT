@@ -21,6 +21,7 @@
 #include "getoptdata.h"
 #include "fileio.h"
 #include "gamecontrol.h"
+#include "ride_type.h"
 #include "string_func.h"
 #include "rev.h"
 
@@ -201,8 +202,9 @@ int freerct_main(int argc, char **argv)
 		}
 	} while (opt_id != -1);
 
-	/* Create the data directory on startup if it did not exist yet. */
+	/* Create the data directories on startup if they did not exist yet. */
 	MakeDirectory(SavegameDirectory());
+	MakeDirectory(TrackDesignDirectory());
 
 	/* Scan for savegames and config files in outdated locations. */
 	MigrateOldFiles();
@@ -211,6 +213,7 @@ int freerct_main(int argc, char **argv)
 	InitImageStorage();
 	_rcd_collection.ScanDirectories();
 	_sprite_manager.LoadRcdFiles();
+	_rides_manager.LoadDesigns();
 
 	InitLanguage();
 

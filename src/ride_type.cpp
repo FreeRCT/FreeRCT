@@ -24,6 +24,7 @@
 #include "person.h"
 #include "people.h"
 #include "random.h"
+#include "rcdfile.h"
 #include "generated/entrance_exit_strings.h"
 #include "generated/entrance_exit_strings.cpp"
 
@@ -994,6 +995,41 @@ void RidesManager::DeleteInstance(uint16 num)
 void RidesManager::DeleteAllRideInstances()
 {
 	while (!this->instances.empty()) this->DeleteInstance(this->instances.begin()->first + SRI_FULL_RIDES);
+}
+
+/**
+ * Load all saved ride designs from disk.
+ * @pre #_rcd_collection must contain the list of files to read.
+ */
+void RidesManager::LoadDesigns()
+{
+	for (const std::string &file : _rcd_collection.ftkfiles) this->LoadDesign(file);
+}
+
+/**
+ * Load a track design.
+ * @param file File to read from.
+ */
+void RidesManager::LoadDesign(const std::string &file)
+{
+	try {
+		FILE *fp = fopen(file.c_str(), "rb");
+		if (fp == nullptr) throw LoadingError("Could not open file for reading");
+
+		Loader ldr(fp);
+		TrackedRideDesign t(ldr);  // This loads the design.
+		fclose(fp);
+
+		if (t.name.empty()) throw LoadingError("Unnamed design");
+		if (t.pieces.empty()) throw LoadingError("No tracks in ride");
+
+		const RideType *r = this->GetRideType(t.ride);
+		if (r == nullptr) throw LoadingError("Unknown ride type '%s'", t.ride.c_str());
+
+		r->designs.push_back(t);
+	} catch (const LoadingError &e) {
+		fprintf(stderr, "WARNING: Error loading track design from '%s': %s\n", file.c_str(), e.what());
+	}
 }
 
 /**

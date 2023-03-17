@@ -66,18 +66,19 @@ void RcdFileCollection::AddFile(const RcdFileInfo &rcd)
 	}
 }
 
-/** Scan directories, looking for RCD files to add. */
+/** Scan directories, looking for RCD and FTK files to add. */
 void RcdFileCollection::ScanDirectories()
 {
 	const std::string _rcd_paths[] = {
 		".",
 		freerct_install_prefix() + DIR_SEP + "rcd",
+		TrackDesignDirectory()
 	};
 	for (const std::string &rcd_path : _rcd_paths) this->ScanDirectory(rcd_path.c_str(), 3);
 }
 
 /**
- * Recursively scan a directory, looking for RCD files to add.
+ * Recursively scan a directory, looking for RCD and FTK files to add.
  * @param dir Directory to scan.
  * @param recursion_depth Remaining layers of recursion depth.
  */
@@ -100,8 +101,11 @@ void RcdFileCollection::ScanDirectory(const char *dir, int recursion_depth)
 			continue;
 		}
 
-		if (!StrEndsWith(fname, ".rcd", false)) continue;
-		this->ScanFileForMetaInfo(fname);
+		if (StrEndsWith(fname, ".rcd", false)) {
+			this->ScanFileForMetaInfo(fname);
+		} else if (StrEndsWith(fname, ".ftk", false)) {
+			this->ftkfiles.emplace_back(fname);
+		}
 	}
 	reader->ClosePath();
 }

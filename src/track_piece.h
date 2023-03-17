@@ -43,6 +43,7 @@ struct TrackVoxel {
 		return static_cast<TileEdge>(GB(this->flags, 4, 3) - 1);
 	}
 
+	uint32 id;                ///< Unique track voxel ID for disambiguation.
 	const FrameSet *bg;       ///< The track background graphics.
 	const FrameSet *fg;       ///< The track foreground graphics.
 	XYZPoint16 dxyz;     ///< Relative position of the voxel.
@@ -297,6 +298,30 @@ public:
 	uint32 distance_base;   ///< Base distance of this track piece in its roller coaster.
 
 	ConstTrackPiecePtr piece; ///< Track piece placed at the given position, may be \c nullptr.
+};
+
+/** A predefined design for a tracked ride. */
+struct TrackedRideDesign {
+	/** Descriptor of a positioned track piece in the ride. */
+	struct AbstractTrackPiece {
+		AbstractTrackPiece(uint32 id, XYZPoint16 bv) : piece_id(id), base_voxel(bv)
+		{
+		}
+
+		uint32 piece_id;           ///< ID of the track piece.
+		XYZPoint16 base_voxel;     ///< Relative position of the entry point of the track piece.
+	};
+
+	TrackedRideDesign() = default;
+	explicit TrackedRideDesign(Loader &ldr);
+	void Save(Saver &svr) const;
+
+	std::string ride;                        ///< Internal name of the owning ride.
+	std::string name;                        ///< Name of this design.
+	uint32 excitement_rating;                ///< Ride's excitement rating in percent.
+	uint32 intensity_rating;                 ///< Ride's intensity rating in percent.
+	uint32 nausea_rating;                    ///< Ride's nausea rating in percent.
+	std::vector<AbstractTrackPiece> pieces;  ///< The pieces in the design.
 };
 
 #endif

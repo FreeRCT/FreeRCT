@@ -35,15 +35,16 @@ const int8 _orientation_signum_dy[VOR_NUM_ORIENT] = {
  * @param orientation Orientation of the object.
  * @param x Unrotated x coordinate of the object piece, relative to the object's base voxel.
  * @param y Unrotated y coordinate of the object piece, relative to the object's base voxel.
+ * @param z Z offset coordinate.
  * @return Rotated location of the object piece, relative to the object's base voxel.
  */
-XYZPoint16 OrientatedOffset(const uint8 orientation, const int x, const int y)
+XYZPoint16 OrientatedOffset(const uint8 orientation, const int x, const int y, const int z)
 {
 	switch (orientation % VOR_NUM_ORIENT) {
-		case VOR_EAST: return XYZPoint16(x, y, 0);
-		case VOR_WEST: return XYZPoint16(-x, -y, 0);
-		case VOR_NORTH: return XYZPoint16(-y, x, 0);
-		case VOR_SOUTH: return XYZPoint16(y, -x, 0);
+		case VOR_EAST: return XYZPoint16(x, y, z);
+		case VOR_WEST: return XYZPoint16(-x, -y, z);
+		case VOR_NORTH: return XYZPoint16(-y, x, z);
+		case VOR_SOUTH: return XYZPoint16(y, -x, z);
 	}
 	NOT_REACHED();
 }

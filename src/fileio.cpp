@@ -439,3 +439,19 @@ const std::string &SavegameDirectory()
 	}
 	return dir;
 }
+
+/**
+ * Find the directory where the user's track designs are stored.
+ * @return The directory path, with trailing directory separator.
+ */
+const std::string &TrackDesignDirectory()
+{
+	static std::string dir;
+	if (dir.empty()) {
+		dir = freerct_userdata_prefix();
+		dir += DIR_SEP;
+		dir += TRACK_DESIGN_DIRECTORY;
+		dir += DIR_SEP;
+	}
+	return dir;
+}

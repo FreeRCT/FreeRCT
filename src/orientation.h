@@ -92,7 +92,7 @@ static inline bool IsBackEdge(ViewOrientation orient, TileEdge edge)
 	return (BACK & (1u << (orient + 4 * edge))) != 0;
 }
 
-XYZPoint16 OrientatedOffset(const uint8 orientation, const int x, const int y);
+XYZPoint16 OrientatedOffset(const uint8 orientation, const int x, const int y, const int z = 0);
 XYZPoint16 UnorientatedOffset(const uint8 orientation, const int x, const int y);
 
 /** Information about the graphics sizes at a zoom scale. */

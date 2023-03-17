@@ -221,6 +221,8 @@ strings:
 		RIDE_SELECT_RIDE_TOOLTIP:    "Click to select the selected ride"
 		RIDE_SELECT_ROT_POS_TOOLTIP: "Click to rotate the ride in counter-clockwise direction"
 		RIDE_SELECT_ROT_NEG_TOOLTIP: "Click to rotate the ride in clockwise direction"
+		RIDE_SELECT_CUSTOM_DESIGN:   "Design custom track…"
+		RIDE_SELECT_NO_DESIGNS:      "No saved track designs"
 
 		# Generic ride manager window strings.
 		RIDE_MANAGER_ENTRANCE_FEE_TEXT: "Entrance fee:"
@@ -371,6 +373,7 @@ strings:
 			one:   "%1% car"
 			other: "%1% cars"
 		COASTER_MANAGER_EDIT:           "Edit track"
+		COASTER_MANAGER_SAVE_DESIGN:    "Save track design"
 		COASTER_MANAGER_NO_GRAPHS_YET:  "No measurements yet"
 		COASTER_MANAGER_GRAPH_SPEED:          "Speed"
 		COASTER_MANAGER_GRAPH_VERT_G:         "Vertical G"

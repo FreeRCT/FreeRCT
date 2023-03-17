@@ -23,6 +23,7 @@ constexpr int NUMBER_ITEM_TYPES_SOLD = 2;         ///< Number of different items
 constexpr int BREAKDOWN_GRACE_PERIOD = 30;        ///< Number of days to wait before random breakdowns after first time opening ride.
 
 class RideInstance;
+struct TrackedRideDesign;
 
 /**
  * Kinds of ride types.
@@ -129,6 +130,8 @@ public:
 	{
 		return this->internal_name;
 	}
+
+	mutable std::vector<TrackedRideDesign> designs;  ///< Saved track designs.
 
 protected:
 	TextData *text;           ///< Strings of the ride type.
@@ -273,6 +276,8 @@ public:
 
 	void Load(Loader &ldr);
 	void Save(Saver &svr);
+	void LoadDesigns();
+	void LoadDesign(const std::string &file);
 
 	/**
 	 * Get a ride type from the class.

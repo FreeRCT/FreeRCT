@@ -36,10 +36,11 @@ Loader::Loader(FILE *file) : fp(file), cache_count(0)
  * Test whether a pattern with the given name is being opened.
  * @param name Name of the expected pattern.
  * @param may_fail Whether it is allowed not to find the expected pattern.
+ * @param name_only Only read the name but no version number.
  * @return Version number of the found pattern, \c 0 for default initialization, #UINT32_MAX for failing to find the pattern (only if \a may_fail was set).
  * @note If the pattern was not found, bytes already read of the pattern name are pushed back onto the stream.
  */
-uint32 Loader::OpenPattern(const char *name, bool may_fail)
+uint32 Loader::OpenPattern(const char *name, bool may_fail, bool name_only)
 {
 	assert(strlen(name) == 4);
 	this->pattern_names.emplace_back(name);
@@ -60,6 +61,8 @@ uint32 Loader::OpenPattern(const char *name, bool may_fail)
 		}
 		i++;
 	}
+
+	if (name_only) return 0;
 
 	uint32 version = this->GetLong();
 	if (version == 0 || version == UINT32_MAX) {
@@ -204,15 +207,24 @@ void Saver::CheckNoOpenPattern() const
 /**
  * Write the start of a pattern to the output.
  * @param name Name of the pattern to write.
+ */
+void Saver::StartPattern(const char *name)
+{
+	assert(strlen(name) == 4);
+	for (int i = 0; i < 4; i++) this->PutByte(name[i]);
+	this->pattern_names.emplace_back(name);
+}
+
+/**
+ * Write the start of a pattern to the output.
+ * @param name Name of the pattern to write.
  * @param version Version number of the pattern.
  */
 void Saver::StartPattern(const char *name, uint32 version)
 {
-	assert(strlen(name) == 4);
 	assert(version != 0 && version != UINT32_MAX);
-	for (int i = 0; i < 4; i++) this->PutByte(name[i]);
+	this->StartPattern(name);
 	this->PutLong(version);
-	this->pattern_names.emplace_back(name);
 }
 
 /** Write the end of the pattern to the output. */

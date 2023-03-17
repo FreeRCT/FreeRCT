@@ -15,6 +15,7 @@
 #include "palette.h"
 #include "viewport.h"
 #include "map.h"
+#include "coaster.h"
 
 #include "gui_sprites.h"
 
@@ -36,9 +37,11 @@ protected:
 	int16 ride_types[RTK_RIDE_KIND_COUNT]; ///< Number of ride types for each kind.
 	int16 current_kind; ///< Current selected kind of ride type. @see RideTypeKind
 	int16 current_ride; ///< Current selected ride type (index in #RidesManager::ride_types, or \c -1).
+	uint16 current_design;  ///< Currently selected ride design (only valid if a ride with designs is selected).
 
 	bool SetNewRideKind(int16 new_kind, bool force = false);
 	void SetNewRide(int new_number);
+	void SetRideDesign(uint16 design_index);
 };
 
 /**
@@ -46,16 +49,18 @@ protected:
  * @ingroup gui_group
  */
 enum RideSelectWidgets {
-	RSEL_SHOPS,       ///< Button to select 'shops' type.
-	RSEL_GENTLE,      ///< Button to select 'gentle rides' type.
-	RSEL_THRILL,      ///< Button to select 'thrill rides' type.
-	RSEL_WET,         ///< Button to select 'wet rides' type.
-	RSEL_COASTER,     ///< Button to select 'coaster rides' type.
-	RSEL_LIST,        ///< Ride selection list.
-	RSEL_SCROLL_LIST, ///< scrollbar of the list.
-	RSEL_DESC,        ///< Description of the selected ride type.
-	RSEL_DISPLAY,     ///< Display the ride type.
-	RSEL_SELECT,      ///< 'select ride type' button.
+	RSEL_SHOPS,          ///< Button to select 'shops' type.
+	RSEL_GENTLE,         ///< Button to select 'gentle rides' type.
+	RSEL_THRILL,         ///< Button to select 'thrill rides' type.
+	RSEL_WET,            ///< Button to select 'wet rides' type.
+	RSEL_COASTER,        ///< Button to select 'coaster rides' type.
+	RSEL_LIST,           ///< Ride selection list.
+	RSEL_SCROLL_LIST,    ///< scrollbar of the ride list.
+	RSEL_DESC,           ///< Description of the selected ride type.
+	RSEL_DISPLAY,        ///< Display the ride type.
+	RSEL_DESIGN,         ///< List of available ride designs.
+	RSEL_SCROLL_DESIGN,  ///< scrollbar of the designs list.
+	RSEL_SELECT,         ///< 'select ride type' button.
 };
 
 /** Widgets of the select bar. */
@@ -96,9 +101,10 @@ static const WidgetPart _ride_select_gui_parts[] = {
 						Widget(WT_VERT_SCROLLBAR, RSEL_SCROLL_LIST, COL_RANGE_DARK_GREEN),
 						Intermediate(3, 1),
 							Widget(WT_EMPTY, RSEL_DESC, COL_RANGE_DARK_GREEN), SetFill(1, 1), SetResize(1, 1), SetMinimalSize(200, 200),
-							Intermediate(1, 2),
-								Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_GREEN), SetFill(1, 1), SetResize(1, 0),
-								Widget(WT_EMPTY, RSEL_DISPLAY, COL_RANGE_DARK_GREEN), SetMinimalSize(70, 70),
+							Intermediate(1, 3),
+								Widget(WT_EMPTY, RSEL_DESIGN, COL_RANGE_DARK_GREEN), SetMinimalSize(200, 100), SetResize(1, 1),
+								Widget(WT_VERT_SCROLLBAR, RSEL_SCROLL_DESIGN, COL_RANGE_DARK_GREEN),
+								Widget(WT_EMPTY, RSEL_DISPLAY, COL_RANGE_DARK_GREEN), SetMinimalSize(200, 100), SetResize(1, 1),
 							Intermediate(1, 2),
 								Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_DARK_GREEN), SetFill(1, 1), SetResize(1, 0),
 								Widget(WT_TEXT_BUTTON, RSEL_SELECT, COL_RANGE_DARK_GREEN), SetPadding(0, 3, 3, 0),
@@ -110,6 +116,7 @@ RideSelectGui::RideSelectGui() : GuiWindow(WC_RIDE_SELECT, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetupWidgetTree(_ride_select_gui_parts, lengthof(_ride_select_gui_parts));
 	this->SetScrolledWidget(RSEL_LIST, RSEL_SCROLL_LIST);
+	this->SetScrolledWidget(RSEL_DESIGN, RSEL_SCROLL_DESIGN);
 
 	/* Initialize counts of ride kinds */
 	for (uint i = 0; i < lengthof(this->ride_types); i++) this->ride_types[i] = 0;
@@ -141,6 +148,10 @@ void RideSelectGui::UpdateWidgetSize(WidgetNumber wid_num, BaseWidget *wid)
 				GetTextSize(ride_type->GetString(ride_type->GetTypeName()), &width, &height);
 				if (width > wid->min_x) wid->min_x = width;
 			}
+			break;
+
+		case RSEL_DESIGN:
+			wid->resize_y = GetTextHeight();
 			break;
 
 		case RSEL_DESC: {
@@ -179,6 +190,27 @@ void RideSelectGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) cons
 			break;
 		}
 
+		case RSEL_DESIGN: {
+			const RideType *ride_type = _rides_manager.GetRideType(this->current_ride);
+			if (ride_type == nullptr) break;
+
+			Point32 rect(this->GetWidgetScreenX(wid), this->GetWidgetScreenY(wid));
+			const ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(RSEL_SCROLL_DESIGN);
+			int lines = sb->GetVisibleCount();
+			int start = sb->GetStart();
+			int counter = 0;
+			for (uint i = 0; i <= ride_type->designs.size() && lines > 0; ++i) {
+				if (counter >= start) {
+					lines--;
+					DrawString(i == ride_type->designs.size() ? _language.GetSgText(i == 0 ? GUI_RIDE_SELECT_NO_DESIGNS : GUI_RIDE_SELECT_CUSTOM_DESIGN) :
+							ride_type->designs.at(i).name, (this->current_design == i) ? TEXT_WHITE : TEXT_BLACK, rect.x, rect.y, wid->pos.width);
+					rect.y += GetTextHeight();
+				}
+				counter++;
+			}
+			break;
+		}
+
 		case RSEL_DESC:
 			if (this->current_ride != -1) {
 				const RideType *ride_type = _rides_manager.GetRideType(this->current_ride);
@@ -191,7 +223,7 @@ void RideSelectGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) cons
 			break;
 
 		case RSEL_DISPLAY:
-			/// \todo Add picture of rides in RCD.
+			/// \todo Add picture of rides in RCD. Also show selected design's rating stats and cost.
 			break;
 	}
 }
@@ -222,6 +254,12 @@ void RideSelectGui::OnClick(WidgetNumber wid_num, const Point16 &pos)
 			break;
 		}
 
+		case RSEL_DESIGN: {
+			const ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(RSEL_SCROLL_DESIGN);
+ 			this->SetRideDesign(sb->GetClickedRow(pos));
+			break;
+		}
+
 		case RSEL_SELECT: {
 			if (this->ride_types[this->current_kind] == 0) return;
 
@@ -238,11 +276,12 @@ void RideSelectGui::OnClick(WidgetNumber wid_num, const Point16 &pos)
 					case RTK_SHOP:
 					case RTK_GENTLE:
 					case RTK_THRILL:
+						assert(ride_type->designs.empty());  // Fixed rides can't have designs.
 						ShowRideBuildGui(static_cast<FixedRideInstance*>(ri));
 						break;
 					case RTK_COASTER:
 						_rides_manager.NewInstanceAdded(instance);
-						ShowCoasterManagementGui(ri);
+						ShowCoasterBuildGui(static_cast<CoasterInstance*>(ri), this->current_design);
 						break;
 					default: NOT_REACHED(); // Add cases for more ride types here when they get implemented.
 				}
@@ -263,11 +302,14 @@ bool RideSelectGui::SetNewRideKind(int16 new_kind, bool force)
 {
 	assert(new_kind >= 0 && new_kind < RTK_RIDE_KIND_COUNT);
 	if (!force && new_kind == this->current_kind) return false;
+
 	this->current_kind = new_kind;
 	this->SetRadioButtonsSelected(_ride_type_select_bar, _ride_type_select_bar[this->current_kind]);
+
 	/* Update the scroll bar with number of items of the ride kind. */
 	ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(RSEL_SCROLL_LIST);
 	sb->SetItemCount(this->ride_types[this->current_kind]);
+
 	this->SetNewRide(0);
 	return true;
 }
@@ -279,6 +321,8 @@ bool RideSelectGui::SetNewRideKind(int16 new_kind, bool force)
 void RideSelectGui::SetNewRide(int number)
 {
 	this->current_ride = -1;
+	this->current_design = 0;
+
 	number = std::min(number, this->ride_types[this->current_kind] - 1);
 	if (this->ride_types[this->current_kind] > 0) {
 		for (unsigned i = 0; i < _rides_manager.ride_types.size(); i++) {
@@ -287,12 +331,29 @@ void RideSelectGui::SetNewRide(int number)
 			if (number-- > 0) continue;
 
 			this->current_ride = i;
+
+			ScrollbarWidget *sb = this->GetWidget<ScrollbarWidget>(RSEL_SCROLL_DESIGN);
+			sb->SetItemCount(ride_type->designs.size() + 1);
+			this->current_design = ride_type->designs.size();
+
 			break;
 		}
 	}
+
 	this->SetWidgetPressed(RSEL_SELECT, false);
 }
 
+/**
+ * Set a new ride design in the currently selected ride type.
+ * @param design Index in the current ride's list of designs to select.
+ */
+void RideSelectGui::SetRideDesign(uint16 design)
+{
+	const RideType *ride_type = _rides_manager.GetRideType(this->current_ride);
+	if (ride_type != nullptr && design <= ride_type->designs.size()) {
+		this->current_design = design;
+	}
+}
 
 /**
  * Open the ride selection GUI.

@@ -266,9 +266,71 @@ const StringID *CoasterType::GetInstanceNames() const
  */
 int CoasterType::GetTrackVoxelIndex(const TrackVoxel *tvx) const
 {
-	auto match = std::find_if(this->voxels.begin(), this->voxels.end(), [tvx](const TrackVoxel *tv){ return tv == tvx; });
+	auto match = std::find_if(this->voxels.begin(), this->voxels.end(), [tvx](const TrackVoxel *tv){ return tv->id == tvx->id; });
 	assert(match != this->voxels.end());
 	return std::distance(this->voxels.begin(), match);
+}
+
+/**
+ * Get the index of the provided piece.
+ * @param p Track piece to look for.
+ * @return Index of the provided piece in this coaster type or \c -1 for not found.
+ */
+int CoasterType::GetPieceIndex(ConstTrackPiecePtr p) const
+{
+	for (uint j = 0; j < this->pieces.size(); ++j) {
+		if (p == this->pieces[j]) {
+			return j;
+		}
+	}
+	return -1;
+}
+
+/**
+ * Get the index of a rotated version of the provided piece.
+ * @param p Track piece to look for.
+ * @param orientation Rotation to apply.
+ * @return Index of the provided piece in this coaster type or \c -1 if no such piece exists.
+ * @todo Test this with more complicated track pieces.
+ */
+int CoasterType::GetRotatedPieceIndex(ConstTrackPiecePtr p, uint8 orientation) const
+{
+	for (uint j = 0; j < this->pieces.size(); ++j) {
+		ConstTrackPiecePtr piece = this->pieces.at(j);
+		/* Check if these pieces are identical in all their properties after rotation. */
+		if (p->speed != piece->speed) continue;
+		if (p->cost  != piece->cost ) continue;
+		if (p->track_voxels.size() != piece->track_voxels.size()) continue;
+		if (p->IsStartingPiece  () != piece->IsStartingPiece  ()) continue;
+		if (p->GetBanking() != piece->GetBanking()) continue;
+		if (p->GetSlope  () != piece->GetSlope  ()) continue;
+		if (p->GetBend   () != piece->GetBend   ()) continue;
+		/* TileEdge considers NORTH to be the identity while this function treats EAST as identity. */
+		if (OrientatedOffset((orientation + VOR_EAST) % 4, p->exit_dxyz.x, p->exit_dxyz.y, p->exit_dxyz.z) != piece->exit_dxyz) continue;
+
+		bool is_similar = true;
+		for (uint k = 0; k < p->track_voxels.size(); ++k) {
+			const TrackVoxel &v1 = *p->track_voxels.at(k);
+			const TrackVoxel &v2 = *piece->track_voxels.at(k);
+
+			if (v1.HasPlatform() != v2.HasPlatform()) {
+				is_similar = false;
+				break;
+			}
+			if (v1.HasPlatform() && ((v1.GetPlatformDirection() + orientation) % 4) != v2.GetPlatformDirection()) {
+				is_similar = false;
+				break;
+			}
+			if (OrientatedOffset((orientation + VOR_EAST) % 4, v1.dxyz.x, v1.dxyz.y, v1.dxyz.z) != v2.dxyz) {
+				is_similar = false;
+				break;
+			}
+		}
+		if (is_similar) return j;
+	}
+
+	assert(orientation != TC_NORTH);
+	return -1;
 }
 
 /** Default constructor, no sprites available yet. */
@@ -1273,6 +1335,7 @@ int CoasterInstance::AddPositionedPiece(const PositionedTrackPiece &placed)
 	for (int i = 0; i < this->capacity; i++) {
 		if (this->pieces[i].piece == nullptr) {
 			this->pieces[i] = placed;
+			this->pieces[i].return_cost = -this->pieces[i].piece->cost;
 			if (placed.piece->IsStartingPiece()) this->UpdateStations();
 			return i;
 		}
@@ -1967,13 +2030,8 @@ void CoasterInstance::Save(Saver &svr)
 
 	for (int i = 0; i < this->capacity; i++) {
 		if (this->pieces[i].piece != nullptr) {
-			for (uint j = 0; j < ct->pieces.size(); j++) {
-				if (this->pieces[i].piece == ct->pieces[j]) {
-					svr.PutLong(j);
-					this->pieces[i].Save(svr);
-					break;
-				}
-			}
+			svr.PutLong(ct->GetPieceIndex(this->pieces[i].piece));
+			this->pieces[i].Save(svr);
 		}
 	}
 
@@ -2014,4 +2072,41 @@ void CoasterInstance::Save(Saver &svr)
 		svr.PutLong(pair.second.horizontal_g);
 	}
 	svr.EndPattern();
+}
+
+/**
+ * Save this coaster's track design.
+ * @param file File to save to.
+ * @param design_name Name for the design.
+ */
+void CoasterInstance::SaveDesign(const std::string &file, const std::string &design_name) const
+{
+	const CoasterType *ct = this->GetCoasterType();
+	TrackedRideDesign design;
+
+	design.ride = ct->InternalName();
+	design.name = design_name;
+	design.excitement_rating = this->excitement_rating;
+	design.intensity_rating  = this->intensity_rating;
+	design.nausea_rating     = this->nausea_rating;
+
+	for (int i = 0; i < this->capacity; ++i) {
+		if (this->pieces[i].piece != nullptr) {
+			design.pieces.emplace_back(ct->GetPieceIndex(this->pieces[i].piece), this->pieces[i].base_voxel);
+		}
+	}
+
+	ct->designs.push_back(design);
+
+	try {
+		FILE *fp = fopen(file.c_str(), "wb");
+		if (fp == nullptr) throw LoadingError("Could not open file for writing");
+
+		Saver svr(fp);
+		design.Save(svr);
+
+		fclose(fp);
+	} catch (const LoadingError &e) {
+		fprintf(stderr, "WARNING: Error saving track design to '%s': %s\n", file.c_str(), e.what());
+	}
 }
