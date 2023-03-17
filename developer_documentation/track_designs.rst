@@ -4,9 +4,9 @@
 .. contents::
    :depth: 2
 
-#####################################
-FreeRCT Markup Language Specification
-#####################################
+####################
+FTK data file format
+####################
 
 .. Section levels  # = ~ .
 
