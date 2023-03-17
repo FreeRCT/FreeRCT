@@ -398,7 +398,7 @@ void ShowRideBuildGui(FixedRideInstance *instance);
 void ShowSettingGui();
 void ShowInboxGui();
 void ShowMinimap();
-void DrawMessage(const Message *msg, const Rectangle32 &rect, bool narrow);
+void DrawMessage(const Message *msg, const Rectangle32 &rect, bool narrow, float obscure_fraction = 0.f);
 
 static const uint32 DEFAULT_ERROR_MESSAGE_TIMEOUT = 8000;   ///< Number of ticks after which an error message auto-closes by default.
 void ShowErrorMessage(StringID str1, StringID str2, const std::function<void()> &string_params, uint32 timeout = DEFAULT_ERROR_MESSAGE_TIMEOUT);
