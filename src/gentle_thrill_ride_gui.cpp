@@ -87,6 +87,7 @@ enum GentleThrillRideManagerWidgets {
 	GTRMW_EXCITEMENT_RATING,      ///< Ride excitement rating display.
 	GTRMW_INTENSITY_RATING,       ///< Ride intensity rating display.
 	GTRMW_NAUSEA_RATING,          ///< Ride nausea rating display.
+	GTRMW_RIDENAME,               ///< Ride name edit box.
 	GTRMW_ENTRANCE_FEE,           ///< Ride entrance fee display.
 	GTRMW_ENTRANCE_FEE_DECREASE,  ///< Ride entrance fee decrease button.
 	GTRMW_ENTRANCE_FEE_INCREASE,  ///< Ride entrance fee increase button.
@@ -143,7 +144,13 @@ static const WidgetPart _gentle_thrill_ride_manager_gui_parts[] = {
 				Widget(WT_RIGHT_TEXT, GTRMW_NAUSEA_RATING, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
 
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(2, 1),
+			Intermediate(3, 1),
+				Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetPadding(4, 4, 4, 4),
+					Intermediate(1, 2),
+						Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+								SetData(GUI_RIDE_MANAGER_RIDE_NAME_TEXT, STR_NULL),
+						Widget(WT_TEXT_INPUT, GTRMW_RIDENAME, COL_RANGE_DARK_RED),
+								SetFill(1, 0), SetResize(1, 0),
 				Intermediate(5, 4),
 					Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_ENTRANCE_FEE_TEXT, STR_NULL),
 					Widget(WT_TEXT_PUSHBUTTON, GTRMW_ENTRANCE_FEE_DECREASE, COL_RANGE_DARK_RED), SetData(GUI_DECREASE_BUTTON, STR_NULL), SetRepeating(true),
@@ -244,6 +251,13 @@ GentleThrillRideManagerWindow::GentleThrillRideManagerWindow(GentleThrillRideIns
 	this->SetupWidgetTree(_gentle_thrill_ride_manager_gui_parts, lengthof(_gentle_thrill_ride_manager_gui_parts));
 	this->UpdateButtons();
 	this->UpdateRecolourButtons();
+
+	TextInputWidget *txt = this->GetWidget<TextInputWidget>(GTRMW_RIDENAME);
+	txt->SetText(this->ride->name);
+	txt->text_changed = [this, txt]()
+	{
+		this->ride->name = txt->GetText();
+	};
 
 	SetSelector(nullptr);
 

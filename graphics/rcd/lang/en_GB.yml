@@ -226,6 +226,7 @@ strings:
 
 		# Generic ride manager window strings.
 		RIDE_MANAGER_ENTRANCE_FEE_TEXT: "Entrance fee:"
+		RIDE_MANAGER_RIDE_NAME_TEXT:    "Name:"
 		RIDE_MANAGER_RELIABILITY:       "Reliability: %.1f%%"
 		RIDE_MANAGER_BROKEN_DOWN:       "Broken down"
 		RIDE_MANAGER_MAINTENANCE_TEXT:  "Maintenance interval (minutes):"

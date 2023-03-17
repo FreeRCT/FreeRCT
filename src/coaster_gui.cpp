@@ -92,6 +92,7 @@ enum CoasterInstanceWidgets {
 	CIW_OPEN_RIDE_LIGHT,     ///< Open coaster light.
 	CIW_TEST_RIDE_LIGHT,     ///< Test coaster light.
 	CIW_CLOSE_RIDE_LIGHT,    ///< Close coaster light.
+	CIW_RIDENAME,               ///< Ride name edit box.
 	CIW_ENTRANCE_FEE,           ///< Entrance fee display.
 	CIW_ENTRANCE_FEE_DECREASE,  ///< Decrease entrance fee button.
 	CIW_ENTRANCE_FEE_INCREASE,  ///< Increase entrance fee button.
@@ -149,7 +150,13 @@ static const WidgetPart _coaster_instance_gui_parts[] = {
 				Widget(WT_RIGHT_TEXT, CIW_NAUSEA_RATING, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
 
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(2, 1),
+			Intermediate(3, 1),
+				Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetPadding(4, 4, 4, 4),
+					Intermediate(1, 2),
+						Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+								SetData(GUI_RIDE_MANAGER_RIDE_NAME_TEXT, STR_NULL),
+						Widget(WT_TEXT_INPUT, CIW_RIDENAME, COL_RANGE_DARK_RED),
+								SetFill(1, 0), SetResize(1, 0),
 				Intermediate(4, 4),
 					Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_ENTRANCE_FEE_TEXT, STR_NULL),
 					Widget(WT_TEXT_PUSHBUTTON, CIW_ENTRANCE_FEE_DECREASE, COL_RANGE_DARK_RED), SetData(GUI_DECREASE_BUTTON, STR_NULL), SetRepeating(true),
@@ -274,6 +281,13 @@ CoasterInstanceWindow::CoasterInstanceWindow(CoasterInstance *instance) : GuiWin
 	this->SetCoasterState();
 	this->UpdateRecolourButtons();
 	this->SetGraphMode(GM_SPEED);
+
+	TextInputWidget *txt = this->GetWidget<TextInputWidget>(CIW_RIDENAME);
+	txt->SetText(this->ci->name);
+	txt->text_changed = [this, txt]()
+	{
+		this->ci->name = txt->GetText();
+	};
 
 	/* When opening the window of a newly built ride immediately prompt the user to place the entrance or exit. */
 	if (this->ci->NeedsEntrance()) {
