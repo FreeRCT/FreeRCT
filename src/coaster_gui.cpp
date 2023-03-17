@@ -1179,7 +1179,7 @@ void CoasterBuildWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid)
 	int x = this->GetWidgetScreenX(wid);
 	int y = this->GetWidgetScreenY(wid);
 	const Viewport *vp = _window_manager.GetViewport();
-	const int orient = vp->orientation;
+	const int orient = this->design < 0 ? vp->orientation : VOR_NORTH;  // \todo Design pieces are assembled artifically and currently have only one view.
 
 	/* Render the track piece's preview. */
 	std::map<XYZPoint16, std::vector<const ImageData*>> sprites;
@@ -1268,7 +1268,10 @@ void CoasterBuildWindow::SetupSelection()
 		/* Copy all track voxels of the saved design into a single pseudo-trackpiece. */
 		const CoasterType *ct = this->ci->GetCoasterType();
 		const TrackedRideDesign &trd = ct->designs.at(this->design);
+		assert(!trd.pieces.empty());
+
 		this->design_preview_piece.reset(new TrackPiece);
+		this->design_preview_piece->entry_connect = (ct->pieces.at(trd.pieces.at(0).piece_id)->entry_connect + this->build_direction) % 4;
 
 		XYZPoint16 relative_pos(0, 0, 0);
 		for (const TrackedRideDesign::AbstractTrackPiece &abstract_piece : trd.pieces) {
