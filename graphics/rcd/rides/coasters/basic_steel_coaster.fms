@@ -82,7 +82,7 @@ RCST {
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
 				}
-				(sw_0_0, se_0_0) : sheet {
+				(se_0_0, sw_0_0) : sheet {
 					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
