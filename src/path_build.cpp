@@ -18,6 +18,30 @@
 #include "math_func.h"
 
 /**
+ * Test how much it would cost to build a path in a given voxel.
+ * @param voxel_pos Coordinate of the voxel.
+ * @param path_type The type of path to build.
+ * @param path_status Whether to build a queue or normal path.
+ * @param path_spr Imploded sprite number.
+ * @return The cost.
+ * @note Does not check whether construction is permitted.
+ */
+Money PathBuildingCost(const XYZPoint16 &voxel_pos, [[maybe_unused]] PathType path_type, [[maybe_unused]] PathStatus path_status, uint8 path_spr)
+{
+	VoxelStack *avs = _world.GetModifyStack(voxel_pos.x, voxel_pos.y);
+	Voxel *av = avs->GetCreate(voxel_pos.z, true);
+	const int ground_height = _world.GetBaseGroundHeight(voxel_pos.x, voxel_pos.y);
+	assert(voxel_pos.z >= ground_height);  // \todo Allow building underground.
+	Money cost = CONSTRUCTION_COST_PATH;
+	if (av->GetGroundType() == GTP_INVALID) {
+		cost += CONSTRUCTION_COST_SUPPORT * (voxel_pos.z - ground_height + 1);
+	} else if (path_spr >= PATH_FLAT_COUNT) {
+		cost += CONSTRUCTION_COST_SUPPORT;
+	}
+	return cost;
+}
+
+/**
  * Build a path at a tile, and claim the voxels above it as well.
  * @param voxel_pos Coordinate of the voxel.
  * @param path_type The type of path to build.
@@ -29,16 +53,8 @@
 static void BuildPathAtTile(const XYZPoint16 &voxel_pos, PathType path_type, PathStatus path_status, uint8 path_spr, bool pay)
 {
 	VoxelStack *avs = _world.GetModifyStack(voxel_pos.x, voxel_pos.y);
-
 	Voxel *av = avs->GetCreate(voxel_pos.z, true);
-	const int ground_height = _world.GetBaseGroundHeight(voxel_pos.x, voxel_pos.y);
-	Money cost = CONSTRUCTION_COST_PATH;
-	assert(voxel_pos.z >= ground_height);  // \todo Allow building underground.
-	if (av->GetGroundType() == GTP_INVALID) {
-		cost += CONSTRUCTION_COST_SUPPORT * (voxel_pos.z - ground_height + 1);
-	} else if (path_spr >= PATH_FLAT_COUNT) {
-		cost += CONSTRUCTION_COST_SUPPORT;
-	}
+	const Money cost = PathBuildingCost(voxel_pos, path_type, path_status, path_spr);
 
 	if (!BestErrorMessageReason::CheckActionAllowed(BestErrorMessageReason::ACT_BUILD, cost)) return;
 	if (_game_control.action_test_mode) {

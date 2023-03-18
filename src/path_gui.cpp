@@ -7,6 +7,8 @@
 
 /** @file path_gui.cpp %Path building and editing. */
 
+#include <optional>
+
 #include "stdafx.h"
 #include "map.h"
 #include "window.h"
@@ -16,6 +18,8 @@
 #include "mouse_mode.h"
 #include "path_build.h"
 #include "gui_sprites.h"
+
+constexpr int PADDING = 5;  ///< Padding in the %Path build GUI in pixels.
 
 /**
  * %Path build GUI.
@@ -61,6 +65,7 @@ private:
 	TrackSlope sel_slope;     ///< Selected slope (#TSL_INVALID if not slope decided).
 	ClickableSprite mouse_at; ///< Sprite below the mouse cursor (#CS_NONE means none).
 	bool single_tile_mode;    ///< If set, build single tiles at the ground, else build directional
+	std::optional<std::pair<XYZPoint16, uint8>> path_preview;  ///< Coordinates where we are about to build a path in directional mode and its imploded slope, if any.
 };
 
 /**
@@ -107,61 +112,54 @@ static const WidgetPart _path_build_gui_parts[] = {
 			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
 		EndContainer(),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
-			Intermediate(0, 1),
-				Intermediate(1, 5), SetPadding(5, 5, 0, 5),
-					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
-					/* Slope down/level/up. */
-					Widget(WT_IMAGE_BUTTON, PATH_GUI_SLOPE_DOWN, COL_RANGE_GREY),
-							SetData(SPR_GUI_SLOPES_START + TSL_DOWN, GUI_PATH_GUI_SLOPE_DOWN_TIP),
-					Widget(WT_IMAGE_BUTTON, PATH_GUI_SLOPE_FLAT, COL_RANGE_GREY), SetPadding(0, 0, 0, 5),
-							SetData(SPR_GUI_SLOPES_START + TSL_FLAT, GUI_PATH_GUI_SLOPE_FLAT_TIP),
-					Widget(WT_IMAGE_BUTTON, PATH_GUI_SLOPE_UP, COL_RANGE_GREY), SetPadding(0, 0, 0, 5),
-							SetData(SPR_GUI_SLOPES_START + TSL_UP, GUI_PATH_GUI_SLOPE_UP_TIP),
-					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
-				Intermediate(1, 3), SetPadding(5, 5, 0, 5),
-					/* Four arrows direction. */
-					Intermediate(2, 2), SetHorPIP(0, 2, 5), SetVertPIP(0, 2, 0),
-						Widget(WT_IMAGE_BUTTON, PATH_GUI_NW_DIRECTION, COL_RANGE_GREY),
-								SetData(SPR_NW_DIRECTION, GUI_PATH_GUI_NW_DIRECTION_TIP),
-						Widget(WT_IMAGE_BUTTON, PATH_GUI_NE_DIRECTION, COL_RANGE_GREY),
-								SetData(SPR_NE_DIRECTION, GUI_PATH_GUI_NE_DIRECTION_TIP),
-						Widget(WT_IMAGE_BUTTON, PATH_GUI_SW_DIRECTION, COL_RANGE_GREY),
-								SetData(SPR_SW_DIRECTION, GUI_PATH_GUI_SW_DIRECTION_TIP),
-						Widget(WT_IMAGE_BUTTON, PATH_GUI_SE_DIRECTION, COL_RANGE_GREY),
-								SetData(SPR_SE_DIRECTION, GUI_PATH_GUI_SE_DIRECTION_TIP),
-					Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0),
-					/* Forward/backward. */
-					Intermediate(2, 1),
-						Widget(WT_TEXT_PUSHBUTTON, PATH_GUI_FORWARD, COL_RANGE_GREY),
-								SetData(GUI_PATH_GUI_FORWARD, GUI_PATH_GUI_FORWARD_TIP),
-						Widget(WT_TEXT_PUSHBUTTON, PATH_GUI_BACKWARD, COL_RANGE_GREY),
-								SetData(GUI_PATH_GUI_BACKWARD, GUI_PATH_GUI_BACKWARD_TIP),
-				Intermediate(1, 6), SetPadding(5, 5, 5, 5), SetHorPIP(0, 2, 0),
-					Widget(WT_EMPTY, INVALID_WIDGET_INDEX,      COL_RANGE_INVALID), SetFill(1, 0),
-					Widget(WT_EMPTY, INVALID_WIDGET_INDEX,      COL_RANGE_INVALID), SetFill(1, 0),
-					Widget(WT_TEXT_PUSHBUTTON, PATH_GUI_BUY,    COL_RANGE_GREEN),   SetData(GUI_PATH_GUI_BUY, GUI_PATH_GUI_BUY_TIP),
-					Widget(WT_EMPTY, INVALID_WIDGET_INDEX,      COL_RANGE_INVALID), SetFill(1, 0),
-					Widget(WT_TEXT_PUSHBUTTON, PATH_GUI_REMOVE, COL_RANGE_GREY),    SetData(GUI_PATH_GUI_REMOVE, GUI_PATH_GUI_BULLDOZER_TIP),
-					Widget(WT_EMPTY, INVALID_WIDGET_INDEX,      COL_RANGE_INVALID), SetFill(1, 0),
-				Intermediate(5, 2), SetPadding(5, 2, 2, 2), SetHorPIP(0, 2, 0),
-					Widget(WT_CENTERED_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetFill(1, 0), SetData(GUI_PATH_GUI_QUEUE_PATH, STR_NULL),
-					Widget(WT_CENTERED_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetFill(1, 0), SetData(GUI_PATH_GUI_NORMAL_PATH, STR_NULL),
-
-					Widget(WT_TEXT_BUTTON, PATH_GUI_QUEUE_PATH0, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
-					Widget(WT_TEXT_BUTTON, PATH_GUI_NORMAL_PATH0, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
-
-					Widget(WT_TEXT_BUTTON, PATH_GUI_QUEUE_PATH1, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
-					Widget(WT_TEXT_BUTTON, PATH_GUI_NORMAL_PATH1, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
-
-					Widget(WT_TEXT_BUTTON, PATH_GUI_QUEUE_PATH2, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
-					Widget(WT_TEXT_BUTTON, PATH_GUI_NORMAL_PATH2, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
-
-					Widget(WT_TEXT_BUTTON, PATH_GUI_QUEUE_PATH3, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
-					Widget(WT_TEXT_BUTTON, PATH_GUI_NORMAL_PATH3, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
-				Intermediate(1, 2),
-					Widget(WT_TEXT_BUTTON, PATH_GUI_SINGLE, COL_RANGE_GREY), SetData(GUI_PATH_GUI_SINGLE, GUI_PATH_GUI_SINGLE_TIP),
-					Widget(WT_TEXT_BUTTON, PATH_GUI_DIRECTIONAL, COL_RANGE_GREY), SetData(GUI_PATH_GUI_DIRECTIONAL, GUI_PATH_GUI_DIRECTIONAL_TIP),
-			EndContainer(),
+			Intermediate(3, 1),
+				Intermediate(1, 3),
+					Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
+						Intermediate(4, 1),
+							Widget(WT_TEXT_BUTTON, PATH_GUI_QUEUE_PATH0, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
+							Widget(WT_TEXT_BUTTON, PATH_GUI_QUEUE_PATH1, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
+							Widget(WT_TEXT_BUTTON, PATH_GUI_QUEUE_PATH2, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
+							Widget(WT_TEXT_BUTTON, PATH_GUI_QUEUE_PATH3, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
+					Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetPadding(0, PADDING, 0, PADDING),
+						Intermediate(3, 1),
+							Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
+								Intermediate(2, 2),
+									Widget(WT_IMAGE_BUTTON, PATH_GUI_NW_DIRECTION, COL_RANGE_GREY),
+											SetData(SPR_NW_DIRECTION, GUI_PATH_GUI_NW_DIRECTION_TIP), SetFill(1, 1),
+									Widget(WT_IMAGE_BUTTON, PATH_GUI_NE_DIRECTION, COL_RANGE_GREY),
+											SetData(SPR_NE_DIRECTION, GUI_PATH_GUI_NE_DIRECTION_TIP), SetFill(1, 1),
+									Widget(WT_IMAGE_BUTTON, PATH_GUI_SW_DIRECTION, COL_RANGE_GREY),
+											SetData(SPR_SW_DIRECTION, GUI_PATH_GUI_SW_DIRECTION_TIP), SetFill(1, 1),
+									Widget(WT_IMAGE_BUTTON, PATH_GUI_SE_DIRECTION, COL_RANGE_GREY),
+											SetData(SPR_SE_DIRECTION, GUI_PATH_GUI_SE_DIRECTION_TIP), SetFill(1, 1),
+							Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetPadding(PADDING, 0, PADDING, 0),
+								Intermediate(1, 3),
+									Widget(WT_IMAGE_BUTTON, PATH_GUI_SLOPE_DOWN, COL_RANGE_GREY), SetFill(1, 1),
+											SetData(SPR_GUI_SLOPES_START + TSL_DOWN, GUI_PATH_GUI_SLOPE_DOWN_TIP),
+									Widget(WT_IMAGE_BUTTON, PATH_GUI_SLOPE_FLAT, COL_RANGE_GREY), SetFill(1, 1), SetPadding(0, PADDING, 0, PADDING),
+											SetData(SPR_GUI_SLOPES_START + TSL_FLAT, GUI_PATH_GUI_SLOPE_FLAT_TIP),
+									Widget(WT_IMAGE_BUTTON, PATH_GUI_SLOPE_UP, COL_RANGE_GREY), SetFill(1, 1),
+											SetData(SPR_GUI_SLOPES_START + TSL_UP, GUI_PATH_GUI_SLOPE_UP_TIP),
+							Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
+								Intermediate(1, 3),
+									Widget(WT_IMAGE_PUSHBUTTON, PATH_GUI_BACKWARD, COL_RANGE_GREY),
+											SetData(SPR_GUI_TRIANGLE_LEFT, GUI_PATH_GUI_BACKWARD_TIP), SetFill(1, 1),
+									Widget(WT_IMAGE_PUSHBUTTON, PATH_GUI_REMOVE, COL_RANGE_GREY),
+											SetData(SPR_GUI_BULLDOZER, GUI_PATH_GUI_BULLDOZER_TIP), SetFill(1, 1), SetPadding(0, PADDING, 0, PADDING),
+									Widget(WT_IMAGE_PUSHBUTTON, PATH_GUI_FORWARD, COL_RANGE_GREY),
+											SetData(SPR_GUI_TRIANGLE_RIGHT, GUI_PATH_GUI_FORWARD_TIP), SetFill(1, 1),
+					Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
+						Intermediate(4, 1),
+							Widget(WT_TEXT_BUTTON, PATH_GUI_NORMAL_PATH0, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
+							Widget(WT_TEXT_BUTTON, PATH_GUI_NORMAL_PATH1, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
+							Widget(WT_TEXT_BUTTON, PATH_GUI_NORMAL_PATH2, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
+							Widget(WT_TEXT_BUTTON, PATH_GUI_NORMAL_PATH3, COL_RANGE_GREY), SetData(STR_NULL, STR_NULL),
+				Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetPadding(PADDING, 0, PADDING, 0),
+					Widget(WT_TEXT_PUSHBUTTON, PATH_GUI_BUY, COL_RANGE_GREY), SetData(STR_NULL, GUI_PATH_GUI_BUY_TIP), SetMinimalSize(100, 100),
+				Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
+					Intermediate(1, 2),
+						Widget(WT_TEXT_BUTTON, PATH_GUI_SINGLE, COL_RANGE_GREY), SetData(GUI_PATH_GUI_SINGLE, GUI_PATH_GUI_SINGLE_TIP),
+						Widget(WT_TEXT_BUTTON, PATH_GUI_DIRECTIONAL, COL_RANGE_GREY), SetData(GUI_PATH_GUI_DIRECTIONAL, GUI_PATH_GUI_DIRECTIONAL_TIP),
 	EndContainer(),
 };
 
@@ -303,6 +301,8 @@ static XYZPoint16 GetNeighbourPathPosition(const XYZPoint16 &pos, TileEdge direc
 /** Construct selector display. */
 void PathBuildGui::SetupSelector()
 {
+	this->path_preview = std::nullopt;
+
 	if (this->single_tile_mode || (!this->single_tile_mode && this->build_pos.x < 0)) {
 		/* Single tile mode or directional mode without build position, always follow the mouse. */
 		const Point16 &sel_base = this->ride_selector.area.base;
@@ -354,6 +354,7 @@ void PathBuildGui::SetupSelector()
 	VoxelRideData &vrd = vtd.ride_info[add_pos.z - vtd.lowest];
 	vrd.sri = SRI_PATH;
 	vrd.instance_data = MakePathInstanceData(path_slope, this->path_type, this->path_status);
+	this->path_preview = {add_pos, path_slope};
 }
 
 /**
@@ -442,6 +443,28 @@ void PathBuildGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
 					_video.BlitImage(pt, img);
 				}
 			}
+			break;
+
+		case PATH_GUI_BUY: {
+			if (!this->path_preview.has_value()) break;
+
+			const ImageData *img = _sprite_manager.GetGuiSpriteStore().GetPathSprite(this->path_type, this->path_status,
+					this->path_preview->second, _window_manager.GetViewport()->orientation);
+			if (img == nullptr) break;
+
+			int wx = GetWidgetScreenX(wid);
+			int wy = GetWidgetScreenY(wid);
+			int dx = (wid->pos.width - img->width) / 2;
+			int dy = (wid->pos.height - GetTextHeight() - img->height) / 2;
+			Point32 pt(wx + dx - img->xoffset, wy + dy - img->yoffset);
+			_video.BlitImage(pt, img);
+
+			_str_params.SetMoney(1, PathBuildingCost(this->path_preview->first, this->path_type, this->path_status, this->path_preview->second));
+			DrawString(STR_ARG1, TEXT_WHITE, wx, wy + wid->pos.height - GetTextHeight(), wid->pos.width, ALG_CENTER);
+			break;
+		}
+
+		default:
 			break;
 	}
 }
