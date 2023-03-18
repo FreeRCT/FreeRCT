@@ -8,7 +8,7 @@ file("gui.rcd") {
 	INFO {
 		name: "Baseset GUI sprites";
 		uri: "org.freerct/baseset/gui/1";
-		description: "FreeRCT baseset shops.";
+		description: "FreeRCT baseset GUI sprites.";
 	}
 
 	// Build direction arrows.

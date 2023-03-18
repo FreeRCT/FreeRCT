@@ -1134,8 +1134,8 @@ void GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 	for (uint i = 0; i < TPB_COUNT; i++) {
 		LoadSpriteFromFile(rcd_file, sprites, &this->bank_select[i]);
 	}
-	LoadSpriteFromFile(rcd_file, sprites, &this->triangle_left);
 	LoadSpriteFromFile(rcd_file, sprites, &this->triangle_right);
+	LoadSpriteFromFile(rcd_file, sprites, &this->triangle_left);
 	LoadSpriteFromFile(rcd_file, sprites, &this->triangle_up);
 	LoadSpriteFromFile(rcd_file, sprites, &this->triangle_down);
 	for (uint i = 0; i < 2; i++) {
