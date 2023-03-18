@@ -178,6 +178,7 @@ public:
 	std::unique_ptr<TrackCurve> car_pitch;    ///< Pitch of cars over this track piece, may be \c nullptr.
 	std::unique_ptr<TrackCurve> car_roll;     ///< Roll of cars over this track piece.
 	std::unique_ptr<TrackCurve> car_yaw;      ///< Yaw of cars over this track piece, may be \c null.
+	std::string internal_name;                ///< Internal name of the piece.
 
 	void RemoveFromWorld(uint16 ride_index, XYZPoint16 base_voxel) const;
 
@@ -304,11 +305,11 @@ public:
 struct TrackedRideDesign {
 	/** Descriptor of a positioned track piece in the ride. */
 	struct AbstractTrackPiece {
-		AbstractTrackPiece(uint32 id, XYZPoint16 bv) : piece_id(id), base_voxel(bv)
+		AbstractTrackPiece(const std::string &name, XYZPoint16 bv) : piece_name(name), base_voxel(bv)
 		{
 		}
 
-		uint32 piece_id;           ///< ID of the track piece.
+		std::string piece_name;    ///< Internal name of the track piece.
 		XYZPoint16 base_voxel;     ///< Relative position of the entry point of the track piece.
 	};
 

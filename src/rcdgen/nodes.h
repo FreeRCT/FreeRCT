@@ -1035,6 +1035,7 @@ public:
 
 	std::vector<std::shared_ptr<TrackVoxel>> track_voxels; ///< Voxels in the track piece.
 
+	std::string internal_name;        ///< Track piece internal name.
 	std::shared_ptr<Curve> car_xpos;  ///< Path for cars over the track piece in X direction.
 	std::shared_ptr<Curve> car_ypos;  ///< Path for cars over the track piece in Y direction.
 	std::shared_ptr<Curve> car_zpos;  ///< Path for cars over the track piece in Z direction.

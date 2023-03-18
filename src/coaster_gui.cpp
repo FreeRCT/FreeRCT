@@ -1271,11 +1271,11 @@ void CoasterBuildWindow::SetupSelection()
 		assert(!trd.pieces.empty());
 
 		this->design_preview_piece.reset(new TrackPiece);
-		this->design_preview_piece->entry_connect = (ct->pieces.at(trd.pieces.at(0).piece_id)->entry_connect + this->build_direction) % 4;
+		this->design_preview_piece->entry_connect = (ct->pieces.at(ct->GetPieceIndex(trd.pieces.at(0).piece_name))->entry_connect + this->build_direction) % 4;
 
 		XYZPoint16 relative_pos(0, 0, 0);
 		for (const TrackedRideDesign::AbstractTrackPiece &abstract_piece : trd.pieces) {
-			int piece_id = ct->GetRotatedPieceIndex(ct->pieces.at(abstract_piece.piece_id), this->build_direction);
+			int piece_id = ct->GetRotatedPieceIndex(ct->pieces.at(ct->GetPieceIndex(abstract_piece.piece_name)), this->build_direction);
 			assert(piece_id >= 0);
 			ConstTrackPiecePtr piece = ct->pieces.at(piece_id);
 			for (const auto &track_voxel : piece->track_voxels) {
@@ -1482,7 +1482,7 @@ void CoasterBuildWindow::BuildTrackPiece()
 
 		XYZPoint16 pos = this->piece_selector.pos_piece.base_voxel;
 		for (const TrackedRideDesign::AbstractTrackPiece &abstract_piece : trd.pieces) {
-			int piece_id = ct->GetRotatedPieceIndex(ct->pieces.at(abstract_piece.piece_id), this->build_direction);
+			int piece_id = ct->GetRotatedPieceIndex(ct->pieces.at(ct->GetPieceIndex(abstract_piece.piece_name)), this->build_direction);
 			assert(piece_id >= 0);
 			ConstTrackPiecePtr piece = ct->pieces.at(piece_id);
 			ptp_index = this->ci->AddPositionedPiece(PositionedTrackPiece(pos, piece));

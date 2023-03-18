@@ -482,6 +482,7 @@ Represents a track piece of a tracked ride. Corresponds roughly to a *TRCK* bloc
 
 Attributes:
 
+- ``internal_name`` - Unique internal name of the track piece.
 - ``track_flags`` - Bitset of track flags (see the RCD documentation for the TRCK block).
 - ``banking`` - Direction in which the piece is banked.
 - ``slope`` - Slope steepness of the piece.

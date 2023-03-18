@@ -647,16 +647,17 @@ Coaster
 ~~~~~~~
 A coaster instance.
 
-======  ======  =======  ======================================================
+======  ======  =======  ============================================================================================================
 Offset  Length  Version  Description
-======  ======  =======  ======================================================
+======  ======  =======  ============================================================================================================
    0       4      1-     "csti".
    4       4      1-     Version number.
    8       ?      1-     `Ride instance`_ data.
    ?       4      1-     Number of positioned track pieces.
    ?       4      1-     Total length of the roller coaster (in 1/256 pixels).
    ?       2      1-     Number of placed track pieces.
-   ?       ?      1-     Contents of "number" `positioned track pieces`_.
+   ?       ?      1-1    Each placed track piece's piece index (4 bytes) followed by its `positioned track pieces`_ content.
+   ?       ?      2-     Each placed track piece's internal name followed by its `positioned track pieces`_ content.
    ?       4      1-     Number of trains in this coaster.
    ?       4      1-     Number of cars in a single train.
    ?       ?      1-     Data of each train
@@ -667,12 +668,13 @@ Offset  Length  Version  Description
    ?       4      1-     Number of intensity statistics data points.
    ?       ?      1-     Each `coaster intensity statistics`_ data point.
    ?       4      1-     "itsc".
-======  ======  =======  ======================================================
+======  ======  =======  ============================================================================================================
 
 Version history
 ...............
 
 - 1 (20210402) Initial version.
+- 2 (20230318) Save track pieces by name.
 
 
 Fixed Ride Instance

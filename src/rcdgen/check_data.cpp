@@ -2571,6 +2571,7 @@ static std::shared_ptr<TrackPieceNode> ConvertTrackPieceNode(std::shared_ptr<Nod
 	Values vals("track_piece", ng->pos);
 	vals.PrepareNamedValues(ng->values, true, true, _track_piece_symbols);
 
+	tb->internal_name = vals.GetString("internal_name");
 	tb->track_flags = vals.GetNumber("track_flags");
 	tb->banking = vals.GetNumber("banking");
 	tb->slope = vals.GetNumber("slope");
@@ -2623,6 +2624,15 @@ static std::shared_ptr<RCSTBlock> ConvertRCSTNode(std::shared_ptr<NodeGroup> ng)
 	rb->text->Fill(vals.GetStrings("texts"), ng->pos);
 	rb->text->CheckTranslations(_coaster_string_names, lengthof(_coaster_string_names), ng->pos);
 	rb->track_blocks = GetTypedData<TrackPieceNode>(vals, "track_piece", 0);
+
+	std::set<std::string> used_track_piece_names;
+	for (const auto &node : rb->track_blocks) {
+		if (used_track_piece_names.count(node->internal_name) > 0) {
+			fprintf(stderr, "Error at %s: Duplicate track piece name '%s'.\n", ng->pos.ToString(), node->internal_name.c_str());
+			exit(1);
+		}
+		used_track_piece_names.insert(node->internal_name);
+	}
 
 	vals.VerifyUsage();
 	return rb;

@@ -70,6 +70,7 @@ public:
 
 	int GetTrackVoxelIndex(const TrackVoxel *tvx) const;
 	int GetPieceIndex(ConstTrackPiecePtr p) const;
+	int GetPieceIndex(const std::string &name) const;
 	int GetRotatedPieceIndex(ConstTrackPiecePtr p, uint8 orientation) const;
 
 	uint16 coaster_kind;       ///< Kind of coaster. @see CoasterKind

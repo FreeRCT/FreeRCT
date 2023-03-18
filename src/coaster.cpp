@@ -287,6 +287,21 @@ int CoasterType::GetPieceIndex(ConstTrackPiecePtr p) const
 }
 
 /**
+ * Get the index of the provided piece name.
+ * @param p Track piece name to look for.
+ * @return Index of the provided piece in this coaster type or \c -1 for not found.
+ */
+int CoasterType::GetPieceIndex(const std::string &name) const
+{
+	for (uint j = 0; j < this->pieces.size(); ++j) {
+		if (name == this->pieces[j]->internal_name) {
+			return j;
+		}
+	}
+	return -1;
+}
+
+/**
  * Get the index of a rotated version of the provided piece.
  * @param p Track piece to look for.
  * @param orientation Rotation to apply.
@@ -295,38 +310,27 @@ int CoasterType::GetPieceIndex(ConstTrackPiecePtr p) const
  */
 int CoasterType::GetRotatedPieceIndex(ConstTrackPiecePtr p, uint8 orientation) const
 {
-	for (uint j = 0; j < this->pieces.size(); ++j) {
-		ConstTrackPiecePtr piece = this->pieces.at(j);
-		/* Check if these pieces are identical in all their properties after rotation. */
-		if (p->speed != piece->speed) continue;
-		if (p->cost  != piece->cost ) continue;
-		if (p->track_voxels.size() != piece->track_voxels.size()) continue;
-		if (p->IsStartingPiece  () != piece->IsStartingPiece  ()) continue;
-		if (p->GetBanking() != piece->GetBanking()) continue;
-		if (p->GetSlope  () != piece->GetSlope  ()) continue;
-		if (p->GetBend   () != piece->GetBend   ()) continue;
-		/* TileEdge considers NORTH to be the identity while this function treats EAST as identity. */
-		if (OrientatedOffset((orientation + VOR_EAST) % 4, p->exit_dxyz.x, p->exit_dxyz.y, p->exit_dxyz.z) != piece->exit_dxyz) continue;
+	constexpr char ROTATION_SUFFIXES[4] = {'n', 'e', 's', 'w'};  ///< Suffixes for the internal name at each rotation.
 
-		bool is_similar = true;
-		for (uint k = 0; k < p->track_voxels.size(); ++k) {
-			const TrackVoxel &v1 = *p->track_voxels.at(k);
-			const TrackVoxel &v2 = *piece->track_voxels.at(k);
-
-			if (v1.HasPlatform() != v2.HasPlatform()) {
-				is_similar = false;
-				break;
-			}
-			if (v1.HasPlatform() && ((v1.GetPlatformDirection() + orientation) % 4) != v2.GetPlatformDirection()) {
-				is_similar = false;
-				break;
-			}
-			if (OrientatedOffset((orientation + VOR_EAST) % 4, v1.dxyz.x, v1.dxyz.y, v1.dxyz.z) != v2.dxyz) {
-				is_similar = false;
-				break;
-			}
+	assert(!p->internal_name.empty());
+	std::string piece_name;
+	for (uint i = 0; i < lengthof(ROTATION_SUFFIXES); ++i) {
+		if (p->internal_name.back() == ROTATION_SUFFIXES[i]) {
+			piece_name = p->internal_name;
+			piece_name.back() = ROTATION_SUFFIXES[(i + orientation) % 4];
+			break;
 		}
-		if (is_similar) return j;
+	}
+
+	if (piece_name.empty()) {  // Malformed piece name.
+		assert(orientation == TC_NORTH);
+		return this->GetPieceIndex(p);
+	}
+
+	for (uint i = 0; i < this->pieces.size(); ++i) {
+		if (piece_name == this->pieces[i]->internal_name) {
+			return i;
+		}
 	}
 
 	assert(orientation != TC_NORTH);
@@ -429,7 +433,7 @@ void DisplayCoasterCar::PreRemove()
 static const uint32 CURRENT_VERSION_DisplayCoasterCar = 1;   ///< Currently supported version of %DisplayCoasterCar.
 static const uint32 CURRENT_VERSION_CoasterCar        = 1;   ///< Currently supported version of %CoasterCar.
 static const uint32 CURRENT_VERSION_CoasterTrain      = 1;   ///< Currently supported version of %CoasterTrain.
-static const uint32 CURRENT_VERSION_CoasterInstance   = 1;   ///< Currently supported version of %CoasterInstance.
+static const uint32 CURRENT_VERSION_CoasterInstance   = 2;   ///< Currently supported version of %CoasterInstance.
 
 void DisplayCoasterCar::Load(Loader &ldr)
 {
@@ -1938,7 +1942,7 @@ void CoasterInstance::RecalculateRatings()
 void CoasterInstance::Load(Loader &ldr)
 {
 	const uint32 version = ldr.OpenPattern("csti");
-	if (version != CURRENT_VERSION_CoasterInstance) ldr.VersionMismatch(version, CURRENT_VERSION_CoasterInstance);
+	if (version < 1 || version > CURRENT_VERSION_CoasterInstance) ldr.VersionMismatch(version, CURRENT_VERSION_CoasterInstance);
 	this->RideInstance::Load(ldr);
 
 	this->capacity = (int)ldr.GetLong();
@@ -1952,8 +1956,12 @@ void CoasterInstance::Load(Loader &ldr)
 	}
 
 	for (uint i = 0; i < saved_pieces; i++) {
-		uint32 index = ldr.GetLong();
-		ConstTrackPiecePtr piece = ct->pieces[index];
+		ConstTrackPiecePtr piece;
+		if (version >= 2) {
+			piece = ct->pieces.at(ct->GetPieceIndex(ldr.GetText()));
+		} else {
+			piece = ct->pieces.at(ldr.GetLong());
+		}
 
 		if (piece != nullptr) {
 			this->pieces[i].piece = piece;
@@ -2026,11 +2034,9 @@ void CoasterInstance::Save(Saver &svr)
 	}
 	svr.PutWord(count);
 
-	const CoasterType *ct = this->GetCoasterType();
-
 	for (int i = 0; i < this->capacity; i++) {
 		if (this->pieces[i].piece != nullptr) {
-			svr.PutLong(ct->GetPieceIndex(this->pieces[i].piece));
+			svr.PutText(this->pieces[i].piece->internal_name);
 			this->pieces[i].Save(svr);
 		}
 	}
@@ -2092,7 +2098,7 @@ void CoasterInstance::SaveDesign(const std::string &file, const std::string &des
 
 	for (int i = 0; i < this->capacity; ++i) {
 		if (this->pieces[i].piece != nullptr) {
-			design.pieces.emplace_back(ct->GetPieceIndex(this->pieces[i].piece), this->pieces[i].base_voxel);
+			design.pieces.emplace_back(this->pieces[i].piece->internal_name, this->pieces[i].base_voxel);
 		}
 	}
 

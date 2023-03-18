@@ -1289,7 +1289,7 @@ Track pieces
 ~~~~~~~~~~~~
 
 A track piece definition describes a single piece of track in a ``TRCK`` block.
-FreeRCT can read blocks with version 5. Each piece needs
+FreeRCT can read blocks with version 7. Each piece needs
 one or more voxels. The first voxel it needs is called the *entry* voxel. The
 other voxels have coordinates relative to the entry voxel. The last voxel is
 called the *exit* voxel. The *entry* voxel of a track piece is at the *exit*
@@ -1326,6 +1326,7 @@ Offset   Length  Version  Field name          Description
    ?        ?      4-     car_pitch           Car pitch (may be empty).
    ?        ?      4-     car_roll            Car roll.
    ?        ?      4-     car_yaw             Car yaw (may be empty).
+   ?        ?      7-     internal_name       Unique internal track piece name.
    ?                                          Total length of the ``TRCK`` block.
 =======  ======  =======  ==================  ================================================================
 
@@ -1339,6 +1340,10 @@ The track flags are defined as follows:
 - bits 11-13 *Size of the bend* (-3 to +3, negative is to the left, positive is to the right, bigger is a wider bend).
 
 The remaining bits are reserved and should be ``0``.
+
+Each track piece should exist in four variants in a coaster, one for each possible rotation.
+The internal names of a track piece's variants should be in the format ``basename_x``, where
+``basename`` is the unique basename and ``x`` can take the values ``n``, ``e``, ``s``, and ``w``.
 
 A voxel definition is
 
@@ -1419,6 +1424,7 @@ Version history
 - 5 (20131218) Added length of the track piece, and ``car_xpos``, ``car_ypos``,
   ``car_zpos``, ``car_pitch``, ``car_roll``, and ``car_yaw`` entries.
 - 6 (20220915) Use FSET for graphics.
+- 7 (20230318) Add track piece internal names.
 
 Coaster cars
 ~~~~~~~~~~~~
