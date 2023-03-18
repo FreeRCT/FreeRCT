@@ -1113,6 +1113,18 @@ public:
 	uint8 type;     ///< Type of platform.
 };
 
+/** 'FTKW' game block. */
+class FTKWBlock : public GameBlock {
+public:
+	FTKWBlock();
+	virtual ~FTKWBlock() = default;
+
+	int Write(FileWriter *fw) override;
+
+	uint32 length;                  ///< Number of bytes in the file.
+	std::unique_ptr<uint8[]> data;  ///< The raw FTK file data.
+};
+
 /** 'FENC' game block. */
 class FENCBlock : public GameBlock {
 public:

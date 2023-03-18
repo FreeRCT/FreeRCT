@@ -1508,6 +1508,27 @@ Version history
 - 3 (20220915) Use FSET for graphics.
 
 
+Track designs
+~~~~~~~~~~~~~
+Designs for tracked rides are stored in a ``FTKW`` block. FreeRCT can load version 1 of these blocks.
+This block acts only as a wrapper around a FTK file's contents. See the file "track_designs.rst" for the file format specification.
+
+=======  ======  =======  ================================================================
+Offset   Length  Version  Description
+=======  ======  =======  ================================================================
+   0        4      1-     Magic string 'FTKW'.
+   4        4      1-     Version number of the block.
+   8        4      1-     Length of the block excluding magic string, version, and length.
+  12        ?      1-     The bytes of the track design binary file.
+   ?                      Total length of the block.
+=======  ======  =======  ================================================================
+
+Version history
+...............
+
+- 1 (20230318) Initial version.
+
+
 GUI
 ===
 GUI sprites, in various forms.

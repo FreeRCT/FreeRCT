@@ -647,3 +647,8 @@ CSPL { // Coaster platforms.
 		}
 	}
 }
+
+/* Track designs for this coaster. */
+FTKW {
+	file: "../sprites/tracks/designs/CompactCoaster.ftk";
+}

@@ -28,7 +28,15 @@ bool _automatically_resave_files = false;
  * Constructor of the loader class.
  * @param file Input file stream. Use \c nullptr for initialization to default.
  */
-Loader::Loader(FILE *file) : fp(file), cache_count(0)
+Loader::Loader(FILE *file) : fp(file), rcd_file(nullptr), cache_count(0)
+{
+}
+
+/**
+ * Constructor of the loader class.
+ * @param rcd Input file stream.
+ */
+Loader::Loader(RcdFileReader *rcd) : fp(nullptr), rcd_file(rcd), cache_count(0)
 {
 }
 
@@ -44,7 +52,7 @@ uint32 Loader::OpenPattern(const char *name, bool may_fail, bool name_only)
 {
 	assert(strlen(name) == 4);
 	this->pattern_names.emplace_back(name);
-	if (this->fp == nullptr) return 0;
+	if (this->fp == nullptr && this->rcd_file == nullptr) return 0;
 
 	int i = 0;
 	while (i < 4) {
@@ -75,7 +83,7 @@ uint32 Loader::OpenPattern(const char *name, bool may_fail, bool name_only)
 /** Test whether the current pattern is closed. */
 void Loader::ClosePattern()
 {
-	if (this->fp == nullptr) return;
+	if (this->fp == nullptr && this->rcd_file == nullptr) return;
 	assert(!this->pattern_names.empty());
 	const std::string &blk_name = this->pattern_names.back();
 	for (int i = 0; i < static_cast<int>(blk_name.size()); ++i) {
@@ -92,12 +100,15 @@ void Loader::ClosePattern()
  */
 uint8 Loader::GetByte()
 {
-	if (this->fp == nullptr) return 0;
+	if (this->fp == nullptr && this->rcd_file == nullptr) return 0;
 
 	if (this->cache_count > 0) {
 		this->cache_count--;
 		return this->cache[this->cache_count];
 	}
+
+	if (this->rcd_file != nullptr) return this->rcd_file->GetUInt8();
+
 	int k = getc(this->fp);
 	if (k == EOF) {
 		throw LoadingError("EOF encountered");

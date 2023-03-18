@@ -278,6 +278,7 @@ public:
 	void Save(Saver &svr);
 	void LoadDesigns();
 	void LoadDesign(const std::string &file);
+	void LoadDesign(RcdFileReader *rcd_file);
 
 	/**
 	 * Get a ride type from the class.

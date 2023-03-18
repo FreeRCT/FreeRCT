@@ -696,6 +696,12 @@ sprites for the other orientations may be omitted.
 
 If the optional key ``empty_voxels`` is set to a sprite, all sprites are optional, and this sprite will be used for any missing sprites.
 
+FTKW
+~~~~
+Attributes:
+
+- ``file`` - The track design file to include.
+
 FUND
 ~~~~
 Attributes:

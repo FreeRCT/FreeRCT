@@ -2723,6 +2723,41 @@ static std::shared_ptr<CARSBlock> ConvertCARSNode(std::shared_ptr<NodeGroup> ng)
 }
 
 /**
+ * Convert a node group to a FTKW game block.
+ * @param ng Generic tree of nodes to convert.
+ * @return The created FTKW game block.
+ */
+static std::shared_ptr<FTKWBlock> ConvertFTKWNode(std::shared_ptr<NodeGroup> ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, "FTKW");
+	auto block = std::make_shared<FTKWBlock>();
+
+	Values vals("FTKW", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, false);
+
+	FILE *in_file = nullptr;
+	in_file = fopen(vals.GetString("file").c_str(), "rb");
+	if (in_file == nullptr) {
+		fprintf(stderr, "Error at %s: Could not open input file.\n", ng->pos.ToString());
+		exit(1);
+	}
+
+	fseek(in_file, 0L, SEEK_END);
+	block->length = ftell(in_file);
+	rewind(in_file);
+
+	block->data.reset(new uint8[block->length]);
+	for (uint32 i = 0; i < block->length; ++i) {
+		block->data[i] = getc(in_file);
+	}
+
+	fclose(in_file);
+
+	vals.VerifyUsage();
+	return block;
+}
+
+/**
  * Convert a 'splines' block to a node block.
  * @param ng Generic tree of nodes to convert.
  * @return The converted splines node block.
@@ -2903,6 +2938,7 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(std::shared_ptr<NodeGroup> ng
 	if (ng->name == "FENC") return ConvertFENCNode(ng);
 	if (ng->name == "FGTR") return ConvertFGTRNode(ng);
 	if (ng->name == "FSET") return ConvertFSETNode(ng);
+	if (ng->name == "FTKW") return ConvertFTKWNode(ng);
 	if (ng->name == "FUND") return ConvertFUNDNode(ng);
 	if (ng->name == "GBOR") return ConvertGBORNode(ng);
 	if (ng->name == "GCHK") return ConvertGCHKNode(ng);

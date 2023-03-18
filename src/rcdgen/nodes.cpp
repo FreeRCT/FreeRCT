@@ -1889,6 +1889,20 @@ int CSPLBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
+FTKWBlock::FTKWBlock() : GameBlock("FTKW", 1)
+{
+}
+
+int FTKWBlock::Write(FileWriter *fw)
+{
+	/* Write the data. */
+	FileBlock *fb = new FileBlock;
+	fb->StartSave(this->blk_name, this->version, this->length);
+	fb->SaveBytes(this->data.get(), this->length);
+	fb->CheckEndSave();
+	return fw->AddBlock(fb);
+}
+
 INFOBlock::INFOBlock() : MetaBlock("INFO", 1)
 {
 }
