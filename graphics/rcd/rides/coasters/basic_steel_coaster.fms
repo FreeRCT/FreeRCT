@@ -13,7 +13,7 @@ RCST {
 
 	// Flat, straight pieces.
 	track_piece {
-		// name: "flat-straight";
+		internal_name: "flat-straight";
 		track_flags: 0;
 		banking: none;
 		slope: 0;
@@ -55,7 +55,7 @@ RCST {
 
 	// Flat, straight pieces with platform.
 	track_piece {
-		// name: "flat-straight";
+		internal_name: "station";
 		track_flags: bitset(3);
 		banking: none;
 		slope: 0;
@@ -82,7 +82,7 @@ RCST {
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
 				}
-				(sw_0_0, se_0_0) : sheet {
+				(se_0_0, sw_0_0) : sheet {
 					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
@@ -96,7 +96,7 @@ RCST {
 
 	// Flat, 1 voxel 90 degrees corners.
 	track_piece {
-		// name: "flat-90-left";
+		internal_name: "flat-90-left";
 		track_flags: 0;
 		banking: none;
 		slope: 0;
@@ -130,7 +130,7 @@ RCST {
 		}
 	}
 	track_piece {
-		// name: "flat-90-right";
+		internal_name: "flat-90-right";
 		track_flags: 0;
 		banking: none;
 		slope: 0;
@@ -166,7 +166,7 @@ RCST {
 
 	// Flat -> shallow, straight pieces.
 	track_piece {
-		// name: "flat-shallow_up-straight";
+		internal_name: "flat-shallow_up-straight";
 		track_flags: 0;
 		banking: none;
 		slope: 1;
@@ -200,7 +200,7 @@ RCST {
 		}
 	}
 	track_piece {
-		// name: "flat-shallow_down-straight";
+		internal_name: "flat-shallow_down-straight";
 		track_flags: 0;
 		banking: none;
 		slope: -1;
@@ -237,7 +237,7 @@ RCST {
 		}
 	}
 	track_piece {
-		// name: "shallow_up-straight";
+		internal_name: "shallow_up-straight";
 		track_flags: 0;
 		banking: none;
 		slope: 1;
@@ -274,7 +274,7 @@ RCST {
 		}
 	}
 	track_piece {
-		// name: "shallow_down-straight";
+		internal_name: "shallow_down-straight";
 		track_flags: 0;
 		banking: none;
 		slope: -1;
@@ -311,7 +311,7 @@ RCST {
 		}
 	}
 	track_piece {
-		// name: "shallow_up-flat-straight";
+		internal_name: "shallow_up-flat-straight";
 		track_flags: 0;
 		banking: none;
 		slope: 0;
@@ -348,7 +348,7 @@ RCST {
 		}
 	}
 	track_piece {
-		// name: "shallow_down-flat-straight";
+		internal_name: "shallow_down-flat-straight";
 		track_flags: 0;
 		banking: none;
 		slope: 0;
@@ -384,7 +384,7 @@ RCST {
 
 	// Powered tracks.
 	track_piece {
-		// name: "flat-shallow_up-straight";
+		internal_name: "flat-shallow_up-straight-power";
 		track_flags: 0;
 		banking: none;
 		slope: 1;
@@ -419,7 +419,7 @@ RCST {
 		}
 	}
 	track_piece {
-		// name: "shallow_up-straight";
+		internal_name: "shallow_up-straight-power";
 		track_flags: 0;
 		banking: none;
 		slope: 1;
@@ -457,7 +457,7 @@ RCST {
 		}
 	}
 	track_piece {
-		// name: "shallow_up-flat-straight";
+		internal_name: "shallow_up-flat-straight-power";
 		track_flags: 0;
 		banking: none;
 		slope: 0;
@@ -646,4 +646,9 @@ CSPL { // Coaster platforms.
 			width: 62; height: 31; x_offset: -30; y_offset: -10;
 		}
 	}
+}
+
+/* Track designs for this coaster. */
+FTKW {
+	file: "../sprites/tracks/designs/CompactCoaster.ftk";
 }

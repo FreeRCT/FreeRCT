@@ -482,6 +482,7 @@ Represents a track piece of a tracked ride. Corresponds roughly to a *TRCK* bloc
 
 Attributes:
 
+- ``internal_name`` - Unique internal name of the track piece.
 - ``track_flags`` - Bitset of track flags (see the RCD documentation for the TRCK block).
 - ``banking`` - Direction in which the piece is banked.
 - ``slope`` - Slope steepness of the piece.
@@ -694,6 +695,12 @@ If the optional boolean switch ``unrotated_views_only`` is set, only north-east 
 sprites for the other orientations may be omitted.
 
 If the optional key ``empty_voxels`` is set to a sprite, all sprites are optional, and this sprite will be used for any missing sprites.
+
+FTKW
+~~~~
+Attributes:
+
+- ``file`` - The track design file to include.
 
 FUND
 ~~~~

@@ -23,7 +23,8 @@ static const std::string TRACK_DESIGN_DIRECTORY("tracks");  ///< The directory w
 /** Class for loading a save game. */
 class Loader {
 public:
-	Loader(FILE *fp);
+	explicit Loader(FILE *fp);
+	explicit Loader(RcdFileReader *rcd);
 
 	uint32 OpenPattern(const char *name, bool may_fail = false, bool name_only = false);
 	void ClosePattern();
@@ -41,7 +42,9 @@ private:
 
 	std::vector<std::string> pattern_names; ///< Stack of the currently loaded pattern.
 
-	FILE *fp;             ///< Data stream being loaded.
+	FILE *fp;
+	RcdFileReader *rcd_file;  ///< Data streams being loaded. One of these two must be \c nullptr.
+
 	int cache_count;      ///< Number of values in #cache.
 	uint8 cache[8];       ///< Stack with temporary values to return on next read.
 };

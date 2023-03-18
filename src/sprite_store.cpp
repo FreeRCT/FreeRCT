@@ -1592,6 +1592,11 @@ void SpriteManager::Load(const char *filename)
 			continue;
 		}
 
+		if (strcmp(rcd_file.name, "FTKW") == 0) {
+			_rides_manager.LoadDesign(&rcd_file);
+			continue;
+		}
+
 		/* Unknown block in the RCD file. Skip the block. */
 		fprintf(stderr, "Unknown RCD block '%s', version %i, ignoring it\n", rcd_file.name, rcd_file.version);
 		if (!rcd_file.SkipBytes(rcd_file.size)) throw LoadingError("Error skipping unknown block.");

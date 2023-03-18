@@ -44,7 +44,7 @@ Offset  Length  Version  Description
    ?       4      1-     Intensity rating.
    ?       4      1-     Nausea rating.
    ?       4      1-     Number n of track pieces.
-   ?     18*n     1-     Every `track piece`_.
+   ?      ?*n     1-     Every `track piece`_.
    ?       4      1-     "DKTF".
 ======  ======  =======  ======================================================
 
@@ -56,15 +56,16 @@ Track Piece
 Offset  Length  Version  Description
 ======  ======  =======  ===========================================================================
    0       4      1-     "trpc".
-   4       4      1-     Track piece ID.
-   8       2      1-     X coordinate of the piece, relative to the coaster's starting voxel.
-  10       2      1-     Y coordinate of the piece, relative to the coaster's starting voxel.
-  12       2      1-     Z coordinate of the piece, relative to the coaster's starting voxel.
-  14       4      1-     "cprt".
-  18              1-     Total length.
+           4      1-1    Track piece ID.
+   ?       4      2-     Track piece name.
+   ?       2      1-     X coordinate of the piece, relative to the coaster's starting voxel.
+   ?       2      1-     Y coordinate of the piece, relative to the coaster's starting voxel.
+   ?       2      1-     Z coordinate of the piece, relative to the coaster's starting voxel.
+   ?       4      1-     "cprt".
 ======  ======  =======  ===========================================================================
 
 Version History
 ~~~~~~~~~~~~~~~
 
 - 1 (20221005) Initial version.
+- 2 (20230318) Save track pieces by name.

@@ -92,6 +92,7 @@ enum CoasterInstanceWidgets {
 	CIW_OPEN_RIDE_LIGHT,     ///< Open coaster light.
 	CIW_TEST_RIDE_LIGHT,     ///< Test coaster light.
 	CIW_CLOSE_RIDE_LIGHT,    ///< Close coaster light.
+	CIW_RIDENAME,               ///< Ride name edit box.
 	CIW_ENTRANCE_FEE,           ///< Entrance fee display.
 	CIW_ENTRANCE_FEE_DECREASE,  ///< Decrease entrance fee button.
 	CIW_ENTRANCE_FEE_INCREASE,  ///< Increase entrance fee button.
@@ -149,7 +150,13 @@ static const WidgetPart _coaster_instance_gui_parts[] = {
 				Widget(WT_RIGHT_TEXT, CIW_NAUSEA_RATING, COL_RANGE_DARK_RED), SetData(STR_ARG1, STR_NULL),
 
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
-			Intermediate(2, 1),
+			Intermediate(3, 1),
+				Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetPadding(4, 4, 4, 4),
+					Intermediate(1, 2),
+						Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED),
+								SetData(GUI_RIDE_MANAGER_RIDE_NAME_TEXT, STR_NULL),
+						Widget(WT_TEXT_INPUT, CIW_RIDENAME, COL_RANGE_DARK_RED),
+								SetFill(1, 0), SetResize(1, 0),
 				Intermediate(4, 4),
 					Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_DARK_RED), SetData(GUI_RIDE_MANAGER_ENTRANCE_FEE_TEXT, STR_NULL),
 					Widget(WT_TEXT_PUSHBUTTON, CIW_ENTRANCE_FEE_DECREASE, COL_RANGE_DARK_RED), SetData(GUI_DECREASE_BUTTON, STR_NULL), SetRepeating(true),
@@ -274,6 +281,13 @@ CoasterInstanceWindow::CoasterInstanceWindow(CoasterInstance *instance) : GuiWin
 	this->SetCoasterState();
 	this->UpdateRecolourButtons();
 	this->SetGraphMode(GM_SPEED);
+
+	TextInputWidget *txt = this->GetWidget<TextInputWidget>(CIW_RIDENAME);
+	txt->SetText(this->ci->name);
+	txt->text_changed = [this, txt]()
+	{
+		this->ci->name = txt->GetText();
+	};
 
 	/* When opening the window of a newly built ride immediately prompt the user to place the entrance or exit. */
 	if (this->ci->NeedsEntrance()) {
@@ -1165,7 +1179,7 @@ void CoasterBuildWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid)
 	int x = this->GetWidgetScreenX(wid);
 	int y = this->GetWidgetScreenY(wid);
 	const Viewport *vp = _window_manager.GetViewport();
-	const int orient = vp->orientation;
+	const int orient = this->design < 0 ? vp->orientation : VOR_NORTH;  // \todo Design pieces are assembled artifically and currently have only one view.
 
 	/* Render the track piece's preview. */
 	std::map<XYZPoint16, std::vector<const ImageData*>> sprites;
@@ -1254,11 +1268,14 @@ void CoasterBuildWindow::SetupSelection()
 		/* Copy all track voxels of the saved design into a single pseudo-trackpiece. */
 		const CoasterType *ct = this->ci->GetCoasterType();
 		const TrackedRideDesign &trd = ct->designs.at(this->design);
+		assert(!trd.pieces.empty());
+
 		this->design_preview_piece.reset(new TrackPiece);
+		this->design_preview_piece->entry_connect = (ct->pieces.at(ct->GetPieceIndex(trd.pieces.at(0).piece_name))->entry_connect + this->build_direction) % 4;
 
 		XYZPoint16 relative_pos(0, 0, 0);
 		for (const TrackedRideDesign::AbstractTrackPiece &abstract_piece : trd.pieces) {
-			int piece_id = ct->GetRotatedPieceIndex(ct->pieces.at(abstract_piece.piece_id), this->build_direction);
+			int piece_id = ct->GetRotatedPieceIndex(ct->pieces.at(ct->GetPieceIndex(abstract_piece.piece_name)), this->build_direction);
 			assert(piece_id >= 0);
 			ConstTrackPiecePtr piece = ct->pieces.at(piece_id);
 			for (const auto &track_voxel : piece->track_voxels) {
@@ -1465,7 +1482,7 @@ void CoasterBuildWindow::BuildTrackPiece()
 
 		XYZPoint16 pos = this->piece_selector.pos_piece.base_voxel;
 		for (const TrackedRideDesign::AbstractTrackPiece &abstract_piece : trd.pieces) {
-			int piece_id = ct->GetRotatedPieceIndex(ct->pieces.at(abstract_piece.piece_id), this->build_direction);
+			int piece_id = ct->GetRotatedPieceIndex(ct->pieces.at(ct->GetPieceIndex(abstract_piece.piece_name)), this->build_direction);
 			assert(piece_id >= 0);
 			ConstTrackPiecePtr piece = ct->pieces.at(piece_id);
 			ptp_index = this->ci->AddPositionedPiece(PositionedTrackPiece(pos, piece));

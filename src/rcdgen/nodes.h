@@ -1035,6 +1035,7 @@ public:
 
 	std::vector<std::shared_ptr<TrackVoxel>> track_voxels; ///< Voxels in the track piece.
 
+	std::string internal_name;        ///< Track piece internal name.
 	std::shared_ptr<Curve> car_xpos;  ///< Path for cars over the track piece in X direction.
 	std::shared_ptr<Curve> car_ypos;  ///< Path for cars over the track piece in Y direction.
 	std::shared_ptr<Curve> car_zpos;  ///< Path for cars over the track piece in Z direction.
@@ -1110,6 +1111,18 @@ public:
 	std::shared_ptr<FSETBlock> bg;            ///< Background sprites.
 	std::shared_ptr<FSETBlock> fg;            ///< Foreground sprites.
 	uint8 type;     ///< Type of platform.
+};
+
+/** 'FTKW' game block. */
+class FTKWBlock : public GameBlock {
+public:
+	FTKWBlock();
+	virtual ~FTKWBlock() = default;
+
+	int Write(FileWriter *fw) override;
+
+	uint32 length;                  ///< Number of bytes in the file.
+	std::unique_ptr<uint8[]> data;  ///< The raw FTK file data.
 };
 
 /** 'FENC' game block. */

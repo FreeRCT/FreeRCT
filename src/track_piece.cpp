@@ -14,6 +14,7 @@
 #include "track_piece.h"
 #include "finances.h"
 #include "map.h"
+#include "coaster.h"
 
 TrackVoxel::TrackVoxel() : id(0), bg(nullptr), fg(nullptr)
 {
@@ -175,9 +176,9 @@ void TrackPiece::RemoveFromWorld([[maybe_unused]] const uint16 ride_index, const
  */
 void TrackPiece::Load(RcdFileReader *rcd_file)
 {
-	rcd_file->CheckVersion(6);
+	rcd_file->CheckVersion(7);
 	int length = rcd_file->size;
-	length -= 2 + 3 + 1 + 2 + 4 + 2;
+	length -= 2 + 3 + 1 + 2 + 4 + 2 + 1;
 	rcd_file->CheckMinLength(length, 0, "header");
 
 	this->entry_connect = rcd_file->GetUInt8();
@@ -210,6 +211,10 @@ void TrackPiece::Load(RcdFileReader *rcd_file)
 	if (this->car_xpos == nullptr || this->car_ypos == nullptr || this->car_zpos == nullptr || this->car_roll == nullptr) {
 		rcd_file->Error("Car sprites missing");
 	}
+
+	this->internal_name = rcd_file->GetText();
+	length -= this->internal_name.size();
+
 	rcd_file->CheckExactLength(length, 0, "end of block");
 }
 
@@ -337,7 +342,7 @@ void PositionedTrackPiece::Save(Saver &svr)
 	svr.EndPattern();
 }
 
-constexpr uint32 CURRENT_VERSION_TrackedRideDesign = 1;   ///< Currently supported version of %TrackedRideDesign.
+constexpr uint32 CURRENT_VERSION_TrackedRideDesign = 2;   ///< Currently supported version of %TrackedRideDesign.
 
 /**
  * Load a tracked ride design from a file.
@@ -349,6 +354,8 @@ TrackedRideDesign::TrackedRideDesign(Loader &ldr)
 	if (version < 1 || version > CURRENT_VERSION_TrackedRideDesign) ldr.VersionMismatch(version, CURRENT_VERSION_TrackedRideDesign);
 
 	this->ride = ldr.GetText();
+	const CoasterType *ct = static_cast<const CoasterType*>(_rides_manager.GetRideType(this->ride));
+
 	this->name = ldr.GetText();
 	this->excitement_rating = ldr.GetLong();
 	this->intensity_rating  = ldr.GetLong();
@@ -358,13 +365,21 @@ TrackedRideDesign::TrackedRideDesign(Loader &ldr)
 	this->pieces.reserve(nr_pieces);
 	for (; nr_pieces > 0; --nr_pieces) {
 		ldr.OpenPattern("trpc", false, true);
-		const uint32 track_piece_id = ldr.GetLong();
+
+		std::string track_piece_name;
+		if (version >= 2) {
+			track_piece_name = ldr.GetText();
+		} else {
+			track_piece_name = ct->pieces.at(ldr.GetLong())->internal_name;
+		}
+
 		XYZPoint16 p;
 		p.x = ldr.GetWord();
 		p.y = ldr.GetWord();
 		p.z = ldr.GetWord();
+
 		ldr.ClosePattern();
-		this->pieces.emplace_back(track_piece_id, p);
+		this->pieces.emplace_back(track_piece_name, p);
 	}
 
 	ldr.ClosePattern();
@@ -387,7 +402,7 @@ void TrackedRideDesign::Save(Saver &svr) const
 	svr.PutLong(this->pieces.size());
 	for (const AbstractTrackPiece &p : this->pieces) {
 		svr.StartPattern("trpc");
-		svr.PutLong(p.piece_id);
+		svr.PutText(p.piece_name);
 		svr.PutWord(p.base_voxel.x);
 		svr.PutWord(p.base_voxel.y);
 		svr.PutWord(p.base_voxel.z);

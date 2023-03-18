@@ -802,7 +802,7 @@ void TextInputWidget::DoDraw(const GuiWindow *w)
 {
 	Rectangle32 r = this->pos;
 	r.base += w->rect.base;
-	_video.FillRectangle(r, _palette[COL_SERIES_START + (this->colour - 1) * COL_SERIES_LENGTH + (this->has_focus ? 2 : 4)]);
+	_video.FillRectangle(r, _palette[COL_SERIES_START + this->colour * COL_SERIES_LENGTH + (this->has_focus ? 2 : 4)]);
 
 	/* Update text dimensions. */
 	_video.GetTextSize(this->buffer, &this->value_width, &this->value_height);
@@ -820,13 +820,13 @@ void TextInputWidget::DoDraw(const GuiWindow *w)
 	r.width -= 2 * TEXT_INPUT_MARGIN;
 	r.height -= 2 * TEXT_INPUT_MARGIN;
 	if (!this->buffer.empty()) {
-		_video.BlitText(this->buffer, _palette[COL_SERIES_START + this->colour * COL_SERIES_LENGTH - (this->has_focus ? 2 : 4)],
+		_video.BlitText(this->buffer, _palette[COL_SERIES_START + (this->colour + 1) * COL_SERIES_LENGTH - (this->has_focus ? 2 : 4)],
 				r.base.x, r.base.y, r.width, ALG_LEFT);
 	}
 
 	if (this->has_focus) {
 		_video.DrawLine(Point16(r.base.x + cursor_offset, r.base.y), Point16(r.base.x + cursor_offset, r.base.y + r.height),
-				_palette[COL_SERIES_START + this->colour * COL_SERIES_LENGTH - 1]);
+				_palette[COL_SERIES_START + (this->colour + 1) * COL_SERIES_LENGTH - 1]);
 	}
 }
 

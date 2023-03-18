@@ -226,6 +226,7 @@ static const char *_gui_string_names[] = {
 
 	/* Generic ride manager window strings. */
 	"RIDE_MANAGER_ENTRANCE_FEE_TEXT",
+	"RIDE_MANAGER_RIDE_NAME_TEXT",
 	"RIDE_MANAGER_BROKEN_DOWN",
 	"RIDE_MANAGER_RELIABILITY",
 	"RIDE_MANAGER_MAINTENANCE_TEXT",

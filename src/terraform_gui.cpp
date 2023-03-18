@@ -82,6 +82,7 @@ static const WidgetPart _terraform_gui_parts[] = {
 TerraformGui::TerraformGui() : GuiWindow(WC_TERRAFORM, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetupWidgetTree(_terraform_gui_parts, lengthof(_terraform_gui_parts));
+	this->tiles_selector.default_enable_cursors = true;
 	this->Setlevelling(true);
 	this->SetTerraformSize(1, 1);
 }

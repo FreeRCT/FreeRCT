@@ -206,6 +206,7 @@ PathBuildGui::PathBuildGui() : GuiWindow(WC_PATH_BUILDER, ALL_WINDOWS_OF_TYPE)
 		}
 	}
 
+	this->ride_selector.default_enable_cursors = true;
 	this->SetSelector(&this->ride_selector);
 	if (this->path_type == PAT_INVALID || this->path_status == PAS_UNUSED) {
 		this->ride_selector.SetSize(0, 0);

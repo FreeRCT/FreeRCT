@@ -1758,12 +1758,13 @@ static void SaveCarEntry(FileBlock *fb, std::shared_ptr<Curve> entry, int rot, i
  */
 void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWriter *fw, FileBlock *parent_fb)
 {
+	constexpr char ROTATION_SUFFIXES[4] = {'n', 'e', 's', 'w'};  ///< Suffixes for the internal name at each rotation.
 	for (int rot = 0; rot < 4; rot++) {
 		FileBlock *fb = new FileBlock;
-		int size = 26 - 12 + 12 * this->track_voxels.size() + 4;
+		int size = 26 - 12 + 12 * this->track_voxels.size() + 4 + this->internal_name.size() + 3;
 		size += GetCarEntrySize(this->car_xpos) + GetCarEntrySize(this->car_ypos) + GetCarEntrySize(this->car_zpos);
 		size += GetCarEntrySize(this->car_pitch) + GetCarEntrySize(this->car_roll) + GetCarEntrySize(this->car_yaw);
-		fb->StartSave("TRCK", 6, size);
+		fb->StartSave("TRCK", 7, size);
 		fb->SaveUInt8(this->entry->Encode(connections, rot));
 		fb->SaveUInt8(this->exit->Encode(connections, rot));
 		int nx = this->exit_dx;
@@ -1804,6 +1805,7 @@ void TrackPieceNode::Write(const std::map<std::string, int> &connections, FileWr
 		SaveCarEntry(fb, this->car_pitch, 0, '-');
 		SaveCarEntry(fb, this->car_roll,  0, '-');
 		SaveCarEntry(fb, this->car_yaw,   0, '-');
+		fb->SaveText(this->internal_name + "_" + ROTATION_SUFFIXES[rot]);
 		fb->CheckEndSave();
 		parent_fb->SaveUInt32(fw->AddBlock(fb));
 	}
@@ -1883,6 +1885,20 @@ int CSPLBlock::Write(FileWriter *fw)
 	fb->SaveUInt8(this->type);
 	fb->SaveUInt32(this->bg->Write(fw));
 	fb->SaveUInt32(this->fg->Write(fw));
+	fb->CheckEndSave();
+	return fw->AddBlock(fb);
+}
+
+FTKWBlock::FTKWBlock() : GameBlock("FTKW", 1)
+{
+}
+
+int FTKWBlock::Write(FileWriter *fw)
+{
+	/* Write the data. */
+	FileBlock *fb = new FileBlock;
+	fb->StartSave(this->blk_name, this->version, this->length);
+	fb->SaveBytes(this->data.get(), this->length);
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }

@@ -162,7 +162,7 @@ struct CursorTileData {
 template <typename TileData>
 class TileDataMouseMode : public MouseModeSelector {
 public:
-	TileDataMouseMode() : MouseModeSelector(CUR_TYPE_TILE)
+	TileDataMouseMode() : MouseModeSelector(CUR_TYPE_TILE), default_enable_cursors(false)
 	{
 	}
 
@@ -228,12 +228,13 @@ public:
 				int ypos = this->area.base.y + y;
 				TileData &td = this->tile_data[this->GetTileOffset(x, y)];
 				td.Init();
-				td.cursor_enabled = (IsVoxelstackInsideWorld(xpos, ypos) && _world.GetTileOwner(xpos, ypos) == OWN_PARK);
+				td.cursor_enabled = (this->default_enable_cursors && IsVoxelstackInsideWorld(xpos, ypos) && _world.GetTileOwner(xpos, ypos) == OWN_PARK);
 			}
 		}
 	}
 
 	std::vector<TileData> tile_data; ///< Tile data of the area.
+	bool default_enable_cursors;     ///< Draw cursor sprites in every voxel covered by the selector by default.
 };
 
 /** Ride information of a voxel. */

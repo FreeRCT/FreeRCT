@@ -1033,6 +1033,26 @@ void RidesManager::LoadDesign(const std::string &file)
 }
 
 /**
+ * Load a track design.
+ * @param rcd_file Rcd file being loaded.
+ */
+void RidesManager::LoadDesign(RcdFileReader *rcd_file)
+{
+	rcd_file->CheckVersion(1);
+
+	Loader ldr(rcd_file);
+	TrackedRideDesign t(ldr);  // This loads the design.
+
+	if (t.name.empty()) rcd_file->Error("Unnamed design");
+	if (t.pieces.empty()) rcd_file->Error("No tracks in ride");
+
+	const RideType *r = this->GetRideType(t.ride);
+	if (r == nullptr) rcd_file->Error("Unknown ride type '%s'", t.ride.c_str());
+
+	r->designs.push_back(t);
+}
+
+/**
  * Does a ride entrance exists at/to the bottom the given voxel in the neighbouring voxel?
  * @param pos Coordinate of the voxel.
  * @param edge Direction to move to get the neighbouring voxel.
