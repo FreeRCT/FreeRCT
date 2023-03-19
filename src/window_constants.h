@@ -114,6 +114,8 @@ enum WmKeyCode {
 	WMKC_DELETE,       ///< Delete is pressed.
 	WMKC_CANCEL,       ///< Cancel is pressed.
 	WMKC_CONFIRM,      ///< Confirm is pressed.
+	WMKC_FN_BEGIN,                     ///< Beginning of the keys F1..F25.
+	WMKC_FN_LAST = WMKC_FN_BEGIN + 25, ///< Last of the keys F1..F25.
 	WMKC_SYMBOL,       ///< A symbol is entered.
 };
 
@@ -141,6 +143,80 @@ enum ParkManagementGuiTabs {
 	PARK_MANAGEMENT_TAB_OBJECTIVE,    ///< Objective tab button.
 	PARK_MANAGEMENT_TAB_AWARDS,       ///< Awards tab button.
 };
+
+/** All keyboard shortcuts. */
+enum KeyboardShortcut {
+	KS_BEGIN = 0,       ///< First shortcut ID.
+	KS_FPS = KS_BEGIN,  ///< Toggle FPS counter.
+
+	KS_MAINMENU_NEW,       ///< Main menu start new game.
+	KS_MAINMENU_LOAD,      ///< Main menu load savegame.
+	KS_MAINMENU_SETTINGS,  ///< Main menu settings window.
+	KS_MAINMENU_QUIT,      ///< Main menu quit FreeRCT.
+
+	KS_INGAME_QUIT,      ///< Quit FreeRCT.
+	KS_INGAME_SAVE,      ///< Save the game.
+	KS_INGAME_MAINMENU,  ///< Return to the main menu.
+	KS_INGAME_SETTINGS,  ///< Open the settings window.
+
+	KS_INGAME_SPEED_PAUSE,  ///< Set speed to paused.
+	KS_INGAME_SPEED_1,      ///< Set speed to 1x.
+	KS_INGAME_SPEED_2,      ///< Set speed to 2x.
+	KS_INGAME_SPEED_4,      ///< Set speed to 4x.
+	KS_INGAME_SPEED_8,      ///< Set speed to 8x.
+	KS_INGAME_SPEED_UP,     ///< Set speed one level faster.
+	KS_INGAME_SPEED_DOWN,   ///< Set speed one level slower.
+
+	KS_INGAME_ROTATE_CW,   ///< Rotate view clockwise.
+	KS_INGAME_ROTATE_CCW,  ///< Rotate view counter-clockwise.
+
+	KS_INGAME_ZOOM_OUT,    ///< Zoom out.
+	KS_INGAME_ZOOM_IN,     ///< Zoom in.
+
+	KS_INGAME_MOVE_LEFT,   ///< Move the viewport to the left.
+	KS_INGAME_MOVE_RIGHT,  ///< Move the viewport to the right.
+	KS_INGAME_MOVE_UP,     ///< Move the viewport up.
+	KS_INGAME_MOVE_DOWN,   ///< Move the viewport down.
+
+	KS_INGAME_TERRAFORM,        ///< Open terraform window.
+	KS_INGAME_PATHS,            ///< Open paths window.
+	KS_INGAME_FENCES,           ///< Open fences window.
+	KS_INGAME_SCENERY,          ///< Open scenery window.
+	KS_INGAME_PATH_OBJECTS,     ///< Open path objects window.
+	KS_INGAME_RIDES,            ///< Open ride select window.
+	KS_INGAME_PARK_MANAGEMENT,  ///< Open park management window.
+	KS_INGAME_STAFF,            ///< Open staff window.
+	KS_INGAME_INBOX,            ///< Open inbox window.
+	KS_INGAME_FINANCES,         ///< Open finances window.
+
+	KS_INGAME_MINIMAP,           ///< Toggle the minimap.
+	KS_INGAME_GRID,              ///< Toggle the grid.
+	KS_INGAME_UNDERGROUND,       ///< Toggle underground view.
+	KS_INGAME_UNDERWATER,        ///< Toggle underwater view.
+	KS_INGAME_WIRE_RIDES,        ///< Toggle wireframe mode for rides.
+	KS_INGAME_WIRE_SCENERY,      ///< Toggle wireframe mode for scenery.
+	KS_INGAME_HIDE_PEOPLE,       ///< Toggle whether people are hidden.
+	KS_INGAME_HIDE_SUPPORTS,     ///< Toggle whether supports are hidden.
+	KS_INGAME_HIDE_SURFACES,     ///< Toggle whether surfaces are hidden.
+	KS_INGAME_HIDE_FOUNDATIONS,  ///< Toggle whether foundations are hidden.
+	KS_INGAME_HEIGHT_RIDES,      ///< Toggle height markers on rides.
+	KS_INGAME_HEIGHT_PATHS,      ///< Toggle height markers on paths.
+	KS_INGAME_HEIGHT_TERRAIN,    ///< Toggle height markers on terrain.
+
+	KS_COUNT  ///< Number of keyboard shortcuts.
+};
+DECLARE_POSTFIX_INCREMENT(KeyboardShortcut)
+
+/**
+ * Get the key code for the fn-th function key.
+ * @param fn Index of the key.
+ * @return The key code.
+ */
+inline WmKeyCode FunctionKeyCode(int fn)
+{
+	assert(fn >= 1 && fn <= WMKC_FN_LAST - WMKC_FN_BEGIN);
+	return static_cast<WmKeyCode>(WMKC_FN_BEGIN + fn);
+}
 
 typedef uint32 WindowNumber; ///< Type of a window number.
 

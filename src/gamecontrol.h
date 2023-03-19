@@ -10,6 +10,7 @@
 #ifndef GAMECONTROL_H
 #define GAMECONTROL_H
 
+#include "enum_type.h"
 #include "language.h"
 #include "money.h"
 
@@ -39,6 +40,7 @@ enum GameSpeed {
 	GSP_8,      ///< 8 times speed.
 	GSP_COUNT   ///< Number of entries.
 };
+DECLARE_POSTFIX_INCREMENT(GameSpeed)
 
 /**
  * Class controlling the current game.

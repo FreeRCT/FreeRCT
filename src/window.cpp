@@ -28,6 +28,7 @@
 #include "ride_type.h"
 #include "viewport.h"
 #include "mouse_mode.h"
+#include "config_reader.h"
 #include <cmath>
 
 /**
@@ -35,6 +36,9 @@
  * @ingroup window_group
  */
 WindowManager _window_manager;
+
+/** The singleton shortcut manager. */
+Shortcuts _shortcuts;
 
 static uint GetWindowZPriority(WindowTypes wt);
 
@@ -1173,4 +1177,169 @@ bool ShowRideManagementGui(const uint16 ride)
 		default: NOT_REACHED();  // Other types are not implemented yet.
 	}
 	return false;
+}
+
+/**
+ * Look up which shortcut is assigned to a specific keystroke, if any.
+ * @param binding Pressed key to look up.
+ * @param The current shortcuts scope context.
+ * @return The shortcut, if any.
+ */
+std::optional<KeyboardShortcut> Shortcuts::GetShortcut(Keybinding binding, Scope scope) const
+{
+	for (KeyboardShortcut ks = KS_BEGIN; ks < KS_COUNT; ks++) {
+		if (this->values[ks].scope != Scope::GLOBAL && this->values[ks].scope != scope) continue;
+		if (this->values[ks].current_binding.key != binding.key) continue;
+		if (this->values[ks].current_binding.mod != binding.mod) continue;
+		if (binding.key == WMKC_SYMBOL && this->values[ks].current_binding.symbol != binding.symbol) continue;
+		return ks;
+	}
+	return std::nullopt;
+}
+
+/**
+ * Read the keybinding configurations from a config file.
+ * @param cfg_file File to read from.
+ */
+void Shortcuts::ReadConfig(ConfigFile &cfg_file)
+{
+	for (KeyboardShortcut ks = KS_BEGIN; ks < KS_COUNT; ks++) {
+		std::string cfg = cfg_file.GetValue("shortcuts", this->values[ks].config_name);
+		if (cfg.empty()) continue;
+
+		/* Parse the stored shortcut. */
+		WmKeyMod modifiers = WMKM_NONE;
+		bool err = false;
+		for (;;) {
+			size_t index = cfg.find(' ');
+			if (index == std::string::npos) break;
+
+			std::string mod_string = cfg.substr(0, index);
+			cfg = cfg.substr(index + 1);
+			if (mod_string == "Ctrl") {
+				modifiers |= WMKM_CTRL;
+			} else if (mod_string == "Alt") {
+				modifiers |= WMKM_ALT;
+			} else if (mod_string == "Shift") {
+				modifiers |= WMKM_SHIFT;
+			} else {
+				err = true;
+				printf("Unrecognized shortcut modifier for '%s': '%s'\n", this->values[ks].config_name.c_str(), mod_string.c_str());
+				break;
+			}
+		}
+		if (err) continue;
+
+		if (cfg.size() == 1) {  // A textual shortcut.
+			this->values[ks].current_binding = Keybinding(cfg, modifiers);
+			continue;
+		}
+
+		WmKeyCode code;
+		if (cfg == "PageUp") {
+			code = WMKC_CURSOR_PAGEUP;
+		} else if (cfg == "PageDown") {
+			code = WMKC_CURSOR_PAGEDOWN;
+		} else if (cfg == "Home") {
+			code = WMKC_CURSOR_HOME;
+		} else if (cfg == "End") {
+			code = WMKC_CURSOR_END;
+		} else if (cfg == "Left") {
+			code = WMKC_CURSOR_LEFT;
+		} else if (cfg == "Right") {
+			code = WMKC_CURSOR_RIGHT;
+		} else if (cfg == "Up") {
+			code = WMKC_CURSOR_UP;
+		} else if (cfg == "Down") {
+			code = WMKC_CURSOR_DOWN;
+		} else if (cfg == "Backspace") {
+			code = WMKC_BACKSPACE;
+		} else if (cfg == "Del" || cfg == "Delete") {
+			code = WMKC_DELETE;
+		} else if (cfg == "Esc" || cfg == "Escape") {
+			code = WMKC_CANCEL;
+		} else if (cfg == "Enter" || cfg == "Return") {
+			code = WMKC_CONFIRM;
+		} else if (cfg.size() <= 3 && cfg.front() == 'F') {
+			cfg = cfg.substr(1);
+			size_t pos;
+			int fn = stoi(cfg, &pos);
+			if (pos < cfg.size() || fn < 1 || fn > (WMKC_FN_LAST - WMKC_FN_BEGIN)) {
+				printf("Unrecognized shortcut for '%s': '%s'\n", this->values[ks].config_name.c_str(), cfg.c_str());
+				continue;
+			}
+			code = FunctionKeyCode(fn);
+		} else {
+			printf("Unrecognized shortcut for '%s': '%s'\n", this->values[ks].config_name.c_str(), cfg.c_str());
+			continue;
+		}
+
+		this->values[ks].current_binding = Keybinding(code, modifiers);
+	}
+}
+
+/** Constructor. */
+Shortcuts::Shortcuts()
+{
+	/* Create all the default keybindings. */
+	this->values[KS_FPS] = ShortcutInfo("fps", Keybinding("f"), Scope::GLOBAL);
+
+	this->values[KS_MAINMENU_NEW] = ShortcutInfo("mainmenu_new", Keybinding("n"), Scope::MAIN_MENU);
+	this->values[KS_MAINMENU_LOAD] = ShortcutInfo("mainmenu_load", Keybinding("l"), Scope::MAIN_MENU);
+	this->values[KS_MAINMENU_SETTINGS] = ShortcutInfo("mainmenu_settings", Keybinding("o"), Scope::MAIN_MENU);
+	this->values[KS_MAINMENU_QUIT] = ShortcutInfo("mainmenu_quit", Keybinding("q"), Scope::MAIN_MENU);
+
+	this->values[KS_INGAME_QUIT] = ShortcutInfo("quit", Keybinding("q", WMKM_CTRL), Scope::INGAME);
+	this->values[KS_INGAME_SAVE] = ShortcutInfo("save", Keybinding("s", WMKM_CTRL), Scope::INGAME);
+	this->values[KS_INGAME_MAINMENU] = ShortcutInfo("mainmenu", Keybinding("w", WMKM_CTRL), Scope::INGAME);
+	this->values[KS_INGAME_SETTINGS] = ShortcutInfo("settings", Keybinding("o", WMKM_CTRL), Scope::INGAME);
+
+	this->values[KS_INGAME_SPEED_PAUSE] = ShortcutInfo("speed_pause", Keybinding("0", WMKM_ALT), Scope::INGAME);
+	this->values[KS_INGAME_SPEED_1] = ShortcutInfo("speed_1", Keybinding("1", WMKM_ALT), Scope::INGAME);
+	this->values[KS_INGAME_SPEED_2] = ShortcutInfo("speed_2", Keybinding("2", WMKM_ALT), Scope::INGAME);
+	this->values[KS_INGAME_SPEED_4] = ShortcutInfo("speed_4", Keybinding("3", WMKM_ALT), Scope::INGAME);
+	this->values[KS_INGAME_SPEED_8] = ShortcutInfo("speed_8", Keybinding("4", WMKM_ALT), Scope::INGAME);
+	this->values[KS_INGAME_SPEED_UP] = ShortcutInfo("speed_up", Keybinding(WMKC_CURSOR_PAGEUP, WMKM_ALT), Scope::INGAME);
+	this->values[KS_INGAME_SPEED_DOWN] = ShortcutInfo("speed_down", Keybinding(WMKC_CURSOR_PAGEDOWN, WMKM_ALT), Scope::INGAME);
+
+	this->values[KS_INGAME_ROTATE_CW] = ShortcutInfo("rotate_cw", Keybinding(WMKC_CURSOR_PAGEDOWN), Scope::INGAME);
+	this->values[KS_INGAME_ROTATE_CCW] = ShortcutInfo("rotate_ccw", Keybinding(WMKC_CURSOR_PAGEUP), Scope::INGAME);
+
+	this->values[KS_INGAME_ZOOM_OUT] = ShortcutInfo("zoom_out", Keybinding("-"), Scope::INGAME);
+	this->values[KS_INGAME_ZOOM_IN] = ShortcutInfo("zoom_in", Keybinding("+"), Scope::INGAME);
+
+	this->values[KS_INGAME_MOVE_LEFT] = ShortcutInfo("move_left", Keybinding(WMKC_CURSOR_LEFT), Scope::INGAME);
+	this->values[KS_INGAME_MOVE_RIGHT] = ShortcutInfo("move_right", Keybinding(WMKC_CURSOR_RIGHT), Scope::INGAME);
+	this->values[KS_INGAME_MOVE_UP] = ShortcutInfo("move_up", Keybinding(WMKC_CURSOR_UP), Scope::INGAME);
+	this->values[KS_INGAME_MOVE_DOWN] = ShortcutInfo("move_down", Keybinding(WMKC_CURSOR_DOWN), Scope::INGAME);
+
+	this->values[KS_INGAME_TERRAFORM] = ShortcutInfo("terraform", Keybinding("1"), Scope::INGAME);
+	this->values[KS_INGAME_PATHS] = ShortcutInfo("paths", Keybinding("2"), Scope::INGAME);
+	this->values[KS_INGAME_FENCES] = ShortcutInfo("fences", Keybinding("3"), Scope::INGAME);
+	this->values[KS_INGAME_SCENERY] = ShortcutInfo("scenery", Keybinding("4"), Scope::INGAME);
+	this->values[KS_INGAME_PATH_OBJECTS] = ShortcutInfo("path_objects", Keybinding("5"), Scope::INGAME);
+	this->values[KS_INGAME_RIDES] = ShortcutInfo("rides", Keybinding("6"), Scope::INGAME);
+	this->values[KS_INGAME_PARK_MANAGEMENT] = ShortcutInfo("park_management", Keybinding("7"), Scope::INGAME);
+	this->values[KS_INGAME_STAFF] = ShortcutInfo("staff", Keybinding("8"), Scope::INGAME);
+	this->values[KS_INGAME_INBOX] = ShortcutInfo("inbox", Keybinding("9"), Scope::INGAME);
+	this->values[KS_INGAME_FINANCES] = ShortcutInfo("finances", Keybinding("0"), Scope::INGAME);
+
+	this->values[KS_INGAME_MINIMAP] = ShortcutInfo("minimap", Keybinding("m"), Scope::INGAME);
+	this->values[KS_INGAME_GRID] = ShortcutInfo("grid", Keybinding(FunctionKeyCode(1)), Scope::INGAME);
+	this->values[KS_INGAME_UNDERGROUND] = ShortcutInfo("underground", Keybinding(FunctionKeyCode(2)), Scope::INGAME);
+	this->values[KS_INGAME_UNDERWATER] = ShortcutInfo("underwater", Keybinding(FunctionKeyCode(3)), Scope::INGAME);
+	this->values[KS_INGAME_WIRE_RIDES] = ShortcutInfo("wire_rides", Keybinding(FunctionKeyCode(4)), Scope::INGAME);
+	this->values[KS_INGAME_WIRE_SCENERY] = ShortcutInfo("wire_scenery", Keybinding(FunctionKeyCode(5)), Scope::INGAME);
+	this->values[KS_INGAME_HIDE_PEOPLE] = ShortcutInfo("hide_people", Keybinding(FunctionKeyCode(6)), Scope::INGAME);
+	this->values[KS_INGAME_HIDE_SUPPORTS] = ShortcutInfo("hide_supports", Keybinding(FunctionKeyCode(7)), Scope::INGAME);
+	this->values[KS_INGAME_HIDE_SURFACES] = ShortcutInfo("hide_surfaces", Keybinding(FunctionKeyCode(8)), Scope::INGAME);
+	this->values[KS_INGAME_HIDE_FOUNDATIONS] = ShortcutInfo("hide_foundations", Keybinding(FunctionKeyCode(9)), Scope::INGAME);
+	this->values[KS_INGAME_HEIGHT_RIDES] = ShortcutInfo("heightmarkers_rides", Keybinding(FunctionKeyCode(10)), Scope::INGAME);
+	this->values[KS_INGAME_HEIGHT_PATHS] = ShortcutInfo("heightmarkers_paths", Keybinding(FunctionKeyCode(11)), Scope::INGAME);
+	this->values[KS_INGAME_HEIGHT_TERRAIN] = ShortcutInfo("heightmarkers_terrain", Keybinding(FunctionKeyCode(12)), Scope::INGAME);
+
+#ifndef NDEBUG
+	/* In debug builds, sanity-check that we didn't forget to initialize any shortcuts. */
+	for (KeyboardShortcut ks = KS_BEGIN; ks < KS_COUNT; ks++) assert(this->values[ks].Valid());
+#endif
 }

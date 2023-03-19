@@ -1202,155 +1202,176 @@ static const int VIEWPORT_SHIFT_ON_ARROW_KEY = 64;  ///< By how many pixels to m
 
 bool Viewport::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
 {
-	/* \todo Make all keybindings configurable by the user. */
-	if (key_code == WMKC_SYMBOL) {
-		if (symbol == "f") {  // f to toggle the FPS counter.
-			this->ToggleDisplayFlag(DF_FPS);
+	std::optional<KeyboardShortcut> shortcut = _shortcuts.GetShortcut(
+			key_code == WMKC_SYMBOL ? Shortcuts::Keybinding(symbol, mod) : Shortcuts::Keybinding(key_code, mod),
+			_game_control.main_menu ? Shortcuts::Scope::MAIN_MENU : Shortcuts::Scope::INGAME);
+	if (!shortcut.has_value()) return false;
+
+	switch (*shortcut) {
+		case KS_MAINMENU_NEW:
+			_game_control.NewGame();
 			return true;
-		}
-		if (_game_control.main_menu) {  // Main menu controls.
-			if (symbol == "q") {  // q to quit.
-				_game_control.QuitGame();
-				return true;
-			}
-			if (symbol == "n") {  // n to start a new game.
-				_game_control.NewGame();
-				return true;
-			}
-			if (symbol == "l") {  // l to load a saved game.
-				ShowLoadGameGui();
-				return true;
-			}
-			if (symbol == "o") {  // o to open the options menu.
-				ShowSettingGui();
-				return true;
-			}
-		} else {  // In-game controls.
-			if (symbol == "s" && (mod & WMKM_CTRL) != 0) {  // Ctrl+s to save the game.
-				ShowSaveGameGui();
-				return true;
-			}
-			if (symbol == "q" && (mod & WMKM_CTRL) != 0) {  // Ctrl+q to quit.
-				ShowQuitProgram(false);
-				return true;
-			}
-			if (symbol == "w" && (mod & WMKM_CTRL) != 0) {  // Ctrl+w to return to main menu.
-				ShowQuitProgram(true);
-				return true;
-			}
-			if (symbol == "o" && (mod & WMKM_CTRL) != 0) {  // Ctrl+o to open the options menu.
-				ShowSettingGui();
-				return true;
-			}
+		case KS_MAINMENU_LOAD:
+			ShowLoadGameGui();
+			return true;
+		case KS_MAINMENU_QUIT:
+			_game_control.QuitGame();
+			return true;
 
-			/* Alt+(0-4) to set the game speed */
-			if (symbol == "0" && (mod & WMKM_ALT) != 0) {
-				_game_control.speed = GSP_PAUSE;
-				return true;
-			}
-			if (symbol == "1" && (mod & WMKM_ALT) != 0) {
-				_game_control.speed = GSP_1;
-				return true;
-			}
-			if (symbol == "2" && (mod & WMKM_ALT) != 0) {
-				_game_control.speed = GSP_2;
-				return true;
-			}
-			if (symbol == "3" && (mod & WMKM_ALT) != 0) {
-				_game_control.speed = GSP_4;
-				return true;
-			}
-			if (symbol == "4" && (mod & WMKM_ALT) != 0) {
-				_game_control.speed = GSP_8;
-				return true;
-			}
+		case KS_MAINMENU_SETTINGS:
+		case KS_INGAME_SETTINGS:
+			ShowSettingGui();
+			return true;
 
-			if (symbol == "1") {  // 1 to open the terraform window.
-				ShowTerraformGui();
-				return true;
-			}
-			if (symbol == "2") {  // 2 to open the paths window.
-				ShowPathBuildGui();
-				return true;
-			}
-			if (symbol == "3") {  // 3 to open the fences window.
-				ShowFenceGui();
-				return true;
-			}
-			if (symbol == "4") {  // 4 to open the scenery window.
-				ShowSceneryGui();
-				return true;
-			}
-			if (symbol == "5") {  // 5 to open the path objects window.
-				ShowPathObjectsGui();
-				return true;
-			}
-			if (symbol == "6") {  // 6 to open the rides window.
-				ShowRideSelectGui();
-				return true;
-			}
-			if (symbol == "7") {  // 7 to open the park management window.
-				ShowParkManagementGui(PARK_MANAGEMENT_TAB_GENERAL);
-				return true;
-			}
-			if (symbol == "8") {  // 8 to open the staff window.
-				ShowStaffManagementGui();
-				return true;
-			}
-			if (symbol == "9") {  // 9 to open the inbox window.
-				ShowInboxGui();
-				return true;
-			}
-			if (symbol == "0") {  // 0 to open the finances window.
-				ShowFinancesGui();
-				return true;
-			}
+		case KS_INGAME_SAVE:
+			ShowSaveGameGui();
+			return true;
+		case KS_INGAME_MAINMENU:
+			ShowQuitProgram(true);
+			return true;
+		case KS_INGAME_QUIT:
+			ShowQuitProgram(false);
+			return true;
 
-			if (symbol == "+" && this->CanZoomIn()) {  // + to zoom in.
-				this->ZoomIn();
+		case KS_INGAME_SPEED_PAUSE:
+			_game_control.speed = GSP_PAUSE;
+			return true;
+		case KS_INGAME_SPEED_1:
+			_game_control.speed = GSP_1;
+			return true;
+		case KS_INGAME_SPEED_2:
+			_game_control.speed = GSP_2;
+			return true;
+		case KS_INGAME_SPEED_4:
+			_game_control.speed = GSP_4;
+			return true;
+		case KS_INGAME_SPEED_8:
+			_game_control.speed = GSP_8;
+			return true;
+		case KS_INGAME_SPEED_UP:
+			if (_game_control.speed + 1 < GSP_COUNT) {
+				_game_control.speed++;
 				return true;
 			}
-			if (symbol == "-" && this->CanZoomOut()) {  // - to zoom out.
+			return false;
+		case KS_INGAME_SPEED_DOWN:
+			if (_game_control.speed > GSP_PAUSE) {
+				_game_control.speed--;
+				return true;
+			}
+			return false;
+
+		case KS_INGAME_MOVE_LEFT:
+			this->MoveViewport(VIEWPORT_SHIFT_ON_ARROW_KEY, 0);
+			return true;
+		case KS_INGAME_MOVE_RIGHT:
+			this->MoveViewport(-VIEWPORT_SHIFT_ON_ARROW_KEY, 0);
+			return true;
+		case KS_INGAME_MOVE_UP:
+			this->MoveViewport(0, VIEWPORT_SHIFT_ON_ARROW_KEY);
+			return true;
+		case KS_INGAME_MOVE_DOWN:
+			this->MoveViewport(0, -VIEWPORT_SHIFT_ON_ARROW_KEY);
+			return true;
+
+		case KS_INGAME_ROTATE_CW:
+			this->Rotate(-1);
+			return true;
+		case KS_INGAME_ROTATE_CCW:
+			this->Rotate(1);
+			return true;
+
+		case KS_INGAME_ZOOM_OUT:
+			if (this->CanZoomOut()) {
 				this->ZoomOut();
 				return true;
 			}
-			if (symbol == "u") {  // u to toggle underground view.
-				this->ToggleDisplayFlag(DF_UNDERGROUND_MODE);
+			return false;
+		case KS_INGAME_ZOOM_IN:
+			if (this->CanZoomIn()) {
+				this->ZoomIn();
 				return true;
 			}
-			if (symbol == "m") {  // m to open the minimap.
-				ShowMinimap();
-				return true;
-			}
-		}
-	} else if (!_game_control.main_menu) {  // In-game controls on special keys.
-		switch (key_code) {
-			case WMKC_CURSOR_PAGEUP:  // PageUp to rotate counter-clockwise.
-				this->Rotate(1);
-				return true;
-			case WMKC_CURSOR_PAGEDOWN:  // PageDown to rotate clockwise.
-				this->Rotate(-1);
-				return true;
+			return false;
 
-			/* Arrow keys to move the viewport. */
-			case WMKC_CURSOR_LEFT:
-				this->MoveViewport(VIEWPORT_SHIFT_ON_ARROW_KEY, 0);
-				return true;
-			case WMKC_CURSOR_RIGHT:
-				this->MoveViewport(-VIEWPORT_SHIFT_ON_ARROW_KEY, 0);
-				return true;
-			case WMKC_CURSOR_UP:
-				this->MoveViewport(0, VIEWPORT_SHIFT_ON_ARROW_KEY);
-				return true;
-			case WMKC_CURSOR_DOWN:
-				this->MoveViewport(0, -VIEWPORT_SHIFT_ON_ARROW_KEY);
-				return true;
+		case KS_INGAME_TERRAFORM:
+			ShowTerraformGui();
+			return true;
+		case KS_INGAME_PATHS:
+			ShowPathBuildGui();
+			return true;
+		case KS_INGAME_FENCES:
+			ShowFenceGui();
+			return true;
+		case KS_INGAME_SCENERY:
+			ShowSceneryGui();
+			return true;
+		case KS_INGAME_PATH_OBJECTS:
+			ShowPathObjectsGui();
+			return true;
+		case KS_INGAME_RIDES:
+			ShowRideSelectGui();
+			return true;
+		case KS_INGAME_PARK_MANAGEMENT:
+			ShowParkManagementGui(PARK_MANAGEMENT_TAB_GENERAL);
+			return true;
+		case KS_INGAME_STAFF:
+			ShowStaffManagementGui();
+			return true;
+		case KS_INGAME_INBOX:
+			ShowInboxGui();
+			return true;
+		case KS_INGAME_FINANCES:
+			ShowFinancesGui();
+			return true;
 
-			default: break;
-		}
+		case KS_INGAME_MINIMAP:
+			ShowMinimap();
+			return true;
+		case KS_FPS:
+			this->ToggleDisplayFlag(DF_FPS);
+			return true;
+		case KS_INGAME_GRID:
+			this->ToggleDisplayFlag(DF_GRID);
+			return true;
+		case KS_INGAME_UNDERGROUND:
+			this->ToggleDisplayFlag(DF_UNDERGROUND_MODE);
+			return true;
+		case KS_INGAME_UNDERWATER:
+			this->ToggleDisplayFlag(DF_UNDERWATER_MODE);
+			return true;
+		case KS_INGAME_WIRE_RIDES:
+			this->ToggleDisplayFlag(DF_WIREFRAME_RIDES);
+			return true;
+		case KS_INGAME_WIRE_SCENERY:
+			this->ToggleDisplayFlag(DF_WIREFRAME_SCENERY);
+			return true;
+		case KS_INGAME_HIDE_PEOPLE:
+			this->ToggleDisplayFlag(DF_HIDE_PEOPLE);
+			return true;
+		case KS_INGAME_HIDE_SUPPORTS:
+			this->ToggleDisplayFlag(DF_HIDE_SUPPORTS);
+			return true;
+		case KS_INGAME_HIDE_SURFACES:
+			this->ToggleDisplayFlag(DF_HIDE_SURFACES);
+			return true;
+		case KS_INGAME_HIDE_FOUNDATIONS:
+			this->ToggleDisplayFlag(DF_HIDE_FOUNDATIONS);
+			return true;
+		case KS_INGAME_HEIGHT_RIDES:
+			this->ToggleDisplayFlag(DF_HEIGHT_MARKERS_RIDES);
+			break;
+		case KS_INGAME_HEIGHT_PATHS:
+			this->ToggleDisplayFlag(DF_HEIGHT_MARKERS_PATHS);
+			return true;
+		case KS_INGAME_HEIGHT_TERRAIN:
+			this->ToggleDisplayFlag(DF_HEIGHT_MARKERS_TERRAIN);
+			return true;
+
+		default:
+			break;
 	}
-
-	return false;
+	NOT_REACHED();
 }
 
 void Viewport::OnMouseMoveEvent(const Point16 &pos)
