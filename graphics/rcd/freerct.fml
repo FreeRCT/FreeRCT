@@ -1078,7 +1078,31 @@ file("freerct.rcd") {
 		sheet {
 			x_base: 0; y_base: 1 * 38; x_step: 38; y_step: 38;
 			file: "../sprites/persons/handyman/64_water.png";
-			x_offset: -38/2; y_offset: -38+4; width: 38; height: 38;
+			x_offset: (-38/2); y_offset: (-38+4); width: 38; height: 38;
+		}
+	}
+	ANSP {
+		tile_width: 128;
+		person_type: handyman;
+		anim_type: handyman_water_ne;
+
+		nr_frames: 20;
+		sheet {
+			x_base: 0; y_base: 1 * 38 * 2; x_step: 38 * 2; y_step: 38 * 2;
+			file: "../sprites/persons/handyman/128_water.png";
+			x_offset: (-38/2) * 2; y_offset: (-38+4) * 2; width: 38 * 2; height: 38 * 2;
+		}
+	}
+	ANSP {
+		tile_width: 256;
+		person_type: handyman;
+		anim_type: handyman_water_ne;
+
+		nr_frames: 20;
+		sheet {
+			x_base: 0; y_base: 1 * 38 * 4; x_step: 38 * 4; y_step: 38 * 4;
+			file: "../sprites/persons/handyman/256_water.png";
+			x_offset: (-38/2) * 4; y_offset: (-38+4) * 4; width: 38 * 4; height: 38 * 4;
 		}
 	}
 
@@ -1099,7 +1123,31 @@ file("freerct.rcd") {
 		sheet {
 			x_base: 0; y_base: 0 * 38; x_step: 38; y_step: 38;
 			file: "../sprites/persons/handyman/64_water.png";
-			x_offset: -38/2; y_offset: -38+4; width: 38; height: 38;
+			x_offset: (-38/2); y_offset: (-38+4); width: 38; height: 38;
+		}
+	}
+	ANSP {
+		tile_width: 128;
+		person_type: handyman;
+		anim_type: handyman_water_se;
+
+		nr_frames: 20;
+		sheet {
+			x_base: 0; y_base: 0 * 38 * 2; x_step: 38 * 2; y_step: 38 * 2;
+			file: "../sprites/persons/handyman/128_water.png";
+			x_offset: (-38/2) * 2; y_offset: (-38+4) * 2; width: 38 * 2; height: 38 * 2;
+		}
+	}
+	ANSP {
+		tile_width: 256;
+		person_type: handyman;
+		anim_type: handyman_water_se;
+
+		nr_frames: 20;
+		sheet {
+			x_base: 0; y_base: 0 * 38 * 4; x_step: 38 * 4; y_step: 38 * 4;
+			file: "../sprites/persons/handyman/256_water.png";
+			x_offset: (-38/2) * 4; y_offset: (-38+4) * 4; width: 38 * 4; height: 38 * 4;
 		}
 	}
 
@@ -1120,7 +1168,31 @@ file("freerct.rcd") {
 		sheet {
 			x_base: 0; y_base: 3 * 38; x_step: 38; y_step: 38;
 			file: "../sprites/persons/handyman/64_water.png";
-			x_offset: -38/2; y_offset: -38+4; width: 38; height: 38;
+			x_offset: (-38/2); y_offset: (-38+4); width: 38; height: 38;
+		}
+	}
+	ANSP {
+		tile_width: 128;
+		person_type: handyman;
+		anim_type: handyman_water_sw;
+
+		nr_frames: 20;
+		sheet {
+			x_base: 0; y_base: 3 * 38 * 2; x_step: 38 * 2; y_step: 38 * 2;
+			file: "../sprites/persons/handyman/128_water.png";
+			x_offset: (-38/2) * 2; y_offset: (-38+4) * 2; width: 38 * 2; height: 38 * 2;
+		}
+	}
+	ANSP {
+		tile_width: 256;
+		person_type: handyman;
+		anim_type: handyman_water_sw;
+
+		nr_frames: 20;
+		sheet {
+			x_base: 0; y_base: 3 * 38 * 4; x_step: 38 * 4; y_step: 38 * 4;
+			file: "../sprites/persons/handyman/256_water.png";
+			x_offset: (-38/2) * 4; y_offset: (-38+4) * 4; width: 38 * 4; height: 38 * 4;
 		}
 	}
 
@@ -1141,7 +1213,31 @@ file("freerct.rcd") {
 		sheet {
 			x_base: 0; y_base: 2 * 38; x_step: 38; y_step: 38;
 			file: "../sprites/persons/handyman/64_water.png";
-			x_offset: -38/2; y_offset: -38+4; width: 38; height: 38;
+			x_offset: (-38/2); y_offset: (-38+4); width: 38; height: 38;
+		}
+	}
+	ANSP {
+		tile_width: 128;
+		person_type: handyman;
+		anim_type: handyman_water_nw;
+
+		nr_frames: 20;
+		sheet {
+			x_base: 0; y_base: 2 * 38 * 2; x_step: 38 * 2; y_step: 38 * 2;
+			file: "../sprites/persons/handyman/128_water.png";
+			x_offset: (-38/2) * 2; y_offset: (-38+4) * 2; width: 38 * 2; height: 38 * 2;
+		}
+	}
+	ANSP {
+		tile_width: 256;
+		person_type: handyman;
+		anim_type: handyman_water_nw;
+
+		nr_frames: 20;
+		sheet {
+			x_base: 0; y_base: 2 * 38 * 4; x_step: 38 * 4; y_step: 38 * 4;
+			file: "../sprites/persons/handyman/256_water.png";
+			x_offset: (-38/2) * 4; y_offset: (-38+4) * 4; width: 38 * 4; height: 38 * 4;
 		}
 	}
 
@@ -1162,7 +1258,31 @@ file("freerct.rcd") {
 		sheet {
 			x_base: 0; y_base: 1 * 38; x_step: 38; y_step: 38;
 			file: "../sprites/persons/handyman/64_sweep.png";
-			x_offset: -38/2; y_offset: -38+4; width: 38; height: 38;
+			x_offset: (-38/2); y_offset: (-38+4); width: 38; height: 38;
+		}
+	}
+	ANSP {
+		tile_width: 128;
+		person_type: handyman;
+		anim_type: handyman_sweep_ne;
+
+		nr_frames: 32;
+		sheet {
+			x_base: 0; y_base: 1 * 38 * 2; x_step: 38 * 2; y_step: 38 * 2;
+			file: "../sprites/persons/handyman/128_sweep.png";
+			x_offset: (-38/2) * 2; y_offset: (-38+4) * 2; width: 38 * 2; height: 38 * 2;
+		}
+	}
+	ANSP {
+		tile_width: 256;
+		person_type: handyman;
+		anim_type: handyman_sweep_ne;
+
+		nr_frames: 32;
+		sheet {
+			x_base: 0; y_base: 1 * 38 * 4; x_step: 38 * 4; y_step: 38 * 4;
+			file: "../sprites/persons/handyman/256_sweep.png";
+			x_offset: (-38/2) * 4; y_offset: (-38+4) * 4; width: 38 * 4; height: 38 * 4;
 		}
 	}
 
@@ -1183,7 +1303,31 @@ file("freerct.rcd") {
 		sheet {
 			x_base: 0; y_base: 0 * 38; x_step: 38; y_step: 38;
 			file: "../sprites/persons/handyman/64_sweep.png";
-			x_offset: -38/2; y_offset: -38+4; width: 38; height: 38;
+			x_offset: (-38/2); y_offset: (-38+4); width: 38; height: 38;
+		}
+	}
+	ANSP {
+		tile_width: 128;
+		person_type: handyman;
+		anim_type: handyman_sweep_se;
+
+		nr_frames: 32;
+		sheet {
+			x_base: 0; y_base: 0 * 38 * 2; x_step: 38 * 2; y_step: 38 * 2;
+			file: "../sprites/persons/handyman/128_sweep.png";
+			x_offset: (-38/2) * 2; y_offset: (-38+4) * 2; width: 38 * 2; height: 38 * 2;
+		}
+	}
+	ANSP {
+		tile_width: 256;
+		person_type: handyman;
+		anim_type: handyman_sweep_se;
+
+		nr_frames: 32;
+		sheet {
+			x_base: 0; y_base: 0 * 38 * 4; x_step: 38 * 4; y_step: 38 * 4;
+			file: "../sprites/persons/handyman/256_sweep.png";
+			x_offset: (-38/2) * 4; y_offset: (-38+4) * 4; width: 38 * 4; height: 38 * 4;
 		}
 	}
 
@@ -1204,7 +1348,31 @@ file("freerct.rcd") {
 		sheet {
 			x_base: 0; y_base: 3 * 38; x_step: 38; y_step: 38;
 			file: "../sprites/persons/handyman/64_sweep.png";
-			x_offset: -38/2; y_offset: -38+4; width: 38; height: 38;
+			x_offset: (-38/2); y_offset: (-38+4); width: 38; height: 38;
+		}
+	}
+	ANSP {
+		tile_width: 128;
+		person_type: handyman;
+		anim_type: handyman_sweep_sw;
+
+		nr_frames: 32;
+		sheet {
+			x_base: 0; y_base: 3 * 38 * 2; x_step: 38 * 2; y_step: 38 * 2;
+			file: "../sprites/persons/handyman/128_sweep.png";
+			x_offset: (-38/2) * 2; y_offset: (-38+4) * 2; width: 38 * 2; height: 38 * 2;
+		}
+	}
+	ANSP {
+		tile_width: 256;
+		person_type: handyman;
+		anim_type: handyman_sweep_sw;
+
+		nr_frames: 32;
+		sheet {
+			x_base: 0; y_base: 3 * 38 * 4; x_step: 38 * 4; y_step: 38 * 4;
+			file: "../sprites/persons/handyman/256_sweep.png";
+			x_offset: (-38/2) * 4; y_offset: (-38+4) * 4; width: 38 * 4; height: 38 * 4;
 		}
 	}
 
@@ -1225,7 +1393,31 @@ file("freerct.rcd") {
 		sheet {
 			x_base: 0; y_base: 2 * 38; x_step: 38; y_step: 38;
 			file: "../sprites/persons/handyman/64_sweep.png";
-			x_offset: -38/2; y_offset: -38+4; width: 38; height: 38;
+			x_offset: (-38/2); y_offset: (-38+4); width: 38; height: 38;
+		}
+	}
+	ANSP {
+		tile_width: 128;
+		person_type: handyman;
+		anim_type: handyman_sweep_nw;
+
+		nr_frames: 32;
+		sheet {
+			x_base: 0; y_base: 2 * 38 * 2; x_step: 38 * 2; y_step: 38 * 2;
+			file: "../sprites/persons/handyman/128_sweep.png";
+			x_offset: (-38/2) * 2; y_offset: (-38+4) * 2; width: 38 * 2; height: 38 * 2;
+		}
+	}
+	ANSP {
+		tile_width: 256;
+		person_type: handyman;
+		anim_type: handyman_sweep_nw;
+
+		nr_frames: 32;
+		sheet {
+			x_base: 0; y_base: 2 * 38 * 4; x_step: 38 * 4; y_step: 38 * 4;
+			file: "../sprites/persons/handyman/256_sweep.png";
+			x_offset: (-38/2) * 4; y_offset: (-38+4) * 4; width: 38 * 4; height: 38 * 4;
 		}
 	}
 
@@ -1246,7 +1438,31 @@ file("freerct.rcd") {
 		sheet {
 			x_base: 0; y_base: 1 * 38; x_step: 38; y_step: 38;
 			file: "../sprites/persons/handyman/64_empty.png";
-			x_offset: -38/2; y_offset: -38+4; width: 38; height: 38;
+			x_offset: (-38/2); y_offset: (-38+4); width: 38; height: 38;
+		}
+	}
+	ANSP {
+		tile_width: 128;
+		person_type: handyman;
+		anim_type: handyman_empty_ne;
+
+		nr_frames: 20;
+		sheet {
+			x_base: 0; y_base: 1 * 38 * 2; x_step: 38 * 2; y_step: 38 * 2;
+			file: "../sprites/persons/handyman/128_empty.png";
+			x_offset: (-38/2) * 2; y_offset: (-38+4) * 2; width: 38 * 2; height: 38 * 2;
+		}
+	}
+	ANSP {
+		tile_width: 256;
+		person_type: handyman;
+		anim_type: handyman_empty_ne;
+
+		nr_frames: 20;
+		sheet {
+			x_base: 0; y_base: 1 * 38 * 4; x_step: 38 * 4; y_step: 38 * 4;
+			file: "../sprites/persons/handyman/256_empty.png";
+			x_offset: (-38/2) * 4; y_offset: (-38+4) * 4; width: 38 * 4; height: 38 * 4;
 		}
 	}
 
@@ -1267,7 +1483,31 @@ file("freerct.rcd") {
 		sheet {
 			x_base: 0; y_base: 0 * 38; x_step: 38; y_step: 38;
 			file: "../sprites/persons/handyman/64_empty.png";
-			x_offset: -38/2; y_offset: -38+4; width: 38; height: 38;
+			x_offset: (-38/2); y_offset: (-38+4); width: 38; height: 38;
+		}
+	}
+	ANSP {
+		tile_width: 128;
+		person_type: handyman;
+		anim_type: handyman_empty_se;
+
+		nr_frames: 20;
+		sheet {
+			x_base: 0; y_base: 0 * 38 * 2; x_step: 38 * 2; y_step: 38 * 2;
+			file: "../sprites/persons/handyman/128_empty.png";
+			x_offset: (-38/2) * 2; y_offset: (-38+4) * 2; width: 38 * 2; height: 38 * 2;
+		}
+	}
+	ANSP {
+		tile_width: 256;
+		person_type: handyman;
+		anim_type: handyman_empty_se;
+
+		nr_frames: 20;
+		sheet {
+			x_base: 0; y_base: 0 * 38 * 4; x_step: 38 * 4; y_step: 38 * 4;
+			file: "../sprites/persons/handyman/256_empty.png";
+			x_offset: (-38/2) * 4; y_offset: (-38+4) * 4; width: 38 * 4; height: 38 * 4;
 		}
 	}
 
@@ -1288,7 +1528,31 @@ file("freerct.rcd") {
 		sheet {
 			x_base: 0; y_base: 3 * 38; x_step: 38; y_step: 38;
 			file: "../sprites/persons/handyman/64_empty.png";
-			x_offset: -38/2; y_offset: -38+4; width: 38; height: 38;
+			x_offset: (-38/2); y_offset: (-38+4); width: 38; height: 38;
+		}
+	}
+	ANSP {
+		tile_width: 128;
+		person_type: handyman;
+		anim_type: handyman_empty_sw;
+
+		nr_frames: 20;
+		sheet {
+			x_base: 0; y_base: 3 * 38 * 2; x_step: 38 * 2; y_step: 38 * 2;
+			file: "../sprites/persons/handyman/128_empty.png";
+			x_offset: (-38/2) * 2; y_offset: (-38+4) * 2; width: 38 * 2; height: 38 * 2;
+		}
+	}
+	ANSP {
+		tile_width: 256;
+		person_type: handyman;
+		anim_type: handyman_empty_sw;
+
+		nr_frames: 20;
+		sheet {
+			x_base: 0; y_base: 3 * 38 * 4; x_step: 38 * 4; y_step: 38 * 4;
+			file: "../sprites/persons/handyman/256_empty.png";
+			x_offset: (-38/2) * 4; y_offset: (-38+4) * 4; width: 38 * 4; height: 38 * 4;
 		}
 	}
 
@@ -1309,7 +1573,31 @@ file("freerct.rcd") {
 		sheet {
 			x_base: 0; y_base: 2 * 38; x_step: 38; y_step: 38;
 			file: "../sprites/persons/handyman/64_empty.png";
-			x_offset: -38/2; y_offset: -38+4; width: 38; height: 38;
+			x_offset: (-38/2); y_offset: (-38+4); width: 38; height: 38;
+		}
+	}
+	ANSP {
+		tile_width: 128;
+		person_type: handyman;
+		anim_type: handyman_empty_nw;
+
+		nr_frames: 20;
+		sheet {
+			x_base: 0; y_base: 2 * 38 * 2; x_step: 38 * 2; y_step: 38 * 2;
+			file: "../sprites/persons/handyman/128_empty.png";
+			x_offset: (-38/2) * 2; y_offset: (-38+4) * 2; width: 38 * 2; height: 38 * 2;
+		}
+	}
+	ANSP {
+		tile_width: 256;
+		person_type: handyman;
+		anim_type: handyman_empty_nw;
+
+		nr_frames: 20;
+		sheet {
+			x_base: 0; y_base: 2 * 38 * 4; x_step: 38 * 4; y_step: 38 * 4;
+			file: "../sprites/persons/handyman/256_empty.png";
+			x_offset: (-38/2) * 4; y_offset: (-38+4) * 4; width: 38 * 4; height: 38 * 4;
 		}
 	}
 
