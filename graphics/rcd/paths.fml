@@ -39,6 +39,60 @@ file("paths.rcd") {
 			x_offset: -32; y_offset: -33; width: 64; height: 64;
 		}
 	}
+	PATH {
+		path_type: concrete;
+		tile_width: 128;
+		z_height: 16;
+
+		(empty,               _empty,              _empty,              _empty
+		|ne,                  se,                  sw,                  nw
+		|ne_se,               se_sw,               nw_sw,               ne_nw
+		|ne_sw,               nw_se,               _ne_sw,              _nw_se
+		|ne_se_sw,            nw_se_sw,            ne_nw_sw,            ne_nw_se
+		|ne_nw_se_sw,         _ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw
+		|ne_se_e,             se_sw_s,             nw_sw_w,             ne_nw_n
+		|ne_se_sw_e,          nw_se_sw_s,          ne_nw_sw_w,          ne_nw_se_n
+		|ne_se_sw_s,          nw_se_sw_w,          ne_nw_sw_n,          ne_nw_se_e
+		|ne_se_sw_e_s,        nw_se_sw_s_w,        ne_nw_sw_n_w,        ne_nw_se_n_e
+		|ne_nw_se_sw_n_s_w,   ne_nw_se_sw_n_e_w,   ne_nw_se_sw_n_e_s,   ne_nw_se_sw_e_s_w
+		|ne_nw_se_sw_n_w,     ne_nw_se_sw_n_e,     ne_nw_se_sw_e_s,     ne_nw_se_sw_s_w
+		|ne_nw_se_sw_n_s,     ne_nw_se_sw_e_w,     _ne_nw_se_sw_n_s,    _ne_nw_se_sw_e_w
+		|ne_nw_se_sw_n,       ne_nw_se_sw_e,       ne_nw_se_sw_s,       ne_nw_se_sw_w
+		|_ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw
+		|ne_nw_se_sw_n_e_s_w, _ne_nw_se_sw_n_e_s_w,_ne_nw_se_sw_n_e_s_w,_ne_nw_se_sw_n_e_s_w
+		|ramp_sw,             ramp_nw,             ramp_ne,             ramp_se) : sheet {
+			x_base: 0; y_base: 0; x_step: 128; y_step: 128;
+			file: "../sprites/paths/path/template8bpp128.png";
+			x_offset: -128/2; y_offset: -128/2; width: 128; height: 128;
+		}
+	}
+	PATH {
+		path_type: concrete;
+		tile_width: 256;
+		z_height: 16;
+
+		(empty,               _empty,              _empty,              _empty
+		|ne,                  se,                  sw,                  nw
+		|ne_se,               se_sw,               nw_sw,               ne_nw
+		|ne_sw,               nw_se,               _ne_sw,              _nw_se
+		|ne_se_sw,            nw_se_sw,            ne_nw_sw,            ne_nw_se
+		|ne_nw_se_sw,         _ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw
+		|ne_se_e,             se_sw_s,             nw_sw_w,             ne_nw_n
+		|ne_se_sw_e,          nw_se_sw_s,          ne_nw_sw_w,          ne_nw_se_n
+		|ne_se_sw_s,          nw_se_sw_w,          ne_nw_sw_n,          ne_nw_se_e
+		|ne_se_sw_e_s,        nw_se_sw_s_w,        ne_nw_sw_n_w,        ne_nw_se_n_e
+		|ne_nw_se_sw_n_s_w,   ne_nw_se_sw_n_e_w,   ne_nw_se_sw_n_e_s,   ne_nw_se_sw_e_s_w
+		|ne_nw_se_sw_n_w,     ne_nw_se_sw_n_e,     ne_nw_se_sw_e_s,     ne_nw_se_sw_s_w
+		|ne_nw_se_sw_n_s,     ne_nw_se_sw_e_w,     _ne_nw_se_sw_n_s,    _ne_nw_se_sw_e_w
+		|ne_nw_se_sw_n,       ne_nw_se_sw_e,       ne_nw_se_sw_s,       ne_nw_se_sw_w
+		|_ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw
+		|ne_nw_se_sw_n_e_s_w, _ne_nw_se_sw_n_e_s_w,_ne_nw_se_sw_n_e_s_w,_ne_nw_se_sw_n_e_s_w
+		|ramp_sw,             ramp_nw,             ramp_ne,             ramp_se) : sheet {
+			x_base: 0; y_base: 0; x_step: 256; y_step: 256;
+			file: "../sprites/paths/path/template8bpp256.png";
+			x_offset: -256/2; y_offset: -256/2; width: 256; height: 256;
+		}
+	}
 
 	PDEC {
 		tile_width: 64;
@@ -188,6 +242,60 @@ file("paths.rcd") {
 			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
 			file: "../sprites/paths/path/queue8bpp64.png";
 			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+	}
+	PATH {
+		path_type: tiled + queue;
+		tile_width: 128;
+		z_height: 16;
+
+		(empty,               _empty,              _empty,              _empty
+		|ne,                  se,                  sw,                  nw
+		|ne_se,               se_sw,               nw_sw,               ne_nw
+		|ne_sw,               nw_se,               _ne_sw,              _nw_se
+		|ne_se_sw,            nw_se_sw,            ne_nw_sw,            ne_nw_se
+		|ne_nw_se_sw,         _ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw
+		|ne_se_e,             se_sw_s,             nw_sw_w,             ne_nw_n
+		|ne_se_sw_e,          nw_se_sw_s,          ne_nw_sw_w,          ne_nw_se_n
+		|ne_se_sw_s,          nw_se_sw_w,          ne_nw_sw_n,          ne_nw_se_e
+		|ne_se_sw_e_s,        nw_se_sw_s_w,        ne_nw_sw_n_w,        ne_nw_se_n_e
+		|ne_nw_se_sw_n_s_w,   ne_nw_se_sw_n_e_w,   ne_nw_se_sw_n_e_s,   ne_nw_se_sw_e_s_w
+		|ne_nw_se_sw_n_w,     ne_nw_se_sw_n_e,     ne_nw_se_sw_e_s,     ne_nw_se_sw_s_w
+		|ne_nw_se_sw_n_s,     ne_nw_se_sw_e_w,     _ne_nw_se_sw_n_s,    _ne_nw_se_sw_e_w
+		|ne_nw_se_sw_n,       ne_nw_se_sw_e,       ne_nw_se_sw_s,       ne_nw_se_sw_w
+		|_ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw
+		|ne_nw_se_sw_n_e_s_w, _ne_nw_se_sw_n_e_s_w,_ne_nw_se_sw_n_e_s_w,_ne_nw_se_sw_n_e_s_w
+		|ramp_sw,             ramp_nw,             ramp_ne,             ramp_se) : sheet {
+			x_base: 0; y_base: 0; x_step: 128; y_step: 128;
+			file: "../sprites/paths/path/queue8bpp128.png";
+			x_offset: -128/2; y_offset: -128/2; width: 128; height: 128;
+		}
+	}
+	PATH {
+		path_type: tiled + queue;
+		tile_width: 256;
+		z_height: 16;
+
+		(empty,               _empty,              _empty,              _empty
+		|ne,                  se,                  sw,                  nw
+		|ne_se,               se_sw,               nw_sw,               ne_nw
+		|ne_sw,               nw_se,               _ne_sw,              _nw_se
+		|ne_se_sw,            nw_se_sw,            ne_nw_sw,            ne_nw_se
+		|ne_nw_se_sw,         _ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw
+		|ne_se_e,             se_sw_s,             nw_sw_w,             ne_nw_n
+		|ne_se_sw_e,          nw_se_sw_s,          ne_nw_sw_w,          ne_nw_se_n
+		|ne_se_sw_s,          nw_se_sw_w,          ne_nw_sw_n,          ne_nw_se_e
+		|ne_se_sw_e_s,        nw_se_sw_s_w,        ne_nw_sw_n_w,        ne_nw_se_n_e
+		|ne_nw_se_sw_n_s_w,   ne_nw_se_sw_n_e_w,   ne_nw_se_sw_n_e_s,   ne_nw_se_sw_e_s_w
+		|ne_nw_se_sw_n_w,     ne_nw_se_sw_n_e,     ne_nw_se_sw_e_s,     ne_nw_se_sw_s_w
+		|ne_nw_se_sw_n_s,     ne_nw_se_sw_e_w,     _ne_nw_se_sw_n_s,    _ne_nw_se_sw_e_w
+		|ne_nw_se_sw_n,       ne_nw_se_sw_e,       ne_nw_se_sw_s,       ne_nw_se_sw_w
+		|_ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw,        _ne_nw_se_sw
+		|ne_nw_se_sw_n_e_s_w, _ne_nw_se_sw_n_e_s_w,_ne_nw_se_sw_n_e_s_w,_ne_nw_se_sw_n_e_s_w
+		|ramp_sw,             ramp_nw,             ramp_ne,             ramp_se) : sheet {
+			x_base: 0; y_base: 0; x_step: 256; y_step: 256;
+			file: "../sprites/paths/path/queue8bpp256.png";
+			x_offset: -256/2; y_offset: -256/2; width: 256; height: 256;
 		}
 	}
 
