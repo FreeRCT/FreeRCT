@@ -28,9 +28,6 @@ IF(MSVC)
 	ENDIF()
 
 	add_compile_options(/W3)
-
-	# Accept zlib from OpenTTD useful compiled by previous Visual Studio version.
-	set_target_properties(rcdgen PROPERTIES LINK_FLAGS "/SAFESEH:NO")
 ELSE()
 	add_compile_options(-g)
 	add_compile_options(-Wall -Wextra -pedantic)
@@ -65,6 +62,9 @@ add_executable(rcdgen ${rcdgen_SRCS})
 IF(APPLE)
 	# Avoid searching for headers in frameworks (like Mono), and libraries in LIBDIR.
 	set(CMAKE_FIND_FRAMEWORK LAST)
+ELSEIF(MSVC)
+	# Accept zlib from OpenTTD useful compiled by previous Visual Studio version.
+	set_target_properties(rcdgen PROPERTIES LINK_FLAGS "/SAFESEH:NO")
 ENDIF()
 
 find_package(PNG REQUIRED)
