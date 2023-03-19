@@ -250,7 +250,7 @@ void YAMLParser::Parse()
 
 	this->ValidateMetaData();
 
-	for (const std::pair<std::string, BundleContent> bundle : this->results) this->SaveResults(bundle);
+	for (const auto &bundle : this->results) this->SaveResults(bundle);
 }
 
 /** Check that all meta data is present and sane. */
@@ -303,7 +303,7 @@ void YAMLParser::SaveResults(const std::pair<std::string, BundleContent> &bundle
 	StringBundle &stringbundle = this->storage->bundles[bundle.first];
 	std::shared_ptr<StringsNode> strings_node = std::make_shared<StringsNode>();
 
-	for (const std::pair<std::string, PluralizedString> contained_string : bundle.second) {
+	for (const auto &contained_string : bundle.second) {
 		/* Verify that all plural forms match. */
 		const int found_nplurals = contained_string.second.size();
 		if (found_nplurals != 1 && found_nplurals != this->nplurals) {
@@ -316,7 +316,7 @@ void YAMLParser::SaveResults(const std::pair<std::string, BundleContent> &bundle
 			}
 		} else {
 			std::vector<bool> present(this->nplurals);
-			for (const std::pair<std::string, PluralForm> found_plural_forms : contained_string.second) {
+			for (const auto &found_plural_forms : contained_string.second) {
 				const auto plural_index = this->plural_name_to_index.find(found_plural_forms.first);
 				if (plural_index == this->plural_name_to_index.end()) {
 					SyntaxError(found_plural_forms.second.second.line, "invalid plural name");
@@ -334,7 +334,7 @@ void YAMLParser::SaveResults(const std::pair<std::string, BundleContent> &bundle
 		str_node.key = bundle.first;
 		str_node.lang_index = this->lang_idx;
 		str_node.text.resize(contained_string.second.size());
-		for (const std::pair<std::string, PluralForm> form : contained_string.second) {
+		for (const auto &form : contained_string.second) {
 			int pl_index = form.first.empty() ? 0 : this->plural_name_to_index.at(form.first);
 			str_node.text.at(pl_index) = form.second.first;
 			str_node.text_pos = form.second.second;
