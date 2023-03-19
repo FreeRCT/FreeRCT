@@ -622,7 +622,7 @@ bool Values::HasValue(const char *fld_name)
  * @param symbols Optional set of identifiers recognized as numeric value.
  * @return The numeric value of the expression.
  */
-long long Values::GetNumber(const char *fld_name, const Symbol *symbols)
+long long Values::GetNumber(const char *fld_name, [[maybe_unused]] const Symbol *symbols)
 {
 	return FindValue(fld_name)->GetNumber(this->pos, this->node_name);
 }
@@ -2501,8 +2501,6 @@ static const Symbol _track_voxel_symbols[] = {
  */
 static std::shared_ptr<TrackVoxel> ConvertTrackVoxel(std::shared_ptr<NodeGroup> ng)
 {
-	static const char *direction[4] = {"n", "e", "s", "w"};
-
 	ExpandNoExpression(ng->exprs, ng->pos, "track_voxel");
 	auto tv = std::make_shared<TrackVoxel>();
 
@@ -2687,7 +2685,7 @@ static std::shared_ptr<CARSBlock> ConvertCARSNode(std::shared_ptr<NodeGroup> ng)
 	}
 	guest_sheet_node->node_value = nullptr;
 	char buffer[32];
-	for (uint w = 0; w < rb->scales; ++w) {
+	for (int w = 0; w < rb->scales; ++w) {
 		rb->guest_overlays[w].reset(new std::shared_ptr<SpriteBlock>[rb->num_passengers * 16*16*16]);
 		for (int yaw = 0; yaw < 16; yaw++) {
 			for (int roll = 0; roll < 16; roll++) {

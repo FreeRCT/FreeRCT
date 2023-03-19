@@ -907,7 +907,7 @@ void StringBundle::CheckTranslations(const char *names[], int name_count, const 
 	}
 
 	for (uint i = 0; i < missing_count.size(); i++) {
-		if (i == SOURCE_LANGUAGE) continue; // There are no "missing" British English strings.
+		if (static_cast<int>(i) == SOURCE_LANGUAGE) continue;  // There are no "missing" British English strings.
 		if (missing_count[i] > 0) {
 			printf("Language %s has %i missing translations in %s\n", _all_languages[i].name, missing_count[i], pos.filename.c_str());
 		}
@@ -1394,7 +1394,7 @@ FixedTable::FixedTable() : value(0)
 {
 }
 
-double FixedTable::GetValue(int index, int step)
+double FixedTable::GetValue([[maybe_unused]] int index, [[maybe_unused]] int step)
 {
 	return this->value;
 }
@@ -1863,7 +1863,7 @@ int CARSBlock::Write(FileWriter *fw)
 		}
 	}
 	for (int z = 0; z < this->scales; ++z) {
-		for (uint32 index = 0; index < this->num_passengers * 16*16*16; ++index) {
+		for (uint32 index = 0; index < this->num_passengers * 16U*16U*16U; ++index) {
 			fb->SaveUInt32(this->guest_overlays[z][index]->Write(fw));
 		}
 	}
