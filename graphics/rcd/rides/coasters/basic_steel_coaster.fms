@@ -33,18 +33,41 @@ RCST {
 			flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(nw_0_0, ne_0_0) : sheet {
+				(nw_0_0_64, ne_0_0_64) : sheet {
 					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
 				}
-				(se_0_0, sw_0_0) : sheet {
+				(se_0_0_64, sw_0_0_64) : sheet {
 					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
+				(nw_0_0_128, ne_0_0_128) : sheet {
+					x_base: 0; y_base: 0 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -40 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(se_0_0_128, sw_0_0_128) : sheet {
+					x_base: 0; y_base: 0 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -40 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(nw_0_0_256, ne_0_0_256) : sheet {
+					x_base: 0; y_base: 0 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -40 * 4; width: 64 * 4; height: 64 * 4;
+				}
+				(se_0_0_256, sw_0_0_256) : sheet {
+					x_base: 0; y_base: 0 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -40 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -74,18 +97,41 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: swne + bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(nw_0_0, ne_0_0) : sheet {
+				(nw_0_0_64, ne_0_0_64) : sheet {
 					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
 				}
-				(se_0_0, sw_0_0) : sheet {
+				(se_0_0_64, sw_0_0_64) : sheet {
 					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
+				(nw_0_0_128, ne_0_0_128) : sheet {
+					x_base: 0; y_base: 0 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -40 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(se_0_0_128, sw_0_0_128) : sheet {
+					x_base: 0; y_base: 0 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -40 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(nw_0_0_256, ne_0_0_256) : sheet {
+					x_base: 0; y_base: 0 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -40 * 4; width: 64 * 4; height: 64 * 4;
+				}
+				(se_0_0_256, sw_0_0_256) : sheet {
+					x_base: 0; y_base: 0 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -40 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -115,13 +161,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(nw_0_0, sw_0_0, se_0_0, ne_0_0) : sheet {
+				(nw_0_0_64, sw_0_0_64, se_0_0_64, ne_0_0_64) : sheet {
 					x_base: 0; y_base: 64; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
+				(nw_0_0_128, sw_0_0_128, se_0_0_128, ne_0_0_128) : sheet {
+					x_base: 0; y_base: 64 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -40 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(nw_0_0_256, sw_0_0_256, se_0_0_256, ne_0_0_256) : sheet {
+					x_base: 0; y_base: 64 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -40 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -149,13 +208,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(sw_0_0, se_0_0, ne_0_0, nw_0_0) : sheet {
+				(sw_0_0_64, se_0_0_64, ne_0_0_64, nw_0_0_64) : sheet {
 					x_base: 0; y_base: 64; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
+				(sw_0_0_128, se_0_0_128, ne_0_0_128, nw_0_0_128) : sheet {
+					x_base: 0; y_base: 64 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -40 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(sw_0_0_256, se_0_0_256, ne_0_0_256, nw_0_0_256) : sheet {
+					x_base: 0; y_base: 64 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -40 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -185,13 +257,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(nw_0_0, sw_0_0, se_0_0, ne_0_0) : sheet {
+				(nw_0_0_64, sw_0_0_64, se_0_0_64, ne_0_0_64) : sheet {
 					x_base: 0; y_base: 128; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
+				(nw_0_0_128, sw_0_0_128, se_0_0_128, ne_0_0_128) : sheet {
+					x_base: 0; y_base: 128 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -40 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(nw_0_0_256, sw_0_0_256, se_0_0_256, ne_0_0_256) : sheet {
+					x_base: 0; y_base: 128 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -40 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -219,13 +304,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(nw_0_0, sw_0_0, se_0_0, ne_0_0) : sheet {
+				(nw_0_0_64, sw_0_0_64, se_0_0_64, ne_0_0_64) : sheet {
 					x_base: 0; y_base: 256; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -24; width: 64; height: 64;
+				}
+				(nw_0_0_128, sw_0_0_128, se_0_0_128, ne_0_0_128) : sheet {
+					x_base: 0; y_base: 256 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -24 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(nw_0_0_256, sw_0_0_256, se_0_0_256, ne_0_0_256) : sheet {
+					x_base: 0; y_base: 256 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -24 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -256,13 +354,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(nw_0_0, sw_0_0, se_0_0, ne_0_0) : sheet {
+				(nw_0_0_64, sw_0_0_64, se_0_0_64, ne_0_0_64) : sheet {
 					x_base: 0; y_base: 192; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -24; width: 64; height: 64;
+				}
+				(nw_0_0_128, sw_0_0_128, se_0_0_128, ne_0_0_128) : sheet {
+					x_base: 0; y_base: 192 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -24 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(nw_0_0_256, sw_0_0_256, se_0_0_256, ne_0_0_256) : sheet {
+					x_base: 0; y_base: 192 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -24 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -293,13 +404,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(se_0_0, ne_0_0, nw_0_0, sw_0_0) : sheet {
+				(se_0_0_64, ne_0_0_64, nw_0_0_64, sw_0_0_64) : sheet {
 					x_base: 0; y_base: 192; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -24; width: 64; height: 64;
+				}
+				(se_0_0_128, ne_0_0_128, nw_0_0_128, sw_0_0_128) : sheet {
+					x_base: 0; y_base: 192 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -24 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(se_0_0_256, ne_0_0_256, nw_0_0_256, sw_0_0_256) : sheet {
+					x_base: 0; y_base: 192 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -24 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -330,13 +454,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(se_0_0, ne_0_0, nw_0_0, sw_0_0) : sheet {
+				(se_0_0_64, ne_0_0_64, nw_0_0_64, sw_0_0_64) : sheet {
 					x_base: 0; y_base: 256; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -24; width: 64; height: 64;
+				}
+				(se_0_0_128, ne_0_0_128, nw_0_0_128, sw_0_0_128) : sheet {
+					x_base: 0; y_base: 256 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -24 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(se_0_0_256, ne_0_0_256, nw_0_0_256, sw_0_0_256) : sheet {
+					x_base: 0; y_base: 256 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -24 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -367,13 +504,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(se_0_0, ne_0_0, nw_0_0, sw_0_0) : sheet {
+				(se_0_0_64, ne_0_0_64, nw_0_0_64, sw_0_0_64) : sheet {
 					x_base: 0; y_base: 128; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
+				(se_0_0_128, ne_0_0_128, nw_0_0_128, sw_0_0_128) : sheet {
+					x_base: 0; y_base: 128 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -40 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(se_0_0_256, ne_0_0_256, nw_0_0_256, sw_0_0_256) : sheet {
+					x_base: 0; y_base: 128 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -40 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -404,13 +554,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(nw_0_0, sw_0_0, se_0_0, ne_0_0) : sheet {
+				(nw_0_0_64, sw_0_0_64, se_0_0_64, ne_0_0_64) : sheet {
 					x_base: 0; y_base: 320; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
+				(nw_0_0_128, sw_0_0_128, se_0_0_128, ne_0_0_128) : sheet {
+					x_base: 0; y_base: 320 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -40 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(nw_0_0_256, sw_0_0_256, se_0_0_256, ne_0_0_256) : sheet {
+					x_base: 0; y_base: 320 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -40 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -439,13 +602,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(nw_0_0, sw_0_0, se_0_0, ne_0_0) : sheet {
+				(nw_0_0_64, sw_0_0_64, se_0_0_64, ne_0_0_64) : sheet {
 					x_base: 0; y_base: 384; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -24; width: 64; height: 64;
+				}
+				(nw_0_0_128, sw_0_0_128, se_0_0_128, ne_0_0_128) : sheet {
+					x_base: 0; y_base: 384 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -24 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(nw_0_0_256, sw_0_0_256, se_0_0_256, ne_0_0_256) : sheet {
+					x_base: 0; y_base: 384 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -24 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -477,13 +653,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(se_0_0, ne_0_0, nw_0_0, sw_0_0) : sheet {
+				(se_0_0_64, ne_0_0_64, nw_0_0_64, sw_0_0_64) : sheet {
 					x_base: 0; y_base: 448; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -24; width: 64; height: 64;
+				}
+				(se_0_0_128, ne_0_0_128, nw_0_0_128, sw_0_0_128) : sheet {
+					x_base: 0; y_base: 448 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -24 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(se_0_0_256, ne_0_0_256, nw_0_0_256, sw_0_0_256) : sheet {
+					x_base: 0; y_base: 448 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -24 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
