@@ -313,6 +313,34 @@ file("paths.rcd") {
 			x_offset: -32; y_offset: -33; width: 64; height: 64;
 		}
 	}
+	PLAT {
+		tile_width: 128;
+		z_height: 32;
+		platform_type: wood;
+
+		(ns,            ew,            _ns,           _ew
+		|ramp_ne,       ramp_se,       ramp_sw,       ramp_nw
+		|right_ramp_ne, right_ramp_se, right_ramp_sw, right_ramp_nw
+		|left_ramp_ne,  left_ramp_se,  left_ramp_sw,  left_ramp_nw) : sheet {
+			x_base: 0; y_base: 0; x_step: 64 * 2; y_step: 64 * 2;
+			file: "../sprites/paths/platform/template8bpp128.png";
+			x_offset: -32 * 2; y_offset: -33 * 2; width: 64 * 2; height: 64 * 2;
+		}
+	}
+	PLAT {
+		tile_width: 256;
+		z_height: 64;
+		platform_type: wood;
+
+		(ns,            ew,            _ns,           _ew
+		|ramp_ne,       ramp_se,       ramp_sw,       ramp_nw
+		|right_ramp_ne, right_ramp_se, right_ramp_sw, right_ramp_nw
+		|left_ramp_ne,  left_ramp_se,  left_ramp_sw,  left_ramp_nw) : sheet {
+			x_base: 0; y_base: 0; x_step: 64 * 4; y_step: 64 * 4;
+			file: "../sprites/paths/platform/template8bpp256.png";
+			x_offset: -32 * 4; y_offset: -33 * 4; width: 64 * 4; height: 64 * 4;
+		}
+	}
 
 	SUPP {
 		tile_width: 64;
@@ -330,6 +358,42 @@ file("paths.rcd") {
 			x_base: 0; y_base: 0; x_step: 64; y_step: 64;
 			file: "../sprites/paths/support/template8bpp64.png";
 			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+	}
+	SUPP {
+		tile_width: 128;
+		z_height: 32;
+		support_type: wood;
+
+		(s_ns, s_ew, _s_ns, _s_ew
+		|n#n,  n#e,  n#s,   n#w
+		|n#ne, n#es, n#sw,  n#nw
+		|n#ns, n#ew, _n#ns, _n#ew
+		|n#nes,n#esw,n#nsw, n#new
+		|d_ns, d_ew, _d_ns, _d_ew
+		|p_ns, p_ew, _p_ns, _p_ew
+		|n#E,  n#S,  n#W,   n#N) : sheet {
+			x_base: 0; y_base: 0; x_step: 64 * 2; y_step: 64 * 2;
+			file: "../sprites/paths/support/template8bpp128.png";
+			x_offset: -32 * 2; y_offset: -33 * 2; width: 64 * 2; height: 64 * 2;
+		}
+	}
+	SUPP {
+		tile_width: 256;
+		z_height: 64;
+		support_type: wood;
+
+		(s_ns, s_ew, _s_ns, _s_ew
+		|n#n,  n#e,  n#s,   n#w
+		|n#ne, n#es, n#sw,  n#nw
+		|n#ns, n#ew, _n#ns, _n#ew
+		|n#nes,n#esw,n#nsw, n#new
+		|d_ns, d_ew, _d_ns, _d_ew
+		|p_ns, p_ew, _p_ns, _p_ew
+		|n#E,  n#S,  n#W,   n#N) : sheet {
+			x_base: 0; y_base: 0; x_step: 64 * 4; y_step: 64 * 4;
+			file: "../sprites/paths/support/template8bpp256.png";
+			x_offset: -32 * 4; y_offset: -33 * 4; width: 64 * 4; height: 64 * 4;
 		}
 	}
 }
