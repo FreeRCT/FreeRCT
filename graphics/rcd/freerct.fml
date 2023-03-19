@@ -796,7 +796,33 @@ file("freerct.rcd") {
 			x_base: 0; y_base: 1 * 38; x_step: 38; y_step: 38;
 			file: "../sprites/persons/guest/64_bench.png";
 			recolour: "../sprites/persons/guest/64_bench_mask.png";
-			x_offset: -38/2 + 5; y_offset: -38+19; width: 38; height: 38;
+			x_offset: (-38/2 + 5); y_offset: (-38+19); width: 38; height: 38;
+		}
+	}
+	ANSP {
+		tile_width: 128;
+		person_type: guest;
+		anim_type: guest_bench_ne;
+
+		nr_frames: 1;
+		sheet {
+			x_base: 0; y_base: 1 * 38 * 2; x_step: 38 * 2; y_step: 38 * 2;
+			file: "../sprites/persons/guest/128_bench.png";
+			recolour: "../sprites/persons/guest/128_bench_mask.png";
+			x_offset: (-38/2 + 5) * 2; y_offset: (-38+19) * 2; width: 38 * 2; height: 38 * 2;
+		}
+	}
+	ANSP {
+		tile_width: 256;
+		person_type: guest;
+		anim_type: guest_bench_ne;
+
+		nr_frames: 1;
+		sheet {
+			x_base: 0; y_base: 1 * 38 * 4; x_step: 38 * 4; y_step: 38 * 4;
+			file: "../sprites/persons/guest/256_bench.png";
+			recolour: "../sprites/persons/guest/256_bench_mask.png";
+			x_offset: (-38/2 + 5) * 4; y_offset: (-38+19) * 4; width: 38 * 4; height: 38 * 4;
 		}
 	}
 
@@ -818,7 +844,33 @@ file("freerct.rcd") {
 			x_base: 0; y_base: 0 * 38; x_step: 38; y_step: 38;
 			file: "../sprites/persons/guest/64_bench.png";
 			recolour: "../sprites/persons/guest/64_bench_mask.png";
-			x_offset: -38/2 + 5; y_offset: -38+19; width: 38; height: 38;
+			x_offset: (-38/2 + 5); y_offset: (-38+19); width: 38; height: 38;
+		}
+	}
+	ANSP {
+		tile_width: 128;
+		person_type: guest;
+		anim_type: guest_bench_se;
+
+		nr_frames: 1;
+		sheet {
+			x_base: 0; y_base: 0 * 38 * 2; x_step: 38 * 2; y_step: 38 * 2;
+			file: "../sprites/persons/guest/128_bench.png";
+			recolour: "../sprites/persons/guest/128_bench_mask.png";
+			x_offset: (-38/2 + 5) * 2; y_offset: (-38+19) * 2; width: 38 * 2; height: 38 * 2;
+		}
+	}
+	ANSP {
+		tile_width: 256;
+		person_type: guest;
+		anim_type: guest_bench_se;
+
+		nr_frames: 1;
+		sheet {
+			x_base: 0; y_base: 0 * 38 * 4; x_step: 38 * 4; y_step: 38 * 4;
+			file: "../sprites/persons/guest/256_bench.png";
+			recolour: "../sprites/persons/guest/256_bench_mask.png";
+			x_offset: (-38/2 + 5) * 4; y_offset: (-38+19) * 4; width: 38 * 4; height: 38 * 4;
 		}
 	}
 
@@ -840,7 +892,33 @@ file("freerct.rcd") {
 			x_base: 0; y_base: 3 * 38; x_step: 38; y_step: 38;
 			file: "../sprites/persons/guest/64_bench.png";
 			recolour: "../sprites/persons/guest/64_bench_mask.png";
-			x_offset: -38/2 + 5; y_offset: -38+19; width: 38; height: 38;
+			x_offset: (-38/2 + 5); y_offset: (-38+19); width: 38; height: 38;
+		}
+	}
+	ANSP {
+		tile_width: 128;
+		person_type: guest;
+		anim_type: guest_bench_sw;
+
+		nr_frames: 1;
+		sheet {
+			x_base: 0; y_base: 3 * 38 * 2; x_step: 38 * 2; y_step: 38 * 2;
+			file: "../sprites/persons/guest/128_bench.png";
+			recolour: "../sprites/persons/guest/128_bench_mask.png";
+			x_offset: (-38/2 + 5) * 2; y_offset: (-38+19) * 2; width: 38 * 2; height: 38 * 2;
+		}
+	}
+	ANSP {
+		tile_width: 256;
+		person_type: guest;
+		anim_type: guest_bench_sw;
+
+		nr_frames: 1;
+		sheet {
+			x_base: 0; y_base: 3 * 38 * 4; x_step: 38 * 4; y_step: 38 * 4;
+			file: "../sprites/persons/guest/256_bench.png";
+			recolour: "../sprites/persons/guest/256_bench_mask.png";
+			x_offset: (-38/2 + 5) * 4; y_offset: (-38+19) * 4; width: 38 * 4; height: 38 * 4;
 		}
 	}
 
@@ -862,7 +940,33 @@ file("freerct.rcd") {
 			x_base: 0; y_base: 2 * 38; x_step: 38; y_step: 38;
 			file: "../sprites/persons/guest/64_bench.png";
 			recolour: "../sprites/persons/guest/64_bench_mask.png";
-			x_offset: -38/2 + 5; y_offset: -38+19; width: 38; height: 38;
+			x_offset: (-38/2 + 5); y_offset: (-38+19); width: 38; height: 38;
+		}
+	}
+	ANSP {
+		tile_width: 128;
+		person_type: guest;
+		anim_type: guest_bench_nw;
+
+		nr_frames: 1;
+		sheet {
+			x_base: 0; y_base: 2 * 38 * 2; x_step: 38 * 2; y_step: 38 * 2;
+			file: "../sprites/persons/guest/128_bench.png";
+			recolour: "../sprites/persons/guest/128_bench_mask.png";
+			x_offset: (-38/2 + 5) * 2; y_offset: (-38+19) * 2; width: 38 * 2; height: 38 * 2;
+		}
+	}
+	ANSP {
+		tile_width: 256;
+		person_type: guest;
+		anim_type: guest_bench_nw;
+
+		nr_frames: 1;
+		sheet {
+			x_base: 0; y_base: 2 * 38 * 4; x_step: 38 * 4; y_step: 38 * 4;
+			file: "../sprites/persons/guest/256_bench.png";
+			recolour: "../sprites/persons/guest/256_bench_mask.png";
+			x_offset: (-38/2 + 5) * 4; y_offset: (-38+19) * 4; width: 38 * 4; height: 38 * 4;
 		}
 	}
 
