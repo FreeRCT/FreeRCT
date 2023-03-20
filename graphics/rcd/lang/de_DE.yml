@@ -115,8 +115,10 @@ strings:
 		QUIT_MESSAGE: "FreeRCT beenden?"
 		RETURN_CAPTION: "Verlassen?"
 		RETURN_MESSAGE: "Zurück zum Hauptmenü?"
-		QUIT_NO:      "Nein"
-		QUIT_YES:     "Ja"
+
+		# Confirmation prompt strings.
+		CONFIRM_NO:      "Nein"
+		CONFIRM_YES:     "Ja"
 
 		# Error message strings.
 		ERROR_MESSAGE_CAPTION:        "Achtung"

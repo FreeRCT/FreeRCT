@@ -114,8 +114,10 @@ static const char *_gui_string_names[] = {
 	"QUIT_MESSAGE",
 	"RETURN_CAPTION",
 	"RETURN_MESSAGE",
-	"QUIT_NO",
-	"QUIT_YES",
+
+	/* Confirmation prompt. */
+	"CONFIRM_YES",
+	"CONFIRM_NO",
 
 	/* Error message window. */
 	"ERROR_MESSAGE_CAPTION",

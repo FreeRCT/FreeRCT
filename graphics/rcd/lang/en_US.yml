@@ -55,8 +55,10 @@ strings:
 		# Quit program strings.
 		QUIT_CAPTION: "Quit?"
 		QUIT_MESSAGE: "Quit FreeRCT?"
-		QUIT_NO:      "No"
-		QUIT_YES:     "Yes"
+
+		# Confirmation prompt strings.
+		CONFIRM_NO:      "No"
+		CONFIRM_YES:     "Yes"
 
 		# Error message strings.
 		ERROR_MESSAGE_CAPTION: "Message"

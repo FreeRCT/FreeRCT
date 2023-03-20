@@ -85,8 +85,10 @@ strings:
 		QUIT_MESSAGE: "Avsluta FreeRCT?"
 		RETURN_CAPTION: "Återvänd?"
 		RETURN_MESSAGE: "Återvänd till huvudmenyn?"
-		QUIT_NO:      "Nej"
-		QUIT_YES:     "Ja"
+
+		# Confirmation prompt strings.
+		CONFIRM_NO:      "Nej"
+		CONFIRM_YES:     "Ja"
 
 		# Error message strings.
 		ERROR_MESSAGE_CAPTION: "Meddelande"

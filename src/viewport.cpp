@@ -1227,10 +1227,10 @@ bool Viewport::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &s
 			ShowSaveGameGui();
 			return true;
 		case KS_INGAME_MAINMENU:
-			ShowQuitProgram(true);
+			ShowConfirmationPrompt(GUI_RETURN_CAPTION, GUI_RETURN_MESSAGE, []() { _game_control.MainMenu(); });
 			return true;
 		case KS_INGAME_QUIT:
-			ShowQuitProgram(false);
+			ShowConfirmationPrompt(GUI_QUIT_CAPTION, GUI_QUIT_MESSAGE, []() { _game_control.QuitGame(); });
 			return true;
 
 		case KS_INGAME_SPEED_PAUSE:

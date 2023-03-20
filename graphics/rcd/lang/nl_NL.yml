@@ -85,8 +85,10 @@ strings:
 		QUIT_MESSAGE: 	"FreeRCT sluiten?"
 		RETURN_CAPTION: "Ga terug?"
 		RETURN_MESSAGE: "Ga terug naar het thuismenu?"
-		QUIT_NO:      	"Nee"
-		QUIT_YES:     	"Ja"
+
+		# Confirmation prompt strings.
+		CONFIRM_NO:      	"Nee"
+		CONFIRM_YES:     	"Ja"
 
 		# Error message strings.
 		ERROR_MESSAGE_CAPTION: 				"Boodschap"

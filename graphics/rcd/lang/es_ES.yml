@@ -47,8 +47,10 @@ strings:
 		# Quit program strings.
 		QUIT_CAPTION: "¿Salir del programa?"
 		QUIT_MESSAGE: "¿Salir del programa?"
-		QUIT_NO:      "No"
-		QUIT_YES:     "Sí"
+
+		# Confirmation prompt strings.
+		CONFIRM_NO:      "No"
+		CONFIRM_YES:     "Sí"
 
 		# Error message strings.
 		ERROR_MESSAGE_CAPTION: "Mensaje"
