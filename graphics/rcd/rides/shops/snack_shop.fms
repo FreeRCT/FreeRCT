@@ -5,13 +5,26 @@ SHOP {
 	height: 2;
 
 	images: FSET {
-		tile_width: 64;
+		scales: 3;
+		tile_width_0: 64;
+		tile_width_1: 128;
+		tile_width_2: 256;
 		width_x: 1;
 		width_y: 1;
-		(se_0_0, sw_0_0, nw_0_0, ne_0_0): spritefiles {
+		(se_0_0_64, sw_0_0_64, nw_0_0_64, ne_0_0_64): spritefiles {
 			x_base: 0; y_base: 0;
 			file: "../sprites/objects/1x1/template/64_0000{seq(1..4, 1)}.png";
 			x_offset: -32; y_offset: -33; width: 64; height: 64;
+		}
+		(se_0_0_128, sw_0_0_128, nw_0_0_128, ne_0_0_128): spritefiles {
+			x_base: 0; y_base: 0;
+			file: "../sprites/objects/1x1/template/128_0000{seq(1..4, 1)}.png";
+			x_offset: -32 * 2; y_offset: -33 * 2; width: 64 * 2; height: 64 * 2;
+		}
+		(se_0_0_256, sw_0_0_256, nw_0_0_256, ne_0_0_256): spritefiles {
+			x_base: 0; y_base: 0;
+			file: "../sprites/objects/1x1/template/256_0000{seq(1..4, 1)}.png";
+			x_offset: -32 * 4; y_offset: -33 * 4; width: 64 * 4; height: 64 * 4;
 		}
 	}
 

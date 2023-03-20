@@ -33,18 +33,41 @@ RCST {
 			flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(nw_0_0, ne_0_0) : sheet {
+				(nw_0_0_64, ne_0_0_64) : sheet {
 					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
 				}
-				(se_0_0, sw_0_0) : sheet {
+				(se_0_0_64, sw_0_0_64) : sheet {
 					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
+				(nw_0_0_128, ne_0_0_128) : sheet {
+					x_base: 0; y_base: 0 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -40 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(se_0_0_128, sw_0_0_128) : sheet {
+					x_base: 0; y_base: 0 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -40 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(nw_0_0_256, ne_0_0_256) : sheet {
+					x_base: 0; y_base: 0 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -40 * 4; width: 64 * 4; height: 64 * 4;
+				}
+				(se_0_0_256, sw_0_0_256) : sheet {
+					x_base: 0; y_base: 0 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -40 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -74,18 +97,41 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: swne + bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(nw_0_0, ne_0_0) : sheet {
+				(nw_0_0_64, ne_0_0_64) : sheet {
 					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
 				}
-				(se_0_0, sw_0_0) : sheet {
+				(se_0_0_64, sw_0_0_64) : sheet {
 					x_base: 0; y_base: 0; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
+				(nw_0_0_128, ne_0_0_128) : sheet {
+					x_base: 0; y_base: 0 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -40 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(se_0_0_128, sw_0_0_128) : sheet {
+					x_base: 0; y_base: 0 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -40 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(nw_0_0_256, ne_0_0_256) : sheet {
+					x_base: 0; y_base: 0 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -40 * 4; width: 64 * 4; height: 64 * 4;
+				}
+				(se_0_0_256, sw_0_0_256) : sheet {
+					x_base: 0; y_base: 0 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -40 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -115,13 +161,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(nw_0_0, sw_0_0, se_0_0, ne_0_0) : sheet {
+				(nw_0_0_64, sw_0_0_64, se_0_0_64, ne_0_0_64) : sheet {
 					x_base: 0; y_base: 64; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
+				(nw_0_0_128, sw_0_0_128, se_0_0_128, ne_0_0_128) : sheet {
+					x_base: 0; y_base: 64 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -40 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(nw_0_0_256, sw_0_0_256, se_0_0_256, ne_0_0_256) : sheet {
+					x_base: 0; y_base: 64 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -40 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -149,13 +208,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(sw_0_0, se_0_0, ne_0_0, nw_0_0) : sheet {
+				(sw_0_0_64, se_0_0_64, ne_0_0_64, nw_0_0_64) : sheet {
 					x_base: 0; y_base: 64; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
+				(sw_0_0_128, se_0_0_128, ne_0_0_128, nw_0_0_128) : sheet {
+					x_base: 0; y_base: 64 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -40 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(sw_0_0_256, se_0_0_256, ne_0_0_256, nw_0_0_256) : sheet {
+					x_base: 0; y_base: 64 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -40 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -185,13 +257,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(nw_0_0, sw_0_0, se_0_0, ne_0_0) : sheet {
+				(nw_0_0_64, sw_0_0_64, se_0_0_64, ne_0_0_64) : sheet {
 					x_base: 0; y_base: 128; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
+				(nw_0_0_128, sw_0_0_128, se_0_0_128, ne_0_0_128) : sheet {
+					x_base: 0; y_base: 128 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -40 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(nw_0_0_256, sw_0_0_256, se_0_0_256, ne_0_0_256) : sheet {
+					x_base: 0; y_base: 128 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -40 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -219,13 +304,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(nw_0_0, sw_0_0, se_0_0, ne_0_0) : sheet {
+				(nw_0_0_64, sw_0_0_64, se_0_0_64, ne_0_0_64) : sheet {
 					x_base: 0; y_base: 256; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -24; width: 64; height: 64;
+				}
+				(nw_0_0_128, sw_0_0_128, se_0_0_128, ne_0_0_128) : sheet {
+					x_base: 0; y_base: 256 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -24 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(nw_0_0_256, sw_0_0_256, se_0_0_256, ne_0_0_256) : sheet {
+					x_base: 0; y_base: 256 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -24 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -256,13 +354,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(nw_0_0, sw_0_0, se_0_0, ne_0_0) : sheet {
+				(nw_0_0_64, sw_0_0_64, se_0_0_64, ne_0_0_64) : sheet {
 					x_base: 0; y_base: 192; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -24; width: 64; height: 64;
+				}
+				(nw_0_0_128, sw_0_0_128, se_0_0_128, ne_0_0_128) : sheet {
+					x_base: 0; y_base: 192 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -24 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(nw_0_0_256, sw_0_0_256, se_0_0_256, ne_0_0_256) : sheet {
+					x_base: 0; y_base: 192 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -24 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -293,13 +404,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(se_0_0, ne_0_0, nw_0_0, sw_0_0) : sheet {
+				(se_0_0_64, ne_0_0_64, nw_0_0_64, sw_0_0_64) : sheet {
 					x_base: 0; y_base: 192; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -24; width: 64; height: 64;
+				}
+				(se_0_0_128, ne_0_0_128, nw_0_0_128, sw_0_0_128) : sheet {
+					x_base: 0; y_base: 192 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -24 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(se_0_0_256, ne_0_0_256, nw_0_0_256, sw_0_0_256) : sheet {
+					x_base: 0; y_base: 192 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -24 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -330,13 +454,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(se_0_0, ne_0_0, nw_0_0, sw_0_0) : sheet {
+				(se_0_0_64, ne_0_0_64, nw_0_0_64, sw_0_0_64) : sheet {
 					x_base: 0; y_base: 256; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -24; width: 64; height: 64;
+				}
+				(se_0_0_128, ne_0_0_128, nw_0_0_128, sw_0_0_128) : sheet {
+					x_base: 0; y_base: 256 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -24 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(se_0_0_256, ne_0_0_256, nw_0_0_256, sw_0_0_256) : sheet {
+					x_base: 0; y_base: 256 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -24 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -367,13 +504,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(se_0_0, ne_0_0, nw_0_0, sw_0_0) : sheet {
+				(se_0_0_64, ne_0_0_64, nw_0_0_64, sw_0_0_64) : sheet {
 					x_base: 0; y_base: 128; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
+				(se_0_0_128, ne_0_0_128, nw_0_0_128, sw_0_0_128) : sheet {
+					x_base: 0; y_base: 128 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -40 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(se_0_0_256, ne_0_0_256, nw_0_0_256, sw_0_0_256) : sheet {
+					x_base: 0; y_base: 128 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -40 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -404,13 +554,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(nw_0_0, sw_0_0, se_0_0, ne_0_0) : sheet {
+				(nw_0_0_64, sw_0_0_64, se_0_0_64, ne_0_0_64) : sheet {
 					x_base: 0; y_base: 320; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -40; width: 64; height: 64;
+				}
+				(nw_0_0_128, sw_0_0_128, se_0_0_128, ne_0_0_128) : sheet {
+					x_base: 0; y_base: 320 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -40 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(nw_0_0_256, sw_0_0_256, se_0_0_256, ne_0_0_256) : sheet {
+					x_base: 0; y_base: 320 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -40 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -439,13 +602,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(nw_0_0, sw_0_0, se_0_0, ne_0_0) : sheet {
+				(nw_0_0_64, sw_0_0_64, se_0_0_64, ne_0_0_64) : sheet {
 					x_base: 0; y_base: 384; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -24; width: 64; height: 64;
+				}
+				(nw_0_0_128, sw_0_0_128, se_0_0_128, ne_0_0_128) : sheet {
+					x_base: 0; y_base: 384 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -24 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(nw_0_0_256, sw_0_0_256, se_0_0_256, ne_0_0_256) : sheet {
+					x_base: 0; y_base: 384 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -24 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -477,13 +653,26 @@ RCST {
 			dx: 0; dy: 0; dz: 0; flags: bitset(north, east, south, west);
 
 			bg: FSET {
-				tile_width: 64;
+				scales: 3;
+				tile_width_0: 64;
+				tile_width_1: 128;
+				tile_width_2: 256;
 				width_x: 1;
 				width_y: 1;
-				(se_0_0, ne_0_0, nw_0_0, sw_0_0) : sheet {
+				(se_0_0_64, ne_0_0_64, nw_0_0_64, sw_0_0_64) : sheet {
 					x_base: 0; y_base: 448; x_step: 64; y_step: 64;
 					file: "../sprites/tracks/track/track1x1basic_template8bpp64.png";
 					x_offset: -32; y_offset: -24; width: 64; height: 64;
+				}
+				(se_0_0_128, ne_0_0_128, nw_0_0_128, sw_0_0_128) : sheet {
+					x_base: 0; y_base: 448 * 2; x_step: 64 * 2; y_step: 64 * 2;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp128.png";
+					x_offset: -32 * 2; y_offset: -24 * 2; width: 64 * 2; height: 64 * 2;
+				}
+				(se_0_0_256, ne_0_0_256, nw_0_0_256, sw_0_0_256) : sheet {
+					x_base: 0; y_base: 448 * 4; x_step: 64 * 4; y_step: 64 * 4;
+					file: "../sprites/tracks/track/track1x1basic_template8bpp256.png";
+					x_offset: -32 * 4; y_offset: -24 * 4; width: 64 * 4; height: 64 * 4;
 				}
 			}
 		}
@@ -497,92 +686,257 @@ RCST {
 }
 
 CARS {
-	tile_width: 64;
+	scales: 3;
+	tile_width_0: 64;
+	tile_width_1: 128;
+	tile_width_2: 256;
 	length: 45000; // Arbitrary length of a car, needs further tweaking.
 	inter_length: 5000;
 	num_passengers: 4;
 	num_entrances: 2;
 
 	// Car sprites.
-	(car_p{vert(0..15)}r0y{hor(0..15)}) : sheet {
+	(car_p{vert(0..15)}r0y{hor(0..15)}w64) : sheet {
 		file: "../sprites/tracks/cars/template_allangle8bpp64.png";
 		x_base: 0; y_base: 0; x_step: 64; y_step: 64; y_count: 16;
 		x_offset: -32; y_offset: -39; width: 64; height: 64;
 	}
-	(car_p{vert(0..15)}r1y{hor(0..15)}) : sheet {
+	(car_p{vert(0..15)}r1y{hor(0..15)}w64) : sheet {
 		file: "../sprites/tracks/cars/template_allangle8bpp64.png";
 		x_base: 0; y_base: 1024; x_step: 64; y_step: 64; y_count: 16;
 		x_offset: -32; y_offset: -39; width: 64; height: 64;
 	}
-	(car_p{vert(0..15)}r2y{hor(0..15)}) : sheet {
+	(car_p{vert(0..15)}r2y{hor(0..15)}w64) : sheet {
 		file: "../sprites/tracks/cars/template_allangle8bpp64.png";
 		x_base: 0; y_base: 2048; x_step: 64; y_step: 64; y_count: 16;
 		x_offset: -32; y_offset: -39; width: 64; height: 64;
 	}
-	(car_p{vert(0..15)}r3y{hor(0..15)}) : sheet {
+	(car_p{vert(0..15)}r3y{hor(0..15)}w64) : sheet {
 		file: "../sprites/tracks/cars/template_allangle8bpp64.png";
 		x_base: 0; y_base: 3072; x_step: 64; y_step: 64; y_count: 16;
 		x_offset: -32; y_offset: -39; width: 64; height: 64;
 	}
-	(car_p{vert(0..15)}r4y{hor(0..15)}) : sheet {
+	(car_p{vert(0..15)}r4y{hor(0..15)}w64) : sheet {
 		file: "../sprites/tracks/cars/template_allangle8bpp64.png";
 		x_base: 0; y_base: 4096; x_step: 64; y_step: 64; y_count: 16;
 		x_offset: -32; y_offset: -39; width: 64; height: 64;
 	}
-	(car_p{vert(0..15)}r5y{hor(0..15)}) : sheet {
+	(car_p{vert(0..15)}r5y{hor(0..15)}w64) : sheet {
 		file: "../sprites/tracks/cars/template_allangle8bpp64.png";
 		x_base: 0; y_base: 5120; x_step: 64; y_step: 64; y_count: 16;
 		x_offset: -32; y_offset: -39; width: 64; height: 64;
 	}
-	(car_p{vert(0..15)}r6y{hor(0..15)}) : sheet {
+	(car_p{vert(0..15)}r6y{hor(0..15)}w64) : sheet {
 		file: "../sprites/tracks/cars/template_allangle8bpp64.png";
 		x_base: 0; y_base: 6144; x_step: 64; y_step: 64; y_count: 16;
 		x_offset: -32; y_offset: -39; width: 64; height: 64;
 	}
-	(car_p{vert(0..15)}r7y{hor(0..15)}) : sheet {
+	(car_p{vert(0..15)}r7y{hor(0..15)}w64) : sheet {
 		file: "../sprites/tracks/cars/template_allangle8bpp64.png";
 		x_base: 0; y_base: 7168; x_step: 64; y_step: 64; y_count: 16;
 		x_offset: -32; y_offset: -39; width: 64; height: 64;
 	}
-	(car_p{vert(0..15)}r8y{hor(0..15)}) : sheet {
+	(car_p{vert(0..15)}r8y{hor(0..15)}w64) : sheet {
 		file: "../sprites/tracks/cars/template_allangle8bpp64.png";
 		x_base: 0; y_base: 8192; x_step: 64; y_step: 64; y_count: 16;
 		x_offset: -32; y_offset: -39; width: 64; height: 64;
 	}
-	(car_p{vert(0..15)}r9y{hor(0..15)}) : sheet {
+	(car_p{vert(0..15)}r9y{hor(0..15)}w64) : sheet {
 		file: "../sprites/tracks/cars/template_allangle8bpp64.png";
 		x_base: 0; y_base: 9216; x_step: 64; y_step: 64; y_count: 16;
 		x_offset: -32; y_offset: -39; width: 64; height: 64;
 	}
-	(car_p{vert(0..15)}r10y{hor(0..15)}) : sheet {
+	(car_p{vert(0..15)}r10y{hor(0..15)}w64) : sheet {
 		file: "../sprites/tracks/cars/template_allangle8bpp64.png";
 		x_base: 0; y_base: 10240; x_step: 64; y_step: 64; y_count: 16;
 		x_offset: -32; y_offset: -39; width: 64; height: 64;
 	}
-	(car_p{vert(0..15)}r11y{hor(0..15)}) : sheet {
+	(car_p{vert(0..15)}r11y{hor(0..15)}w64) : sheet {
 		file: "../sprites/tracks/cars/template_allangle8bpp64.png";
 		x_base: 0; y_base: 11264; x_step: 64; y_step: 64; y_count: 16;
 		x_offset: -32; y_offset: -39; width: 64; height: 64;
 	}
-	(car_p{vert(0..15)}r12y{hor(0..15)}) : sheet {
+	(car_p{vert(0..15)}r12y{hor(0..15)}w64) : sheet {
 		file: "../sprites/tracks/cars/template_allangle8bpp64.png";
 		x_base: 0; y_base: 12288; x_step: 64; y_step: 64; y_count: 16;
 		x_offset: -32; y_offset: -39; width: 64; height: 64;
 	}
-	(car_p{vert(0..15)}r13y{hor(0..15)}) : sheet {
+	(car_p{vert(0..15)}r13y{hor(0..15)}w64) : sheet {
 		file: "../sprites/tracks/cars/template_allangle8bpp64.png";
 		x_base: 0; y_base: 13312; x_step: 64; y_step: 64; y_count: 16;
 		x_offset: -32; y_offset: -39; width: 64; height: 64;
 	}
-	(car_p{vert(0..15)}r14y{hor(0..15)}) : sheet {
+	(car_p{vert(0..15)}r14y{hor(0..15)}w64) : sheet {
 		file: "../sprites/tracks/cars/template_allangle8bpp64.png";
 		x_base: 0; y_base: 14336; x_step: 64; y_step: 64; y_count: 16;
 		x_offset: -32; y_offset: -39; width: 64; height: 64;
 	}
-	(car_p{vert(0..15)}r15y{hor(0..15)}) : sheet {
+	(car_p{vert(0..15)}r15y{hor(0..15)}w64) : sheet {
 		file: "../sprites/tracks/cars/template_allangle8bpp64.png";
 		x_base: 0; y_base: 15360; x_step: 64; y_step: 64; y_count: 16;
 		x_offset: -32; y_offset: -39; width: 64; height: 64;
+	}
+
+	(car_p{vert(0..15)}r0y{hor(0..15)}w128) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp128.png";
+		x_base: 0; y_base: 0 * 2; x_step: 64 * 2; y_step: 64 * 2; y_count: 16 * 2;
+		x_offset: -32 * 2; y_offset: -39 * 2; width: 64 * 2; height: 64 * 2;
+	}
+	(car_p{vert(0..15)}r1y{hor(0..15)}w128) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp128.png";
+		x_base: 0; y_base: 1024 * 2; x_step: 64 * 2; y_step: 64 * 2; y_count: 16 * 2;
+		x_offset: -32 * 2; y_offset: -39 * 2; width: 64 * 2; height: 64 * 2;
+	}
+	(car_p{vert(0..15)}r2y{hor(0..15)}w128) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp128.png";
+		x_base: 0; y_base: 2048 * 2; x_step: 64 * 2; y_step: 64 * 2; y_count: 16 * 2;
+		x_offset: -32 * 2; y_offset: -39 * 2; width: 64 * 2; height: 64 * 2;
+	}
+	(car_p{vert(0..15)}r3y{hor(0..15)}w128) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp128.png";
+		x_base: 0; y_base: 3072 * 2; x_step: 64 * 2; y_step: 64 * 2; y_count: 16 * 2;
+		x_offset: -32 * 2; y_offset: -39 * 2; width: 64 * 2; height: 64 * 2;
+	}
+	(car_p{vert(0..15)}r4y{hor(0..15)}w128) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp128.png";
+		x_base: 0; y_base: 4096 * 2; x_step: 64 * 2; y_step: 64 * 2; y_count: 16 * 2;
+		x_offset: -32 * 2; y_offset: -39 * 2; width: 64 * 2; height: 64 * 2;
+	}
+	(car_p{vert(0..15)}r5y{hor(0..15)}w128) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp128.png";
+		x_base: 0; y_base: 5120 * 2; x_step: 64 * 2; y_step: 64 * 2; y_count: 16 * 2;
+		x_offset: -32 * 2; y_offset: -39 * 2; width: 64 * 2; height: 64 * 2;
+	}
+	(car_p{vert(0..15)}r6y{hor(0..15)}w128) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp128.png";
+		x_base: 0; y_base: 6144 * 2; x_step: 64 * 2; y_step: 64 * 2; y_count: 16 * 2;
+		x_offset: -32 * 2; y_offset: -39 * 2; width: 64 * 2; height: 64 * 2;
+	}
+	(car_p{vert(0..15)}r7y{hor(0..15)}w128) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp128.png";
+		x_base: 0; y_base: 7168 * 2; x_step: 64 * 2; y_step: 64 * 2; y_count: 16 * 2;
+		x_offset: -32 * 2; y_offset: -39 * 2; width: 64 * 2; height: 64 * 2;
+	}
+	(car_p{vert(0..15)}r8y{hor(0..15)}w128) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp128.png";
+		x_base: 0; y_base: 8192 * 2; x_step: 64 * 2; y_step: 64 * 2; y_count: 16 * 2;
+		x_offset: -32 * 2; y_offset: -39 * 2; width: 64 * 2; height: 64 * 2;
+	}
+	(car_p{vert(0..15)}r9y{hor(0..15)}w128) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp128.png";
+		x_base: 0; y_base: 9216 * 2; x_step: 64 * 2; y_step: 64 * 2; y_count: 16 * 2;
+		x_offset: -32 * 2; y_offset: -39 * 2; width: 64 * 2; height: 64 * 2;
+	}
+	(car_p{vert(0..15)}r10y{hor(0..15)}w128) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp128.png";
+		x_base: 0; y_base: 10240 * 2; x_step: 64 * 2; y_step: 64 * 2; y_count: 16 * 2;
+		x_offset: -32 * 2; y_offset: -39 * 2; width: 64 * 2; height: 64 * 2;
+	}
+	(car_p{vert(0..15)}r11y{hor(0..15)}w128) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp128.png";
+		x_base: 0; y_base: 11264 * 2; x_step: 64 * 2; y_step: 64 * 2; y_count: 16 * 2;
+		x_offset: -32 * 2; y_offset: -39 * 2; width: 64 * 2; height: 64 * 2;
+	}
+	(car_p{vert(0..15)}r12y{hor(0..15)}w128) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp128.png";
+		x_base: 0; y_base: 12288 * 2; x_step: 64 * 2; y_step: 64 * 2; y_count: 16 * 2;
+		x_offset: -32 * 2; y_offset: -39 * 2; width: 64 * 2; height: 64 * 2;
+	}
+	(car_p{vert(0..15)}r13y{hor(0..15)}w128) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp128.png";
+		x_base: 0; y_base: 13312 * 2; x_step: 64 * 2; y_step: 64 * 2; y_count: 16 * 2;
+		x_offset: -32 * 2; y_offset: -39 * 2; width: 64 * 2; height: 64 * 2;
+	}
+	(car_p{vert(0..15)}r14y{hor(0..15)}w128) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp128.png";
+		x_base: 0; y_base: 14336 * 2; x_step: 64 * 2; y_step: 64 * 2; y_count: 16 * 2;
+		x_offset: -32 * 2; y_offset: -39 * 2; width: 64 * 2; height: 64 * 2;
+	}
+	(car_p{vert(0..15)}r15y{hor(0..15)}w128) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp128.png";
+		x_base: 0; y_base: 15360 * 2; x_step: 64 * 2; y_step: 64 * 2; y_count: 16 * 2;
+		x_offset: -32 * 2; y_offset: -39 * 2; width: 64 * 2; height: 64 * 2;
+	}
+
+	(car_p{vert(0..15)}r0y{hor(0..15)}w256) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp256.png";
+		x_base: 0; y_base: 0 * 4; x_step: 64 * 4; y_step: 64 * 4; y_count: 16 * 4;
+		x_offset: -32 * 4; y_offset: -39 * 4; width: 64 * 4; height: 64 * 4;
+	}
+	(car_p{vert(0..15)}r1y{hor(0..15)}w256) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp256.png";
+		x_base: 0; y_base: 1024 * 4; x_step: 64 * 4; y_step: 64 * 4; y_count: 16 * 4;
+		x_offset: -32 * 4; y_offset: -39 * 4; width: 64 * 4; height: 64 * 4;
+	}
+	(car_p{vert(0..15)}r2y{hor(0..15)}w256) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp256.png";
+		x_base: 0; y_base: 2048 * 4; x_step: 64 * 4; y_step: 64 * 4; y_count: 16 * 4;
+		x_offset: -32 * 4; y_offset: -39 * 4; width: 64 * 4; height: 64 * 4;
+	}
+	(car_p{vert(0..15)}r3y{hor(0..15)}w256) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp256.png";
+		x_base: 0; y_base: 3072 * 4; x_step: 64 * 4; y_step: 64 * 4; y_count: 16 * 4;
+		x_offset: -32 * 4; y_offset: -39 * 4; width: 64 * 4; height: 64 * 4;
+	}
+	(car_p{vert(0..15)}r4y{hor(0..15)}w256) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp256.png";
+		x_base: 0; y_base: 4096 * 4; x_step: 64 * 4; y_step: 64 * 4; y_count: 16 * 4;
+		x_offset: -32 * 4; y_offset: -39 * 4; width: 64 * 4; height: 64 * 4;
+	}
+	(car_p{vert(0..15)}r5y{hor(0..15)}w256) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp256.png";
+		x_base: 0; y_base: 5120 * 4; x_step: 64 * 4; y_step: 64 * 4; y_count: 16 * 4;
+		x_offset: -32 * 4; y_offset: -39 * 4; width: 64 * 4; height: 64 * 4;
+	}
+	(car_p{vert(0..15)}r6y{hor(0..15)}w256) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp256.png";
+		x_base: 0; y_base: 6144 * 4; x_step: 64 * 4; y_step: 64 * 4; y_count: 16 * 4;
+		x_offset: -32 * 4; y_offset: -39 * 4; width: 64 * 4; height: 64 * 4;
+	}
+	(car_p{vert(0..15)}r7y{hor(0..15)}w256) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp256.png";
+		x_base: 0; y_base: 7168 * 4; x_step: 64 * 4; y_step: 64 * 4; y_count: 16 * 4;
+		x_offset: -32 * 4; y_offset: -39 * 4; width: 64 * 4; height: 64 * 4;
+	}
+	(car_p{vert(0..15)}r8y{hor(0..15)}w256) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp256.png";
+		x_base: 0; y_base: 8192 * 4; x_step: 64 * 4; y_step: 64 * 4; y_count: 16 * 4;
+		x_offset: -32 * 4; y_offset: -39 * 4; width: 64 * 4; height: 64 * 4;
+	}
+	(car_p{vert(0..15)}r9y{hor(0..15)}w256) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp256.png";
+		x_base: 0; y_base: 9216 * 4; x_step: 64 * 4; y_step: 64 * 4; y_count: 16 * 4;
+		x_offset: -32 * 4; y_offset: -39 * 4; width: 64 * 4; height: 64 * 4;
+	}
+	(car_p{vert(0..15)}r10y{hor(0..15)}w256) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp256.png";
+		x_base: 0; y_base: 10240 * 4; x_step: 64 * 4; y_step: 64 * 4; y_count: 16 * 4;
+		x_offset: -32 * 4; y_offset: -39 * 4; width: 64 * 4; height: 64 * 4;
+	}
+	(car_p{vert(0..15)}r11y{hor(0..15)}w256) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp256.png";
+		x_base: 0; y_base: 11264 * 4; x_step: 64 * 4; y_step: 64 * 4; y_count: 16 * 4;
+		x_offset: -32 * 4; y_offset: -39 * 4; width: 64 * 4; height: 64 * 4;
+	}
+	(car_p{vert(0..15)}r12y{hor(0..15)}w256) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp256.png";
+		x_base: 0; y_base: 12288 * 4; x_step: 64 * 4; y_step: 64 * 4; y_count: 16 * 4;
+		x_offset: -32 * 4; y_offset: -39 * 4; width: 64 * 4; height: 64 * 4;
+	}
+	(car_p{vert(0..15)}r13y{hor(0..15)}w256) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp256.png";
+		x_base: 0; y_base: 13312 * 4; x_step: 64 * 4; y_step: 64 * 4; y_count: 16 * 4;
+		x_offset: -32 * 4; y_offset: -39 * 4; width: 64 * 4; height: 64 * 4;
+	}
+	(car_p{vert(0..15)}r14y{hor(0..15)}w256) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp256.png";
+		x_base: 0; y_base: 14336 * 4; x_step: 64 * 4; y_step: 64 * 4; y_count: 16 * 4;
+		x_offset: -32 * 4; y_offset: -39 * 4; width: 64 * 4; height: 64 * 4;
+	}
+	(car_p{vert(0..15)}r15y{hor(0..15)}w256) : sheet {
+		file: "../sprites/tracks/cars/template_allangle8bpp256.png";
+		x_base: 0; y_base: 15360 * 4; x_step: 64 * 4; y_step: 64 * 4; y_count: 16 * 4;
+		x_offset: -32 * 4; y_offset: -39 * 4; width: 64 * 4; height: 64 * 4;
 	}
 
 	// Guest overlay sprites.

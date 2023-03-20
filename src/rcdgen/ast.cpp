@@ -174,7 +174,7 @@ StringLiteral::StringLiteral(const Position &pos, const std::string &text) : Exp
 {
 }
 
-std::shared_ptr<const Expression> StringLiteral::Evaluate(const Symbol *symbols) const
+std::shared_ptr<const Expression> StringLiteral::Evaluate([[maybe_unused]] const Symbol *symbols) const
 {
 	return std::make_shared<const StringLiteral>(this->pos, this->text);
 }
@@ -212,7 +212,7 @@ NumberLiteral::NumberLiteral(const Position &pos, long long value) : Expression(
 {
 }
 
-std::shared_ptr<const Expression> NumberLiteral::Evaluate(const Symbol *symbols) const
+std::shared_ptr<const Expression> NumberLiteral::Evaluate([[maybe_unused]] const Symbol *symbols) const
 {
 	return std::make_shared<const NumberLiteral>(this->pos, this->value);
 }

@@ -622,7 +622,7 @@ bool Values::HasValue(const char *fld_name)
  * @param symbols Optional set of identifiers recognized as numeric value.
  * @return The numeric value of the expression.
  */
-long long Values::GetNumber(const char *fld_name, const Symbol *symbols)
+long long Values::GetNumber(const char *fld_name, [[maybe_unused]] const Symbol *symbols)
 {
 	return FindValue(fld_name)->GetNumber(this->pos, this->node_name);
 }
@@ -1904,10 +1904,10 @@ static std::shared_ptr<FSETBlock> ConvertFSETNode(std::shared_ptr<NodeGroup> ng)
 
 	block->width_x = vals.GetNumber("width_x");
 	block->width_y = vals.GetNumber("width_y");
-	block->ne_views.reset(new std::shared_ptr<SpriteBlock>[block->width_x * block->width_y]);
-	block->se_views.reset(new std::shared_ptr<SpriteBlock>[block->width_x * block->width_y]);
-	block->nw_views.reset(new std::shared_ptr<SpriteBlock>[block->width_x * block->width_y]);
-	block->sw_views.reset(new std::shared_ptr<SpriteBlock>[block->width_x * block->width_y]);
+	block->ne_views.reset(new std::shared_ptr<SpriteBlock>[block->width_x * block->width_y * block->scales]);
+	block->se_views.reset(new std::shared_ptr<SpriteBlock>[block->width_x * block->width_y * block->scales]);
+	block->nw_views.reset(new std::shared_ptr<SpriteBlock>[block->width_x * block->width_y * block->scales]);
+	block->sw_views.reset(new std::shared_ptr<SpriteBlock>[block->width_x * block->width_y * block->scales]);
 
 	std::shared_ptr<SpriteBlock> empty_image_block;
 	if (vals.HasValue("empty_voxels")) empty_image_block = vals.GetSprite("empty_voxels");
@@ -1917,7 +1917,7 @@ static std::shared_ptr<FSETBlock> ConvertFSETNode(std::shared_ptr<NodeGroup> ng)
 			for (int z = 0; z < block->scales; ++z) {
 				std::string key = "ne_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
 				if (uses_explicit_tile_widths) { key += '_'; key += std::to_string(block->tile_width[z]); }
-				block->ne_views[x * block->width_y + y] =
+				block->ne_views[x * block->width_y * block->scales + y * block->scales + z] =
 						(vals.HasValue(key.c_str()) || empty_image_block == nullptr) ? vals.GetSprite(key.c_str()) : empty_image_block;
 			}
 		}
@@ -1935,7 +1935,7 @@ static std::shared_ptr<FSETBlock> ConvertFSETNode(std::shared_ptr<NodeGroup> ng)
 				for (int z = 0; z < block->scales; ++z) {
 					std::string key = "se_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
 					if (uses_explicit_tile_widths) { key += '_'; key += std::to_string(block->tile_width[z]); }
-					block->se_views[x * block->width_y + y] =
+					block->se_views[x * block->width_y * block->scales + y * block->scales + z] =
 							(vals.HasValue(key.c_str()) || empty_image_block == nullptr) ? vals.GetSprite(key.c_str()) : empty_image_block;
 				}
 			}
@@ -1945,7 +1945,7 @@ static std::shared_ptr<FSETBlock> ConvertFSETNode(std::shared_ptr<NodeGroup> ng)
 				for (int z = 0; z < block->scales; ++z) {
 					std::string key = "sw_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
 					if (uses_explicit_tile_widths) { key += '_'; key += std::to_string(block->tile_width[z]); }
-					block->sw_views[x * block->width_y + y] =
+					block->sw_views[x * block->width_y * block->scales + y * block->scales + z] =
 							(vals.HasValue(key.c_str()) || empty_image_block == nullptr) ? vals.GetSprite(key.c_str()) : empty_image_block;
 				}
 			}
@@ -1955,7 +1955,7 @@ static std::shared_ptr<FSETBlock> ConvertFSETNode(std::shared_ptr<NodeGroup> ng)
 				for (int z = 0; z < block->scales; ++z) {
 					std::string key = "nw_"; key += std::to_string(y); key += '_'; key += std::to_string(x);
 					if (uses_explicit_tile_widths) { key += '_'; key += std::to_string(block->tile_width[z]); }
-					block->nw_views[x * block->width_y + y] =
+					block->nw_views[x * block->width_y * block->scales + y * block->scales + z] =
 							(vals.HasValue(key.c_str()) || empty_image_block == nullptr) ? vals.GetSprite(key.c_str()) : empty_image_block;
 				}
 			}
@@ -2501,8 +2501,6 @@ static const Symbol _track_voxel_symbols[] = {
  */
 static std::shared_ptr<TrackVoxel> ConvertTrackVoxel(std::shared_ptr<NodeGroup> ng)
 {
-	static const char *direction[4] = {"n", "e", "s", "w"};
-
 	ExpandNoExpression(ng->exprs, ng->pos, "track_voxel");
 	auto tv = std::make_shared<TrackVoxel>();
 
@@ -2687,7 +2685,7 @@ static std::shared_ptr<CARSBlock> ConvertCARSNode(std::shared_ptr<NodeGroup> ng)
 	}
 	guest_sheet_node->node_value = nullptr;
 	char buffer[32];
-	for (uint w = 0; w < rb->scales; ++w) {
+	for (int w = 0; w < rb->scales; ++w) {
 		rb->guest_overlays[w].reset(new std::shared_ptr<SpriteBlock>[rb->num_passengers * 16*16*16]);
 		for (int yaw = 0; yaw < 16; yaw++) {
 			for (int roll = 0; roll < 16; roll++) {

@@ -11,9 +11,27 @@ ENDIF()
 
 PROJECT(rcdgen)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 set(CMAKE_CXX_EXTENSIONS NO)
+
+# Compiler flags
+# TODO: Extend for debug/release versions
+IF(MSVC)
+	# "If /Zc:rvalueCast is specified, the compiler follows section 5.4 of the
+	# C++11 standard". We need C++11 for the way we use threads.
+	add_compile_options(/Zc:rvalueCast)
+
+	IF(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+		# Enable multi-threaded compilation.
+		add_compile_options(/MP)
+	ENDIF()
+
+	add_compile_options(/W3)
+ELSE()
+	add_compile_options(-g)
+	add_compile_options(-Wall -Wextra -pedantic)
+ENDIF()
 
 # Source files
 set(BisonOutput "${CMAKE_SOURCE_DIR}/src/rcdgen/parser.cpp")
@@ -44,6 +62,9 @@ add_executable(rcdgen ${rcdgen_SRCS})
 IF(APPLE)
 	# Avoid searching for headers in frameworks (like Mono), and libraries in LIBDIR.
 	set(CMAKE_FIND_FRAMEWORK LAST)
+ELSEIF(MSVC)
+	# Accept zlib from OpenTTD useful compiled by previous Visual Studio version.
+	set_target_properties(rcdgen PROPERTIES LINK_FLAGS "/SAFESEH:NO")
 ENDIF()
 
 find_package(PNG REQUIRED)
@@ -89,27 +110,6 @@ IF(FLEX_FOUND)
 ELSE()
 	message(STATUS "No flex executable found, using pregenerated scanner")
 	configure_file("${CMAKE_SOURCE_DIR}/src/rcdgen/scanner.cpp.pregen" "${FlexOutput}")
-ENDIF()
-
-# Compiler flags
-# TODO: Extend for debug/release versions
-IF(MSVC)
-	# "If /Zc:rvalueCast is specified, the compiler follows section 5.4 of the
-	# C++11 standard". We need C++11 for the way we use threads.
-	add_compile_options(/Zc:rvalueCast)
-
-	IF(NOT CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-		# Enable multi-threaded compilation.
-		add_compile_options(/MP)
-	ENDIF()
-
-	add_compile_options(/W3)
-
-	# Accept zlib from OpenTTD useful compiled by previous Visual Studio version.
-	set_target_properties(rcdgen PROPERTIES LINK_FLAGS "/SAFESEH:NO")
-ELSE()
-	add_compile_options(-g)
-	add_compile_options(-Wall -Wextra -pedantic)
 ENDIF()
 
 IF(NOT WIN32 AND BISON_FOUND AND FLEX_FOUND)
