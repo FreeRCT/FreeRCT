@@ -428,6 +428,11 @@ void VideoSystem::KeyCallback([[maybe_unused]] GLFWwindow *window, int key, [[ma
 			break;
 
 		default:
+			if (key >= GLFW_KEY_F1 && key <= GLFW_KEY_F25) {
+				key_code = static_cast<WmKeyCode>(WMKC_FN_BEGIN + 1 + (key - GLFW_KEY_F1));
+				break;
+			}
+
 			/* Text input events with modifiers may or may not be recognized as a text event, so we need to convert them
 			 * manually. Using Shift but no other modifiers is an exception as this simply generates uppercase text
 			 * input. All keysyms that correspond to an ASCII character have the same integer value as this character;

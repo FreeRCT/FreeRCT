@@ -15,9 +15,12 @@
 #include "orientation.h"
 #include "widget.h"
 
+#include <array>
 #include <functional>
+#include <optional>
 #include <vector>
 
+class ConfigFile;
 class Viewport;
 class RideType;
 class Person;
@@ -353,6 +356,91 @@ private:
 };
 
 extern WindowManager _window_manager;
+
+/** Class that assigns all keyboard shortcuts in the game. */
+class Shortcuts {
+public:
+	Shortcuts();
+
+	/** The scope in which a shortcut is valid. */
+	enum class Scope {
+		NONE,       ///< Never valid.
+		GLOBAL,     ///< Always valid.
+		INGAME,     ///< Valid during a game.
+		MAIN_MENU,  ///< Valid in the main menu.
+	};
+
+	/** A keystroke assigned to an abstract shortcut. */
+	struct Keybinding {
+		/** Constructor for a textual binding. */
+		explicit Keybinding(std::string s, WmKeyMod m = WMKM_NONE) : key(WMKC_SYMBOL), mod(m), symbol(s) {}
+		/** Constructor for a non-textual binding. */
+		explicit Keybinding(WmKeyCode k, WmKeyMod m = WMKM_NONE) : key(k), mod(m) {}
+		/** Constructor for an empty, invalid shortcut. */
+		Keybinding() : key(WMKC_SYMBOL), mod(WMKM_NONE) {}
+
+		/**
+		 * Check whether this keybinding represents an actual keystroke.
+		 * @return The binding is valid.
+		 */
+		bool Valid() const
+		{
+			return this->key != WMKC_SYMBOL || !this->symbol.empty();
+		}
+
+		WmKeyCode key;       ///< The key to press.
+		WmKeyMod  mod;       ///< The modifiers to press.
+		std::string symbol;  ///< If #key is #WMKC_SYMBOL, the key text.
+	};
+
+	/** Data associated with an abstract shortcut. */
+	struct ShortcutInfo {
+		/** Constructor. */
+		ShortcutInfo() : scope(Scope::NONE) {}
+		ShortcutInfo(std::string n, Keybinding k, Scope s) : default_binding(k), current_binding(k), config_name(n), scope(s) {}
+
+		/**
+		 * Check whether this shortcut has been initialized.
+		 * @return The shortcit is valid.
+		 */
+		bool Valid() const
+		{
+			return this->scope != Scope::NONE && !this->config_name.empty() && this->default_binding.Valid() && this->current_binding.Valid();
+		}
+
+		Keybinding default_binding;  ///< The default keybinding.
+		Keybinding current_binding;  ///< The currently assigned keybinding.
+		std::string config_name;     ///< The shortcut's name in the config file.
+		Scope scope;                 ///< In which scope the shortcut is valid.
+	};
+
+	/**
+	 * Look up the keybinding configured for a specific shortcut.
+	 * @param ks Shortcut to look up.
+	 * @return The keybinding.
+	 */
+	const Keybinding &GetShortcut(KeyboardShortcut ks) const
+	{
+		return this->values[ks].current_binding;
+	}
+
+	std::optional<KeyboardShortcut> GetShortcut(Keybinding binding, Scope scope) const;
+
+	/**
+	 * Change the keybinding configured for a specific shortcut.
+	 * @param ks Shortcut to modify.
+	 * @param binding The new keybinding.
+	 */
+	void SetShortcut(KeyboardShortcut ks, Keybinding binding)
+	{
+		this->values[ks].current_binding = binding;
+	}
+
+	void ReadConfig(ConfigFile &cfg_file);
+
+	std::array<ShortcutInfo, KS_COUNT> values;  ///< All configured keyboard shortcuts.
+};
+extern Shortcuts _shortcuts;
 
 /**
  * Set a new selector for the window.

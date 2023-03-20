@@ -269,6 +269,9 @@ int freerct_main(int argc, char **argv)
 		}
 	}
 
+	/* Read keyboard shortcuts. */
+	_shortcuts.ReadConfig(cfg_file);
+
 	/* Initialize video. */
 	_video.Initialize(font_path, font_size);
 
