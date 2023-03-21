@@ -309,7 +309,7 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 				case TB_DROPDOWN_MAIN:
 					switch (entry) {
 						case DDM_QUIT:
-							ShowQuitProgram(false);
+							ShowConfirmationPrompt(GUI_QUIT_CAPTION, GUI_QUIT_MESSAGE, []() { _game_control.QuitGame(); });
 							break;
 						case DDM_SETTINGS:
 							ShowSettingGui();
@@ -321,7 +321,7 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 							ShowSaveGameGui();
 							break;
 						case DDM_MENU:
-							ShowQuitProgram(true);
+							ShowConfirmationPrompt(GUI_RETURN_CAPTION, GUI_RETURN_MESSAGE, []() { _game_control.MainMenu(); });
 							break;
 						default: NOT_REACHED();
 					}
@@ -634,103 +634,4 @@ void BottomToolbarWindow::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid
 void ShowBottomToolbar()
 {
 	new BottomToolbarWindow();
-}
-
-/** %Window to ask confirmation for ending the program. */
-class QuitProgramWindow : public GuiWindow {
-public:
-	explicit QuitProgramWindow(bool back_to_main_menu);
-
-	Point32 OnInitialPosition() override;
-	void OnClick(WidgetNumber number, const Point16 &pos) override;
-	bool OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol) override;
-
-private:
-	bool back_to_main_menu;  ///< Just return to the main menu instead of quitting FreeRCT.
-};
-
-/**
- * Widget numbers of the quit-program window.
- * @ingroup gui_group
- */
-enum QuitProgramWidgets {
-	QP_MESSAGE, ///< Displayed message.
-	QP_YES,     ///< 'yes' button.
-	QP_NO,      ///< 'no' button.
-};
-
-/** Window definition of the quit program GUI. */
-#define QUIT_PROGRAM_WIDGET_TREE(caption, message) \
-const WidgetPart _quit_program_widgets[] = { \
-	Intermediate(0, 1), \
-		Intermediate(1, 0), \
-			Widget(WT_TITLEBAR, INVALID_WIDGET_INDEX, COL_RANGE_RED), SetData(caption, GUI_TITLEBAR_TIP), \
-			Widget(WT_CLOSEBOX, INVALID_WIDGET_INDEX, COL_RANGE_RED), \
-		EndContainer(), \
-		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_RED), \
-			Intermediate(2,0), \
-				Widget(WT_CENTERED_TEXT, QP_MESSAGE, COL_RANGE_RED), \
-						SetData(message, STR_NULL), SetPadding(5, 5, 5, 5), \
-			EndContainer(), \
-			Intermediate(1, 5), SetPadding(0, 0, 3, 0), \
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0), \
-				Widget(WT_TEXT_PUSHBUTTON, QP_NO, COL_RANGE_YELLOW), SetData(GUI_QUIT_NO, STR_NULL), \
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0), \
-				Widget(WT_TEXT_PUSHBUTTON, QP_YES, COL_RANGE_YELLOW), SetData(GUI_QUIT_YES, STR_NULL), \
-				Widget(WT_EMPTY, INVALID_WIDGET_INDEX, COL_RANGE_INVALID), SetFill(1, 0), \
-			EndContainer(), \
-}
-
-Point32 QuitProgramWindow::OnInitialPosition()
-{
-	Point32 pt;
-	pt.x = (_video.Width() - this->rect.width ) / 2;
-	pt.y = (_video.Height() - this->rect.height) / 2;
-	return pt;
-}
-
-/**
- * Constructor.
- * @param b Just return to the main menu instead of quitting FreeRCT.
- */
-QuitProgramWindow::QuitProgramWindow(bool b) : GuiWindow(WC_QUIT, ALL_WINDOWS_OF_TYPE)
-{
-	this->back_to_main_menu = b;
-	QUIT_PROGRAM_WIDGET_TREE(this->back_to_main_menu ? GUI_RETURN_CAPTION : GUI_QUIT_CAPTION, this->back_to_main_menu ? GUI_RETURN_MESSAGE : GUI_QUIT_MESSAGE);
-	this->SetupWidgetTree(_quit_program_widgets, lengthof(_quit_program_widgets));
-}
-
-bool QuitProgramWindow::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &symbol)
-{
-	if (key_code == WMKC_CONFIRM) {
-		this->OnClick(QP_YES, Point16());
-		return true;
-	}
-	return GuiWindow::OnKeyEvent(key_code, mod, symbol);
-}
-
-void QuitProgramWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)
-{
-	if (number == QP_YES) {
-		if (this->back_to_main_menu) {
-			_game_control.MainMenu();
-		} else {
-			_game_control.QuitGame();
-		}
-	} else if (number != QP_NO) {
-		return;
-	}
-	delete this;
-}
-
-/**
- * Ask the user whether the game should be stopped.
- * @param back_to_main_menu Just return to the main menu instead of quitting FreeRCT.
- */
-void ShowQuitProgram(const bool back_to_main_menu)
-{
-	Window *w = GetWindowByType(WC_QUIT, ALL_WINDOWS_OF_TYPE);
-	delete w;
-
-	new QuitProgramWindow(back_to_main_menu);
 }

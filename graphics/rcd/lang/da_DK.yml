@@ -48,8 +48,10 @@ strings:
 		# Quit program strings.
 		QUIT_CAPTION: "Afslut program?"
 		QUIT_MESSAGE: "Vil du afslutte programet?"
-		QUIT_NO:      "Nej"
-		QUIT_YES:     "Ja"
+
+		# Confirmation prompt strings.
+		CONFIRM_NO:      "Nej"
+		CONFIRM_YES:     "Ja"
 
 		# Error message strings.
 		ERROR_MESSAGE_CAPTION: "Besked"
