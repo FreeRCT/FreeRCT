@@ -10,7 +10,9 @@
 #ifndef FILE_WRITING_H
 #define FILE_WRITING_H
 
-#include <list>
+#include <map>
+#include <memory>
+#include <vector>
 
 /** A block in an RCD file. See #StartSave for details on usage. */
 class FileBlock {
@@ -39,13 +41,13 @@ public:
 bool operator==(const FileBlock &fb1, const FileBlock &fb2);
 
 /** Type definition for a list of file blocks. */
-typedef std::list<FileBlock *> FileBlockPtrList;
+using FileBlockPtrList = std::vector<std::unique_ptr<FileBlock>>;
 
 /** RCD output file. */
 class FileWriter {
 public:
-	FileWriter();
-	~FileWriter();
+	FileWriter() = default;
+	~FileWriter() = default;
 
 	int AddBlock(FileBlock *fb);
 
@@ -53,6 +55,7 @@ public:
 
 private:
 	FileBlockPtrList blocks; ///< Blocks stored in the file so far.
+	std::map<size_t, std::vector<std::pair<int, FileBlock*>>> blocks_by_length;  ///< All blocks with their index grouped by their length for faster searching.
 };
 
 #endif
