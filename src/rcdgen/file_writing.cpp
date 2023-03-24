@@ -157,31 +157,26 @@ bool operator==(const FileBlock &fb1, const FileBlock &fb2)
 	return memcmp(fb1.data, fb2.data, fb1.length) == 0;
 }
 
-FileWriter::FileWriter()
-= default;
-
-FileWriter::~FileWriter()
-{
-	for (auto &iter : this->blocks) delete iter;
-}
-
 /**
  * Add a block to the file.
  * @param blk Block to add.
  * @return Block index number where the block is stored in the file.
+ * @note Takes ownership of #blk.
  */
 int FileWriter::AddBlock(FileBlock *blk)
 {
-	int idx = 1;
-	for (auto &iter : this->blocks) {
+	auto &group = this->blocks_by_length[blk->length];
+	for (auto &iter : group) {
 		/* Block already added, just return the old block number. */
-		if (*iter == *blk) {
+		if (*iter.second == *blk) {
 			delete blk;
-			return idx;
+			return iter.first;
 		}
-		idx++;
 	}
-	this->blocks.push_back(blk);
+
+	int idx = this->blocks.size() + 1;
+	group.emplace_back(idx, blk);
+	this->blocks.emplace_back(blk);
 	return idx;
 }
 
