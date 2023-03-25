@@ -115,8 +115,9 @@ void Autosave()
 	/* Roll old autosaves. */
 	for (int i = _max_autosaves - 1; i > 0; --i) {
 		std::string old_file = AutosaveFilename(i);
-		if (PathIsFile(old_file.c_str())) {
-			CopyBinaryFile(old_file.c_str(), AutosaveFilename(i + 1).c_str());
+		if (PathIsFile(old_file)) {
+		    std::string new_file = AutosaveFilename(i + 1);
+		    CopyBinaryFile(old_file, new_file);
 		}
 	}
 

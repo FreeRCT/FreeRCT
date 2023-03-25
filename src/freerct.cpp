@@ -125,14 +125,10 @@ static void MigrateOldFiles()
 			{homedir + "" + DIR_SEP + ".config" + DIR_SEP + "freerct",
 			homedir + DIR_SEP + ".local" + DIR_SEP + "share" + DIR_SEP + "freerct",
 			homedir + DIR_SEP + ".freerct"}) {
-		std::unique_ptr<DirectoryReader> dr(MakeDirectoryReader());
-		dr->OpenPath(old_directory.c_str());
-		for (;;) {
-			const char *filename = dr->NextEntry();
-			if (filename == nullptr) break;
 
-			std::string name(filename);
-			name = name.substr(name.find_last_of(DIR_SEP) + 1);
+		for (const std::string &entry : GetAllEntries(old_directory)) {
+
+			auto name = entry.substr(entry.find_last_of(DIR_SEP) + 1);
 
 			std::string destination;
 			if (name == "freerct.cfg") {
@@ -146,11 +142,10 @@ static void MigrateOldFiles()
 				continue;
 			}
 
-			if (PathIsFile(destination.c_str())) continue;  // Do not overwrite existing files.
-			printf("Migrating file from %s to %s\n", filename, destination.c_str());
-			CopyBinaryFile(filename, destination.c_str());
+			if (PathIsFile(destination)) continue;  // Do not overwrite existing files.
+			printf("Migrating file from %s to %s\n", name.c_str(), destination.c_str());
+			CopyBinaryFile(name, destination);
 		}
-		dr->ClosePath();
 	}
 }
 

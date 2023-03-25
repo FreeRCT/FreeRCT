@@ -74,7 +74,7 @@ void RcdFileCollection::ScanDirectories()
 		freerct_install_prefix() + DIR_SEP + "rcd",
 		TrackDesignDirectory()
 	};
-	for (const std::string &rcd_path : _rcd_paths) this->ScanDirectory(rcd_path.c_str(), 3);
+	for (const std::string &rcd_path : _rcd_paths) this->ScanDirectory(rcd_path, 3);
 }
 
 /**
@@ -82,32 +82,22 @@ void RcdFileCollection::ScanDirectories()
  * @param dir Directory to scan.
  * @param recursion_depth Remaining layers of recursion depth.
  */
-void RcdFileCollection::ScanDirectory(const char *dir, int recursion_depth)
+void RcdFileCollection::ScanDirectory(const std::string &dir, int recursion_depth)
 {
-	std::unique_ptr<DirectoryReader> reader(MakeDirectoryReader());
 
-	reader->OpenPath(dir);
-	for (;;) {
-		const char *fname = reader->NextEntry();
-		if (fname == nullptr) break;
+	for (const std::string  &filename : GetAllEntries(dir)) {
 
-		std::string filename(fname);
-		const size_t sep_pos = filename.rfind(DIR_SEP);
-		filename = filename.substr(sep_pos + strlen(DIR_SEP));
-		if (filename.empty() || filename == "." || filename == "..") continue;
-
-		if (reader->EntryIsDirectory()) {
-			if (recursion_depth > 0) this->ScanDirectory(fname, recursion_depth - 1);
+		if (PathIsDirectory(filename)) {
+			if (recursion_depth > 0) this->ScanDirectory(filename, recursion_depth - 1);
 			continue;
 		}
 
-		if (StrEndsWith(fname, ".rcd", false)) {
-			this->ScanFileForMetaInfo(fname);
-		} else if (StrEndsWith(fname, ".ftk", false)) {
-			this->ftkfiles.emplace_back(fname);
+		if (StrEndsWith(filename.c_str(), ".rcd", false)) {
+			this->ScanFileForMetaInfo(filename);
+		} else if (StrEndsWith(filename.c_str(), ".ftk", false)) {
+			this->ftkfiles.emplace_back(filename);
 		}
 	}
-	reader->ClosePath();
 }
 
 /**
@@ -149,7 +139,7 @@ static std::string GetString(RcdFileReader &rcd_file, uint max_bytes, uint32 *re
  * @param fname Filename of the file to scan.
  * @return Error message, or \c nullptr if no error found.
  */
-const char *RcdFileCollection::ScanFileForMetaInfo(const char *fname)
+const char *RcdFileCollection::ScanFileForMetaInfo(const std::string &fname)
 {
 	RcdFileReader rcd_file(fname);
 	if (!rcd_file.CheckFileHeader("RCDF", 2)) return "Wrong header";

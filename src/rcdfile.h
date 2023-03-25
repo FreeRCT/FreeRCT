@@ -30,14 +30,14 @@ public:
 	RcdFileCollection();
 
 	void ScanDirectories();
-	void ScanDirectory(const char *dir, int recursion_depth);
+	void ScanDirectory(const std::string &dir, int recursion_depth);
 	void AddFile(const RcdFileInfo &rcd);
 
 	std::map<std::string, RcdFileInfo> rcdfiles; ///< Found unique RCD files, mapping of uri to the Rcd file information.
 	std::vector<std::string>           ftkfiles; ///< Found unique FTK file paths.
 
 private:
-	const char *ScanFileForMetaInfo(const char *fname);
+	const char *ScanFileForMetaInfo(const std::string &fname);
 };
 
 extern RcdFileCollection _rcd_collection;
