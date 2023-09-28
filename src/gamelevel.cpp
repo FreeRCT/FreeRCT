@@ -39,7 +39,7 @@ void Scenario::SetDefaultScenario()
 
 	Random r;
 	this->objective.reset(new ScenarioObjective(0, TIMEOUT_EXACT, Date(31, 10, 1), {
-		std::shared_ptr<AbstractObjective>(new ObjectiveGuests(0, r.Uniform(60) * 10 + 50)),
+		std::shared_ptr<AbstractObjective>(new ObjectiveGuests(0, r.Uniform(120) + 60)),
 		std::shared_ptr<AbstractObjective>(new ObjectiveParkRating(0, 500 + r.Uniform(30) * 10)),
 	}));
 }
