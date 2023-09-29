@@ -202,7 +202,7 @@ IF(MSVC)
 	add_definitions(-DWIN32_LEAN_AND_MEAN -D__STDC_FORMAT_MACROS -DNOMINMAX)
 	target_link_libraries(freerct
 		version imm32 winmm
-		harfbuzz graphite2 brotlidec-static brotlicommon-static brotlienc-static
+		graphite2 brotlidec-static brotlicommon-static brotlienc-static
 		ole32 imm32 winmm gdi32 user32 oleaut32 setupapi shell32 advapi32 dinput8 uuid
 	)
 	IF(RELEASE)

@@ -29,6 +29,10 @@
 #include <emscripten.h>
 #endif
 
+#if _WIN32
+#include <Windows.h>
+#endif
+
 GameControl _game_control; ///< Game controller.
 
 /**
@@ -162,6 +166,7 @@ int freerct_main(int argc, char **argv)
 	int opt_id;
 	std::string file_name;
 	std::string preferred_language;
+	[[maybe_unused]] bool has_install_prefix_override = false;
 	do {
 		opt_id = opt_data.GetOpt();
 		switch (opt_id) {
@@ -172,6 +177,7 @@ int freerct_main(int argc, char **argv)
 				PrintVersion();
 				return 0;
 			case 'i':
+				has_install_prefix_override = true;
 				OverrideInstallPrefix(opt_data.opt);
 				break;
 			case 'u':
@@ -196,6 +202,28 @@ int freerct_main(int argc, char **argv)
 				return 1;
 		}
 	} while (opt_id != -1);
+
+#if _WIN32
+	/* Windows needs help finding the installation directory. */
+	if (!has_install_prefix_override) {
+		char executable_filepath[MAX_PATH];
+		GetModuleFileNameA(nullptr, executable_filepath, MAX_PATH);
+		if (executable_filepath[0] != '\0') {
+			printf("Detected executable directory: %s\n", executable_filepath);
+			std::filesystem::path installpath(executable_filepath);
+			installpath = installpath.parent_path().parent_path();
+			installpath /= "share";
+			installpath /= "freerct";
+			OverrideInstallPrefix(installpath.string().c_str());
+		} else {
+			printf(
+				"Unable to detect the executable's directory!\n"
+				"Using fallback path: %s\n"
+				"Use `--installdir DIR` in case the program fails to start.\n",
+				freerct_install_prefix().c_str());
+		}
+	}
+#endif
 
 	/* Create the data directories on startup if they did not exist yet. */
 	MakeDirectory(SavegameDirectory());
