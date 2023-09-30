@@ -6,8 +6,8 @@
 
 # CMake File for FreeRCT
 
+cmake_minimum_required(VERSION 2.8.12...3.27.6)
 project(FreeRCT)
-cmake_minimum_required(VERSION 2.8.12...3.22.1)
 
 # Add a compiler flag VAR_NAME=FLAG. If VAR_NAME is already set, FLAG is appended.
 FUNCTION(add_flags VAR_NAME FLAG)
