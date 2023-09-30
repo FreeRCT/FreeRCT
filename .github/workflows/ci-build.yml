@@ -251,14 +251,13 @@ jobs:
     - name: Prepare vcpkg
       shell: bash
       run: |
-        vcpkg install --triplet=${{ matrix.arch }}-windows-static \
+        vcpkg install --disable-metrics --triplet=${{ matrix.arch }}-windows-static \
           libpng \
           glfw3 \
           glew \
           freetype-gl \
           zlib \
           graphite2 \
-          harfbuzz \
           # EOF
 
     - name: Install MSVC problem matcher

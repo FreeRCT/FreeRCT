@@ -332,7 +332,6 @@ bool RcdFileReader::GetBlob(void *address, size_t length)
 /**
  * Create a directory and all its parent directories if it did not exist yet.
  * @param path Path of the directory.
- * @todo At the time of writing (2021-06-30) this is tested only on Linux. Before using it anywhere else, test this on all platforms (especially Windows).
  */
 void MakeDirectory(const std::string &path)
 {
