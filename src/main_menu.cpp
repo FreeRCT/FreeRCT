@@ -38,10 +38,11 @@ private:
 	uint32 current_camera_id;      ///< ID of the current camera position.
 	uint32 time_in_camera;         ///< Number of milliseconds since the last camera transition.
 
-	Rectangle32 new_game_rect;   ///< Position of the New Game button.
-	Rectangle32 load_game_rect;  ///< Position of the Load Game button.
-	Rectangle32 settings_rect;   ///< Position of the Settings button.
-	Rectangle32 quit_rect;       ///< Position of the Quit button.
+	Rectangle32 new_game_rect;       ///< Position of the New Game button.
+	Rectangle32 load_game_rect;      ///< Position of the Load Game button.
+	Rectangle32 launch_editor_rect;  ///< Position of the New Game button.
+	Rectangle32 settings_rect;       ///< Position of the Settings button.
+	Rectangle32 quit_rect;           ///< Position of the Quit button.
 };
 
 bool MainMenuGui::is_splash_screen = true;
@@ -91,6 +92,9 @@ WmMouseEvent MainMenuGui::OnMouseButtonEvent(const MouseButtons state, WmMouseEv
 	if (this->new_game_rect.IsPointInside(_video.GetMousePosition())) {
 		_game_control.NewGame();
 		delete this;
+	} else if (this->launch_editor_rect.IsPointInside(_video.GetMousePosition())) {
+		_game_control.LaunchEditor();
+		delete this;
 	} else if (this->load_game_rect.IsPointInside(_video.GetMousePosition())) {
 		ShowLoadGameGui();
 	} else if (this->quit_rect.IsPointInside(_video.GetMousePosition())) {
@@ -101,9 +105,6 @@ WmMouseEvent MainMenuGui::OnMouseButtonEvent(const MouseButtons state, WmMouseEv
 
 	return WMME_NONE;
 }
-
-static const int    MAIN_MENU_BUTTON_SIZE  =    96;  ///< Size of the main menu buttons.
-static const int    MAIN_MENU_PADDING      =    24;  ///< Padding in the main menu.
 
 void MainMenuGui::OnDraw([[maybe_unused]] MouseModeSelector *selector)
 {
@@ -133,20 +134,26 @@ void MainMenuGui::OnDraw([[maybe_unused]] MouseModeSelector *selector)
 		_video.FillRectangle(Rectangle32(0, 0, _video.Width(), _video.Height()), 0xff);
 	}
 
-	const int button_x = (_video.Width() - 7 * MAIN_MENU_BUTTON_SIZE) / 2;
+	constexpr int NR_BUTTONS = 5;  ///< Number of main menu buttons.
+	const int MAIN_MENU_BUTTON_SIZE = _video.Width() / (2 * NR_BUTTONS);
+	const int MAIN_MENU_PADDING = MAIN_MENU_BUTTON_SIZE / 4;
+
+	const int button_x = (_video.Width() - (NR_BUTTONS * 2 - 1) * MAIN_MENU_BUTTON_SIZE) / 2;
 	const int button_y = _video.Height() - MAIN_MENU_BUTTON_SIZE / 2;
-	this->new_game_rect  = Rectangle32(button_x + 0 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
-	this->load_game_rect = Rectangle32(button_x + 2 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
-	this->settings_rect  = Rectangle32(button_x + 4 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
-	this->quit_rect      = Rectangle32(button_x + 6 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
+	this->new_game_rect      = Rectangle32(button_x + 0 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
+	this->load_game_rect     = Rectangle32(button_x + 2 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
+	this->launch_editor_rect = Rectangle32(button_x + 4 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
+	this->settings_rect      = Rectangle32(button_x + 6 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
+	this->quit_rect          = Rectangle32(button_x + 8 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
 
 	if (!is_splash_screen || frametime > 2 * _gui_sprites.mainmenu_splash_duration) {
 		_video.BlitImage(Point32(_video.Width() / 2, _video.Height() / 4), _gui_sprites.mainmenu_logo);
 
-		_video.BlitImage(this->new_game_rect.base,  _gui_sprites.mainmenu_new);
-		_video.BlitImage(this->load_game_rect.base, _gui_sprites.mainmenu_load);
-		_video.BlitImage(this->settings_rect.base,  _gui_sprites.mainmenu_settings);
-		_video.BlitImage(this->quit_rect.base,      _gui_sprites.mainmenu_quit);
+		_video.BlitImage(CenterSprite(this->new_game_rect,      _gui_sprites.mainmenu_new),           _gui_sprites.mainmenu_new);
+		_video.BlitImage(CenterSprite(this->load_game_rect,     _gui_sprites.mainmenu_load),          _gui_sprites.mainmenu_load);
+		_video.BlitImage(CenterSprite(this->launch_editor_rect, _gui_sprites.mainmenu_launch_editor), _gui_sprites.mainmenu_launch_editor);
+		_video.BlitImage(CenterSprite(this->settings_rect,      _gui_sprites.mainmenu_settings),      _gui_sprites.mainmenu_settings);
+		_video.BlitImage(CenterSprite(this->quit_rect,          _gui_sprites.mainmenu_quit),          _gui_sprites.mainmenu_quit);
 
 		DrawString(GUI_MAIN_MENU_NEW_GAME, TEXT_WHITE,
 				this->new_game_rect.base.x,  this->new_game_rect.base.y  - MAIN_MENU_PADDING + this->new_game_rect.height,
@@ -154,6 +161,9 @@ void MainMenuGui::OnDraw([[maybe_unused]] MouseModeSelector *selector)
 		DrawString(GUI_MAIN_MENU_LOAD, TEXT_WHITE,
 				this->load_game_rect.base.x, this->load_game_rect.base.y - MAIN_MENU_PADDING + this->load_game_rect.height,
 				this->load_game_rect.width, ALG_CENTER, true);
+		DrawString(GUI_MAIN_MENU_LAUNCH_EDITOR, TEXT_WHITE,
+				this->launch_editor_rect.base.x,  this->launch_editor_rect.base.y  - MAIN_MENU_PADDING + this->launch_editor_rect.height,
+				this->launch_editor_rect.width,  ALG_CENTER, true);
 		DrawString(GUI_MAIN_MENU_SETTINGS, TEXT_WHITE,
 				this->settings_rect.base.x,  this->settings_rect.base.y  - MAIN_MENU_PADDING + this->settings_rect.height,
 				this->settings_rect.width,  ALG_CENTER, true);

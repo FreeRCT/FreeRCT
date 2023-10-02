@@ -534,6 +534,7 @@ struct GuiSprites {
 	ImageData *mainmenu_splash;             ///< Main menu: Splash screen.
 	ImageData *mainmenu_new;                ///< Main menu: New Game button.
 	ImageData *mainmenu_load;               ///< Main menu: Load Game button.
+	ImageData *mainmenu_launch_editor;      ///< Main menu: Launch Editor button.
 	ImageData *mainmenu_settings;           ///< Main menu: Settings button.
 	ImageData *mainmenu_quit;               ///< Main menu: Quit button.
 	uint32     mainmenu_splash_duration;    ///< Main menu: Duration of the splash screen.

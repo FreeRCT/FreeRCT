@@ -1,5 +1,5 @@
-:Author: Alberth
-:Version: 2022-09-16
+:Author: The FreeRCT Team
+:Version: 2023-10-02
 
 .. contents::
    :depth: 3
@@ -1873,15 +1873,17 @@ Offset     Length  Version  Description
   20        4       1-      FreeRCT splashscreen sprite.
   24        4       1-      New Game button sprite.
   28        4       1-      Load Game button sprite.
-  32        4       1-      Settings button sprite.
-  36        4       1-      Quit button sprite.
-  40                        Total length.
+  32        4       2-      Scenario Editor button sprite.
+  36        4       1-      Settings button sprite.
+  40        4       1-      Quit button sprite.
+  44                        Total length.
 =========  ======  =======  ========================================================================================
 
 Version history
 ...............
 
 - 1 (20210401) Initial version.
+- 2 (20231002) Added scenario editor sprite.
 
 
 Persons

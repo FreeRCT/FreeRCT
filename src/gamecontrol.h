@@ -23,12 +23,13 @@ extern int _max_autosaves;
 
 /** Actions that can be run to control the game. */
 enum GameControlAction {
-	GCA_NONE,      ///< No action to run.
-	GCA_MENU,      ///< Open the main menu.
-	GCA_NEW_GAME,  ///< Prepare a new game.
-	GCA_LOAD_GAME, ///< Load a saved game.
-	GCA_SAVE_GAME, ///< Save the current game.
-	GCA_QUIT,      ///< Quit the game.
+	GCA_NONE,           ///< No action to run.
+	GCA_MENU,           ///< Open the main menu.
+	GCA_NEW_GAME,       ///< Prepare a new game.
+	GCA_LOAD_GAME,      ///< Load a saved game.
+	GCA_LAUNCH_EDITOR,  ///< Prepare the scenario editor.
+	GCA_SAVE_GAME,      ///< Save the current game.
+	GCA_QUIT,           ///< Quit the game.
 };
 
 /** How fast the game should run. */
@@ -62,6 +63,7 @@ public:
 
 	void MainMenu();
 	void NewGame();
+	void LaunchEditor();
 	void LoadGame(const std::string &fname);
 	void SaveGame(const std::string &fname);
 	void QuitGame();
@@ -76,7 +78,7 @@ public:
 private:
 	void RunAction();
 	void NewLevel();
-	void StartLevel();
+	void StartLevel(bool editor);
 	void ShutdownLevel();
 
 	GameControlAction next_action; ///< Action game control wants to run, or #GCA_NONE for 'no action'.

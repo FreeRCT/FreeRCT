@@ -927,6 +927,7 @@ public:
 	std::shared_ptr<SpriteBlock> splash;           ///< FreeRCT splashscreen.
 	std::shared_ptr<SpriteBlock> new_game;         ///< New Game button.
 	std::shared_ptr<SpriteBlock> load_game;        ///< Load Game button.
+	std::shared_ptr<SpriteBlock> launch_editor;    ///< Launch Editor button.
 	std::shared_ptr<SpriteBlock> settings;         ///< Settings button.
 	std::shared_ptr<SpriteBlock> quit;             ///< Quit button.
 	uint32                       splash_duration;  ///< Duration of the splash screen animation.

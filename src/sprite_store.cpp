@@ -1198,14 +1198,15 @@ void GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
  */
 void GuiSprites::LoadMENU(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	rcd_file->CheckVersion(1);
-	rcd_file->CheckExactLength(rcd_file->size, 40 - 12, "header");
+	rcd_file->CheckVersion(2);
+	rcd_file->CheckExactLength(rcd_file->size, 44 - 12, "header");
 
 	this->mainmenu_splash_duration = rcd_file->GetUInt32();
 	LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_logo);
 	LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_splash);
 	LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_new);
 	LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_load);
+	LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_launch_editor);
 	LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_settings);
 	LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_quit);
 }

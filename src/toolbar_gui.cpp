@@ -72,7 +72,6 @@ enum ToolbarGuiWidgets {
  */
 enum DropdownMain {
 	DDM_SAVE,      ///< Save game.
-	DDM_GAME_MODE, ///< Switch game mode.
 	DDM_SETTINGS,  ///< General settings.
 	DDM_MENU,      ///< Back to main menu.
 	DDM_QUIT,      ///< Quit the game.
@@ -156,36 +155,13 @@ void ToolbarWindow::OnDraw(MouseModeSelector *selector)
 	GuiWindow::OnDraw(selector);
 }
 
-/**
- * Determines the string ID of the string to display
- * for the switch game mode button.
- * @return String id of the string to display.
- */
-StringID GetSwitchGameModeString()
-{
-	switch (_game_mode_mgr.GetGameMode()) {
-		case GM_PLAY:
-			return GUI_TOOLBAR_GUI_GAME_MODE_EDITOR;
-
-		case GM_EDITOR:
-			return GUI_TOOLBAR_GUI_GAME_MODE_PLAY;
-
-		case GM_NONE:
-			/* The toolbar is not visible in none-mode. */
-			return STR_NULL;
-
-		default:
-			NOT_REACHED();
-	}
-}
-
 void ToolbarWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)
 {
 	switch (number) {
 		case TB_DROPDOWN_MAIN: {
 			DropdownList itemlist;
 			for (int i = 0; i < DDM_COUNT; i++) {
-				_str_params.SetStrID(1, i == DDM_GAME_MODE ? GetSwitchGameModeString() : GUI_MAIN_MENU_SAVE + i);
+				_str_params.SetStrID(1, GUI_MAIN_MENU_SAVE + i);
 				itemlist.push_back(DropdownItem(STR_ARG1));
 			}
 			this->ShowDropdownMenu(number, itemlist, -1);
@@ -313,9 +289,6 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 							break;
 						case DDM_SETTINGS:
 							ShowSettingGui();
-							break;
-						case DDM_GAME_MODE:
-							_game_mode_mgr.SetGameMode(_game_mode_mgr.InEditorMode() ? GM_PLAY : GM_EDITOR);
 							break;
 						case DDM_SAVE:
 							ShowSaveGameGui();

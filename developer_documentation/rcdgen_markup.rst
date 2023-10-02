@@ -1,5 +1,5 @@
 :Author: The FreeRCT Team
-:Version: 2022-09-27
+:Version: 2023-10-02
 
 .. contents::
    :depth: 3
@@ -873,6 +873,7 @@ Attributes:
 - ``logo`` - FreeRCT logo sprite.
 - ``new_game`` - New Game button sprite.
 - ``load_game`` - Load Game button sprite.
+- ``launch_editor`` - Scenario Editor button sprite.
 - ``settings`` - Settings button sprite.
 - ``quit`` - Quit button sprite.
 

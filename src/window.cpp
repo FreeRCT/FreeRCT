@@ -1286,6 +1286,7 @@ Shortcuts::Shortcuts()
 
 	this->values[KS_MAINMENU_NEW] = ShortcutInfo("mainmenu_new", Keybinding("n"), Scope::MAIN_MENU);
 	this->values[KS_MAINMENU_LOAD] = ShortcutInfo("mainmenu_load", Keybinding("l"), Scope::MAIN_MENU);
+	this->values[KS_MAINMENU_LAUNCH_EDITOR] = ShortcutInfo("mainmenu_launch_editor", Keybinding("e"), Scope::MAIN_MENU);
 	this->values[KS_MAINMENU_SETTINGS] = ShortcutInfo("mainmenu_settings", Keybinding("o"), Scope::MAIN_MENU);
 	this->values[KS_MAINMENU_QUIT] = ShortcutInfo("mainmenu_quit", Keybinding("q"), Scope::MAIN_MENU);
 

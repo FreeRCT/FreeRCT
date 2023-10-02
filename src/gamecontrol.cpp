@@ -164,14 +164,16 @@ void GameControl::RunAction()
 	switch (this->next_action) {
 		case GCA_NEW_GAME:
 		case GCA_LOAD_GAME:
+		case GCA_LAUNCH_EDITOR:
 			this->ShutdownLevel();
 
-			if (this->next_action == GCA_NEW_GAME || !LoadGameFile(this->fname.c_str())) {
+			if (this->next_action != GCA_LOAD_GAME || !LoadGameFile(this->fname.c_str())) {
 				LoadGameFile(nullptr);  // Default-initialize everything.
 				this->NewLevel();
 			}
 
-			this->StartLevel();
+			this->StartLevel(this->next_action == GCA_LAUNCH_EDITOR);
+
 			break;
 
 		case GCA_SAVE_GAME:
@@ -205,6 +207,12 @@ void GameControl::MainMenu()
 void GameControl::NewGame()
 {
 	this->next_action = GCA_NEW_GAME;
+}
+
+/** Prepare for a #GCA_LAUNCH_EDITOR action. */
+void GameControl::LaunchEditor()
+{
+	this->next_action = GCA_LAUNCH_EDITOR;
 }
 
 /**
@@ -273,11 +281,14 @@ void GameControl::NewLevel()
 	_game_observer.Initialize();
 }
 
-/** Initialize common game settings and view. */
-void GameControl::StartLevel()
+/**
+ * Initialize common game settings and view.
+ * @oaram editor Launch the game as a scenario editor session.
+ */
+void GameControl::StartLevel(bool editor)
 {
-	_game_mode_mgr.SetGameMode(GM_PLAY);
-	this->speed = GSP_1;
+	_game_mode_mgr.SetGameMode(editor ? GM_EDITOR : GM_PLAY);
+	this->speed = editor ? GSP_PAUSE : GSP_1;
 
 	XYZPoint32 view_pos(_world.GetXSize() * 256 / 2, _world.GetYSize() * 256 / 2, 8 * 256);
 	ShowMainDisplay(view_pos);

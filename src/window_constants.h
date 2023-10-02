@@ -149,10 +149,11 @@ enum KeyboardShortcut {
 	KS_BEGIN = 0,       ///< First shortcut ID.
 	KS_FPS = KS_BEGIN,  ///< Toggle FPS counter.
 
-	KS_MAINMENU_NEW,       ///< Main menu start new game.
-	KS_MAINMENU_LOAD,      ///< Main menu load savegame.
-	KS_MAINMENU_SETTINGS,  ///< Main menu settings window.
-	KS_MAINMENU_QUIT,      ///< Main menu quit FreeRCT.
+	KS_MAINMENU_NEW,            ///< Main menu start new game.
+	KS_MAINMENU_LOAD,           ///< Main menu load savegame.
+	KS_MAINMENU_LAUNCH_EDITOR,  ///< Main menu launch scenario editor.
+	KS_MAINMENU_SETTINGS,       ///< Main menu settings window.
+	KS_MAINMENU_QUIT,           ///< Main menu quit FreeRCT.
 
 	KS_INGAME_QUIT,      ///< Quit FreeRCT.
 	KS_INGAME_SAVE,      ///< Save the game.

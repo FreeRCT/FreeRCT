@@ -2389,6 +2389,7 @@ static std::shared_ptr<MENUBlock> ConvertMENUNode(std::shared_ptr<NodeGroup> ng)
 	block->logo = vals.GetSprite("logo");
 	block->new_game = vals.GetSprite("new_game");
 	block->load_game = vals.GetSprite("load_game");
+	block->launch_editor = vals.GetSprite("launch_editor");
 	block->settings = vals.GetSprite("settings");
 	block->quit = vals.GetSprite("quit");
 

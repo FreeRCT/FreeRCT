@@ -1214,6 +1214,9 @@ bool Viewport::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &s
 		case KS_MAINMENU_LOAD:
 			ShowLoadGameGui();
 			return true;
+		case KS_MAINMENU_LAUNCH_EDITOR:
+			_game_control.LaunchEditor();
+			return true;
 		case KS_MAINMENU_QUIT:
 			_game_control.QuitGame();
 			return true;

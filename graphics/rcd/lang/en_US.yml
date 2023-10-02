@@ -35,12 +35,9 @@ strings:
 		# Toolbar gui strings.
 		MAIN_MENU_QUIT:     "Quit"
 		MAIN_MENU_SETTINGS: "Settings"
-		MAIN_MENU_MODE:     "Play/Editor"
 		MAIN_MENU_LOAD:     "Load"
 		MAIN_MENU_SAVE:     "Save"
 
-		TOOLBAR_GUI_GAME_MODE_PLAY:       "Play"
-		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Editor"
 		TOOLBAR_GUI_PATHS:                "Paths"
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Build paths and queues"
 		TOOLBAR_GUI_RIDE_SELECT:          "Buy ride"

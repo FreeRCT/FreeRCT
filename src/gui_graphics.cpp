@@ -245,3 +245,16 @@ bool DrawMultilineString(StringID strid, int x, int y, int max_width, int max_he
 	}
 	return true;
 }
+
+/**
+ * Calculate the render offset of a sprite so that it is centered in the given rectangle.
+ * @param rect Rectangle to center the sprite in.
+ * @param img Sprite to center.
+ * @return The offset to use.
+ */
+Point32 CenterSprite(const Rectangle32 &rect, const ImageData *img)
+{
+	return Point32(
+			rect.base.x + (static_cast<int32>(rect.width ) - static_cast<int32>(img->width )) / 2,
+			rect.base.y + (static_cast<int32>(rect.height) - static_cast<int32>(img->height)) / 2);
+}

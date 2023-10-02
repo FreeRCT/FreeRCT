@@ -38,7 +38,6 @@ strings:
 		TOOLBAR_GUI_DROPDOWN_MAIN:          "Meny"
 		MAIN_MENU_QUIT:     "Avsluta"
 		MAIN_MENU_SETTINGS: "Inställningar"
-		MAIN_MENU_MODE:     "Spela/Redigerare"
 		MAIN_MENU_LOAD:     "Ladda"
 		MAIN_MENU_SAVE:     "Spara"
 		MAIN_MENU_NEW_GAME:                 "Nytt spel"
@@ -55,8 +54,6 @@ strings:
 		TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: "Undergjordsvy"
 		TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP:     "Karta"
 
-		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spelläge"
-		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Redigeringsläge"
 		TOOLBAR_GUI_PATHS:                "Gångvägar"
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Bygg gångvägar och köer"
 		TOOLBAR_GUI_RIDE_SELECT:          "Köp åkattraktion"

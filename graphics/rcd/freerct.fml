@@ -1971,7 +1971,7 @@ file("freerct.rcd") {
 			x_base: 0; y_base: 0; width: 256; height: 256;
 		}
 		splash_duration: 3000;
-		(new_game, load_game, settings, quit): sheet {
+		(new_game, load_game, settings, quit, launch_editor): sheet {
 			x_base: 0; y_base: 0; x_step: 96; y_step: 0;
 			file: "../sprites/gui/mainmenu.png";
 			x_offset: 0; y_offset: 0; width: 96; height: 96; crop: 0;

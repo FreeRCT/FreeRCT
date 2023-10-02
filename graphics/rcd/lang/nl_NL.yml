@@ -37,7 +37,6 @@ strings:
 		# Toolbar gui strings.
 		MAIN_MENU_QUIT:     "Afsluiten"
 		MAIN_MENU_SETTINGS: "Instellingen"
-		MAIN_MENU_MODE:     "Spelen/Bewerken"
 		MAIN_MENU_LOAD:     "Laden"
 		MAIN_MENU_SAVE:     "Opslaan"
 		MAIN_MENU_NEW_GAME: "Nieuw Spel"
@@ -55,8 +54,6 @@ strings:
 		TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: "Ondergronds zicht"
 		TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP:     "Minikaart"
 
-		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spelen"
-		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Spelbewerker"
 		TOOLBAR_GUI_PATHS:                "Paden"
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Bouw paden en wachtrijen"
 		TOOLBAR_GUI_RIDE_SELECT:          "Koop een attractie"
