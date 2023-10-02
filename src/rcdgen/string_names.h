@@ -107,6 +107,10 @@ static const char *_gui_string_names[] = {
 
 	"BOTTOMBAR_GUESTCOUNT",
 
+	/* Scenario strings. */
+	"DEFAULT_SCENARIO_NAME",
+	"DEFAULT_SCENARIO_DESCR",
+
 	/* Quit program strings. */
 	"QUIT_CAPTION",
 	"QUIT_MESSAGE",

@@ -108,6 +108,10 @@ strings:
 			one:   "%1% Gast"
 			other: "%1% Gasten"
 
+		# Scenario strings.
+		DEFAULT_SCENARIO_NAME:  "Nich benöömt"
+		DEFAULT_SCENARIO_DESCR: "Deese Rutfödderung is nich beschrieven worden."
+
 		# Quit program strings.
 		QUIT_CAPTION: "Verlaten?"
 		QUIT_MESSAGE: "FreeRCT verlaten?"

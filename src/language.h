@@ -10,6 +10,7 @@
 #ifndef LANGUAGE_H
 #define LANGUAGE_H
 
+#include <map>
 #include "geometry.h"
 #include "language_definitions.h"
 #include "string_func.h"
@@ -152,10 +153,12 @@ public:
 	std::string GetPlural(StringID number, int64 count) const;
 	std::string GetLanguageName(int lang_index) const;
 	const char *GetStringName(StringID number) const;
+	StringID GetStringByName(const std::string &string_name) const;
 
 private:
 	LanguageBundle languages[LANGUAGE_COUNT];  ///< All registered languages.
 	std::vector<const char*> string_names;     ///< Names of every string, indexed by #StringID. Memory is not owned.
+	std::map<std::string, StringID> reverse_string_names;  ///< Reverse lookup for #string_names.
 	uint16 free_index;                         ///< Next free index for string storage.
 };
 

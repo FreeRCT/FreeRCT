@@ -28,7 +28,8 @@ Scenario::Scenario()
  */
 void Scenario::SetDefaultScenario()
 {
-	this->name = "Default";
+	this->name_key = "DEFAULT_SCENARIO_NAME";
+	this->descr_key = "DEFAULT_SCENARIO_DESCR";
 	this->spawn_lowest  = 200;
 	this->spawn_highest = 600;
 	this->max_guests    = 3000;
@@ -160,7 +161,7 @@ void ScenarioObjective::OnNewDay()
 	}
 }
 
-static const uint32 CURRENT_VERSION_SCNO = 1;   ///< Currently supported version of the SCNO Pattern.
+static const uint32 CURRENT_VERSION_SCNO = 2;   ///< Currently supported version of the SCNO Pattern.
 static const uint32 CURRENT_VERSION_OJAO = 1;   ///< Currently supported version of the OJAO Pattern.
 static const uint32 CURRENT_VERSION_OJCN = 1;   ///< Currently supported version of the OJCN Pattern.
 static const uint32 CURRENT_VERSION_OJ00 = 1;   ///< Currently supported version of the OJ00 Pattern.
@@ -180,7 +181,15 @@ void Scenario::Load(Loader &ldr)
 			break;
 
 		case 1:
-			this->name = ldr.GetText();
+		case 2:
+			if (version >= 2) {
+				this->name_key = ldr.GetText();
+				this->descr_key = ldr.GetText();
+			} else {
+				ldr.GetText();  // Was scenario name.
+				this->name_key = "DEFAULT_SCENARIO_NAME";
+				this->descr_key = "DEFAULT_SCENARIO_DESCR";
+			}
 			this->objective->Load(ldr);
 			this->spawn_lowest = ldr.GetWord();
 			this->spawn_highest = ldr.GetWord();
@@ -205,7 +214,8 @@ void Scenario::Save(Saver &svr)
 {
 	svr.StartPattern("SCNO", CURRENT_VERSION_SCNO);
 
-	svr.PutText(this->name);
+	svr.PutText(this->name_key);
+	svr.PutText(this->descr_key);
 	this->objective->Save(svr);
 	svr.PutWord(this->spawn_lowest);
 	svr.PutWord(this->spawn_highest);

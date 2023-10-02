@@ -350,6 +350,10 @@ Fences (FENC_ Blocks)
 - conifer
 - bricks
 
+Missions (MISN_ Blocks)
+~~~~~~~~~~~~~~~~~~~~~~~
+- unlimited
+
 
 Intermediary Nodes
 ==================
@@ -876,6 +880,15 @@ Attributes:
 - ``launch_editor`` - Scenario Editor button sprite.
 - ``settings`` - Settings button sprite.
 - ``quit`` - Quit button sprite.
+
+MISN
+~~~~
+Attributes:
+
+- ``max_unlock`` - Maximum number of unlocked unsolved scenarios in the mission.
+- ``scenarios`` - Total number of scenarios in the mission.
+- ``file_N`` - Path to the FCT file for the N-th scenario.
+- ``texts`` - strings_ node containing the mission's texts.
 
 PATH
 ~~~~

@@ -345,12 +345,15 @@ PreloadData Preload(Loader &ldr)
 		if (version >= 12) {
 			result.scenario->Load(ldr);
 		} else {
-			result.scenario->name = ldr.GetText();
+			ldr.GetText();  // Was scenario name.
+			result.scenario->name_key = "DEFAULT_SCENARIO_NAME";
+			result.scenario->descr_key = "DEFAULT_SCENARIO_DESCR";
 		}
 	} else {
 		result.timestamp = 0;
 		result.revision = "?";
-		result.scenario->name = _language.GetSgText(GUI_NOT_AVAILABLE);
+		result.scenario->name_key = "NOT_AVAILABLE";
+		result.scenario->descr_key = "NOT_AVAILABLE";
 	}
 
 	ldr.ClosePattern();

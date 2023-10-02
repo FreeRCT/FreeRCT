@@ -108,6 +108,10 @@ strings:
 			one:   "%1% Besucher"
 			other: "%1% Besucher"
 
+		# Scenario strings.
+		DEFAULT_SCENARIO_NAME:  "Unbenannt"
+		DEFAULT_SCENARIO_DESCR: "Für dieses Szenario existiert keine Beschreibung."
+
 		# Quit program strings.
 		QUIT_CAPTION: "Beenden?"
 		QUIT_MESSAGE: "FreeRCT beenden?"

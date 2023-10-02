@@ -107,6 +107,10 @@ strings:
 			one:   "%1% guest"
 			other: "%1% guests"
 
+		# Scenario strings.
+		DEFAULT_SCENARIO_NAME:  "Unnamed"
+		DEFAULT_SCENARIO_DESCR: "This scenario has no description."
+
 		# Quit program strings.
 		QUIT_CAPTION: "Quit?"
 		QUIT_MESSAGE: "Quit FreeRCT?"

@@ -148,7 +148,8 @@ struct Scenario {
 	uint16 spawn_highest; ///< Guest spawn probability at highest popularity (0..1024).
 	uint32 max_guests;    ///< Maximal number of guests.
 
-	std::string name;                              ///< Title of the scenario.
+	std::string name_key;                          ///< String name of the title of the scenario.
+	std::string descr_key;                         ///< String name of the description of the scenario.
 	std::shared_ptr<ScenarioObjective> objective;  ///< The scenario's objective.
 
 	Money initial_money;  ///< Initial amount of money of the player.

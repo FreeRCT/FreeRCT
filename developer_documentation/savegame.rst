@@ -1,5 +1,5 @@
 :Author: The FreeRCT team
-:Version: 2021-04-26
+:Version: 2023-10-02
 
 .. contents::
    :depth: 4
@@ -105,7 +105,9 @@ Offset  Length  Version  Description
 ======  ======  =======  =====================================================================
    0       4      1-     "SCNO".
    4       4      1-     Version number.
-   8       ?      1-     Name of the scenario.
+           ?      1-1    Name of the scenario.
+   8       ?      2-     The string key for the name of the scenario.
+   8       ?      2-     The string key for the description of the scenario.
    ?       ?      1-     The scenario's `objective container`_.
    ?       2      1-     Lowest guest spawn probability.
    ?       2      1-     Highest guest spawn probability.
@@ -121,6 +123,7 @@ Version history
 ...............
 
 - 1 (20220820) Initial version.
+- 2 (20231002) Replaced name with string keys for name and description.
 
 
 Abstract objective

@@ -2756,6 +2756,63 @@ static std::shared_ptr<FTKWBlock> ConvertFTKWNode(std::shared_ptr<NodeGroup> ng)
 	return block;
 }
 
+/** Available symbols for the MISN node. */
+static const Symbol _misn_symbols[] = {
+	{"unlimited",  0},
+	{nullptr, 0}
+};
+
+/**
+ * Convert a node group to a MISN game block.
+ * @param ng Generic tree of nodes to convert.
+ * @return The created MISN game block.
+ */
+static std::shared_ptr<MISNBlock> ConvertMISNNode(std::shared_ptr<NodeGroup> ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, "MISN");
+	auto block = std::make_shared<MISNBlock>();
+
+	Values vals("MISN", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, false, _misn_symbols);
+
+	const size_t nr_scenarios = vals.GetNumber("scenarios");
+	if (nr_scenarios < 1) {
+		fprintf(stderr, "Error at %s: mission contains no scenarios.\n", ng->pos.ToString());
+		exit(1);
+	}
+
+	block->texts = std::make_shared<StringBundle>();
+	block->texts->Fill(vals.GetStrings("texts"), ng->pos);
+	/* We do not verify the strings with CheckTranslations() since that would involve preloading every scenario now to obtain the string keys. */
+
+	block->max_unlock = vals.GetNumber("max_unlock");
+
+	block->lengths.resize(nr_scenarios);
+	block->data.resize(nr_scenarios);
+	for (size_t i = 0; i < nr_scenarios; ++i) {
+		std::string key = "file_";
+		key += std::to_string(i);
+
+		FILE *in_file = fopen(vals.GetString(key.c_str()).c_str(), "rb");
+		if (in_file == nullptr) {
+			fprintf(stderr, "Error at %s: Could not open input file.\n", ng->pos.ToString());
+			exit(1);
+		}
+
+		fseek(in_file, 0L, SEEK_END);
+		block->lengths[i] = ftell(in_file);
+		rewind(in_file);
+
+		block->data[i].reset(new uint8[block->lengths[i]]);
+		for (size_t j = 0; j < block->lengths[i]; ++j) {
+			block->data[i][j] = getc(in_file);
+		}
+	}
+
+	vals.VerifyUsage();
+	return block;
+}
+
 /**
  * Convert a 'splines' block to a node block.
  * @param ng Generic tree of nodes to convert.
@@ -2946,6 +3003,7 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(std::shared_ptr<NodeGroup> ng
 	if (ng->name == "GSLP") return ConvertGSLPNode(ng);
 	if (ng->name == "INFO") return ConvertINFONode(ng);
 	if (ng->name == "MENU") return ConvertMENUNode(ng);
+	if (ng->name == "MISN") return ConvertMISNNode(ng);
 	if (ng->name == "PATH") return ConvertPATHNode(ng);
 	if (ng->name == "PDEC") return ConvertPDECNode(ng);
 	if (ng->name == "PLAT") return ConvertPLATNode(ng);

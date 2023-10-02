@@ -30,8 +30,8 @@ static bool SortByFilename(const PreloadData &a, const PreloadData &b) {
 
 /** Sort alphabetically by scenario name, with the filename as tie-breaker. */
 static bool SortByScenario(const PreloadData &a, const PreloadData &b) {
-	std::string name1 = a.scenario != nullptr ? a.scenario->name : "";
-	std::string name2 = b.scenario != nullptr ? b.scenario->name : "";
+	std::string name1 = a.scenario != nullptr ? _language.GetSgText(_language.GetStringByName(a.scenario->name_key)) : "";
+	std::string name2 = b.scenario != nullptr ? _language.GetSgText(_language.GetStringByName(b.scenario->name_key)) : "";
 	return name1 != name2 ? name1 < name2 : a.filename < b.filename;
 }
 
@@ -394,7 +394,8 @@ void LoadSaveGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) 
 
 		case LSW_LIST_NAME:
 			functor = [&x, &y, &w](const PreloadData &pd) {
-				_video.BlitText(pd.load_success ? pd.scenario->name : "", _palette[pd.load_success ? TEXT_WHITE : TEXT_GREY], x, y, w, ALG_LEFT);
+				_video.BlitText(pd.load_success ? _language.GetSgText(_language.GetStringByName(pd.scenario->name_key)) : "",
+						_palette[pd.load_success ? TEXT_WHITE : TEXT_GREY], x, y, w, ALG_LEFT);
 			};
 			break;
 

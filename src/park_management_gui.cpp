@@ -204,6 +204,10 @@ void ParkManagementGui::SetWidgetStringParameters(WidgetNumber wid_num) const
 				str += DrawText(_game_observer.won_lost == SCENARIO_WON ? GUI_MESSAGE_SCENARIO_WON : GUI_MESSAGE_SCENARIO_LOST);
 				str += "\n\n";
 			}
+
+			str += _language.GetSgText(_language.GetStringByName(_scenario.descr_key));
+			str += "\n\n";
+
 			str += _scenario.objective->ToString();
 			_str_params.SetText(1, str);
 			break;

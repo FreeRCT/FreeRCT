@@ -1529,6 +1529,30 @@ Version history
 - 1 (20230318) Initial version.
 
 
+Missions
+~~~~~~~~
+Scenarios are stored in a ``MISN`` block. Each mission can contain one or more scenarios.
+Each scenario is the content of an FCT savegame file. See the file "savegame.rst" for the file format specification.
+FreeRCT can load version 1 of these blocks.
+
+=======  ======  =======  ======================================================================================
+Offset   Length  Version  Description
+=======  ======  =======  ======================================================================================
+   0        4      1-     Magic string 'MISN'.
+   4        4      1-     Version number of the block.
+   8        4      1-     Text of the mission (reference to a TEXT block).
+  12        4      1-     Maximum number of unlocked unsolved scenarios in the mission (0 for unlimited).
+  16        4      1-     Number of scenarios in the mission.
+  20        ?      1-     The length of each scenario binary file (4 bytes) followed by the bytes of the file.
+   ?                      Total length of the block.
+=======  ======  =======  ======================================================================================
+
+Version history
+...............
+
+- 1 (20231002) Initial version.
+
+
 GUI
 ===
 GUI sprites, in various forms.

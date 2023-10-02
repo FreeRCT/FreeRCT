@@ -1126,6 +1126,20 @@ public:
 	std::unique_ptr<uint8[]> data;  ///< The raw FTK file data.
 };
 
+/** 'MISN' game block. */
+class MISNBlock : public GameBlock {
+public:
+	MISNBlock();
+	virtual ~MISNBlock() = default;
+
+	int Write(FileWriter *fw) override;
+
+	std::shared_ptr<StringBundle> texts;         ///< The mission's strings.
+	uint32 max_unlock;                           ///< Maximum number of unlocked unsolved scenarios.
+	std::vector<uint32> lengths;                 ///< The length of each scenario file.
+	std::vector<std::unique_ptr<uint8[]>> data;  ///< The raw file data of each file.
+};
+
 /** 'FENC' game block. */
 class FENCBlock : public GameBlock {
 public:
