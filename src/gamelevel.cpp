@@ -37,6 +37,7 @@ void Scenario::SetDefaultScenario()
 	this->initial_loan  = this->initial_money;
 	this->max_loan      = 3000000;
 	this->interest      = 25;
+	this->allow_entrance_fee = true;
 
 	Random r;
 	this->objective.reset(new ScenarioObjective(0, TIMEOUT_EXACT, Date(31, 10, 1), {
@@ -198,6 +199,7 @@ void Scenario::Load(Loader &ldr)
 			this->initial_loan = ldr.GetLong();
 			this->max_loan = ldr.GetLong();
 			this->interest = ldr.GetWord();
+			this->allow_entrance_fee = version == 1 || ldr.GetByte() != 0;
 			break;
 
 		default:
@@ -224,6 +226,7 @@ void Scenario::Save(Saver &svr)
 	svr.PutLong(this->initial_loan);
 	svr.PutLong(this->max_loan);
 	svr.PutWord(this->interest);
+	svr.PutByte(this->allow_entrance_fee ? 1 : 0);
 
 	svr.EndPattern();
 }

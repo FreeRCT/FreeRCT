@@ -156,6 +156,7 @@ struct Scenario {
 	Money initial_loan;   ///< Initial loan of the player.
 	Money max_loan;       ///< Maximum loan the player can take.
 	uint16 interest;      ///< Annual interest rate in 0.1 percent over the current loan.
+	bool allow_entrance_fee;  ///< Whether the player may set a park entrance fee.
 };
 
 extern Scenario _scenario;

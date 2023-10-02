@@ -184,6 +184,8 @@ protected:
 	void SetWidgetShaded(WidgetNumber widget, bool value);
 	bool IsWidgetShaded(WidgetNumber widget) const;
 
+	void SetWidgetCheckedAndPressed(WidgetNumber widget, bool value);
+
 	void SetRadioButtonsSelected(const WidgetNumber *wids, WidgetNumber selected);
 	WidgetNumber GetSelectedRadioButton(const WidgetNumber *wids);
 

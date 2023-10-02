@@ -602,6 +602,20 @@ bool GuiWindow::IsWidgetShaded(WidgetNumber widget) const
 }
 
 /**
+ * Set both the pressed and the checked state of the given widget.
+ * @param widget %Widget number.
+ * @param value New pressed and checked state value.
+ */
+void GuiWindow::SetWidgetCheckedAndPressed(WidgetNumber widget, bool value)
+{
+	LeafWidget *lw = this->GetWidget<LeafWidget>(widget);
+	if (lw->IsPressed() != value || lw->IsChecked() != value) {
+		lw->SetPressed(value);
+		lw->SetChecked(value);
+	}
+}
+
+/**
  * Change the state of a set of radio buttons (#WT_RADIOBUTTON or bi-stable button widgets).
  * @param wids Array of widgets, terminate with #INVALID_WIDGET_INDEX.
  * @param selected Current selected widget of the radio buttons.

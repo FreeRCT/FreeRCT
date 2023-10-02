@@ -294,6 +294,10 @@ strings:
 		TERRAFORM_SUB_TOOLTIP: "Grött vun de Kuntrei tum Bewarken minnern"
 		TERRAFORM_LEVEL_TEXT:  "Kuntrei tum Bewarken platt maken"
 		TERRAFORM_MOVE_TEXT:   "Kuntrei tum Bewarken verschuven as se is"
+		TERRAFORM_OWNER_UNCHANGED_TEXT: "Landegendoom nich ännern"
+		TERRAFORM_OWNER_NONE_TEXT:      "Dat Land sünner Eegner maken"
+		TERRAFORM_OWNER_PARK_TEXT:      "Dat Land to de Park daartogeven"
+		TERRAFORM_OWNER_SALE_TEXT:      "Dat Land as tum Kopen markeren"
 
 		# Park management gui strings.
 		PARK_MANAGEMENT_TAB_GENERAL:           "Allgemeen"

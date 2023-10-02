@@ -15,7 +15,8 @@
 #include "finances.h"
 #include "gui_sprites.h"
 
-static const Money LOAN_STEP_SIZE = 100000;   ///< Amount of loan taken or paid back when clicking the loan buttons once.
+static const Money LOAN_STEP_SIZE = 100000;  ///< Amount of loan taken or paid back when clicking the loan buttons once.
+static const Money CASH_STEP_SIZE =  10000;  ///< Amount of cash added or removed when clicking the cash buttons once.
 
 /**
   * GUI for viewing and managing financial information.
@@ -57,6 +58,12 @@ enum FinancesWidgets {
 	FIN_CURRENT_LOAN,    ///< Current loan text field.
 	FIN_INCREASE_LOAN,   ///< Increase loan button.
 	FIN_DECREASE_LOAN,   ///< Decrease loan button.
+	FIN_INCREASE_CASH,      ///< Increase cash button.
+	FIN_DECREASE_CASH,      ///< Decrease cash button.
+	FIN_INCREASE_MAX_LOAN,  ///< Increase max loan button.
+	FIN_DECREASE_MAX_LOAN,  ///< Decrease max loan button.
+	FIN_INCREASE_INTEREST,  ///< Increase loan interest button.
+	FIN_DECREASE_INTEREST,  ///< Decrease loan interest button.
 };
 
 /**
@@ -85,11 +92,20 @@ static const WidgetPart _finances_gui_parts[] = {
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
 			Intermediate(4, 2), SetPadding(2, 2, 2, 2),
 				Widget(WT_LEFT_TEXT,  INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetData(GUI_FINANCES_CASH,          STR_NULL),
-				Widget(WT_RIGHT_TEXT, FIN_CASH,             COL_RANGE_GREY), SetData(STR_ARG1,                   STR_NULL),
+				Intermediate(1, 3), SetPadding(2, 2, 2, 2),
+					Widget(WT_TEXT_PUSHBUTTON, FIN_DECREASE_CASH, COL_RANGE_GREY), SetData(GUI_DECREASE_BUTTON, STR_NULL), SetRepeating(true),
+					Widget(WT_CENTERED_TEXT,   FIN_CASH,          COL_RANGE_GREY), SetData(STR_ARG1,            STR_NULL),
+					Widget(WT_TEXT_PUSHBUTTON, FIN_INCREASE_CASH, COL_RANGE_GREY), SetData(GUI_INCREASE_BUTTON, STR_NULL), SetRepeating(true),
 				Widget(WT_LEFT_TEXT,  INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetData(GUI_FINANCES_MAX_LOAN,      STR_NULL),
-				Widget(WT_RIGHT_TEXT, FIN_MAX_LOAN,         COL_RANGE_GREY), SetData(STR_ARG1,                   STR_NULL),
+				Intermediate(1, 3), SetPadding(2, 2, 2, 2),
+					Widget(WT_TEXT_PUSHBUTTON, FIN_DECREASE_MAX_LOAN, COL_RANGE_GREY), SetData(GUI_DECREASE_BUTTON, STR_NULL), SetRepeating(true),
+					Widget(WT_CENTERED_TEXT,   FIN_MAX_LOAN,          COL_RANGE_GREY), SetData(STR_ARG1,            STR_NULL),
+					Widget(WT_TEXT_PUSHBUTTON, FIN_INCREASE_MAX_LOAN, COL_RANGE_GREY), SetData(GUI_INCREASE_BUTTON, STR_NULL), SetRepeating(true),
 				Widget(WT_LEFT_TEXT,  INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetData(GUI_FINANCES_LOAN_INTEREST, STR_NULL),
-				Widget(WT_RIGHT_TEXT, FIN_INTEREST,         COL_RANGE_GREY), SetData(STR_ARG1,                   STR_NULL),
+				Intermediate(1, 3), SetPadding(2, 2, 2, 2),
+					Widget(WT_TEXT_PUSHBUTTON, FIN_DECREASE_INTEREST, COL_RANGE_GREY), SetData(GUI_DECREASE_BUTTON, STR_NULL), SetRepeating(true),
+					Widget(WT_CENTERED_TEXT,   FIN_INTEREST,          COL_RANGE_GREY), SetData(STR_ARG1,            STR_NULL),
+					Widget(WT_TEXT_PUSHBUTTON, FIN_INCREASE_INTEREST, COL_RANGE_GREY), SetData(GUI_INCREASE_BUTTON, STR_NULL), SetRepeating(true),
 				Widget(WT_LEFT_TEXT,  INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetData(GUI_FINANCES_CURRENT_LOAN,  STR_NULL),
 				Intermediate(1, 3), SetPadding(2, 2, 2, 2),
 					Widget(WT_TEXT_PUSHBUTTON, FIN_DECREASE_LOAN, COL_RANGE_GREY), SetData(GUI_DECREASE_BUTTON, STR_NULL), SetRepeating(true),
@@ -153,12 +169,22 @@ void FinancesGui::SetWidgetStringParameters(WidgetNumber wid_num) const
 	}
 }
 
-/** Recompute whether the loan buttons are enabled. */
+/** Recompute whether the loan buttons are enabled and whether editor-specific buttons are visible. */
 void FinancesGui::UpdateButtons()
 {
 	this->GetWidget<LeafWidget>(FIN_INCREASE_LOAN)->SetShaded(_finances_manager.GetLoan() >= _scenario.max_loan);
 	this->GetWidget<LeafWidget>(FIN_DECREASE_LOAN)->SetShaded(_finances_manager.GetLoan() <= 0 ||
 			_finances_manager.GetCash() < std::min(LOAN_STEP_SIZE, _finances_manager.GetLoan()));
+
+	for (FinancesWidgets widget : {
+			FIN_INCREASE_CASH, FIN_INCREASE_MAX_LOAN, FIN_INCREASE_INTEREST,
+			FIN_DECREASE_CASH, FIN_DECREASE_MAX_LOAN, FIN_DECREASE_INTEREST,
+	}) {
+		this->GetWidget<LeafWidget>(widget)->SetVisible(this, _game_mode_mgr.InEditorMode());
+	}
+
+	this->GetWidget<LeafWidget>(FIN_DECREASE_MAX_LOAN)->SetShaded(_scenario.max_loan <= 0);
+	this->GetWidget<LeafWidget>(FIN_DECREASE_INTEREST)->SetShaded(_scenario.interest == 0);
 }
 
 void FinancesGui::OnDraw(MouseModeSelector *selector)
@@ -175,6 +201,27 @@ void FinancesGui::OnClick(WidgetNumber widget, [[maybe_unused]] const Point16 &p
 			break;
 		case FIN_DECREASE_LOAN:
 			_finances_manager.RepayLoan(std::min(LOAN_STEP_SIZE, std::min(_finances_manager.GetLoan(), _finances_manager.GetCash())));
+			break;
+
+		case FIN_INCREASE_CASH:
+			if (_game_mode_mgr.InEditorMode()) _finances_manager.DoTransaction(CASH_STEP_SIZE);
+			break;
+		case FIN_DECREASE_CASH:
+			if (_game_mode_mgr.InEditorMode()) _finances_manager.DoTransaction(-CASH_STEP_SIZE);  // No check here, negative cash is allowed.
+			break;
+
+		case FIN_INCREASE_MAX_LOAN:
+			if (_game_mode_mgr.InEditorMode()) _scenario.max_loan += LOAN_STEP_SIZE;
+			break;
+		case FIN_DECREASE_MAX_LOAN:
+			if (_game_mode_mgr.InEditorMode()) _scenario.max_loan = std::max(_scenario.max_loan - LOAN_STEP_SIZE, Money(0));
+			break;
+
+		case FIN_INCREASE_INTEREST:
+			if (_game_mode_mgr.InEditorMode()) ++_scenario.interest;
+			break;
+		case FIN_DECREASE_INTEREST:
+			if (_game_mode_mgr.InEditorMode()) --_scenario.interest;
 			break;
 
 		default: break;

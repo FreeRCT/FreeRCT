@@ -293,6 +293,10 @@ strings:
 		TERRAFORM_SUB_TOOLTIP: "Decrease size of the terraforming area"
 		TERRAFORM_LEVEL_TEXT:  "Level terraforming area"
 		TERRAFORM_MOVE_TEXT:   "Move terraform area as-is"
+		TERRAFORM_OWNER_UNCHANGED_TEXT: "Don’t change tile ownership"
+		TERRAFORM_OWNER_NONE_TEXT:      "Make land unowned"
+		TERRAFORM_OWNER_PARK_TEXT:      "Make land owned by park"
+		TERRAFORM_OWNER_SALE_TEXT:      "Mark land as for sale"
 
 		# Park management gui strings.
 		PARK_MANAGEMENT_TAB_GENERAL:           "General"

@@ -61,6 +61,7 @@ enum ParkManagementWidgets {
 	PM_RATING_GRAPH,           ///< Park rating graph.
 	PM_OBJECTIVE_TEXT,         ///< Scenario objective text.
 	PM_PARKNAME,               ///< Park name edit box.
+	PM_ENTRANCE_FEE_ENABLE,    ///< Park entrance fee enable checkbox.
 	PM_ENTRANCE_FEE_TEXT,      ///< Park entrance fee text.
 	PM_ENTRANCE_FEE_INCREASE,  ///< Park entrance fee increase button.
 	PM_ENTRANCE_FEE_DECREASE,  ///< Park entrance fee decrease button.
@@ -115,7 +116,8 @@ static const WidgetPart _pm_build_gui_parts[] = {
 								Widget(WT_TEXT_INPUT, PM_PARKNAME, COL_RANGE_ORANGE_BROWN),
 										SetFill(1, 0), SetResize(1, 0), SetMinimalSize(GRAPH_WIDTH / 2, 1),
 						Widget(WT_TAB_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetPadding(4, 4, 4, 4),
-							Intermediate(1, 4),
+							Intermediate(1, 5),
+								Widget(WT_RADIOBUTTON, PM_ENTRANCE_FEE_ENABLE, COL_RANGE_ORANGE_BROWN), SetPadding(2, 4, 2, 0),
 								Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetData(GUI_PARK_MANAGEMENT_ENTRANCE_FEE, STR_NULL),
 								Widget(WT_TEXT_PUSHBUTTON, PM_ENTRANCE_FEE_DECREASE, COL_RANGE_ORANGE_BROWN),
 										SetData(GUI_DECREASE_BUTTON, STR_NULL), SetRepeating(true),
@@ -238,6 +240,14 @@ void ParkManagementGui::OnClick(WidgetNumber number, [[maybe_unused]] const Poin
 			this->UpdateButtons();
 			break;
 
+		case PM_ENTRANCE_FEE_ENABLE:
+			if (_game_mode_mgr.InEditorMode()) {
+				_scenario.allow_entrance_fee = !_scenario.allow_entrance_fee;
+				if (!_scenario.allow_entrance_fee) _game_observer.entrance_fee = 0;
+				this->UpdateButtons();
+			}
+			break;
+
 		case PM_CLOSE_PARK_PANEL:
 		case PM_CLOSE_PARK_LIGHT:
 			_game_observer.SetParkOpen(false);
@@ -263,7 +273,13 @@ void ParkManagementGui::OnClick(WidgetNumber number, [[maybe_unused]] const Poin
 /** Update all buttons of the window. */
 void ParkManagementGui::UpdateButtons()
 {
-	this->SetWidgetShaded(PM_ENTRANCE_FEE_DECREASE, _game_observer.entrance_fee <= 0);
+	this->SetWidgetShaded(PM_ENTRANCE_FEE_DECREASE, _game_observer.entrance_fee <= 0 || !_scenario.allow_entrance_fee);
+	this->SetWidgetShaded(PM_ENTRANCE_FEE_INCREASE, !_scenario.allow_entrance_fee);
+
+	LeafWidget *fee_enable = this->GetWidget<LeafWidget>(PM_ENTRANCE_FEE_ENABLE);
+	fee_enable->SetVisible(this, _game_mode_mgr.InEditorMode());
+	fee_enable->SetChecked(_scenario.allow_entrance_fee);
+	fee_enable->SetPressed(_scenario.allow_entrance_fee);
 
 	LeafWidget *o = this->GetWidget<LeafWidget>(PM_OPEN_PARK_LIGHT);
 	LeafWidget *c = this->GetWidget<LeafWidget>(PM_CLOSE_PARK_LIGHT);
