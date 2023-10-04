@@ -43,6 +43,7 @@ enum WidgetType {
 	WT_TEXT_PUSHBUTTON,  ///< Button with text (mono-stable).
 	WT_IMAGE_PUSHBUTTON, ///< Button with a sprite (mono-stable).
 	WT_RADIOBUTTON,      ///< Radio button widget.
+	WT_CHECKBOX,         ///< Check box widget.
 	WT_HOR_SCROLLBAR,    ///< Scrollbar widget.
 	WT_VERT_SCROLLBAR,   ///< Scrollbar widget.
 	WT_DROPDOWN_BUTTON,  ///< Dropdown widget.
@@ -132,7 +133,7 @@ DECLARE_ENUM_AS_BIT_SET(LeafWidgetFlags)
 
 /**
  * Base class for a (visible) leaf widget.
- * Implements #WT_RADIOBUTTON, #WT_CLOSEBOX, #WT_RESIZEBOX.
+ * Implements #WT_RADIOBUTTON, #WT_CHECKBOX, #WT_CLOSEBOX, #WT_RESIZEBOX.
  * @ingroup widget_group
  */
 class LeafWidget : public BaseWidget {

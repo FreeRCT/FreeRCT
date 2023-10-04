@@ -117,7 +117,7 @@ static const WidgetPart _pm_build_gui_parts[] = {
 										SetFill(1, 0), SetResize(1, 0), SetMinimalSize(GRAPH_WIDTH / 2, 1),
 						Widget(WT_TAB_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetPadding(4, 4, 4, 4),
 							Intermediate(1, 5),
-								Widget(WT_RADIOBUTTON, PM_ENTRANCE_FEE_ENABLE, COL_RANGE_ORANGE_BROWN), SetPadding(2, 4, 2, 0),
+								Widget(WT_CHECKBOX, PM_ENTRANCE_FEE_ENABLE, COL_RANGE_ORANGE_BROWN), SetPadding(2, 4, 2, 0),
 								Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetData(GUI_PARK_MANAGEMENT_ENTRANCE_FEE, STR_NULL),
 								Widget(WT_TEXT_PUSHBUTTON, PM_ENTRANCE_FEE_DECREASE, COL_RANGE_ORANGE_BROWN),
 										SetData(GUI_DECREASE_BUTTON, STR_NULL), SetRepeating(true),
