@@ -313,6 +313,7 @@ strings:
 		PARK_MANAGEMENT_NO_AWARDS:             "The park did not receive any awards recently."
 		PARK_MANAGEMENT_PARKNAME:              "Park name:"
 		PARK_MANAGEMENT_ENTRANCE_FEE:          "Entrance fee:"
+		PARK_MANAGEMENT_MAX_GUESTS:            "Maximum guest count:"
 
 		# Minimap gui strings.
 		MINIMAP_TITLE: "Minimap"

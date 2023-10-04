@@ -314,6 +314,7 @@ strings:
 		PARK_MANAGEMENT_NO_AWARDS:             "De Park hett in de lesten Tied keene Priesen kregen."
 		PARK_MANAGEMENT_PARKNAME:              "Parknaam:"
 		PARK_MANAGEMENT_ENTRANCE_FEE:          "Intree:"
+		PARK_MANAGEMENT_MAX_GUESTS:            "Gröttste Tahl vun Gasten:"
 
 		# Minimap gui strings.
 		MINIMAP_TITLE: "Lütt Kaart"

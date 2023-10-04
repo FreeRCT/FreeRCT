@@ -313,6 +313,7 @@ static const char *_gui_string_names[] = {
 	"PARK_MANAGEMENT_NO_AWARDS",
 	"PARK_MANAGEMENT_PARKNAME",
 	"PARK_MANAGEMENT_ENTRANCE_FEE",
+	"PARK_MANAGEMENT_MAX_GUESTS",
 
 	/* Minimap window. */
 	"MINIMAP_TITLE",

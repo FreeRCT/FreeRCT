@@ -248,7 +248,7 @@ void GameControl::NewLevel()
 	_scenario.SetDefaultScenario();  // \todo load a scenario.
 
 	/// \todo We blindly assume game data structures are all clean.
-	_world.SetWorldSize(20, 21);
+	_world.SetWorldSize(WORLD_X_SIZE - 1, WORLD_Y_SIZE - 1);
 	_world.MakeFlatWorld(8);
 	_world.SetTileOwnerGlobally(OWN_NONE);
 	_world.SetTileOwnerRect(2, 2, 16, 15, OWN_PARK);

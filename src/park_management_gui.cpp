@@ -21,6 +21,9 @@
 #include "sprite_data.h"
 #include "gameobserver.h"
 
+static const uint MIN_MAX_GUESTS       = 100;  ///< Smallest allowed value for the guests limit.
+static const uint MAX_GUESTS_STEP_SIZE = 100;  ///< Change when clicking the max guests buttons once.
+
 /**
  * Park management GUI.
  * @ingroup gui_group
@@ -57,6 +60,10 @@ enum ParkManagementWidgets {
 	PM_TITLEBAR,               ///< Window title bar.
 	PM_GUESTS_TEXT,            ///< Number of guests text.
 	PM_GUESTS_GRAPH,           ///< Number of guests graph.
+	PM_MAX_GUESTS_PANEL,       ///< Maximum number of guests panel.
+	PM_MAX_GUESTS_TEXT,        ///< Maximum number of guests text.
+	PM_MAX_GUESTS_INCREASE,    ///< Maximum number of guests increase button.
+	PM_MAX_GUESTS_DECREASE,    ///< Maximum number of guests decrease button.
 	PM_RATING_TEXT,            ///< Park rating text.
 	PM_RATING_GRAPH,           ///< Park rating graph.
 	PM_OBJECTIVE_TEXT,         ///< Scenario objective text.
@@ -137,8 +144,17 @@ static const WidgetPart _pm_build_gui_parts[] = {
 									Widget(WT_RADIOBUTTON, PM_OPEN_PARK_LIGHT , COL_RANGE_GREEN), SetPadding(0, 2, 0, 0),
 					EndContainer(),
 				Widget(WT_TAB_PANEL, PM_TABPANEL_GUESTS, COL_RANGE_ORANGE_BROWN),
-					Intermediate(2, 1),
+					Intermediate(3, 1),
 						Widget(WT_CENTERED_TEXT, PM_GUESTS_TEXT, COL_RANGE_ORANGE_BROWN), SetData(GUI_BOTTOMBAR_GUESTCOUNT, STR_NULL), SetPadding(4, 4, 4, 4),
+						Widget(WT_PANEL, PM_MAX_GUESTS_PANEL, COL_RANGE_ORANGE_BROWN),
+							Intermediate(1, 4),
+								Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetData(GUI_PARK_MANAGEMENT_MAX_GUESTS, STR_NULL),
+								Widget(WT_TEXT_PUSHBUTTON, PM_MAX_GUESTS_DECREASE, COL_RANGE_ORANGE_BROWN),
+										SetData(GUI_DECREASE_BUTTON, STR_NULL), SetRepeating(true),
+								Widget(WT_CENTERED_TEXT  , PM_MAX_GUESTS_TEXT    , COL_RANGE_ORANGE_BROWN),
+										SetData(STR_ARG1, STR_NULL),
+								Widget(WT_TEXT_PUSHBUTTON, PM_MAX_GUESTS_INCREASE, COL_RANGE_ORANGE_BROWN),
+										SetData(GUI_INCREASE_BUTTON, STR_NULL), SetRepeating(true),
 						Widget(WT_EMPTY, PM_GUESTS_GRAPH, COL_RANGE_ORANGE_BROWN), SetMinimalSize(GRAPH_WIDTH, GRAPH_HEIGHT), SetFill(1, 1), SetResize(1, 1),
 				Widget(WT_TAB_PANEL, PM_TABPANEL_RATING, COL_RANGE_ORANGE_BROWN),
 					Intermediate(2, 1),
@@ -192,6 +208,10 @@ void ParkManagementGui::SetWidgetStringParameters(WidgetNumber wid_num) const
 			_str_params.SetMoney(1, _game_observer.entrance_fee);
 			break;
 
+		case PM_MAX_GUESTS_TEXT:
+			_str_params.SetNumber(1, _scenario.max_guests);
+			break;
+
 		case PM_GUESTS_TEXT:
 			_str_params.SetNumberAndPlural(1, _game_observer.current_guest_count);
 			break;
@@ -229,6 +249,23 @@ void ParkManagementGui::OnClick(WidgetNumber number, [[maybe_unused]] const Poin
 		case PM_TABBUTTON_OBJECTIVE:
 		case PM_TABBUTTON_AWARDS:
 			SelectTab(number);
+			break;
+
+		case PM_MAX_GUESTS_INCREASE:
+			if (_game_mode_mgr.InEditorMode()) {
+				_scenario.max_guests += MAX_GUESTS_STEP_SIZE;
+				this->UpdateButtons();
+			}
+			break;
+		case PM_MAX_GUESTS_DECREASE:
+			if (_game_mode_mgr.InEditorMode()) {
+				if (_scenario.max_guests > MIN_MAX_GUESTS + MAX_GUESTS_STEP_SIZE) {
+					_scenario.max_guests -= MAX_GUESTS_STEP_SIZE;
+				} else {
+					_scenario.max_guests = MIN_MAX_GUESTS;
+				}
+				this->UpdateButtons();
+			}
 			break;
 
 		case PM_ENTRANCE_FEE_INCREASE:
@@ -280,6 +317,9 @@ void ParkManagementGui::UpdateButtons()
 	fee_enable->SetVisible(this, _game_mode_mgr.InEditorMode());
 	fee_enable->SetChecked(_scenario.allow_entrance_fee);
 	fee_enable->SetPressed(_scenario.allow_entrance_fee);
+
+	this->GetWidget<LeafWidget>(PM_MAX_GUESTS_PANEL)->SetVisible(this, _game_mode_mgr.InEditorMode());
+	this->SetWidgetShaded(PM_MAX_GUESTS_DECREASE, _scenario.max_guests <= MIN_MAX_GUESTS);
 
 	LeafWidget *o = this->GetWidget<LeafWidget>(PM_OPEN_PARK_LIGHT);
 	LeafWidget *c = this->GetWidget<LeafWidget>(PM_CLOSE_PARK_LIGHT);
