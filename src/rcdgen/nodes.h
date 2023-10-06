@@ -1134,10 +1134,10 @@ public:
 
 	int Write(FileWriter *fw) override;
 
-	std::shared_ptr<StringBundle> texts;         ///< The mission's strings.
-	uint32 max_unlock;                           ///< Maximum number of unlocked unsolved scenarios.
-	std::vector<uint32> lengths;                 ///< The length of each scenario file.
-	std::vector<std::unique_ptr<uint8[]>> data;  ///< The raw file data of each file.
+	std::vector<std::shared_ptr<StringBundle>> texts;  ///< The strings for each scenario and the mission.
+	uint32 max_unlock;                                 ///< Maximum number of unlocked unsolved scenarios.
+	std::vector<uint32> lengths;                       ///< The length of each scenario file.
+	std::vector<std::unique_ptr<uint8[]>> data;        ///< The raw file data of each file.
 };
 
 /** 'FENC' game block. */

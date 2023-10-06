@@ -889,6 +889,7 @@ Attributes:
 - ``scenarios`` - Total number of scenarios in the mission.
 - ``file_N`` - Path to the FCT file for the N-th scenario.
 - ``texts`` - strings_ node containing the mission's texts.
+- ``texts_N`` - strings_ node containing the N-th scenario's texts.
 
 PATH
 ~~~~

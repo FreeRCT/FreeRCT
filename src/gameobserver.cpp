@@ -20,7 +20,7 @@ GameObserver _game_observer;  ///< Game observer instance.
 void GameObserver::Initialize()
 {
 	this->Uninitialize();
-	this->park_name = _language.GetSgText(_language.GetStringByName(_scenario.name_key));
+	this->park_name = _scenario.name;  // NOCOM
 	this->won_lost = SCENARIO_RUNNING;
 	this->park_open = true;
 }

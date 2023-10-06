@@ -35,7 +35,7 @@ enum StringTable {
 	STR_NULL = 0, ///< \c nullptr string.
 	STR_ARG1,     ///< Argument 1 \c "%1%".
 
-	STR_GUI_START,  ///< Start of the GUI strings.
+	STR_GENERIC_GUI_START,  ///< Start of the GUI strings.
 
 	/* After the GUI strings come the other registered strings. */
 
@@ -47,24 +47,29 @@ enum StringTable {
 	STR_GENERIC_ENTRANCE_EXIT_START = STR_END_FREE_SPACE,
 
 	/**
+	 * Generic strings for missions and scenarios.
+	 */
+	STR_GENERIC_MISSION_START = STR_GENERIC_ENTRANCE_EXIT_START + 64,
+
+	/**
 	 * Generic strings for scenery items.
 	 */
-	STR_GENERIC_SCENERY_START = STR_GENERIC_ENTRANCE_EXIT_START + 64,
+	STR_GENERIC_SCENERY_START = STR_GENERIC_MISSION_START + 256,
 
 	/**
 	 * Generic shop strings, translated to 'real' string numbers by each shop type object by means of the RideType::GetString function.
 	 */
-	STR_GENERIC_SHOP_START = STR_GENERIC_SCENERY_START + 256,
+	STR_GENERIC_SHOPS_START = STR_GENERIC_SCENERY_START + 256,
 
 	/**
 	 * Generic coaster strings, translated to 'real' string numbers by each coaster type object by means of the RideType::GetString function.
 	 */
-	STR_GENERIC_COASTER_START = STR_GENERIC_SHOP_START + 256,
+	STR_GENERIC_COASTERS_START = STR_GENERIC_SHOPS_START + 256,
 
 	/**
 	 * Generic gentle/thrill ride strings, translated to 'real' string numbers by each gentle/thrill type object by means of the RideType::GetString function.
 	 */
-	STR_GENERIC_GENTLE_THRILL_RIDES_START = STR_GENERIC_COASTER_START + 256,
+	STR_GENERIC_GENTLE_THRILL_RIDES_START = STR_GENERIC_COASTERS_START + 256,
 
 	STR_GENERIC_END = 0xFFFF,
 
@@ -153,12 +158,10 @@ public:
 	std::string GetPlural(StringID number, int64 count) const;
 	std::string GetLanguageName(int lang_index) const;
 	const char *GetStringName(StringID number) const;
-	StringID GetStringByName(const std::string &string_name) const;
 
 private:
 	LanguageBundle languages[LANGUAGE_COUNT];  ///< All registered languages.
 	std::vector<const char*> string_names;     ///< Names of every string, indexed by #StringID. Memory is not owned.
-	std::map<std::string, StringID> reverse_string_names;  ///< Reverse lookup for #string_names.
 	uint16 free_index;                         ///< Next free index for string storage.
 };
 

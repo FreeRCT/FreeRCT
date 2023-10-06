@@ -573,3 +573,10 @@ strings:
 		NAME: "Tree 3"
 	fountain1:
 		NAME: "Fountain 1"
+
+	mission-official-easy:
+		NAME:  "Official Easy"
+		DESCR: "A pack of easy scenarios provided by the FreeRCT Development Team."
+	scenario-emerald-expanses:
+		NAME:  "Emerald Expanses"
+		DESCR: "Who could behold these vast green lands and not be moved by their beauty? Within the forested confines of their gentle hills, an amusement park is waiting to be developed."

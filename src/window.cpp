@@ -368,7 +368,7 @@ StringID GuiWindow::TranslateStringNumber(StringID str_id) const
 {
 	assert(str_id != STR_INVALID);
 
-	if (this->ride_type != nullptr && str_id >= STR_GENERIC_SHOP_START) return this->ride_type->GetString(str_id);
+	if (this->ride_type != nullptr && str_id >= STR_GENERIC_SHOPS_START) return this->ride_type->GetString(str_id);
 	return str_id;
 }
 

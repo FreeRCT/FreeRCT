@@ -483,4 +483,10 @@ static const char *_scenery_string_names[] = {
 	"NAME",
 };
 
+/** String names of a mission or scenario. */
+static const char *_mission_string_names[] = {
+	"NAME",
+	"DESCR",
+};
+
 #endif

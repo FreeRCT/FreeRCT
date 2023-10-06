@@ -1540,10 +1540,13 @@ Offset   Length  Version  Description
 =======  ======  =======  ======================================================================================
    0        4      1-     Magic string 'MISN'.
    4        4      1-     Version number of the block.
-   8        4      1-     Text of the mission (reference to a TEXT block).
-  12        4      1-     Maximum number of unlocked unsolved scenarios in the mission (0 for unlimited).
-  16        4      1-     Number of scenarios in the mission.
-  20        ?      1-     The length of each scenario binary file (4 bytes) followed by the bytes of the file.
+   8        4      1-     Length of the block excluding magic string, version, and length.
+  12        4      1-     Text of the mission (reference to a TEXT block).
+  16        4      1-     Maximum number of unlocked unsolved scenarios in the mission (0 for unlimited).
+  20        4      1-     Number of scenarios in the mission.
+  24        ?      1-     For each scenario: The texts of the scenario (reference to a TEXT block; 4 bytes);
+                          then the length of the scenario binary file (4 bytes);
+                          followed by the bytes of the file.
    ?                      Total length of the block.
 =======  ======  =======  ======================================================================================
 

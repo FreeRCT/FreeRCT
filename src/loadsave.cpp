@@ -41,6 +41,24 @@ Loader::Loader(RcdFileReader *rcd) : fp(nullptr), rcd_file(rcd), cache_count(0)
 }
 
 /**
+ * Constructor of the loader class.
+ * @param data Data bytes stream.
+ * @param length Total length of the data stream.
+ */
+Loader::Loader(const uint8 *data, size_t length) : fp(nullptr), rcd_file(nullptr), binary_stream({data, length}), cache_count(0)
+{
+}
+
+/**
+ * Check whether this loader does not have any data input source.
+ * @return There is no data source.
+ */
+bool Loader::HasNoInput() const
+{
+	return this->fp == nullptr && this->rcd_file == nullptr && !this->binary_stream.has_value();
+}
+
+/**
  * Test whether a pattern with the given name is being opened.
  * @param name Name of the expected pattern.
  * @param may_fail Whether it is allowed not to find the expected pattern.
@@ -52,7 +70,7 @@ uint32 Loader::OpenPattern(const char *name, bool may_fail, bool name_only)
 {
 	assert(strlen(name) == 4);
 	this->pattern_names.emplace_back(name);
-	if (this->fp == nullptr && this->rcd_file == nullptr) return 0;
+	if (this->HasNoInput()) return 0;
 
 	int i = 0;
 	while (i < 4) {
@@ -83,7 +101,7 @@ uint32 Loader::OpenPattern(const char *name, bool may_fail, bool name_only)
 /** Test whether the current pattern is closed. */
 void Loader::ClosePattern()
 {
-	if (this->fp == nullptr && this->rcd_file == nullptr) return;
+	if (this->HasNoInput()) return;
 	assert(!this->pattern_names.empty());
 	const std::string &blk_name = this->pattern_names.back();
 	for (int i = 0; i < static_cast<int>(blk_name.size()); ++i) {
@@ -100,7 +118,7 @@ void Loader::ClosePattern()
  */
 uint8 Loader::GetByte()
 {
-	if (this->fp == nullptr && this->rcd_file == nullptr) return 0;
+	if (this->HasNoInput()) return 0;
 
 	if (this->cache_count > 0) {
 		this->cache_count--;
@@ -108,6 +126,12 @@ uint8 Loader::GetByte()
 	}
 
 	if (this->rcd_file != nullptr) return this->rcd_file->GetUInt8();
+
+	if (this->binary_stream.has_value()) {
+		if (this->binary_stream->second == 0) throw LoadingError("End of data stream encountered");
+		this->binary_stream->second--;
+		return *this->binary_stream->first++;
+	}
 
 	int k = getc(this->fp);
 	if (k == EOF) {
@@ -345,15 +369,14 @@ PreloadData Preload(Loader &ldr)
 		if (version >= 12) {
 			result.scenario->Load(ldr);
 		} else {
-			ldr.GetText();  // Was scenario name.
-			result.scenario->name_key = "DEFAULT_SCENARIO_NAME";
-			result.scenario->descr_key = "DEFAULT_SCENARIO_DESCR";
+			result.scenario->name = ldr.GetText();
+			result.scenario->descr = _language.GetSgText(GUI_DEFAULT_SCENARIO_DESCR);
 		}
 	} else {
 		result.timestamp = 0;
 		result.revision = "?";
-		result.scenario->name_key = "NOT_AVAILABLE";
-		result.scenario->descr_key = "NOT_AVAILABLE";
+		result.scenario->name  = _language.GetSgText(GUI_NOT_AVAILABLE);
+		result.scenario->descr = _language.GetSgText(GUI_NOT_AVAILABLE);
 	}
 
 	ldr.ClosePattern();

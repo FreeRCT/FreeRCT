@@ -12,13 +12,16 @@
 #include "messages.h"
 #include "people.h"
 #include "gameobserver.h"
+#include "generated/mission_strings.cpp"
+#include "generated/mission_strings.h"
 
 Scenario _scenario; ///< The scenario being played.
+
+std::vector<std::unique_ptr<Mission>> _missions;  ///< All available missions.
 
 /** Scenario default constructor. */
 Scenario::Scenario()
 {
-	SetDefaultScenario();
 }
 
 /**
@@ -28,8 +31,8 @@ Scenario::Scenario()
  */
 void Scenario::SetDefaultScenario()
 {
-	this->name_key = "DEFAULT_SCENARIO_NAME";
-	this->descr_key = "DEFAULT_SCENARIO_DESCR";
+	this->name = _language.GetSgText(GUI_DEFAULT_SCENARIO_NAME);
+	this->descr = _language.GetSgText(GUI_DEFAULT_SCENARIO_DESCR);
 	this->spawn_lowest  = 200;
 	this->spawn_highest = 600;
 	this->max_guests    = 3000;
@@ -183,14 +186,10 @@ void Scenario::Load(Loader &ldr)
 
 		case 1:
 		case 2:
-			if (version >= 2) {
-				this->name_key = ldr.GetText();
-				this->descr_key = ldr.GetText();
-			} else {
-				ldr.GetText();  // Was scenario name.
-				this->name_key = "DEFAULT_SCENARIO_NAME";
-				this->descr_key = "DEFAULT_SCENARIO_DESCR";
-			}
+			this->name = ldr.GetText();
+			this->descr = version >= 2 ? ldr.GetText() : _language.GetSgText(GUI_DEFAULT_SCENARIO_DESCR);
+
+			this->objective.reset(new ScenarioObjective(0, TIMEOUT_NONE, Date(), {}));
 			this->objective->Load(ldr);
 			this->spawn_lowest = ldr.GetWord();
 			this->spawn_highest = ldr.GetWord();
@@ -216,8 +215,8 @@ void Scenario::Save(Saver &svr)
 {
 	svr.StartPattern("SCNO", CURRENT_VERSION_SCNO);
 
-	svr.PutText(this->name_key);
-	svr.PutText(this->descr_key);
+	svr.PutText(this->name);
+	svr.PutText(this->descr);
 	this->objective->Save(svr);
 	svr.PutWord(this->spawn_lowest);
 	svr.PutWord(this->spawn_highest);
@@ -366,4 +365,78 @@ void ObjectiveParkRating::Save(Saver &svr)
 	AbstractObjective::Save(svr);
 	svr.PutWord(this->rating);
 	svr.EndPattern();
+}
+
+/**
+ * Read a mission from the RCD file block and add it to the global list of missions.
+ * @param rcd_file File to read from.
+ * @param texts Already loaded texts.
+ */
+void LoadMission(RcdFileReader *rcd_file, const TextMap &texts)
+{
+	std::unique_ptr<Mission> mission(new Mission);
+
+	rcd_file->CheckVersion(1);
+	int length = rcd_file->size;
+	rcd_file->CheckMinLength(length, 12, "header");
+	length -= 12;
+
+	TextData *text_data;
+	LoadTextFromFile(rcd_file, texts, &text_data);
+	StringID base = _language.RegisterStrings(*text_data, _mission_strings_table);
+	mission->name  = base + MISSION_NAME;
+	mission->descr = base + MISSION_DESCR;
+
+	mission->max_unlock = rcd_file->GetUInt32();
+	const uint32 nr_scenarios = rcd_file->GetUInt32();
+
+	if (nr_scenarios == 0) rcd_file->Error("Mission without scenarios");
+
+	for (uint32 i = 0; i < nr_scenarios; ++i) {
+		rcd_file->CheckMinLength(length, 8, "scenario header");
+		length -= 8;
+		mission->scenarios.emplace_back();
+		Mission::MissionScenario &scenario = mission->scenarios.back();
+
+		LoadTextFromFile(rcd_file, texts, &text_data);
+		StringID base = _language.RegisterStrings(*text_data, _mission_strings_table);
+		scenario.name  = base + MISSION_NAME;
+		scenario.descr = base + MISSION_DESCR;
+
+		scenario.fct_length = rcd_file->GetUInt32();
+		rcd_file->CheckMinLength(length, scenario.fct_length, "scenario blob");
+		length -= scenario.fct_length;
+
+		scenario.fct_bytes.reset(new uint8[scenario.fct_length]);
+		if (!rcd_file->GetBlob(scenario.fct_bytes.get(), scenario.fct_length)) rcd_file->Error("Reading scenario bytes %u failed", i);
+
+		Loader ldr(scenario.fct_bytes.get(), scenario.fct_length);
+		PreloadData preload = Preload(ldr);
+		if (!preload.load_success) rcd_file->Error("Preloading scenario %u failed", i);
+		scenario.scenario = *preload.scenario;
+
+		if (mission->max_unlock == 0) scenario.required_to_unlock = 0;
+	}
+
+	rcd_file->CheckExactLength(length, 0, "end of block");
+
+	/* Read solved missions data. */
+	// NOCOM...
+
+
+	/* Unlock as many scenarios as permitted. */
+	if (mission->max_unlock > 0) {
+		int32 balance = 0;
+		for (Mission::MissionScenario &scenario : mission->scenarios) {
+			if (scenario.solved.has_value()) {
+				scenario.required_to_unlock = 0;
+				balance--;
+			} else {
+				scenario.required_to_unlock = std::max(0, balance);
+				balance++;
+			}
+		}
+	}
+
+	_missions.emplace_back(std::move(mission));
 }

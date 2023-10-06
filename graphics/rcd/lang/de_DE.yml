@@ -574,3 +574,10 @@ strings:
 		NAME: "Baum 3"
 	fountain1:
 		NAME: "Springbrunnen 1"
+
+	mission-official-easy:
+		NAME:  "Offiziell Leicht"
+		DESCR: "Ein Paket mit leichten Szenarien, die vom FreeRCT-Entwicklungsteam bereitsgestellt werden."
+	scenario-emerald-expanses:
+		NAME:  "Smaragdene Senken"
+		DESCR: "Wer könnte diese grünen Weiten betrachten und nicht von ihrer Schönheit bewegt sein? Inmitten ihrer hügeligen Haine wartet ein Freizeitpark darauf, erschlossen zu werden."

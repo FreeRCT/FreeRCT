@@ -574,3 +574,10 @@ strings:
 		NAME: "Boom 3"
 	fountain1:
 		NAME: "Springbrunnen 1"
+
+	mission-official-easy:
+		NAME:  "Offiziell Licht"
+		DESCR: "Een Packen vun lichten Rutfödderungen, wat vun de FreeRCT-Entwickeln-Klottje klaarmaakt worden."
+	scenario-emerald-expanses:
+		NAME:  "Smaragden Schüünten"
+		DESCR: "Well kann deese grönen Wiedens bekieken un nich vun hör Mooigheid bewegt worden? Middens tüsken hör bewaldt Schüünten wacht een Vergnögenspark daarup, opmaakt to worden."

@@ -1915,11 +1915,12 @@ int MISNBlock::Write(FileWriter *fw)
 
 	/* Write the data. */
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, total_length + 20 + 4 * lengths.size() - 12);
-	fb->SaveUInt32(this->texts->Write(fw));
+	fb->StartSave(this->blk_name, this->version, total_length + 24 + 8 * lengths.size() - 12);
+	fb->SaveUInt32(this->texts.back()->Write(fw));
 	fb->SaveUInt32(this->max_unlock);
 	fb->SaveUInt32(this->lengths.size());
 	for (uint32 i = 0; i < this->lengths.size(); ++i) {
+		fb->SaveUInt32(this->texts.at(i)->Write(fw));
 		fb->SaveUInt32(this->lengths.at(i));
 		fb->SaveBytes(this->data.at(i).get(), this->lengths.at(i));
 	}

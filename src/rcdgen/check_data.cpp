@@ -2781,18 +2781,23 @@ static std::shared_ptr<MISNBlock> ConvertMISNNode(std::shared_ptr<NodeGroup> ng)
 		exit(1);
 	}
 
-	block->texts = std::make_shared<StringBundle>();
-	block->texts->Fill(vals.GetStrings("texts"), ng->pos);
-	/* We do not verify the strings with CheckTranslations() since that would involve preloading every scenario now to obtain the string keys. */
-
 	block->max_unlock = vals.GetNumber("max_unlock");
+
+	block->texts.resize(nr_scenarios + 1);
+	block->texts.back() = std::make_shared<StringBundle>();
+	block->texts.back()->Fill(vals.GetStrings("texts"), ng->pos);
 
 	block->lengths.resize(nr_scenarios);
 	block->data.resize(nr_scenarios);
-	for (size_t i = 0; i < nr_scenarios; ++i) {
-		std::string key = "file_";
-		key += std::to_string(i);
 
+	for (size_t i = 0; i < nr_scenarios; ++i) {
+		std::string key = "texts_";
+		key += std::to_string(i);
+		block->texts.at(i) = std::make_shared<StringBundle>();
+		block->texts.at(i)->Fill(vals.GetStrings(key.c_str()), ng->pos);
+
+		key = "file_";
+		key += std::to_string(i);
 		FILE *in_file = fopen(vals.GetString(key.c_str()).c_str(), "rb");
 		if (in_file == nullptr) {
 			fprintf(stderr, "Error at %s: Could not open input file.\n", ng->pos.ToString());
@@ -2807,6 +2812,10 @@ static std::shared_ptr<MISNBlock> ConvertMISNNode(std::shared_ptr<NodeGroup> ng)
 		for (size_t j = 0; j < block->lengths[i]; ++j) {
 			block->data[i][j] = getc(in_file);
 		}
+	}
+
+	for (auto &string_bundle : block->texts) {
+		string_bundle->CheckTranslations(_mission_string_names, lengthof(_mission_string_names), ng->pos);
 	}
 
 	vals.VerifyUsage();
@@ -3089,6 +3098,10 @@ void GenerateStringsHeaderFile(const char *prefix, const char *base, const char 
 		names = _scenery_string_names;
 		length = lengthof(_scenery_string_names);
 		nice_name = "Scenery";
+	} else if (strcmp(prefix, "MISSION") == 0) {
+		names = _mission_string_names;
+		length = lengthof(_mission_string_names);
+		nice_name = "Mission";
 	} else {
 		fprintf(stderr, "ERROR: Prefix \"%s\" is not known.\n", prefix);
 		exit(1);
@@ -3164,6 +3177,11 @@ void GenerateStringsCodeFile(const char *prefix, const char *code)
 		length = lengthof(_scenery_string_names);
 		nice_name = "Scenery";
 		lower_name = "scenery";
+	} else if (strcmp(prefix, "MISSION") == 0) {
+		names = _mission_string_names;
+		length = lengthof(_mission_string_names);
+		nice_name = "Mission";
+		lower_name = "mission";
 	} else {
 		fprintf(stderr, "ERROR: Prefix \"%s\" is not known.\n", prefix);
 		exit(1);

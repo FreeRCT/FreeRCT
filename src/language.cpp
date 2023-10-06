@@ -277,7 +277,6 @@ uint16 LanguageManager::RegisterStrings(const TextData &td, const char * const n
 	for (uint i = 0; i < td.string_count; ++i) {
 		assert(names[i] != nullptr && *names[i] != '\0');
 		this->string_names.at(base + i) = names[i];
-		this->reverse_string_names[names[i]] = base + i;
 
 		const uint text_index = name_textstring_lookup.at(names[i]);
 		for (int l = 0; l < LANGUAGE_COUNT; ++l) {
@@ -343,16 +342,6 @@ std::string LanguageManager::GetLanguageName(int lang_index) const
 const char *LanguageManager::GetStringName(StringID number) const
 {
 	return this->string_names.at(number);
-}
-
-/**
- * Look up the ID of a string.
- * @param string_name Name of the string to look up.
- * @return The string's ID.
- */
-StringID LanguageManager::GetStringByName(const std::string &string_name) const
-{
-	return this->reverse_string_names.at(string_name);
 }
 
 /**

@@ -25,6 +25,7 @@
 #include "shop_type.h"
 #include "gentle_thrill_ride_type.h"
 #include "coaster.h"
+#include "gamelevel.h"
 #include "scenery.h"
 #include "string_func.h"
 
@@ -1188,7 +1189,7 @@ void GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
 	LoadSpriteFromFile(rcd_file, sprites, &this->speed_8);
 
 	LoadTextFromFile(rcd_file, texts, &this->text);
-	_language.RegisterStrings(*this->text, _gui_strings_table, STR_GUI_START);
+	_language.RegisterStrings(*this->text, _gui_strings_table, STR_GENERIC_GUI_START);
 }
 
 /**
@@ -1595,6 +1596,11 @@ void SpriteManager::Load(const char *filename)
 
 		if (strcmp(rcd_file.name, "FTKW") == 0) {
 			_rides_manager.LoadDesign(&rcd_file);
+			continue;
+		}
+
+		if (strcmp(rcd_file.name, "MISN") == 0) {
+			LoadMission(&rcd_file, texts);
 			continue;
 		}
 

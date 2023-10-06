@@ -227,7 +227,7 @@ void ParkManagementGui::SetWidgetStringParameters(WidgetNumber wid_num) const
 				str += "\n\n";
 			}
 
-			str += _language.GetSgText(_language.GetStringByName(_scenario.descr_key));
+			str += _scenario.descr;
 			str += "\n\n";
 
 			str += _scenario.objective->ToString();

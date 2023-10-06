@@ -104,7 +104,7 @@ void ShopType::Load(RcdFileReader *rcd_file, [[maybe_unused]] const ImageMap &sp
 	TextData *text_data;
 	LoadTextFromFile(rcd_file, texts, &text_data);
 	StringID base = _language.RegisterStrings(*text_data, _shops_strings_table);
-	this->SetupStrings(text_data, base, STR_GENERIC_SHOP_START, SHOPS_STRING_TABLE_END, SHOPS_NAME_TYPE, SHOPS_DESCRIPTION_TYPE);
+	this->SetupStrings(text_data, base, STR_GENERIC_SHOPS_START, SHOPS_STRING_TABLE_END, SHOPS_NAME_TYPE, SHOPS_DESCRIPTION_TYPE);
 
 	this->internal_name = rcd_file->GetText();
 	this->build_cost = rcd_file->GetUInt32();

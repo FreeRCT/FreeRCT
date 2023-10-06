@@ -54,42 +54,16 @@ file(GLOB freerct_SRCS
      "${CMAKE_SOURCE_DIR}/src/*.h"
 )
 
-set(STRINGFILE "${CMAKE_SOURCE_DIR}/src/generated/coasters_strings")
-add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
-                   COMMAND rcdgen --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix COASTERS --base STR_GENERIC_COASTER_START
-				   DEPENDS rcdgen
-                   COMMENT "Generating COASTERS string files"
-)
-set(STRINGFILE "${CMAKE_SOURCE_DIR}/src/generated/shops_strings")
-add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
-                   COMMAND rcdgen --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix SHOPS --base STR_GENERIC_SHOP_START
-				   DEPENDS rcdgen
-                   COMMENT "Generating SHOPS string files"
-)
-set(STRINGFILE "${CMAKE_SOURCE_DIR}/src/generated/gentle_thrill_rides_strings")
-add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
-                   COMMAND rcdgen --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix GENTLE_THRILL_RIDES --base STR_GENERIC_GENTLE_THRILL_RIDES_START
-				   DEPENDS rcdgen
-                   COMMENT "Generating GENTLE/THRILL RIDES string files"
-)
-set(STRINGFILE "${CMAKE_SOURCE_DIR}/src/generated/entrance_exit_strings")
-add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
-                   COMMAND rcdgen --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix ENTRANCE_EXIT --base STR_GENERIC_ENTRANCE_EXIT_START
-				   DEPENDS rcdgen
-                   COMMENT "Generating ENTRANCE/EXITS string files"
-)
-set(STRINGFILE "${CMAKE_SOURCE_DIR}/src/generated/scenery_strings")
-add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
-                   COMMAND rcdgen --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix SCENERY --base STR_GENERIC_SCENERY_START
-				   DEPENDS rcdgen
-                   COMMENT "Generating SCENERY string files"
-)
-set(STRINGFILE "${CMAKE_SOURCE_DIR}/src/generated/gui_strings")
-add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
-                   COMMAND rcdgen --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix GUI --base STR_GUI_START
-				   DEPENDS rcdgen
-                   COMMENT "Generating GUI string files"
-)
+list(APPEND stringfiles_names "coasters" "shops" "gentle_thrill_rides" "entrance_exit" "scenery" "mission" "gui")
+
+FOREACH(stringfile ${stringfiles_names})
+	string(TOUPPER "${stringfile}" as_uppercase)
+	set(STRINGFILE "${CMAKE_SOURCE_DIR}/src/generated/${stringfile}_strings")
+	add_custom_command(OUTPUT ${STRINGFILE}.cpp ${STRINGFILE}.h
+		               COMMAND rcdgen --header ${STRINGFILE}.h --code ${STRINGFILE}.cpp --prefix "${as_uppercase}" --base "STR_GENERIC_${as_uppercase}_START"
+					   DEPENDS rcdgen
+		               COMMENT "Generating ${as_uppercase} string files")
+ENDFOREACH()
 
 # Add platform specific files
 IF(UNIX)
@@ -106,28 +80,13 @@ ENDIF()
 set(freerct_SRCS ${freerct_SRCS} ${freerct_platform_SRCS})
 
 # Add generated files
-set(freerct_SRCS ${freerct_SRCS}
-    "${CMAKE_SOURCE_DIR}/src/rev.cpp"
-    "${CMAKE_SOURCE_DIR}/src/generated/coasters_strings.h"
-    "${CMAKE_SOURCE_DIR}/src/generated/gui_strings.h"
-    "${CMAKE_SOURCE_DIR}/src/generated/shops_strings.h"
-    "${CMAKE_SOURCE_DIR}/src/generated/gentle_thrill_rides_strings.h"
-    "${CMAKE_SOURCE_DIR}/src/generated/entrance_exit_strings.h"
-    "${CMAKE_SOURCE_DIR}/src/generated/scenery_strings.h"
-)
+set(freerct_SRCS ${freerct_SRCS} "${CMAKE_SOURCE_DIR}/src/rev.cpp")
 set_source_files_properties("${CMAKE_SOURCE_DIR}/src/rev.cpp" GENERATED)
-set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/coasters_strings.cpp" GENERATED)
-set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/coasters_strings.h" GENERATED)
-set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/gui_strings.cpp" GENERATED)
-set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/gui_strings.h" GENERATED)
-set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/shops_strings.cpp" GENERATED)
-set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/shops_strings.h" GENERATED)
-set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/gentle_thrill_rides_strings.cpp" GENERATED)
-set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/gentle_thrill_rides_strings.h" GENERATED)
-set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/entrance_exit_strings.cpp" GENERATED)
-set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/entrance_exit_strings.h" GENERATED)
-set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/scenery_strings.cpp" GENERATED)
-set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/scenery_strings.h" GENERATED)
+FOREACH(stringfile ${stringfiles_names})
+	set(freerct_SRCS ${freerct_SRCS} "${CMAKE_SOURCE_DIR}/src/generated/${stringfile}_strings.h")
+	set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/${stringfile}_strings.cpp" GENERATED)
+	set_source_files_properties("${CMAKE_SOURCE_DIR}/src/generated/${stringfile}_strings.h" GENERATED)
+ENDFOREACH()
 
 # On windows, "WIN32" option need to be passed to
 # add_excutable to get a Windows instead of Console
