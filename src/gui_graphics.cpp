@@ -219,9 +219,10 @@ void GetMultilineTextSize(StringID strid, int max_width, int *width, int *height
  * @param max_width Available width of the text.
  * @param max_height Available height of the text.
  * @param colour Colour of the text.
+ * @param align Horizontal alignment of the string.
  * @return The height was sufficient to output all lines.
  */
-bool DrawMultilineString(StringID strid, int x, int y, int max_width, int max_height, uint8 colour)
+bool DrawMultilineString(StringID strid, int x, int y, int max_width, int max_height, uint8 colour, Alignment align)
 {
 	const std::string buffer = DrawText(strid);
 	std::unique_ptr<char[]> mutable_buffer(new char[buffer.size() + 1]);
@@ -235,11 +236,11 @@ bool DrawMultilineString(StringID strid, int x, int y, int max_width, int max_he
 		int line_width;
 		char *end = GetSingleLine(text, max_width, &line_width);
 		if (*end == '\0') {
-			_video.BlitText(text, _palette[colour], x, y, max_width);
+			_video.BlitText(text, _palette[colour], x, y, max_width, align);
 			break;
 		}
 		*end = '\0';
-		_video.BlitText(text, _palette[colour], x, y, max_width);
+		_video.BlitText(text, _palette[colour], x, y, max_width, align);
 		y += _video.GetTextHeight();
 		text = end + 1;
 	}

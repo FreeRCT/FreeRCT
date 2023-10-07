@@ -111,8 +111,8 @@ Offset  Length  Version  Description
    ?       2      1-     Lowest guest spawn probability.
    ?       2      1-     Highest guest spawn probability.
    ?       4      1-     Maximum guest count.
-   ?       4      1-     Initial amount of money.
-   ?       4      1-     Initial loan.
+           4      1-2    Initial amount of money.
+           4      1-2    Initial loan.
    ?       4      1-     Maximum loan.
    ?       2      1-     Interest rate.
    ?       1      2-     Whether entrance fees are enabled (1 or 0).
@@ -124,6 +124,7 @@ Version history
 
 - 1 (20220820) Initial version.
 - 2 (20231002) Added description and entrance fee parameter.
+- 2 (20231006) Removed initial money and loan.
 
 
 Abstract objective

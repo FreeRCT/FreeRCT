@@ -187,16 +187,6 @@ void FinancesManager::RepayLoan(const Money &delta)
 }
 
 /**
- * Initialize finances with scenario configuration.
- * @param s %Scenario to use for initialization.
- */
-void FinancesManager::SetScenario(const Scenario &s)
-{
-	this->cash = s.initial_money;
-	this->loan = s.initial_loan;
-}
-
-/**
  * Access method for actually changing amount of money and notifying GUI.
  * @param income How much money to change total by.
  * @note Pass a negative number for a loss of money.

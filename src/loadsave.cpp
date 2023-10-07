@@ -439,6 +439,16 @@ static void SaveElements(Saver &svr)
 }
 
 /**
+ * Load a file as saved game.
+ * @param ldr Loader to read the game data.
+ */
+void LoadGame(Loader &ldr)
+{
+	PreloadData pd = Preload(ldr);
+	LoadElements(ldr, pd);
+}
+
+/**
  * Load a file as saved game. Loading from \c nullptr means initializing to default.
  * @param fname Name of the file to load. Use \c nullptr to initialize to default.
  * @return Whether loading was successful.
@@ -453,8 +463,7 @@ bool LoadGameFile(const char *fname)
 		}
 
 		Loader ldr(fp);
-		PreloadData pd = Preload(ldr);
-		LoadElements(ldr, pd);
+		LoadGame(ldr);
 
 		if (fp != nullptr) {
 			fclose(fp);

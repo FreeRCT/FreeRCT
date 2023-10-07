@@ -153,28 +153,33 @@ struct Scenario {
 	std::string descr;                             ///< Description of the scenario.
 	std::shared_ptr<ScenarioObjective> objective;  ///< The scenario's objective.
 
-	Money initial_money;      ///< Initial amount of money of the player.
-	Money initial_loan;       ///< Initial loan of the player.
 	Money max_loan;           ///< Maximum loan the player can take.
 	uint16 interest;          ///< Annual interest rate in 0.1 percent over the current loan.
 	bool allow_entrance_fee;  ///< Whether the player may set a park entrance fee.
 };
 
-/** A %mission of several scenarios. */
-struct Mission {
-	/** Wrapper around a Scenario plus metadata. */
-	struct MissionScenario {
-		size_t fct_length;                   ///< Number of bytes in the scenario file.
-		std::unique_ptr<uint8[]> fct_bytes;  ///< The bytes of the scenario file.
+/** Wrapper around a scenario in a mission plus metadata. */
+struct MissionScenario {
+	size_t fct_length;                   ///< Number of bytes in the scenario file.
+	std::unique_ptr<uint8[]> fct_bytes;  ///< The bytes of the scenario file.
 
-		Scenario scenario;                   ///< The wrapped scenario.
-		StringID name;                       ///< String ID of the title of the scenario.
-		StringID descr;                      ///< String ID of the description of the scenario.
+	Scenario scenario;                   ///< The wrapped scenario.
+	StringID name;                       ///< String ID of the title of the scenario.
+	StringID descr;                      ///< String ID of the description of the scenario.
 
-		std::optional<std::pair<std::string, Money>> solved;  ///< Who solved this scenario and with what company value, if applicable.
-		uint32 required_to_unlock;                            ///< How many other scenarios must be solved to unlock this one (0 means it is unlocked).
+	/** Data about the first time a scenario was solved. */
+	struct Solved {
+		std::string user;         ///< Name of the person who solved the scenario.
+		Money company_value = 0;  ///< Company value at the end of the scenario.
+		time_t timestamp = 0;     ///< Timestamp when the scenario was solved.
 	};
 
+	std::optional<Solved> solved;  ///< Who solved this scenario and with what company value, if applicable.
+	uint32 required_to_unlock;     ///< How many other scenarios must be solved to unlock this one (0 means it is unlocked).
+};
+
+/** A %mission of several scenarios. */
+struct Mission {
 	std::vector<MissionScenario> scenarios;  ///< All scenarios in this mission.
 	uint32 max_unlock;  ///< Maximum number of unlocked unsolved scenarios.
 	StringID name;   ///< String ID of the title of the scenario.

@@ -1209,7 +1209,7 @@ bool Viewport::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &s
 
 	switch (*shortcut) {
 		case KS_MAINMENU_NEW:
-			_game_control.NewGame();
+			ShowScenarioSelectGui();
 			return true;
 		case KS_MAINMENU_LOAD:
 			ShowLoadGameGui();

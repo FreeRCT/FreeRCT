@@ -435,6 +435,14 @@ strings:
 		SETTING_RESOLUTION:         "Uplösen ännern"
 		SETTING_RESOLUTION_TOOLTIP: "De Grött vun de Speelfenster ännern"
 
+		# Scenario select window.
+		SCENARIO_SELECT_TITLE:       "Rutfödderung utkören"
+		SCENARIO_SELECT_NO_MISSIONS: "’t sünd keene Rutfödderungs-Riegen laden worden."
+		SCENARIO_SELECT_UNLOCK:
+			one:   "Sluut noch %1% Rutfödderung in deeser Rieg of, um deese Rutfödderung freeitoschalten."
+			other: "Sluut noch %1% Rutfödderungen in deeser Rieg of, um deese Rutfödderung freeitoschalten."
+		SCENARIO_SELECT_SOLVED: "An %2% vun %1% mit eenem Firmenweert vun %3% ofsluten"
+
 		# Loading/saving window.
 		LOADSAVE_LOAD:        "Laden"
 		LOADSAVE_SAVE:        "Sekern"

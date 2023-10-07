@@ -46,6 +46,7 @@ enum WindowTypes {
 	WC_MINIMAP,         ///< Minimap window.
 	WC_SETTING,         ///< Setting window.
 	WC_LOADSAVE,        ///< Save/load game window.
+	WC_SCENARIO_SELECT, ///< Scenario select window.
 	WC_CONFIRM,         ///< Confirmation prompt.
 	WC_DROPDOWN,        ///< Dropdown window.
 

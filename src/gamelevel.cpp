@@ -36,8 +36,6 @@ void Scenario::SetDefaultScenario()
 	this->spawn_lowest  = 200;
 	this->spawn_highest = 600;
 	this->max_guests    = 3000;
-	this->initial_money = 1000000;
-	this->initial_loan  = this->initial_money;
 	this->max_loan      = 3000000;
 	this->interest      = 25;
 	this->allow_entrance_fee = true;
@@ -165,7 +163,7 @@ void ScenarioObjective::OnNewDay()
 	}
 }
 
-static const uint32 CURRENT_VERSION_SCNO = 2;   ///< Currently supported version of the SCNO Pattern.
+static const uint32 CURRENT_VERSION_SCNO = 3;   ///< Currently supported version of the SCNO Pattern.
 static const uint32 CURRENT_VERSION_OJAO = 1;   ///< Currently supported version of the OJAO Pattern.
 static const uint32 CURRENT_VERSION_OJCN = 1;   ///< Currently supported version of the OJCN Pattern.
 static const uint32 CURRENT_VERSION_OJ00 = 1;   ///< Currently supported version of the OJ00 Pattern.
@@ -186,6 +184,7 @@ void Scenario::Load(Loader &ldr)
 
 		case 1:
 		case 2:
+		case 3:
 			this->name = ldr.GetText();
 			this->descr = version >= 2 ? ldr.GetText() : _language.GetSgText(GUI_DEFAULT_SCENARIO_DESCR);
 
@@ -194,8 +193,10 @@ void Scenario::Load(Loader &ldr)
 			this->spawn_lowest = ldr.GetWord();
 			this->spawn_highest = ldr.GetWord();
 			this->max_guests = ldr.GetLong();
-			this->initial_money = ldr.GetLong();
-			this->initial_loan = ldr.GetLong();
+			if (version <= 2) {
+				ldr.GetLong();  // Was initial money.
+				ldr.GetLong();  // Was initial loan.
+			}
 			this->max_loan = ldr.GetLong();
 			this->interest = ldr.GetWord();
 			this->allow_entrance_fee = version == 1 || ldr.GetByte() != 0;
@@ -221,8 +222,6 @@ void Scenario::Save(Saver &svr)
 	svr.PutWord(this->spawn_lowest);
 	svr.PutWord(this->spawn_highest);
 	svr.PutLong(this->max_guests);
-	svr.PutLong(this->initial_money);
-	svr.PutLong(this->initial_loan);
 	svr.PutLong(this->max_loan);
 	svr.PutWord(this->interest);
 	svr.PutByte(this->allow_entrance_fee ? 1 : 0);
@@ -383,7 +382,7 @@ void LoadMission(RcdFileReader *rcd_file, const TextMap &texts)
 
 	TextData *text_data;
 	LoadTextFromFile(rcd_file, texts, &text_data);
-	StringID base = _language.RegisterStrings(*text_data, _mission_strings_table);
+	StringID base = _language.RegisterStrings(*text_data, _mission_strings_table) - STR_GENERIC_MISSION_START;
 	mission->name  = base + MISSION_NAME;
 	mission->descr = base + MISSION_DESCR;
 
@@ -396,10 +395,10 @@ void LoadMission(RcdFileReader *rcd_file, const TextMap &texts)
 		rcd_file->CheckMinLength(length, 8, "scenario header");
 		length -= 8;
 		mission->scenarios.emplace_back();
-		Mission::MissionScenario &scenario = mission->scenarios.back();
+		MissionScenario &scenario = mission->scenarios.back();
 
 		LoadTextFromFile(rcd_file, texts, &text_data);
-		StringID base = _language.RegisterStrings(*text_data, _mission_strings_table);
+		StringID base = _language.RegisterStrings(*text_data, _mission_strings_table) - STR_GENERIC_MISSION_START;
 		scenario.name  = base + MISSION_NAME;
 		scenario.descr = base + MISSION_DESCR;
 
@@ -421,13 +420,15 @@ void LoadMission(RcdFileReader *rcd_file, const TextMap &texts)
 	rcd_file->CheckExactLength(length, 0, "end of block");
 
 	/* Read solved missions data. */
-	// NOCOM...
+	// NOCOM open mission state config file...
+	mission->scenarios.front().solved = {"Foo", Money(2500000), 1696600000};
+
 
 
 	/* Unlock as many scenarios as permitted. */
 	if (mission->max_unlock > 0) {
 		int32 balance = 0;
-		for (Mission::MissionScenario &scenario : mission->scenarios) {
+		for (MissionScenario &scenario : mission->scenarios) {
 			if (scenario.solved.has_value()) {
 				scenario.required_to_unlock = 0;
 				balance--;

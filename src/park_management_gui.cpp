@@ -227,6 +227,7 @@ void ParkManagementGui::SetWidgetStringParameters(WidgetNumber wid_num) const
 				str += "\n\n";
 			}
 
+			// NOCOM break this over multiple lines!
 			str += _scenario.descr;
 			str += "\n\n";
 

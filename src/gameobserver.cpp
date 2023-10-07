@@ -64,7 +64,7 @@ void GameObserver::Win()
 	this->won_lost = SCENARIO_WON;
 	_inbox.SendMessage(new Message(GUI_MESSAGE_SCENARIO_WON));
 	ShowParkManagementGui(PARK_MANAGEMENT_TAB_OBJECTIVE);
-	/* \todo Record the player's name and other data for the highscores. */
+	/* \todo / NOCOM: Record the player's name and other data for the highscores and refresh mission unlock data. */
 }
 
 /** The game has been lost. */

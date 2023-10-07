@@ -70,7 +70,6 @@ public:
 	void AdvanceMonth();
 	void OnNewDay();
 	void CashToStrParams();
-	void SetScenario(const Scenario &s);
 
 	void DoTransaction(const Money &income);
 	void TakeLoan(const Money &delta);

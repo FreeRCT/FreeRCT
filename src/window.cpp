@@ -1065,6 +1065,7 @@ void WindowManager::UpdateWindows()
 	MouseModeSelector *selector = (sel_window == nullptr) ? nullptr : sel_window->selector;
 	for (Window *w = this->bottom; w != nullptr; w = w->higher) w->OnDraw(selector);
 
+	_str_params.Clear();
 	if (tooltip_widget != nullptr) {
 		tooltip_window->SetTooltipStringParameters(tooltip_widget);
 		tooltip_widget->DrawTooltip(tooltip_window->rect.base);

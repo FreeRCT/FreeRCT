@@ -435,6 +435,14 @@ strings:
 		SETTING_RESOLUTION:         "Auflösung wechseln"
 		SETTING_RESOLUTION_TOOLTIP: "Ändert die grafische Auflösung des Spiels"
 
+		# Scenario select window.
+		SCENARIO_SELECT_TITLE:       "Szenario auswählen"
+		SCENARIO_SELECT_NO_MISSIONS: "Es sind keine Kampagne geladen worden."
+		SCENARIO_SELECT_UNLOCK:
+			one:   "Schließe noch %1% Szenario in dieser Kampagne ab, um dieses Szenario freizuschalten."
+			other: "Schließe noch %1% Szenarien in dieser Kampagne ab, um dieses Szenario freizuschalten."
+		SCENARIO_SELECT_SOLVED: "Am %2% von %1% mit einem Firmen-Verkehrswert von %3% abgeschlossen"
+
 		# Loading/saving window.
 		LOADSAVE_LOAD:        "Laden"
 		LOADSAVE_SAVE:        "Speichern"

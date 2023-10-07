@@ -469,6 +469,7 @@ void ShowBottomToolbar();
 void ShowConfirmationPrompt(StringID title, StringID message, std::function<void()> callback);
 void ShowSaveGameGui();
 void ShowLoadGameGui();
+void ShowScenarioSelectGui();
 void ShowPersonInfoGui(const Person *person);
 void ShowStaffManagementGui();
 void ShowPathBuildGui();

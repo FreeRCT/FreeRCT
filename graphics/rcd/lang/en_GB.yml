@@ -434,6 +434,14 @@ strings:
 		SETTING_RESOLUTION:         "Change resolution"
 		SETTING_RESOLUTION_TOOLTIP: "Change the screen resolution of the game"
 
+		# Scenario select window.
+		SCENARIO_SELECT_TITLE:       "Select Scenario"
+		SCENARIO_SELECT_NO_MISSIONS: "No missions have been loaded."
+		SCENARIO_SELECT_UNLOCK:
+			one:   "Complete %1% more scenario in this mission to unlock this scenario."
+			other: "Complete %1% more scenarios in this mission to unlock this scenario."
+		SCENARIO_SELECT_SOLVED: "Completed by %1% on %2% with a company value of %3%"
+
 		# Loading/saving window.
 		LOADSAVE_LOAD:        "Load"
 		LOADSAVE_SAVE:        "Save"

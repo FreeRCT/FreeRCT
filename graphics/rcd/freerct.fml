@@ -2035,8 +2035,19 @@ file("freerct.rcd") {
 	MISN {
 		texts: strings { key: "mission-official-easy"; }
 		max_unlock: 2;
-		scenarios: 1;
+		scenarios: 9;
 		file_0: "../sprites/scenarios/scenario_emerald_expanses.fct";
 		texts_0: strings { key: "scenario-emerald-expanses"; }
+
+		// NOCOM remove this
+#define NOCOM(x) file_##x : "../sprites/scenarios/scenario_emerald_expanses.fct"; texts_##x : strings { key: "scenario-emerald-expanses"; }
+		NOCOM(1)
+		NOCOM(2)
+		NOCOM(3)
+		NOCOM(4)
+		NOCOM(5)
+		NOCOM(6)
+		NOCOM(7)
+		NOCOM(8)
 	}
 }

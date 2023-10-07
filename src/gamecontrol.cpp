@@ -130,7 +130,8 @@ GameControl::GameControl()
 	main_menu(false),
 	speed(GSP_1),
 	action_test_mode(false),
-	next_action(GCA_NONE)
+	next_action(GCA_NONE),
+	next_scenario(nullptr)
 {
 }
 
@@ -162,19 +163,31 @@ void GameControl::Uninitialize()
 void GameControl::RunAction()
 {
 	switch (this->next_action) {
-		case GCA_NEW_GAME:
-		case GCA_LOAD_GAME:
 		case GCA_LAUNCH_EDITOR:
 			this->ShutdownLevel();
-
-			if (this->next_action != GCA_LOAD_GAME || !LoadGameFile(this->fname.c_str())) {
-				LoadGameFile(nullptr);  // Default-initialize everything.
-				this->NewLevel();
-			}
-
-			this->StartLevel(this->next_action == GCA_LAUNCH_EDITOR);
-
+			LoadGameFile(nullptr);
+			this->InitializeLevel();
+			this->StartLevel(true);
 			break;
+
+		case GCA_LOAD_GAME:
+			this->ShutdownLevel();
+			LoadGameFile(this->fname.c_str());
+			this->StartLevel(false);  // NOCOM what if we load inside the editor??
+			break;
+
+		case GCA_NEW_GAME: {
+			this->ShutdownLevel();
+
+			Loader ldr(this->next_scenario->fct_bytes.get(), this->next_scenario->fct_length);
+			::LoadGame(ldr);
+
+			this->InitializeLevel();
+			this->StartLevel(false);
+
+			this->next_scenario = nullptr;
+			break;
+		}
 
 		case GCA_SAVE_GAME:
 			SaveGameFile(this->fname.c_str());
@@ -203,10 +216,14 @@ void GameControl::MainMenu()
 	this->next_action = GCA_MENU;
 }
 
-/** Prepare for a #GCA_NEW_GAME action. */
-void GameControl::NewGame()
+/**
+ * Prepare for a #GCA_NEW_GAME action.
+ * @param scenario The scenario to load.
+ */
+void GameControl::NewGame(const MissionScenario *scenario)
 {
 	this->next_action = GCA_NEW_GAME;
+	this->next_scenario = scenario;
 }
 
 /** Prepare for a #GCA_LAUNCH_EDITOR action. */
@@ -242,40 +259,47 @@ void GameControl::QuitGame()
 }
 
 /** Initialize all game data structures for playing a new game. */
-void GameControl::NewLevel()
+void GameControl::InitializeLevel()
 {
 	Random::Initialize();
-	_scenario.SetDefaultScenario();  // \todo load a scenario.
 
-	/// \todo We blindly assume game data structures are all clean.
-	_world.SetWorldSize(WORLD_X_SIZE - 1, WORLD_Y_SIZE - 1);
-	_world.MakeFlatWorld(8);
-	_world.SetTileOwnerGlobally(OWN_NONE);
-	_world.SetTileOwnerRect(2, 2, 16, 15, OWN_PARK);
-	_world.SetTileOwnerRect(9, 1,  1,  1, OWN_PARK);
-	_world.SetTileOwnerRect(2, 18, 16, 2, OWN_FOR_SALE);
-
-	std::vector<const SceneryType*> park_entrance_types = _scenery.GetAllTypes(SCC_SCENARIO);
-	if (park_entrance_types.size() < 3) {
-		_world.SetTileOwnerRect(8, 0, 4, 2, OWN_PARK); // Allow building path to map edge in north west.
+	if (this->next_scenario != nullptr) {
+		_scenario = this->next_scenario->scenario;
+		_scenario.name  = _language.GetSgText(this->next_scenario->name);
+		_scenario.descr = _language.GetSgText(this->next_scenario->descr);
 	} else {
-		/* Assemble a park entrance and some paths. This assumes that the entrance parts are the first three scenario scenery items loaded. */
-		_world.AddEdgesWithoutBorderFence(Point16(9, 0), EDGE_SE);
-		for (int i = 0; i < 3; i++) {
-			SceneryInstance *item = new SceneryInstance(park_entrance_types[i]);
-			item->orientation = 0;
-			item->vox_pos.x = 8 + i;
-			item->vox_pos.y = 1;
-			item->vox_pos.z = (i == 1 ? 12 : 8);
-			_scenery.AddItem(item);
-		}
-		for (int i = 0; i < 6; i++) {
-			BuildFlatPath(XYZPoint16(9, i, 8), PAT_CONCRETE, PAS_NORMAL_PATH, false, false);
+		/* When not loading a scenario, create some default objects. \todo Clean this mess up. */
+
+		_scenario.SetDefaultScenario();
+
+		_world.SetWorldSize(WORLD_X_SIZE - 1, WORLD_Y_SIZE - 1);
+		_world.MakeFlatWorld(8);
+		_world.SetTileOwnerGlobally(OWN_NONE);
+		_world.SetTileOwnerRect(2, 2, 16, 15, OWN_PARK);
+		_world.SetTileOwnerRect(9, 1,  1,  1, OWN_PARK);
+		_world.SetTileOwnerRect(2, 18, 16, 2, OWN_FOR_SALE);
+
+		std::vector<const SceneryType*> park_entrance_types = _scenery.GetAllTypes(SCC_SCENARIO);
+		if (park_entrance_types.size() < 3) {
+			_world.SetTileOwnerRect(8, 0, 4, 2, OWN_PARK); // Allow building path to map edge in north west.
+		} else {
+			/* Assemble a park entrance and some paths. This assumes that the entrance parts are the first three scenario scenery items loaded. */
+			_world.AddEdgesWithoutBorderFence(Point16(9, 0), EDGE_SE);
+			for (int i = 0; i < 3; i++) {
+				SceneryInstance *item = new SceneryInstance(park_entrance_types[i]);
+				item->orientation = 0;
+				item->vox_pos.x = 8 + i;
+				item->vox_pos.y = 1;
+				item->vox_pos.z = (i == 1 ? 12 : 8);
+				_scenery.AddItem(item);
+			}
+			for (int i = 0; i < 6; i++) {
+				BuildFlatPath(XYZPoint16(9, i, 8), PAT_CONCRETE, PAS_NORMAL_PATH, false, false);
+			}
 		}
 	}
 
 	_inbox.Clear();
-	_finances_manager.SetScenario(_scenario);
 	_date.Initialize();
 	_weather.Initialize();
 	_game_observer.Initialize();
@@ -292,7 +316,11 @@ void GameControl::StartLevel(bool editor)
 
 	XYZPoint32 view_pos(_world.GetXSize() * 256 / 2, _world.GetYSize() * 256 / 2, 8 * 256);
 	ShowMainDisplay(view_pos);
+
 	if (!this->main_menu) {
+		const XYZPoint16 coords = _world.GetParkEntrance();
+		if (coords != XYZPoint16::invalid()) _window_manager.GetViewport()->view_pos = VoxelToPixel(coords);
+
 		ShowToolbar();
 		ShowBottomToolbar();
 	}

@@ -426,6 +426,12 @@ static const char *_gui_string_names[] = {
 	"SETTING_RESOLUTION",
 	"SETTING_RESOLUTION_TOOLTIP",
 
+	/* Scenario select window. */
+	"SCENARIO_SELECT_TITLE",
+	"SCENARIO_SELECT_NO_MISSIONS",
+	"SCENARIO_SELECT_UNLOCK",
+	"SCENARIO_SELECT_SOLVED",
+
 	/* Loading/saving window. */
 	"LOADSAVE_LOAD",
 	"LOADSAVE_SAVE",

@@ -90,8 +90,7 @@ WmMouseEvent MainMenuGui::OnMouseButtonEvent(const MouseButtons state, WmMouseEv
 	if (state != MB_LEFT) return WMME_NONE;
 
 	if (this->new_game_rect.IsPointInside(_video.GetMousePosition())) {
-		_game_control.NewGame();
-		delete this;
+		ShowScenarioSelectGui();
 	} else if (this->launch_editor_rect.IsPointInside(_video.GetMousePosition())) {
 		_game_control.LaunchEditor();
 		delete this;
@@ -155,6 +154,7 @@ void MainMenuGui::OnDraw([[maybe_unused]] MouseModeSelector *selector)
 		_video.BlitImage(CenterSprite(this->settings_rect,      _gui_sprites.mainmenu_settings),      _gui_sprites.mainmenu_settings);
 		_video.BlitImage(CenterSprite(this->quit_rect,          _gui_sprites.mainmenu_quit),          _gui_sprites.mainmenu_quit);
 
+		_str_params.Clear();
 		DrawString(GUI_MAIN_MENU_NEW_GAME, TEXT_WHITE,
 				this->new_game_rect.base.x,  this->new_game_rect.base.y  - MAIN_MENU_PADDING + this->new_game_rect.height,
 				this->new_game_rect.width,  ALG_CENTER, true);

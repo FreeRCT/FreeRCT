@@ -96,6 +96,7 @@ struct PreloadData {
 	}
 };
 
+void LoadGame(Loader &ldr);
 bool LoadGameFile(const char *fname);
 bool SaveGameFile(const char *fname);
 PreloadData Preload(Loader &ldr);
