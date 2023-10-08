@@ -22,11 +22,6 @@ Scenario _scenario; ///< The scenario being played.
 
 std::vector<std::unique_ptr<Mission>> _missions;  ///< All available missions.
 
-/** Scenario default constructor. */
-Scenario::Scenario()
-{
-}
-
 /**
  * Initialize default settings for a new scenario in the editor.
  */

@@ -158,8 +158,7 @@ public:
 
 /** %Scenario settings. */
 struct Scenario {
-	Scenario();
-
+	Scenario() = default;
 	void SetDefaultScenario();
 
 	void Load(Loader &ldr);
@@ -184,6 +183,8 @@ struct Scenario {
 
 /** Wrapper around a scenario in a mission plus metadata. */
 struct MissionScenario {
+	MissionScenario() = default;
+
 	Mission *mission;              ///< The mission this scenario belongs to.
 	std::string internal_name;     ///< The scenario's internal name.
 
@@ -207,6 +208,8 @@ struct MissionScenario {
 
 /** A %mission of several scenarios. */
 struct Mission {
+	Mission() = default;
+
 	std::vector<MissionScenario> scenarios;  ///< All scenarios in this mission.
 	std::string internal_name;               ///< The mission's internal name.
 	uint32 max_unlock;                       ///< Maximum number of unlocked unsolved scenarios.
