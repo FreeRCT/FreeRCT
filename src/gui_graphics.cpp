@@ -182,17 +182,16 @@ static char *GetSingleLine(char *text, int max_width, int *width)
 
 /**
  * Get the size of a text when printed in multi-line format.
- * @param strid Text to 'print'.
+ * @param buffer Text to layout.
  * @param max_width Longest allowed length of a line.
  * @param width [out]  Actual width of the text.
  * @param height [out] Actual height of the text.
- * @note After the call, NL characters have been inserted at line break points.
+ * @return The text, with additional newline characters as required for layouting.
  * @note Actual width (returned in \c *width) may be larger than \a max_width in case of long words.
  */
-void GetMultilineTextSize(StringID strid, int max_width, int *width, int *height)
+std::string GetMultilineTextSize(const std::string &buffer, int max_width, int *width, int *height)
 {
 	/* \todo This design is ugly. Fix the utility function GetSingleLine() to work on std::string with a start index instead of mutable char*. */
-	const std::string buffer = DrawText(strid);
 	std::unique_ptr<char[]> mutable_buffer(new char[buffer.size() + 1]);
 	strcpy(mutable_buffer.get(), buffer.c_str());
 	char *text = mutable_buffer.get();
@@ -209,6 +208,22 @@ void GetMultilineTextSize(StringID strid, int max_width, int *width, int *height
 		assert(*text == '\n');
 		text++;
 	}
+
+	return mutable_buffer.get();
+}
+
+/**
+ * Get the size of a text when printed in multi-line format.
+ * @param strid Text to 'print'.
+ * @param max_width Longest allowed length of a line.
+ * @param width [out]  Actual width of the text.
+ * @param height [out] Actual height of the text.
+ * @return The text, with additional newline characters as required for layouting.
+ * @note Actual width (returned in \c *width) may be larger than \a max_width in case of long words.
+ */
+std::string GetMultilineTextSize(StringID strid, int max_width, int *width, int *height)
+{
+	return GetMultilineTextSize(DrawText(strid), max_width, width, height);
 }
 
 /**

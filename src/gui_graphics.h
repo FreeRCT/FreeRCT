@@ -32,6 +32,7 @@ void DrawString(StringID strid, uint8 colour, int x, int y, int width = 0x7FFF, 
 void DrawString(const std::string &buffer, uint8 colour, int x, int y, int width = 0x7FFF, Alignment align = ALG_LEFT, bool outline = false);
 bool DrawMultilineString(StringID strid, int x, int y, int max_width, int max_height, uint8 colour, Alignment align = ALG_LEFT);
 
-void GetMultilineTextSize(StringID strid, int max_width, int *width, int *height);
+std::string GetMultilineTextSize(StringID strid,            int max_width, int *width, int *height);
+std::string GetMultilineTextSize(const std::string &buffer, int max_width, int *width, int *height);
 
 #endif

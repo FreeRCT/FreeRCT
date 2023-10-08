@@ -363,11 +363,13 @@ void ParkManagementGui::SetWidgetStringParameters(WidgetNumber wid_num) const
 				str += "\n\n";
 			}
 
-			// NOCOM break this over multiple lines!
 			str += _scenario.descr;
 			str += "\n\n";
 
 			str += _scenario.objective->ToString();
+
+			int w, h;
+			str = GetMultilineTextSize(str, this->rect.width, &w, &h);  // To split this across multiple lines
 			_str_params.SetText(1, str);
 			break;
 		}
