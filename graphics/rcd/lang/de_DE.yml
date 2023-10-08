@@ -341,6 +341,9 @@ strings:
 		FINANCES_LOAN_INTEREST:          "Darlehenszinssatz"
 		FINANCES_LOAN_INTEREST_VALUE:    "%.1f%% pro Jahr"
 		FINANCES_CASH:                   "Bargeld"
+		FINANCES_PARK_VALUE:             "Park-Verkehrswert"
+		FINANCES_COMPANY_VALUE:          "Firmen-Verkehrswert"
+		FINANCES_PARK_VALUE_VALUE:       "Park-Verkehrswert: %1%"
 
 		# Messages and inbox.
 		INBOX_TITLE:              "Posteingang"

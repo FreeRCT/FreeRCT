@@ -165,6 +165,9 @@ struct Scenario {
 
 /** Wrapper around a scenario in a mission plus metadata. */
 struct MissionScenario {
+	Mission *mission;              ///< The mission this scenario belongs to.
+	std::string internal_name;     ///< The scenario's internal name.
+
 	size_t fct_length;                   ///< Number of bytes in the scenario file.
 	std::unique_ptr<uint8[]> fct_bytes;  ///< The bytes of the scenario file.
 
@@ -179,10 +182,8 @@ struct MissionScenario {
 		time_t timestamp = 0;     ///< Timestamp when the scenario was solved.
 	};
 
-	std::string internal_name;     ///< The scenario's internal name.
 	std::optional<Solved> solved;  ///< Who solved this scenario and with what company value, if applicable.
 	uint32 required_to_unlock;     ///< How many other scenarios must be solved to unlock this one (0 means it is unlocked).
-	Mission *mission;              ///< The mission this scenario belongs to.
 };
 
 /** A %mission of several scenarios. */

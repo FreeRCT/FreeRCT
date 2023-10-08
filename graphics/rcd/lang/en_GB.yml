@@ -340,6 +340,9 @@ strings:
 		FINANCES_LOAN_INTEREST:          "Loan Interest"
 		FINANCES_LOAN_INTEREST_VALUE:    "%.1f%% per year"
 		FINANCES_CASH:                   "Cash"
+		FINANCES_PARK_VALUE:             "Park value"
+		FINANCES_COMPANY_VALUE:          "Company value"
+		FINANCES_PARK_VALUE_VALUE:       "Park value: %1%"
 
 		# Messages and inbox.
 		INBOX_TITLE:              "Inbox"

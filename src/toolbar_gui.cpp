@@ -402,7 +402,7 @@ static const WidgetPart _bottom_toolbar_widgets[] = {
 			Intermediate(1, 0),
 				Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN),
 					Intermediate(3, 1),
-						Widget(WT_CENTERED_TEXT, BTB_CASH, COL_RANGE_ORANGE_BROWN), SetData(STR_ARG1, STR_NULL),
+						Widget(WT_CENTERED_TEXT, BTB_CASH, COL_RANGE_ORANGE_BROWN), SetData(STR_ARG1, GUI_FINANCES_PARK_VALUE_VALUE),
 						Widget(WT_CENTERED_TEXT, BTB_GUESTCOUNT, COL_RANGE_ORANGE_BROWN), SetData(GUI_BOTTOMBAR_GUESTCOUNT, STR_NULL),
 						Widget(WT_EMPTY, BTB_PARK_RATING, COL_RANGE_ORANGE_BROWN), SetData(STR_NULL, GUI_PARK_MANAGEMENT_RATING), SetFill(1, 1),
 				Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN),
@@ -438,6 +438,8 @@ void BottomToolbarWindow::SetTooltipStringParameters(BaseWidget *tooltip_widget)
 	GuiWindow::SetTooltipStringParameters(tooltip_widget);
 	if (tooltip_widget == this->GetWidget<BaseWidget>(BTB_PARK_RATING)) {
 		_str_params.SetNumber(1, _game_observer.current_park_rating);
+	} else if (tooltip_widget == this->GetWidget<BaseWidget>(BTB_CASH)) {
+		_str_params.SetMoney(1, _finances_manager.GetParkValue());
 	}
 }
 

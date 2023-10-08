@@ -340,6 +340,9 @@ static const char *_gui_string_names[] = {
 	"FINANCES_CURRENT_LOAN",
 	"FINANCES_LOAN_INTEREST",
 	"FINANCES_LOAN_INTEREST_VALUE",
+	"FINANCES_PARK_VALUE",
+	"FINANCES_COMPANY_VALUE",
+	"FINANCES_PARK_VALUE_VALUE",
 
 	/* Messages and inbox. Do not change the order. */
 	"INBOX_TITLE",

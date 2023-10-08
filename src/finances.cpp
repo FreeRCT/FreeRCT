@@ -15,6 +15,7 @@
 #include "finances.h"
 #include "math_func.h"
 #include "window.h"
+#include "ride_type.h"
 #include <cmath>
 
 FinancesManager _finances_manager; ///< Storage and retrieval of park financial records.
@@ -128,6 +129,7 @@ void FinancesManager::Reset()
 	this->finances[this->current].Reset();
 	this->cash = 0;
 	this->loan = 0;
+	this->park_value = 0;
 }
 
 /**
@@ -149,6 +151,8 @@ void FinancesManager::OnNewDay()
 		interest *= this->loan;
 		this->PayLoanInterest(round(interest));
 	}
+
+	this->RecomputeParkValue();
 }
 
 /** Complete the current month and transition to new finances object. */
@@ -163,6 +167,15 @@ void FinancesManager::AdvanceMonth()
 void FinancesManager::CashToStrParams()
 {
 	_str_params.SetMoney(1, this->cash);
+}
+
+/**
+ * The current total value of the company.
+ * @return The company value.
+ */
+Money FinancesManager::GetCompanyValue() const
+{
+	return this->park_value + this->cash - this->loan;
 }
 
 /**
@@ -196,6 +209,18 @@ void FinancesManager::DoTransaction(const Money &income)
 	this->cash += income;
 }
 
+/** Recalculate the park's total value. */
+void FinancesManager::RecomputeParkValue()
+{
+	this->park_value = 0;
+
+	for (const auto &pair : _rides_manager.instances) {
+		this->park_value += std::max(Money(0), -pair.second->ComputeReturnCost());
+	}
+
+	/* \todo Also consider other sellable items such as scenery and paths. */
+}
+
 /**
  * Load financial data from the save game.
  * @param ldr Input stream to load from.
@@ -215,6 +240,7 @@ void FinancesManager::Load(Loader &ldr)
 		for (int i = 0; i < this->num_used; i++) this->finances[i].Load(ldr);
 	}
 	ldr.ClosePattern();
+	this->RecomputeParkValue();
 }
 
 /**

@@ -341,6 +341,9 @@ strings:
 		FINANCES_LOAN_INTEREST:          "Börgtins"
 		FINANCES_LOAN_INTEREST_VALUE:    "%.1f%% pro Jahr"
 		FINANCES_CASH:                   "Geld"
+		FINANCES_PARK_VALUE:             "Parkweert"
+		FINANCES_COMPANY_VALUE:          "Firmenweert"
+		FINANCES_PARK_VALUE_VALUE:       "Parkweert: %1%"
 
 		# Messages and inbox.
 		INBOX_TITLE:              "Narichtens"

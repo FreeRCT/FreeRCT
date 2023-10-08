@@ -203,6 +203,25 @@ void Scenario::Load(Loader &ldr)
 			this->max_loan = ldr.GetLong();
 			this->interest = ldr.GetWord();
 			this->allow_entrance_fee = version == 1 || ldr.GetByte() != 0;
+
+			this->wrapper = nullptr;
+			if (version >= 3) {
+				std::string int_name = ldr.GetText();
+				if (!int_name.empty()) {
+					for (auto &mission : _missions) {
+						for (MissionScenario &scenario : mission->scenarios) {
+							if (scenario.internal_name == int_name) {
+								this->wrapper = &scenario;
+								break;
+							}
+						}
+					}
+					if (this->wrapper == nullptr) {
+						printf("WARNING: Scenario %s not found\n", int_name.c_str());
+					}
+				}
+			}
+
 			break;
 
 		default:
@@ -228,6 +247,7 @@ void Scenario::Save(Saver &svr)
 	svr.PutLong(this->max_loan);
 	svr.PutWord(this->interest);
 	svr.PutByte(this->allow_entrance_fee ? 1 : 0);
+	svr.PutText(this->wrapper != nullptr ? this->wrapper->internal_name : "");
 
 	svr.EndPattern();
 }

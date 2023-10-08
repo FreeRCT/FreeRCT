@@ -100,9 +100,9 @@ Scenario
 ~~~~~~~~
 Stores the scenario parameters.
 
-======  ======  =======  =====================================================================
+======  ======  =======  ===============================================================================
 Offset  Length  Version  Description
-======  ======  =======  =====================================================================
+======  ======  =======  ===============================================================================
    0       4      1-     "SCNO".
    4       4      1-     Version number.
    8       ?      1-     Name of the scenario.
@@ -116,15 +116,16 @@ Offset  Length  Version  Description
    ?       4      1-     Maximum loan.
    ?       2      1-     Interest rate.
    ?       1      2-     Whether entrance fees are enabled (1 or 0).
+   ?       ?      3-     Internal name of the mission scenario being played (empty if not a mission).
    ?       4      1-     "ONCS"
-======  ======  =======  =====================================================================
+======  ======  =======  ===============================================================================
 
 Version history
 ...............
 
 - 1 (20220820) Initial version.
 - 2 (20231002) Added description and entrance fee parameter.
-- 2 (20231006) Removed initial money and loan.
+- 3 (20231006) Removed initial money and loan and added internal name reference.
 
 
 Abstract objective

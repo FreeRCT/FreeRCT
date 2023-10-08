@@ -64,6 +64,8 @@ enum FinancesWidgets {
 	FIN_DECREASE_MAX_LOAN,  ///< Decrease max loan button.
 	FIN_INCREASE_INTEREST,  ///< Increase loan interest button.
 	FIN_DECREASE_INTEREST,  ///< Decrease loan interest button.
+	FIN_PARK_VALUE,         ///< Park value text field.
+	FIN_COMPANY_VALUE,      ///< Company value text field.
 };
 
 /**
@@ -90,7 +92,7 @@ static const WidgetPart _finances_gui_parts[] = {
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
 			Intermediate(1, 2), SetPadding(2, 2, 2, 2),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
-			Intermediate(4, 2), SetPadding(2, 2, 2, 2),
+			Intermediate(6, 2), SetPadding(2, 2, 2, 2),
 				Widget(WT_LEFT_TEXT,  INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetData(GUI_FINANCES_CASH,          STR_NULL),
 				Intermediate(1, 3), SetPadding(2, 2, 2, 2),
 					Widget(WT_TEXT_PUSHBUTTON, FIN_DECREASE_CASH, COL_RANGE_GREY), SetData(GUI_DECREASE_BUTTON, STR_NULL), SetRepeating(true),
@@ -111,6 +113,10 @@ static const WidgetPart _finances_gui_parts[] = {
 					Widget(WT_TEXT_PUSHBUTTON, FIN_DECREASE_LOAN, COL_RANGE_GREY), SetData(GUI_DECREASE_BUTTON, STR_NULL), SetRepeating(true),
 					Widget(WT_CENTERED_TEXT,   FIN_CURRENT_LOAN,  COL_RANGE_GREY), SetData(STR_ARG1,            STR_NULL),
 					Widget(WT_TEXT_PUSHBUTTON, FIN_INCREASE_LOAN, COL_RANGE_GREY), SetData(GUI_INCREASE_BUTTON, STR_NULL), SetRepeating(true),
+				Widget(WT_LEFT_TEXT,  INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetData(GUI_FINANCES_PARK_VALUE,    STR_NULL),
+				Widget(WT_CENTERED_TEXT, FIN_PARK_VALUE   , COL_RANGE_GREY), SetData(STR_ARG1, STR_NULL),
+				Widget(WT_LEFT_TEXT,  INVALID_WIDGET_INDEX, COL_RANGE_GREY), SetData(GUI_FINANCES_COMPANY_VALUE, STR_NULL),
+				Widget(WT_CENTERED_TEXT, FIN_COMPANY_VALUE, COL_RANGE_GREY), SetData(STR_ARG1, STR_NULL),
 		Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_GREY),
 			Intermediate(15, 2), SetPadding(2, 2, 2, 2),
 				FINANCES_ROW(RIDE_CONSTRUCTION),
@@ -157,6 +163,9 @@ void FinancesGui::SetWidgetStringParameters(WidgetNumber wid_num) const
 		case FIN_RESEARCH_VALUE:          _str_params.SetMoney(1, f.research);       break;
 		case FIN_LOAN_INTEREST_VALUE:     _str_params.SetMoney(1, f.loan_interest);  break;
 		case FIN_TOTAL_VALUE:             _str_params.SetMoney(1, f.GetTotal());     break;
+
+		case FIN_PARK_VALUE:    _str_params.SetMoney(1, _finances_manager.GetParkValue());    break;
+		case FIN_COMPANY_VALUE: _str_params.SetMoney(1, _finances_manager.GetCompanyValue()); break;
 
 		case FIN_CASH:         _str_params.SetMoney(1, _finances_manager.GetCash()); break;
 		case FIN_CURRENT_LOAN: _str_params.SetMoney(1, _finances_manager.GetLoan()); break;
