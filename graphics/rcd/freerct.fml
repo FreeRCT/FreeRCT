@@ -2036,10 +2036,14 @@ file("freerct.rcd") {
 		internal_name: "official_easy";
 		texts: strings { key: "mission-official-easy"; }
 		max_unlock: 2;
-		scenarios: 1;
+		scenarios: 2;
 
 		internal_name_0: "emerald_expanses";
 		file_0: "../sprites/scenarios/scenario_emerald_expanses.fct";
 		texts_0: strings { key: "scenario-emerald-expanses"; }
+
+		internal_name_1: "rugged_ravine";
+		file_1: "../sprites/scenarios/scenario_rugged_ravine.fct";
+		texts_1: strings { key: "scenario-rugged-ravine"; }
 	}
 }

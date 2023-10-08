@@ -226,9 +226,6 @@ void Scenario::Load(Loader &ldr)
 							}
 						}
 					}
-					if (this->wrapper == nullptr) {
-						printf("WARNING: Scenario %s not found\n", int_name.c_str());
-					}
 				}
 			}
 

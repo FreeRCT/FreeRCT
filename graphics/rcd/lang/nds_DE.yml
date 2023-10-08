@@ -605,3 +605,6 @@ strings:
 	scenario-emerald-expanses:
 		NAME:  "Smaragden Schüünten"
 		DESCR: "Well kann deese grönen Wiedens bekieken un nich vun hör Mooigheid bewegt worden? Middens tüsken hör bewaldt Schüünten wacht een Vergnögenspark daarup, opmaakt to worden."
+	scenario-rugged-ravine:
+		NAME:  "Stuve Schlucht"
+		DESCR: "Eene Klamm, wat een lang utdröögt Stroom in de Landskupp insneden hett, is de Umgeven för deesen Themenpark."

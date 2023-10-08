@@ -605,3 +605,6 @@ strings:
 	scenario-emerald-expanses:
 		NAME:  "Smaragdene Senken"
 		DESCR: "Wer könnte diese grünen Weiten betrachten und nicht von ihrer Schönheit bewegt sein? Inmitten ihrer hügeligen Haine wartet ein Freizeitpark darauf, erschlossen zu werden."
+	scenario-rugged-ravine:
+		NAME:  "Steile Schlucht"
+		DESCR: "Eine Klamm, von einem lang ausgetrockneten Fluss in die Landschaft geschnitten, ist die Szenerie für diesen Themenpark."

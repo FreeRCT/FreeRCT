@@ -195,6 +195,7 @@ void GameControl::RunAction()
 			this->StartLevel(false);
 
 			this->next_scenario = nullptr;
+			ShowParkManagementGui(PARK_MANAGEMENT_TAB_OBJECTIVE);
 			break;
 		}
 

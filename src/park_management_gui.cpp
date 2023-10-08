@@ -381,7 +381,7 @@ void ParkManagementGui::SetWidgetStringParameters(WidgetNumber wid_num) const
 			str += _scenario.objective->ToString();
 
 			int w, h;
-			str = GetMultilineTextSize(str, this->rect.width, &w, &h);  // To split this across multiple lines
+			str = GetMultilineTextSize(str, std::max<int32>(GRAPH_WIDTH, this->rect.width), &w, &h);  // To split long descriptions across multiple lines.
 			_str_params.SetText(1, str);
 			break;
 		}

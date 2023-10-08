@@ -604,3 +604,6 @@ strings:
 	scenario-emerald-expanses:
 		NAME:  "Emerald Expanses"
 		DESCR: "Who could behold these vast green lands and not be moved by their beauty? Within the forested confines of their gentle hills, an amusement park is waiting to be developed."
+	scenario-rugged-ravine:
+		NAME:  "Rugged Ravine"
+		DESCR: "A canyon, carved into the countryside by a long dried up river, is the setting for this theme park."
