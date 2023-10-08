@@ -1912,14 +1912,17 @@ int MISNBlock::Write(FileWriter *fw)
 {
 	uint32 total_length = 0;
 	for (uint32 l : this->lengths) total_length += l;
+	for (const std::string &name : this->internal_names) total_length += name.size() + 1;
 
 	/* Write the data. */
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, total_length + 24 + 8 * lengths.size() - 12);
+	fb->SaveText(this->internal_names.back());
 	fb->SaveUInt32(this->texts.back()->Write(fw));
 	fb->SaveUInt32(this->max_unlock);
 	fb->SaveUInt32(this->lengths.size());
 	for (uint32 i = 0; i < this->lengths.size(); ++i) {
+		fb->SaveText(this->internal_names.at(i));
 		fb->SaveUInt32(this->texts.at(i)->Write(fw));
 		fb->SaveUInt32(this->lengths.at(i));
 		fb->SaveBytes(this->data.at(i).get(), this->lengths.at(i));

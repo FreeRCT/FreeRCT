@@ -64,7 +64,7 @@ public:
 	void Uninitialize();
 
 	void MainMenu();
-	void NewGame(const MissionScenario *scenario);
+	void NewGame(MissionScenario *scenario);
 	void LaunchEditor();
 	void LoadGame(const std::string &fname);
 	void SaveGame(const std::string &fname);
@@ -85,7 +85,7 @@ private:
 
 	GameControlAction next_action; ///< Action game control wants to run, or #GCA_NONE for 'no action'.
 	std::string fname;             ///< Filename of game level to load from or save to.
-	const MissionScenario *next_scenario;  ///< The scenario to load on the next tick.
+	MissionScenario *next_scenario;  ///< The scenario to load on the next tick.
 };
 
 extern GameControl _game_control;

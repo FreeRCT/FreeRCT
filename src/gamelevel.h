@@ -19,6 +19,9 @@
 #include "loadsave.h"
 #include "sprite_store.h"
 
+struct Mission;
+struct MissionScenario;
+
 /** The policy how to interpret an objective's due date. */
 enum ObjectiveTimeoutPolicy {
 	TIMEOUT_NONE   = 0,  ///< The objective may be fulfilled at any time.
@@ -156,6 +159,8 @@ struct Scenario {
 	Money max_loan;           ///< Maximum loan the player can take.
 	uint16 interest;          ///< Annual interest rate in 0.1 percent over the current loan.
 	bool allow_entrance_fee;  ///< Whether the player may set a park entrance fee.
+
+	MissionScenario *wrapper;  ///< The metadata wrapper around this scenario (not owned).
 };
 
 /** Wrapper around a scenario in a mission plus metadata. */
@@ -174,16 +179,21 @@ struct MissionScenario {
 		time_t timestamp = 0;     ///< Timestamp when the scenario was solved.
 	};
 
+	std::string internal_name;     ///< The scenario's internal name.
 	std::optional<Solved> solved;  ///< Who solved this scenario and with what company value, if applicable.
 	uint32 required_to_unlock;     ///< How many other scenarios must be solved to unlock this one (0 means it is unlocked).
+	Mission *mission;              ///< The mission this scenario belongs to.
 };
 
 /** A %mission of several scenarios. */
 struct Mission {
 	std::vector<MissionScenario> scenarios;  ///< All scenarios in this mission.
-	uint32 max_unlock;  ///< Maximum number of unlocked unsolved scenarios.
-	StringID name;   ///< String ID of the title of the scenario.
-	StringID descr;  ///< String ID of the description of the scenario.
+	std::string internal_name;               ///< The mission's internal name.
+	uint32 max_unlock;                       ///< Maximum number of unlocked unsolved scenarios.
+	StringID name;                           ///< String ID of the title of the scenario.
+	StringID descr;                          ///< String ID of the description of the scenario.
+
+	void UpdateUnlockData();
 };
 
 void LoadMission(RcdFileReader *rcd_file, const TextMap &texts);

@@ -10,6 +10,7 @@
 #include "stdafx.h"
 #include "gameobserver.h"
 #include "gamelevel.h"
+#include "gamecontrol.h"
 #include "messages.h"
 #include "people.h"
 #include "window.h"
@@ -64,7 +65,15 @@ void GameObserver::Win()
 	this->won_lost = SCENARIO_WON;
 	_inbox.SendMessage(new Message(GUI_MESSAGE_SCENARIO_WON));
 	ShowParkManagementGui(PARK_MANAGEMENT_TAB_OBJECTIVE);
-	/* \todo / NOCOM: Record the player's name and other data for the highscores and refresh mission unlock data. */
+
+	if (_game_mode_mgr.InPlayMode() && !_scenario.wrapper->solved.has_value()) {
+		_scenario.wrapper->solved = {
+			"NOCOM no name yet",  // NOCOM ask the user for a name
+			2500000,  // NOCOM calculate company value
+			std::time(nullptr)
+		};
+		_scenario.wrapper->mission->UpdateUnlockData();
+	}
 }
 
 /** The game has been lost. */

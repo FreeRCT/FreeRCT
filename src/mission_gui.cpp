@@ -25,7 +25,7 @@ public:
 	void SetTooltipStringParameters(BaseWidget *tooltip_widget) const override;
 	void OnClick(WidgetNumber wid_num, const Point16 &pos) override;
 
-	const MissionScenario *GetScenario(WidgetNumber wid_num) const;
+	MissionScenario *GetScenario(WidgetNumber wid_num) const;
 	bool SelectTab(WidgetNumber wid_num);
 
 private:
@@ -120,12 +120,12 @@ bool ScenarioSelectGui::SelectTab(WidgetNumber wid_num)
  * @param wid_num Scenario row ID.
  * @return The scenario, or \c nullptr if there is no scenario here.
  */
-const MissionScenario *ScenarioSelectGui::GetScenario(const WidgetNumber wid_num) const
+MissionScenario *ScenarioSelectGui::GetScenario(const WidgetNumber wid_num) const
 {
 	if (wid_num < 1 || wid_num > SSW_NR_ROWS) return nullptr;
 
 	const ScrollbarWidget *scrollbar = this->GetWidget<ScrollbarWidget>(SSW_SCROLLBAR);
-	const auto &all_scenarios = _missions.at(this->current_mission)->scenarios;
+	auto &all_scenarios = _missions.at(this->current_mission)->scenarios;
 	const int nr_scenarios = all_scenarios.size();
 	const int scenario_index = wid_num + scrollbar->GetStart() - 1;
 
@@ -135,7 +135,7 @@ const MissionScenario *ScenarioSelectGui::GetScenario(const WidgetNumber wid_num
 
 void ScenarioSelectGui::OnClick(const WidgetNumber wid_num, const Point16 &pos)
 {
-	const MissionScenario *scenario = this->GetScenario(wid_num);
+	MissionScenario *scenario = this->GetScenario(wid_num);
 	if (scenario == nullptr) {
 		if (this->SelectTab(wid_num)) return;
 		return GuiWindow::OnClick(wid_num, pos);
@@ -152,7 +152,7 @@ void ScenarioSelectGui::OnClick(const WidgetNumber wid_num, const Point16 &pos)
 
 void ScenarioSelectGui::SetTooltipStringParameters(BaseWidget *tooltip_widget) const
 {
-	const MissionScenario *scenario = this->GetScenario(tooltip_widget->number);
+	MissionScenario *scenario = this->GetScenario(tooltip_widget->number);
 	if (scenario != nullptr) {
 		if (scenario->required_to_unlock == 0) {
 			_str_params.SetStrID(1, scenario->descr);
@@ -174,7 +174,7 @@ void ScenarioSelectGui::OnDraw(MouseModeSelector *s)
 
 void ScenarioSelectGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) const
 {
-	const MissionScenario *scenario = this->GetScenario(wid_num);
+	MissionScenario *scenario = this->GetScenario(wid_num);
 	if (scenario == nullptr) return GuiWindow::DrawWidget(wid_num, wid);
 
 	const int x = this->GetWidgetScreenX(wid) + SCENARIO_PADDING;

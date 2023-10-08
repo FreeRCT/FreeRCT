@@ -2783,18 +2783,24 @@ static std::shared_ptr<MISNBlock> ConvertMISNNode(std::shared_ptr<NodeGroup> ng)
 
 	block->max_unlock = vals.GetNumber("max_unlock");
 
-	block->texts.resize(nr_scenarios + 1);
-	block->texts.back() = std::make_shared<StringBundle>();
-	block->texts.back()->Fill(vals.GetStrings("texts"), ng->pos);
-
 	block->lengths.resize(nr_scenarios);
 	block->data.resize(nr_scenarios);
+	block->internal_names.resize(nr_scenarios + 1);
+	block->texts.resize(nr_scenarios + 1);
+
+	block->texts.back() = std::make_shared<StringBundle>();
+	block->texts.back()->Fill(vals.GetStrings("texts"), ng->pos);
+	block->internal_names.back() = vals.GetString("internal_name");
 
 	for (size_t i = 0; i < nr_scenarios; ++i) {
 		std::string key = "texts_";
 		key += std::to_string(i);
 		block->texts.at(i) = std::make_shared<StringBundle>();
 		block->texts.at(i)->Fill(vals.GetStrings(key.c_str()), ng->pos);
+
+		key = "internal_name_";
+		key += std::to_string(i);
+		block->internal_names.at(i) = vals.GetString(key.c_str());
 
 		key = "file_";
 		key += std::to_string(i);

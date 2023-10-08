@@ -12,6 +12,8 @@
 #include "messages.h"
 #include "people.h"
 #include "gameobserver.h"
+#include "config_reader.h"
+#include "rev.h"
 #include "generated/mission_strings.cpp"
 #include "generated/mission_strings.h"
 
@@ -31,6 +33,7 @@ Scenario::Scenario()
  */
 void Scenario::SetDefaultScenario()
 {
+	this->wrapper = nullptr;
 	this->name = _language.GetSgText(GUI_DEFAULT_SCENARIO_NAME);
 	this->descr = _language.GetSgText(GUI_DEFAULT_SCENARIO_DESCR);
 	this->spawn_lowest  = 200;
@@ -366,6 +369,20 @@ void ObjectiveParkRating::Save(Saver &svr)
 	svr.EndPattern();
 }
 
+static const std::string MISSION_SECTION_USER ("user");           ///< Section name in the missions config file for the name of the user who first solved a scenario.
+static const std::string MISSION_SECTION_TIME ("timestamp");      ///< Section name in the missions config file for the timestamp when the scenario was solved.
+static const std::string MISSION_SECTION_VALUE("company_value");  ///< Section name in the missions config file for the company value at the end of the scenario.
+
+/**
+ * Get the config file that holds information about solved missions.
+ * @return The config file.
+ */
+static ConfigFile &GetMissionConfigFile()
+{
+	static ConfigFile cfg_file(freerct_userdata_prefix() + DIR_SEP + "missions.cfg");
+	return cfg_file;
+}
+
 /**
  * Read a mission from the RCD file block and add it to the global list of missions.
  * @param rcd_file File to read from.
@@ -377,8 +394,16 @@ void LoadMission(RcdFileReader *rcd_file, const TextMap &texts)
 
 	rcd_file->CheckVersion(1);
 	int length = rcd_file->size;
-	rcd_file->CheckMinLength(length, 12, "header");
-	length -= 12;
+	rcd_file->CheckMinLength(length, 13, "header");
+
+	mission->internal_name = rcd_file->GetText();
+	length -= 13 + mission->internal_name.size();
+
+	for (const auto &m : _missions) {
+		if (m->internal_name == mission->internal_name) {
+			rcd_file->Error("Mission %s already defined", mission->internal_name.c_str());
+		}
+	}
 
 	TextData *text_data;
 	LoadTextFromFile(rcd_file, texts, &text_data);
@@ -391,11 +416,23 @@ void LoadMission(RcdFileReader *rcd_file, const TextMap &texts)
 
 	if (nr_scenarios == 0) rcd_file->Error("Mission without scenarios");
 
+	ConfigFile &cfg_file = GetMissionConfigFile();
+
 	for (uint32 i = 0; i < nr_scenarios; ++i) {
-		rcd_file->CheckMinLength(length, 8, "scenario header");
-		length -= 8;
+		rcd_file->CheckMinLength(length, 9, "scenario header");
 		mission->scenarios.emplace_back();
 		MissionScenario &scenario = mission->scenarios.back();
+		scenario.mission = mission.get();
+		scenario.internal_name = rcd_file->GetText();
+		length -= 9 + scenario.internal_name.size();
+
+		scenario.internal_name.insert(0, "/");  // Prepend mission name to ensure the identifier is globally unique.
+		scenario.internal_name.insert(0, mission->internal_name);
+		for (uint32 j = 0; j < i; ++j) {
+			if (mission->scenarios.at(j).internal_name == scenario.internal_name) {
+				rcd_file->Error("Scenario %s already defined", scenario.internal_name.c_str());
+			}
+		}
 
 		LoadTextFromFile(rcd_file, texts, &text_data);
 		StringID base = _language.RegisterStrings(*text_data, _mission_strings_table) - STR_GENERIC_MISSION_START;
@@ -414,21 +451,32 @@ void LoadMission(RcdFileReader *rcd_file, const TextMap &texts)
 		if (!preload.load_success) rcd_file->Error("Preloading scenario %u failed", i);
 		scenario.scenario = *preload.scenario;
 
-		if (mission->max_unlock == 0) scenario.required_to_unlock = 0;
+		int64 solved_timestamp = cfg_file.GetNum(MISSION_SECTION_TIME, scenario.internal_name);
+		if (solved_timestamp > 0) {
+			scenario.solved = {
+				cfg_file.GetValue(MISSION_SECTION_USER, scenario.internal_name),
+				cfg_file.GetNum(MISSION_SECTION_VALUE, scenario.internal_name),
+				solved_timestamp
+			};
+		}
 	}
 
 	rcd_file->CheckExactLength(length, 0, "end of block");
 
-	/* Read solved missions data. */
-	// NOCOM open mission state config file...
-	mission->scenarios.front().solved = {"Foo", Money(2500000), 1696600000};
+	mission->UpdateUnlockData();
 
+	_missions.emplace_back(std::move(mission));
+}
 
-
+/** Update the information which scenarios are unlocked and save the data for solved missions to the config file. */
+void Mission::UpdateUnlockData()
+{
 	/* Unlock as many scenarios as permitted. */
-	if (mission->max_unlock > 0) {
+	if (this->max_unlock == 0) {
+		for (MissionScenario &scenario : this->scenarios) scenario.required_to_unlock = 0;
+	} else {
 		int32 balance = 0;
-		for (MissionScenario &scenario : mission->scenarios) {
+		for (MissionScenario &scenario : this->scenarios) {
 			if (scenario.solved.has_value()) {
 				scenario.required_to_unlock = 0;
 				balance--;
@@ -439,5 +487,23 @@ void LoadMission(RcdFileReader *rcd_file, const TextMap &texts)
 		}
 	}
 
-	_missions.emplace_back(std::move(mission));
+	/* Save solved data to file. */
+	ConfigFile &cfg_file = GetMissionConfigFile();
+	ConfigSection &section_user  = cfg_file.GetCreateSection(MISSION_SECTION_USER);
+	ConfigSection &section_time  = cfg_file.GetCreateSection(MISSION_SECTION_TIME);
+	ConfigSection &section_value = cfg_file.GetCreateSection(MISSION_SECTION_VALUE);
+
+	for (MissionScenario &scenario : this->scenarios) {
+		if (scenario.solved.has_value()) {
+			section_user .SetItem(scenario.internal_name, scenario.solved->user);
+			section_time .SetItem(scenario.internal_name, std::to_string(scenario.solved->timestamp));
+			section_value.SetItem(scenario.internal_name, std::to_string(scenario.solved->company_value));
+		} else {
+			section_user .RemoveItem(scenario.internal_name);
+			section_time .RemoveItem(scenario.internal_name);
+			section_value.RemoveItem(scenario.internal_name);
+		}
+	}
+
+	cfg_file.Write(true);
 }

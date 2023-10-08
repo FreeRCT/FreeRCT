@@ -1134,6 +1134,7 @@ public:
 
 	int Write(FileWriter *fw) override;
 
+	std::vector<std::string> internal_names;           ///< The internal name for each mission and the mission.
 	std::vector<std::shared_ptr<StringBundle>> texts;  ///< The strings for each scenario and the mission.
 	uint32 max_unlock;                                 ///< Maximum number of unlocked unsolved scenarios.
 	std::vector<uint32> lengths;                       ///< The length of each scenario file.

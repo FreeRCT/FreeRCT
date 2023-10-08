@@ -885,10 +885,12 @@ MISN
 ~~~~
 Attributes:
 
+- ``internal_name`` - Internal name of the mission.
+- ``texts`` - strings_ node containing the mission's texts.
 - ``max_unlock`` - Maximum number of unlocked unsolved scenarios in the mission.
 - ``scenarios`` - Total number of scenarios in the mission.
 - ``file_N`` - Path to the FCT file for the N-th scenario.
-- ``texts`` - strings_ node containing the mission's texts.
+- ``internal_name_N`` - Internal name of the N-th scenario.
 - ``texts_N`` - strings_ node containing the N-th scenario's texts.
 
 PATH

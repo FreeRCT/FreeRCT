@@ -220,7 +220,7 @@ void GameControl::MainMenu()
  * Prepare for a #GCA_NEW_GAME action.
  * @param scenario The scenario to load.
  */
-void GameControl::NewGame(const MissionScenario *scenario)
+void GameControl::NewGame(MissionScenario *scenario)
 {
 	this->next_action = GCA_NEW_GAME;
 	this->next_scenario = scenario;
@@ -265,6 +265,7 @@ void GameControl::InitializeLevel()
 
 	if (this->next_scenario != nullptr) {
 		_scenario = this->next_scenario->scenario;
+		_scenario.wrapper = this->next_scenario;
 		_scenario.name  = _language.GetSgText(this->next_scenario->name);
 		_scenario.descr = _language.GetSgText(this->next_scenario->descr);
 	} else {
