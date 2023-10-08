@@ -240,7 +240,7 @@ jobs:
         # Work around caching failure with GNU tar
         New-Item -Type Junction -Path vcpkg -Target c:\vcpkg
 
-        Write-Output "::set-output name=image::$env:ImageOS-$env:ImageVersion"
+        Write-Output "::set-output name=image::$env:ImageOS-$env:ImageVersion-${{ hashFiles('./src/CMakeLists.txt', './.github/workflows/ci-build.yml') }}"
 
     - name: Enable vcpkg cache
       uses: actions/cache@v2
@@ -257,7 +257,6 @@ jobs:
           glew \
           freetype-gl \
           zlib \
-          graphite2 \
           # EOF
 
     - name: Install MSVC problem matcher
