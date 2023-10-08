@@ -232,6 +232,26 @@ Version history
 - 1 (20220820) Initial version.
 
 
+Park value objective
+~~~~~~~~~~~~~~~~~~~~
+An objective to achieve a certain park value.
+
+======  ======  =======  =====================================================================
+Offset  Length  Version  Description
+======  ======  =======  =====================================================================
+   0       4      1-     "OJPV".
+   4       4      1-     Version number.
+   8      21      1-     The `abstract objective`_ data.
+  29       8      1-     The park value to achieve.
+  37       4      1-     "VPJO"
+======  ======  =======  =====================================================================
+
+Version history
+...............
+
+- 1 (20231008) Initial version.
+
+
 Finance history
 ~~~~~~~~~~~~~~~
 A single section in the finance manager history.

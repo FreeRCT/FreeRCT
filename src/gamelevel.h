@@ -35,6 +35,7 @@ enum ObjectiveType {
 	OJT_NONE,
 	OJT_GUESTS,
 	OJT_RATING,
+	OJT_PARK_VALUE,
 };
 
 /** Abstract representation of a scenario objective. */
@@ -102,7 +103,7 @@ public:
 /** Objective to achieve a minimum park rating. */
 class ObjectiveParkRating : public AbstractObjective {
 public:
-	explicit ObjectiveParkRating(uint32 d, uint32 r) : AbstractObjective(d), rating(r) {}
+	explicit ObjectiveParkRating(uint32 d, uint16 r) : AbstractObjective(d), rating(r) {}
 
 	std::string ToString() const override;
 	void OnNewDay() override;
@@ -115,6 +116,24 @@ public:
 	void Save(Saver &svr) override;
 
 	uint16 rating;  ///< Park rating to achieve.
+};
+
+/** Objective to achieve a minimum park value. */
+class ObjectiveParkValue : public AbstractObjective {
+public:
+	explicit ObjectiveParkValue(uint32 d, Money v) : AbstractObjective(d), park_value(v) {}
+
+	std::string ToString() const override;
+	void OnNewDay() override;
+
+	inline ObjectiveType Type() const override
+	{
+		return OJT_PARK_VALUE;
+	}
+	void Load(Loader &ldr) override;
+	void Save(Saver &svr) override;
+
+	Money park_value;  ///< Park value to achieve.
 };
 
 /** Objective to achieve all of one or more objectives. */

@@ -1229,6 +1229,9 @@ bool Viewport::OnKeyEvent(WmKeyCode key_code, WmKeyMod mod, const std::string &s
 		case KS_INGAME_SAVE:
 			ShowSaveGameGui();
 			return true;
+		case KS_INGAME_LOAD:
+			ShowLoadGameGui();
+			return true;
 		case KS_INGAME_MAINMENU:
 			ShowConfirmationPrompt(GUI_RETURN_CAPTION, GUI_RETURN_MESSAGE, []() { _game_control.MainMenu(); });
 			return true;

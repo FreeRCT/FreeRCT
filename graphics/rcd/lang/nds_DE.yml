@@ -33,19 +33,24 @@ strings:
 		MONTH_DECEMBER:  "Dezember"
 
 		OBJECTIVE_TIMEOUT_BEFORE:  "Deese Upgaav mutt vör %1% daankregen worden."
-		OBJECTIVE_TIMEOUT_EXACT:   "Deese Upgaav mutt um %1% daankregen sien."
+		OBJECTIVE_TIMEOUT_EXACT:   "Deese Upgaav mutt um %1% daankregen wesen."
 		OBJECTIVE_TIMEOUT_NONE:    "Deese Upgaav kann to elkeen Tied daankregen worden."
-		OBJECTIVE_STRICT:          "Deese Upgaav mutt alltiedens daankregen sien!"
+		OBJECTIVE_STRICT:          "Deese Upgaav mutt alltiedens daankregen wesen!"
 		OBJECTIVETEXT_NONE:        "Hebb Spaaß!"
 		OBJECTIVETEXT_GUESTS:
 			one:   "Hebb tominnst %1% Gast im Park."
 			other: "Hebb tominnst %1% Gasten im Park."
-		OBJECTIVETEXT_PARK_RATING: "De Parkbeweerten mutt tominnst %1% sien."
+		OBJECTIVETEXT_PARK_RATING: "De Parkbeweerten mutt tominnst %1% wesen."
+		OBJECTIVETEXT_PARK_VALUE:  "De Parkweert mutt tominnst %1% wesen."
 
 		NUMBERED_INSTANCE_NAME: "%1% #%2%"
 		RESOLUTION:             "%1%×%2%"
 		GUEST_NAME:             "Gast %1%"
 
+		NR_DAYS:
+			one:                  "%1% Dag"
+			other:                "%1% Daag"
+		APPLY:                    "Anwennen"
 		DECREASE_BUTTON:          "-"
 		INCREASE_BUTTON:          "+"
 
@@ -315,6 +320,12 @@ strings:
 		PARK_MANAGEMENT_PARKNAME:              "Parknaam:"
 		PARK_MANAGEMENT_ENTRANCE_FEE:          "Intree:"
 		PARK_MANAGEMENT_MAX_GUESTS:            "Gröttste Tahl vun Gasten:"
+		PARK_MANAGEMENT_OBJECTIVE_GUESTS:      "Nödige Tahl vun Gasten:"
+		PARK_MANAGEMENT_OBJECTIVE_RATING:      "Nödige Parkbeweerten:"
+		PARK_MANAGEMENT_OBJECTIVE_PARK_VALUE:  "Nödiger Parkweert:"
+		PARK_MANAGEMENT_OBJECTIVE_DROP_POLICY: "Park word dichtmaakt, wenn Upgaav so lang nich daankregen is:"
+		PARK_MANAGEMENT_OBJECTIVE_DATE:        "Upgaav mutt daankregen worden bit:"
+		PARK_MANAGEMENT_OBJECTIVE_DATE_NOT_EXACT: "Upgaav kann to elkeen Tied daankregen worden."
 
 		# Minimap gui strings.
 		MINIMAP_TITLE: "Lütt Kaart"

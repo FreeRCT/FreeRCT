@@ -135,16 +135,24 @@ GameControl::GameControl()
 {
 }
 
-/** Initialize the game controller. */
-void GameControl::Initialize(const std::string &fname)
+/**
+ * Initialize the game controller.
+ * @param fname File to load (may be empty).
+ * @param editor Launch the editor.
+ */
+void GameControl::Initialize(const std::string &fname, bool editor)
 {
 	this->speed = GSP_1;
 	this->running = true;
 
 	if (fname.empty()) {
-		this->MainMenu();
+		if (editor) {
+			this->LaunchEditor();
+		} else {
+			this->MainMenu();
+		}
 	} else {
-		this->LoadGame(fname);
+		this->LoadGame(fname, editor);
 	}
 
 	this->RunAction();
@@ -171,9 +179,10 @@ void GameControl::RunAction()
 			break;
 
 		case GCA_LOAD_GAME:
+		case GCA_LOAD_EDITOR:
 			this->ShutdownLevel();
 			LoadGameFile(this->fname.c_str());
-			this->StartLevel(false);  // NOCOM what if we load inside the editor??
+			this->StartLevel(this->next_action == GCA_LOAD_EDITOR);
 			break;
 
 		case GCA_NEW_GAME: {
@@ -195,7 +204,7 @@ void GameControl::RunAction()
 
 		case GCA_MENU:
 			this->main_menu = true;
-			this->Initialize(FindDataFile("data/mainmenu/savegame.fct"));
+			this->Initialize(FindDataFile("data/mainmenu/savegame.fct"), false);
 			::ShowMainMenu();
 			break;
 
@@ -233,13 +242,14 @@ void GameControl::LaunchEditor()
 }
 
 /**
- * Prepare for a #GCA_LOAD_GAME action.
+ * Prepare for a #GCA_LOAD_GAME or #GCA_LOAD_EDITOR action.
  * @param fname Name of the file to load.
+ * @param editor Launch as scenario editor.
  */
-void GameControl::LoadGame(const std::string &fname)
+void GameControl::LoadGame(const std::string &fname, bool editor)
 {
 	this->fname = fname;
-	this->next_action = GCA_LOAD_GAME;
+	this->next_action = editor ? GCA_LOAD_EDITOR : GCA_LOAD_GAME;
 }
 
 /**

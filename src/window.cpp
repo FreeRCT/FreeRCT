@@ -1307,6 +1307,7 @@ Shortcuts::Shortcuts()
 
 	this->values[KS_INGAME_QUIT] = ShortcutInfo("quit", Keybinding("q", WMKM_CTRL), Scope::INGAME);
 	this->values[KS_INGAME_SAVE] = ShortcutInfo("save", Keybinding("s", WMKM_CTRL), Scope::INGAME);
+	this->values[KS_INGAME_LOAD] = ShortcutInfo("load", Keybinding("l", WMKM_CTRL), Scope::INGAME);
 	this->values[KS_INGAME_MAINMENU] = ShortcutInfo("mainmenu", Keybinding("w", WMKM_CTRL), Scope::INGAME);
 	this->values[KS_INGAME_SETTINGS] = ShortcutInfo("settings", Keybinding("o", WMKM_CTRL), Scope::INGAME);
 

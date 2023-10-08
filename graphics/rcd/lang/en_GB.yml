@@ -40,11 +40,16 @@ strings:
 			one:   "Have at least %1% guest in your park."
 			other: "Have at least %1% guests in your park."
 		OBJECTIVETEXT_PARK_RATING: "Achieve a park rating of at least %1%."
+		OBJECTIVETEXT_PARK_VALUE:  "Achieve a park value of at least %1%."
 
 		NUMBERED_INSTANCE_NAME: "%1% #%2%"
 		RESOLUTION:             "%1%x%2%"
 		GUEST_NAME:             "Guest %1%"
 
+		NR_DAYS:
+			one:                  "%1% day"
+			other:                "%1% days"
+		APPLY:                    "Apply"
 		DECREASE_BUTTON:          "-"
 		INCREASE_BUTTON:          "+"
 
@@ -314,6 +319,12 @@ strings:
 		PARK_MANAGEMENT_PARKNAME:              "Park name:"
 		PARK_MANAGEMENT_ENTRANCE_FEE:          "Entrance fee:"
 		PARK_MANAGEMENT_MAX_GUESTS:            "Maximum guest count:"
+		PARK_MANAGEMENT_OBJECTIVE_GUESTS:      "Required guests:"
+		PARK_MANAGEMENT_OBJECTIVE_RATING:      "Required park rating:"
+		PARK_MANAGEMENT_OBJECTIVE_PARK_VALUE:  "Required park value:"
+		PARK_MANAGEMENT_OBJECTIVE_DROP_POLICY: "Park closes when objective is not met for:"
+		PARK_MANAGEMENT_OBJECTIVE_DATE:        "Objective must be met by:"
+		PARK_MANAGEMENT_OBJECTIVE_DATE_NOT_EXACT: "Objective may be met at any time"
 
 		# Minimap gui strings.
 		MINIMAP_TITLE: "Minimap"

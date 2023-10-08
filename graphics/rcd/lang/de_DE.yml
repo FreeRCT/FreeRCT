@@ -41,11 +41,16 @@ strings:
 			one:   "Erreiche mindestens %1% Besucher im Park."
 			other: "Erreiche mindestens %1% Besucher im Park."
 		OBJECTIVETEXT_PARK_RATING: "Die Parkbewertung muss mindestens %1% betragen."
+		OBJECTIVETEXT_PARK_VALUE:  "Der Park-Verkehrswert muss mindestens %1% betragen."
 
 		NUMBERED_INSTANCE_NAME: "%1% #%2%"
 		RESOLUTION:             "%1%×%2%"
 		GUEST_NAME:             "Besucher %1%"
 
+		NR_DAYS:
+			one:                  "%1% Tag"
+			other:                "%1% Tage"
+		APPLY:                    "Anwenden"
 		DECREASE_BUTTON:          "-"
 		INCREASE_BUTTON:          "+"
 
@@ -315,6 +320,12 @@ strings:
 		PARK_MANAGEMENT_PARKNAME:              "Parkname:"
 		PARK_MANAGEMENT_ENTRANCE_FEE:          "Eintrittspreis:"
 		PARK_MANAGEMENT_MAX_GUESTS:            "Höchste Anzahl Besucher:"
+		PARK_MANAGEMENT_OBJECTIVE_GUESTS:      "Erforderliche Anzahl Besucher:"
+		PARK_MANAGEMENT_OBJECTIVE_RATING:      "Erforderliche Parkbewertung:"
+		PARK_MANAGEMENT_OBJECTIVE_PARK_VALUE:  "Erforderlicher Park-Verkehrswert:"
+		PARK_MANAGEMENT_OBJECTIVE_DROP_POLICY: "Park schließt, wenn Ziel so lange nicht erfüllt:"
+		PARK_MANAGEMENT_OBJECTIVE_DATE:        "Ziel muss erfüllt werden bis:"
+		PARK_MANAGEMENT_OBJECTIVE_DATE_NOT_EXACT: "Ziel kann jederzeit erfüllt werden."
 
 		# Minimap gui strings.
 		MINIMAP_TITLE: "Übersichtskarte"

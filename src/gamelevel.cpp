@@ -11,6 +11,7 @@
 #include "gamelevel.h"
 #include "messages.h"
 #include "people.h"
+#include "finances.h"
 #include "gameobserver.h"
 #include "config_reader.h"
 #include "rev.h"
@@ -27,14 +28,12 @@ Scenario::Scenario()
 }
 
 /**
- * Default scenario settings.
- * Default settings are useful for debugging, and unlikely to be of use for a 'real' game.
- * @todo Remove when real scenarios are implemented.
+ * Initialize default settings for a new scenario in the editor.
  */
 void Scenario::SetDefaultScenario()
 {
 	this->wrapper = nullptr;
-	this->name = _language.GetSgText(GUI_DEFAULT_SCENARIO_NAME);
+	this->name  = _language.GetSgText(GUI_DEFAULT_SCENARIO_NAME);
 	this->descr = _language.GetSgText(GUI_DEFAULT_SCENARIO_DESCR);
 	this->spawn_lowest  = 200;
 	this->spawn_highest = 600;
@@ -42,11 +41,9 @@ void Scenario::SetDefaultScenario()
 	this->max_loan      = 3000000;
 	this->interest      = 25;
 	this->allow_entrance_fee = true;
-
-	Random r;
 	this->objective.reset(new ScenarioObjective(0, TIMEOUT_EXACT, Date(31, 10, 1), {
-		std::shared_ptr<AbstractObjective>(new ObjectiveGuests(0, r.Uniform(120) + 60)),
-		std::shared_ptr<AbstractObjective>(new ObjectiveParkRating(0, 500 + r.Uniform(30) * 10)),
+		std::shared_ptr<AbstractObjective>(new ObjectiveGuests(0, 1000)),
+		std::shared_ptr<AbstractObjective>(new ObjectiveParkRating(0, 600)),
 	}));
 }
 
@@ -113,6 +110,12 @@ std::string ObjectiveParkRating::ToString() const
 	return DrawText(GUI_OBJECTIVETEXT_PARK_RATING);
 }
 
+std::string ObjectiveParkValue::ToString() const
+{
+	_str_params.SetNumber(1, this->park_value);
+	return DrawText(GUI_OBJECTIVETEXT_PARK_VALUE);
+}
+
 std::string ScenarioObjective::ToString() const
 {
 	std::string str;
@@ -145,6 +148,12 @@ void ObjectiveParkRating::OnNewDay()
 	AbstractObjective::OnNewDay();
 }
 
+void ObjectiveParkValue::OnNewDay()
+{
+	this->is_fulfilled = _finances_manager.GetParkValue() >= this->park_value;
+	AbstractObjective::OnNewDay();
+}
+
 void ScenarioObjective::OnNewDay()
 {
 	this->is_fulfilled = true;
@@ -172,6 +181,7 @@ static const uint32 CURRENT_VERSION_OJCN = 1;   ///< Currently supported version
 static const uint32 CURRENT_VERSION_OJ00 = 1;   ///< Currently supported version of the OJ00 Pattern.
 static const uint32 CURRENT_VERSION_OJGU = 1;   ///< Currently supported version of the OJGU Pattern.
 static const uint32 CURRENT_VERSION_OJRT = 1;   ///< Currently supported version of the OJRT Pattern.
+static const uint32 CURRENT_VERSION_OJPV = 1;   ///< Currently supported version of the OJPV Pattern.
 
 /**
  * Load game observer data from the save game.
@@ -273,6 +283,9 @@ static std::shared_ptr<AbstractObjective> LoadObjective(Loader &ldr)
 			break;
 		case OJT_RATING:
 			result.reset(new ObjectiveParkRating(0, 0));
+			break;
+		case OJT_PARK_VALUE:
+			result.reset(new ObjectiveParkValue(0, 0));
 			break;
 		default:
 			throw LoadingError("Unknown objective type %u", obj_type);
@@ -386,6 +399,23 @@ void ObjectiveParkRating::Save(Saver &svr)
 	svr.StartPattern("OJRT", CURRENT_VERSION_OJRT);
 	AbstractObjective::Save(svr);
 	svr.PutWord(this->rating);
+	svr.EndPattern();
+}
+
+void ObjectiveParkValue::Load(Loader &ldr)
+{
+	uint32 version = ldr.OpenPattern("OJPV");
+	if (version > CURRENT_VERSION_OJPV) ldr.VersionMismatch(version, CURRENT_VERSION_OJPV);
+	AbstractObjective::Load(ldr);
+	this->park_value = ldr.GetLongLong();
+	ldr.ClosePattern();
+}
+
+void ObjectiveParkValue::Save(Saver &svr)
+{
+	svr.StartPattern("OJPV", CURRENT_VERSION_OJPV);
+	AbstractObjective::Save(svr);
+	svr.PutLongLong(this->park_value);
 	svr.EndPattern();
 }
 

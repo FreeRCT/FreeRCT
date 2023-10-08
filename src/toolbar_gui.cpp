@@ -73,6 +73,7 @@ enum ToolbarGuiWidgets {
 enum DropdownMain {
 	DDM_SAVE,      ///< Save game.
 	DDM_SETTINGS,  ///< General settings.
+	DDM_LOAD,      ///< Load a saved game.
 	DDM_MENU,      ///< Back to main menu.
 	DDM_QUIT,      ///< Quit the game.
 	DDM_COUNT      ///< Number of entries.
@@ -292,6 +293,9 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 							break;
 						case DDM_SAVE:
 							ShowSaveGameGui();
+							break;
+						case DDM_LOAD:
+							ShowLoadGameGui();
 							break;
 						case DDM_MENU:
 							ShowConfirmationPrompt(GUI_RETURN_CAPTION, GUI_RETURN_MESSAGE, []() { _game_control.MainMenu(); });

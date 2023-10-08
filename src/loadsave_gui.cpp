@@ -65,11 +65,12 @@ public:
 	void Sort(SortBy sort);
 	void FileDeleted(std::string path);
 
+	const Type type;  ///< Type of this window.
+
 private:
 	std::string FinalFilename() const;
 	int GetSelectedFileIndex() const;
 
-	const Type type;                     ///< Type of this window.
 	std::vector<PreloadData> all_files;  ///< All files in the working directory.
 	SortBy current_sort;                 ///< Current sorting order.
 };
@@ -346,7 +347,7 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 					break;
 				case LOAD:
 					if (sel < 0 || !this->all_files.at(sel).load_success) return;  // The file does not exist or is invalid.
-					_game_control.LoadGame(path);
+					_game_control.LoadGame(path, _game_mode_mgr.InEditorMode());
 					break;
 			}
 			delete this;
@@ -422,13 +423,30 @@ void LoadSaveGui::DrawWidget(const WidgetNumber wid_num, const BaseWidget *wid) 
 }
 
 /**
+ * Open the GUI to load or save a game.
+ * @param type Type of Gui to show.
+ * @ingroup gui_group
+ */
+static void DoShowLoadSaveGui(LoadSaveGui::Type type)
+{
+	Window *w;
+	do {
+		w = HighlightWindowByType(WC_LOADSAVE, ALL_WINDOWS_OF_TYPE);
+		if (w != nullptr && static_cast<LoadSaveGui*>(w)->type == type) return;
+
+		delete w;
+	} while (w != nullptr);
+
+	new LoadSaveGui(type);
+}
+
+/**
  * Open the GUI to load a game.
  * @ingroup gui_group
  */
 void ShowLoadGameGui()
 {
-	if (HighlightWindowByType(WC_LOADSAVE, ALL_WINDOWS_OF_TYPE) != nullptr) return;
-	new LoadSaveGui(LoadSaveGui::LOAD);
+	DoShowLoadSaveGui(LoadSaveGui::LOAD);
 }
 
 /**
@@ -437,6 +455,5 @@ void ShowLoadGameGui()
  */
 void ShowSaveGameGui()
 {
-	if (HighlightWindowByType(WC_LOADSAVE, ALL_WINDOWS_OF_TYPE) != nullptr) return;
-	new LoadSaveGui(LoadSaveGui::SAVE);
+	DoShowLoadSaveGui(LoadSaveGui::SAVE);
 }

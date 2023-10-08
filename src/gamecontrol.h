@@ -29,6 +29,7 @@ enum GameControlAction {
 	GCA_MENU,           ///< Open the main menu.
 	GCA_NEW_GAME,       ///< Prepare a new game.
 	GCA_LOAD_GAME,      ///< Load a saved game.
+	GCA_LOAD_EDITOR,    ///< Load a game in the editor.
 	GCA_LAUNCH_EDITOR,  ///< Prepare the scenario editor.
 	GCA_SAVE_GAME,      ///< Save the current game.
 	GCA_QUIT,           ///< Quit the game.
@@ -60,13 +61,13 @@ public:
 		if (this->next_action != GCA_NONE) this->RunAction();
 	}
 
-	void Initialize(const std::string &fname);
+	void Initialize(const std::string &fname, bool editor);
 	void Uninitialize();
 
 	void MainMenu();
 	void NewGame(MissionScenario *scenario);
 	void LaunchEditor();
-	void LoadGame(const std::string &fname);
+	void LoadGame(const std::string &fname, bool editor);
 	void SaveGame(const std::string &fname);
 	void QuitGame();
 

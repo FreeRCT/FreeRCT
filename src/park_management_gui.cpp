@@ -23,6 +23,10 @@
 
 static const uint MIN_MAX_GUESTS       = 100;  ///< Smallest allowed value for the guests limit.
 static const uint MAX_GUESTS_STEP_SIZE = 100;  ///< Change when clicking the max guests buttons once.
+static const uint OBJECTIVE_GUESTS_STEP_SIZE      =   10;    ///< Change when clicking the guests objective buttons once.
+static const uint OBJECTIVE_RATING_STEP_SIZE      =   25;    ///< Change when clicking the park rating objective buttons once.
+static const Money OBJECTIVE_PARK_VALUE_STEP_SIZE = 100000;  ///< Change when clicking the park value objective buttons once.
+static const uint OBJECTIVE_DROP_POLICY_STEP_SIZE =    1;    ///< Change when clicking the objective drop policy buttons once.
 
 /**
  * Park management GUI.
@@ -37,6 +41,13 @@ public:
 	void OnClick(WidgetNumber wid, const Point16 &pos) override;
 	void SetWidgetStringParameters(WidgetNumber wid_num) const override;
 	void UpdateButtons();
+
+private:
+	std::pair<uint32, bool> obj_editing_guests;       ///< Objective editing: Number of guests to achieve.
+	std::pair<uint16, bool> obj_editing_rating;       ///< Objective editing: Park rating to achieve.
+	std::pair<Money , bool> obj_editing_park_value;   ///< Objective editing: Park value to achieve.
+	std::pair<uint32, bool> obj_editing_drop_policy;  ///< Objective editing: Park rating objective drop policy.
+	std::pair<std::pair<Date, bool /* not-exact */>, bool> obj_editing_timeout;  ///< Objective editing: Objective timeout.
 };
 
 /**
@@ -58,15 +69,42 @@ enum ParkManagementWidgets {
 	PM_TABPANEL_AWARDS,        ///< Awards tab panel.
 
 	PM_TITLEBAR,               ///< Window title bar.
+
 	PM_GUESTS_TEXT,            ///< Number of guests text.
 	PM_GUESTS_GRAPH,           ///< Number of guests graph.
 	PM_MAX_GUESTS_PANEL,       ///< Maximum number of guests panel.
 	PM_MAX_GUESTS_TEXT,        ///< Maximum number of guests text.
 	PM_MAX_GUESTS_INCREASE,    ///< Maximum number of guests increase button.
 	PM_MAX_GUESTS_DECREASE,    ///< Maximum number of guests decrease button.
+
 	PM_RATING_TEXT,            ///< Park rating text.
 	PM_RATING_GRAPH,           ///< Park rating graph.
-	PM_OBJECTIVE_TEXT,         ///< Scenario objective text.
+
+	PM_OBJECTIVE_TEXT,                 ///< Scenario objective text.
+	PM_OBJECTIVE_EDIT_PANEL,           ///< Objective editing panel.
+	PM_OBJECTIVE_GUESTS_ENABLE,        ///< Objective editing: Enable guests objective.
+	PM_OBJECTIVE_GUESTS_INCREASE,      ///< Objective editing: Increase guests objective target.
+	PM_OBJECTIVE_GUESTS_DECREASE,      ///< Objective editing: Decrease guests objective target.
+	PM_OBJECTIVE_GUESTS_TEXT,          ///< Objective editing: Guests objective text.
+	PM_OBJECTIVE_RATING_ENABLE,        ///< Objective editing: Enable park rating objective.
+	PM_OBJECTIVE_RATING_INCREASE,      ///< Objective editing: Increase park rating objective target.
+	PM_OBJECTIVE_RATING_DECREASE,      ///< Objective editing: Decrease park rating objective target.
+	PM_OBJECTIVE_RATING_TEXT,          ///< Objective editing: Park rating objective text.
+	PM_OBJECTIVE_DROP_POLICY_ENABLE,   ///< Objective editing: Enable permanent park rating requirement.
+	PM_OBJECTIVE_DROP_POLICY_INCREASE, ///< Objective editing: Increase permanent park rating requirement timeout.
+	PM_OBJECTIVE_DROP_POLICY_DECREASE, ///< Objective editing: Decrease permanent park rating requirement timeout.
+	PM_OBJECTIVE_DROP_POLICY_TEXT,     ///< Objective editing: Permanent park rating requirement timeout text.
+	PM_OBJECTIVE_PARK_VALUE_ENABLE,    ///< Objective editing: Enable park value objective.
+	PM_OBJECTIVE_PARK_VALUE_INCREASE,  ///< Objective editing: Increase park value objective target.
+	PM_OBJECTIVE_PARK_VALUE_DECREASE,  ///< Objective editing: Decrease park value objective target.
+	PM_OBJECTIVE_PARK_VALUE_TEXT,      ///< Objective editing: Park value objective text.
+	PM_OBJECTIVE_DATE_ENABLE,          ///< Objective editing: Objective target enable date policy.
+	PM_OBJECTIVE_DATE_NOT_EXACT,       ///< Objective editing: Objective target date policy Before.
+	PM_OBJECTIVE_DATE_INCREASE,        ///< Objective editing: Increase objective target date.
+	PM_OBJECTIVE_DATE_DECREASE,        ///< Objective editing: Decrease objective target date.
+	PM_OBJECTIVE_DATE_TEXT,            ///< Objective editing: Objective target date text.
+	PM_OBJECTIVE_APPLY,                ///< Objective editing: Apply changes.
+
 	PM_PARKNAME,               ///< Park name edit box.
 	PM_ENTRANCE_FEE_ENABLE,    ///< Park entrance fee enable checkbox.
 	PM_ENTRANCE_FEE_TEXT,      ///< Park entrance fee text.
@@ -114,6 +152,7 @@ static const WidgetPart _pm_build_gui_parts[] = {
 							SetData(GUI_PARK_MANAGEMENT_TAB_AWARDS, GUI_PARK_MANAGEMENT_TAB_AWARDS_TOOLTIP),
 					Widget(WT_RIGHT_FILLER_TAB, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetFill(1, 0), SetResize(1, 0),
 				EndContainer(),
+
 				Widget(WT_TAB_PANEL, PM_TABPANEL_GENERAL, COL_RANGE_ORANGE_BROWN),
 					Intermediate(0, 1),
 						Widget(WT_TAB_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetPadding(4, 4, 4, 4),
@@ -143,6 +182,7 @@ static const WidgetPart _pm_build_gui_parts[] = {
 								Widget(WT_PANEL, PM_OPEN_PARK_PANEL, COL_RANGE_ORANGE_BROWN),
 									Widget(WT_RADIOBUTTON, PM_OPEN_PARK_LIGHT , COL_RANGE_GREEN), SetPadding(0, 2, 0, 0),
 					EndContainer(),
+
 				Widget(WT_TAB_PANEL, PM_TABPANEL_GUESTS, COL_RANGE_ORANGE_BROWN),
 					Intermediate(3, 1),
 						Widget(WT_CENTERED_TEXT, PM_GUESTS_TEXT, COL_RANGE_ORANGE_BROWN), SetData(GUI_BOTTOMBAR_GUESTCOUNT, STR_NULL), SetPadding(4, 4, 4, 4),
@@ -156,12 +196,63 @@ static const WidgetPart _pm_build_gui_parts[] = {
 								Widget(WT_TEXT_PUSHBUTTON, PM_MAX_GUESTS_INCREASE, COL_RANGE_ORANGE_BROWN),
 										SetData(GUI_INCREASE_BUTTON, STR_NULL), SetRepeating(true),
 						Widget(WT_EMPTY, PM_GUESTS_GRAPH, COL_RANGE_ORANGE_BROWN), SetMinimalSize(GRAPH_WIDTH, GRAPH_HEIGHT), SetFill(1, 1), SetResize(1, 1),
+
 				Widget(WT_TAB_PANEL, PM_TABPANEL_RATING, COL_RANGE_ORANGE_BROWN),
 					Intermediate(2, 1),
 						Widget(WT_CENTERED_TEXT, PM_RATING_TEXT, COL_RANGE_ORANGE_BROWN), SetData(GUI_PARK_MANAGEMENT_RATING, STR_NULL), SetPadding(4, 4, 4, 4),
 						Widget(WT_EMPTY, PM_RATING_GRAPH, COL_RANGE_ORANGE_BROWN), SetMinimalSize(GRAPH_WIDTH, GRAPH_HEIGHT), SetFill(1, 1), SetResize(1, 1),
+
 				Widget(WT_TAB_PANEL, PM_TABPANEL_OBJECTIVE, COL_RANGE_ORANGE_BROWN),
-					Widget(WT_CENTERED_TEXT, PM_OBJECTIVE_TEXT, COL_RANGE_ORANGE_BROWN), SetData(STR_ARG1, STR_NULL), SetPadding(4, 4, 4, 4),
+					Intermediate(2, 1),
+						Widget(WT_CENTERED_TEXT, PM_OBJECTIVE_TEXT, COL_RANGE_ORANGE_BROWN), SetData(STR_ARG1, STR_NULL), SetPadding(4, 4, 4, 4),
+						Widget(WT_PANEL, PM_OBJECTIVE_EDIT_PANEL, COL_RANGE_ORANGE_BROWN),
+							Intermediate(3, 1),
+								Intermediate(5, 5),
+									Widget(WT_CHECKBOX, PM_OBJECTIVE_PARK_VALUE_ENABLE, COL_RANGE_ORANGE_BROWN), SetPadding(2, 4, 2, 0),
+									Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetData(GUI_PARK_MANAGEMENT_OBJECTIVE_PARK_VALUE, STR_NULL),
+									Widget(WT_TEXT_PUSHBUTTON, PM_OBJECTIVE_PARK_VALUE_DECREASE, COL_RANGE_ORANGE_BROWN),
+											SetData(GUI_DECREASE_BUTTON, STR_NULL), SetRepeating(true),
+									Widget(WT_CENTERED_TEXT  , PM_OBJECTIVE_PARK_VALUE_TEXT    , COL_RANGE_ORANGE_BROWN),
+											SetData(STR_ARG1, STR_NULL),
+									Widget(WT_TEXT_PUSHBUTTON, PM_OBJECTIVE_PARK_VALUE_INCREASE, COL_RANGE_ORANGE_BROWN),
+											SetData(GUI_INCREASE_BUTTON, STR_NULL), SetRepeating(true),
+									Widget(WT_CHECKBOX, PM_OBJECTIVE_GUESTS_ENABLE, COL_RANGE_ORANGE_BROWN), SetPadding(2, 4, 2, 0),
+									Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetData(GUI_PARK_MANAGEMENT_OBJECTIVE_GUESTS, STR_NULL),
+									Widget(WT_TEXT_PUSHBUTTON, PM_OBJECTIVE_GUESTS_DECREASE, COL_RANGE_ORANGE_BROWN),
+											SetData(GUI_DECREASE_BUTTON, STR_NULL), SetRepeating(true),
+									Widget(WT_CENTERED_TEXT  , PM_OBJECTIVE_GUESTS_TEXT    , COL_RANGE_ORANGE_BROWN),
+											SetData(STR_ARG1, STR_NULL),
+									Widget(WT_TEXT_PUSHBUTTON, PM_OBJECTIVE_GUESTS_INCREASE, COL_RANGE_ORANGE_BROWN),
+											SetData(GUI_INCREASE_BUTTON, STR_NULL), SetRepeating(true),
+									Widget(WT_CHECKBOX, PM_OBJECTIVE_RATING_ENABLE, COL_RANGE_ORANGE_BROWN), SetPadding(2, 4, 2, 0),
+									Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetData(GUI_PARK_MANAGEMENT_OBJECTIVE_RATING, STR_NULL),
+									Widget(WT_TEXT_PUSHBUTTON, PM_OBJECTIVE_RATING_DECREASE, COL_RANGE_ORANGE_BROWN),
+											SetData(GUI_DECREASE_BUTTON, STR_NULL), SetRepeating(true),
+									Widget(WT_CENTERED_TEXT  , PM_OBJECTIVE_RATING_TEXT    , COL_RANGE_ORANGE_BROWN),
+											SetData(STR_ARG1, STR_NULL),
+									Widget(WT_TEXT_PUSHBUTTON, PM_OBJECTIVE_RATING_INCREASE, COL_RANGE_ORANGE_BROWN),
+											SetData(GUI_INCREASE_BUTTON, STR_NULL), SetRepeating(true),
+									Widget(WT_CHECKBOX, PM_OBJECTIVE_DROP_POLICY_ENABLE, COL_RANGE_ORANGE_BROWN), SetPadding(2, 4, 2, 0),
+									Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetData(GUI_PARK_MANAGEMENT_OBJECTIVE_DROP_POLICY, STR_NULL),
+									Widget(WT_TEXT_PUSHBUTTON, PM_OBJECTIVE_DROP_POLICY_DECREASE, COL_RANGE_ORANGE_BROWN),
+											SetData(GUI_DECREASE_BUTTON, STR_NULL), SetRepeating(true),
+									Widget(WT_CENTERED_TEXT  , PM_OBJECTIVE_DROP_POLICY_TEXT    , COL_RANGE_ORANGE_BROWN),
+											SetData(STR_ARG1, STR_NULL),
+									Widget(WT_TEXT_PUSHBUTTON, PM_OBJECTIVE_DROP_POLICY_INCREASE, COL_RANGE_ORANGE_BROWN),
+											SetData(GUI_INCREASE_BUTTON, STR_NULL), SetRepeating(true),
+									Widget(WT_CHECKBOX, PM_OBJECTIVE_DATE_ENABLE, COL_RANGE_ORANGE_BROWN), SetPadding(2, 4, 2, 0),
+									Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetData(GUI_PARK_MANAGEMENT_OBJECTIVE_DATE, STR_NULL),
+									Widget(WT_TEXT_PUSHBUTTON, PM_OBJECTIVE_DATE_DECREASE, COL_RANGE_ORANGE_BROWN),
+											SetData(GUI_DECREASE_BUTTON, STR_NULL), SetRepeating(true),
+									Widget(WT_CENTERED_TEXT  , PM_OBJECTIVE_DATE_TEXT    , COL_RANGE_ORANGE_BROWN),
+											SetData(STR_ARG1, STR_NULL),
+									Widget(WT_TEXT_PUSHBUTTON, PM_OBJECTIVE_DATE_INCREASE, COL_RANGE_ORANGE_BROWN),
+											SetData(GUI_INCREASE_BUTTON, STR_NULL), SetRepeating(true),
+								Intermediate(1, 2),
+									Widget(WT_CHECKBOX, PM_OBJECTIVE_DATE_NOT_EXACT, COL_RANGE_ORANGE_BROWN), SetPadding(2, 4, 2, 0),
+									Widget(WT_LEFT_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetData(GUI_PARK_MANAGEMENT_OBJECTIVE_DATE_NOT_EXACT, STR_NULL),
+								Widget(WT_TEXT_PUSHBUTTON, PM_OBJECTIVE_APPLY, COL_RANGE_ORANGE_BROWN), SetData(GUI_APPLY, STR_NULL),
+
 				Widget(WT_TAB_PANEL, PM_TABPANEL_AWARDS, COL_RANGE_ORANGE_BROWN),
 					/* \todo Show list of awards once awards are implemented. */
 					Widget(WT_CENTERED_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetData(GUI_PARK_MANAGEMENT_NO_AWARDS, STR_NULL), SetPadding(4, 4, 4, 4),
@@ -181,6 +272,34 @@ ParkManagementGui::ParkManagementGui(ParkManagementGuiTabs tab) : GuiWindow(WC_P
 	{
 		_game_observer.park_name = txt->GetText();
 	};
+
+	/* Initialize objective editor with some default values. */
+	this->obj_editing_guests = {1000, false};
+	this->obj_editing_rating = {600, false};
+	this->obj_editing_park_value = {Money(5000000), false};
+	this->obj_editing_drop_policy = {28, false};
+	this->obj_editing_timeout = {{Date(31, 10, 1), false}, false};
+
+	obj_editing_timeout = {{_scenario.objective->timeout_date, _scenario.objective->timeout_policy == TIMEOUT_BEFORE}, _scenario.objective->timeout_policy != TIMEOUT_NONE};
+	for (const auto &objective : _scenario.objective->objectives) {
+		switch (objective->Type()) {
+			case OJT_GUESTS:
+				obj_editing_guests = {static_cast<const ObjectiveGuests*>(objective.get())->nr_guests, true};
+				break;
+			case OJT_PARK_VALUE:
+				obj_editing_park_value = {static_cast<const ObjectiveParkValue*>(objective.get())->park_value, true};
+				break;
+			case OJT_RATING: {
+				obj_editing_rating = {static_cast<ObjectiveParkRating*>(objective.get())->rating, true};
+				if (objective->drop_policy.days_after_drop > 0) {
+					obj_editing_drop_policy = {objective->drop_policy.days_after_drop, true};
+				}
+				break;
+			}
+			default:
+				break;
+		}
+	}
 
 	this->UpdateButtons();
 }
@@ -218,6 +337,23 @@ void ParkManagementGui::SetWidgetStringParameters(WidgetNumber wid_num) const
 
 		case PM_RATING_TEXT:
 			_str_params.SetNumber(1, _game_observer.current_park_rating);
+			break;
+
+		case PM_OBJECTIVE_GUESTS_TEXT:
+			_str_params.SetNumber(1, this->obj_editing_guests.first);
+			break;
+		case PM_OBJECTIVE_RATING_TEXT:
+			_str_params.SetNumber(1, this->obj_editing_rating.first);
+			break;
+		case PM_OBJECTIVE_PARK_VALUE_TEXT:
+			_str_params.SetMoney(1, this->obj_editing_park_value.first);
+			break;
+		case PM_OBJECTIVE_DROP_POLICY_TEXT:
+			_str_params.SetNumberAndPlural(1, this->obj_editing_drop_policy.first);
+			_str_params.SetText(1, DrawText(GUI_NR_DAYS));
+			break;
+		case PM_OBJECTIVE_DATE_TEXT:
+			_str_params.SetDate(1, this->obj_editing_timeout.first.first);
 			break;
 
 		case PM_OBJECTIVE_TEXT: {
@@ -286,6 +422,136 @@ void ParkManagementGui::OnClick(WidgetNumber number, [[maybe_unused]] const Poin
 			}
 			break;
 
+		case PM_OBJECTIVE_GUESTS_ENABLE:
+			obj_editing_guests.second = !obj_editing_guests.second;
+			this->UpdateButtons();
+			break;
+		case PM_OBJECTIVE_RATING_ENABLE:
+			obj_editing_rating.second = !obj_editing_rating.second;
+			this->UpdateButtons();
+			break;
+		case PM_OBJECTIVE_PARK_VALUE_ENABLE:
+			obj_editing_park_value.second = !obj_editing_park_value.second;
+			this->UpdateButtons();
+			break;
+		case PM_OBJECTIVE_DROP_POLICY_ENABLE:
+			obj_editing_drop_policy.second = !obj_editing_drop_policy.second;
+			this->UpdateButtons();
+			break;
+		case PM_OBJECTIVE_DATE_ENABLE:
+			obj_editing_timeout.second = !obj_editing_timeout.second;
+			this->UpdateButtons();
+			break;
+
+		case PM_OBJECTIVE_GUESTS_INCREASE:
+			if (obj_editing_guests.second) {
+				obj_editing_guests.first += OBJECTIVE_GUESTS_STEP_SIZE;
+			}
+			this->UpdateButtons();
+			break;
+		case PM_OBJECTIVE_GUESTS_DECREASE:
+			if (obj_editing_guests.second) {
+				obj_editing_guests.first = obj_editing_guests.first > OBJECTIVE_GUESTS_STEP_SIZE ? obj_editing_guests.first - OBJECTIVE_GUESTS_STEP_SIZE : 0;
+			}
+			this->UpdateButtons();
+			break;
+
+		case PM_OBJECTIVE_RATING_INCREASE:
+			if (obj_editing_rating.second) {
+				obj_editing_rating.first += OBJECTIVE_RATING_STEP_SIZE;
+			}
+			this->UpdateButtons();
+			break;
+		case PM_OBJECTIVE_RATING_DECREASE:
+			if (obj_editing_rating.second) {
+				obj_editing_rating.first = obj_editing_rating.first > OBJECTIVE_RATING_STEP_SIZE ? obj_editing_rating.first - OBJECTIVE_RATING_STEP_SIZE : 0;
+			}
+			this->UpdateButtons();
+			break;
+
+		case PM_OBJECTIVE_PARK_VALUE_INCREASE:
+			if (obj_editing_park_value.second) {
+				obj_editing_park_value.first += OBJECTIVE_PARK_VALUE_STEP_SIZE;
+			}
+			this->UpdateButtons();
+			break;
+		case PM_OBJECTIVE_PARK_VALUE_DECREASE:
+			if (obj_editing_park_value.second) {
+				obj_editing_park_value.first = obj_editing_park_value.first > OBJECTIVE_PARK_VALUE_STEP_SIZE ?
+						obj_editing_park_value.first - OBJECTIVE_PARK_VALUE_STEP_SIZE : Money(0);
+			}
+			this->UpdateButtons();
+			break;
+
+		case PM_OBJECTIVE_DROP_POLICY_INCREASE:
+			if (obj_editing_drop_policy.second) {
+				obj_editing_drop_policy.first += OBJECTIVE_DROP_POLICY_STEP_SIZE;
+			}
+			this->UpdateButtons();
+			break;
+		case PM_OBJECTIVE_DROP_POLICY_DECREASE:
+			if (obj_editing_drop_policy.second) {
+				obj_editing_drop_policy.first = obj_editing_drop_policy.first > OBJECTIVE_DROP_POLICY_STEP_SIZE ?
+						obj_editing_drop_policy.first - OBJECTIVE_DROP_POLICY_STEP_SIZE : 0;
+			}
+			this->UpdateButtons();
+			break;
+
+		case PM_OBJECTIVE_DATE_INCREASE:
+			if (obj_editing_timeout.second) {
+				if (obj_editing_timeout.first.first.month < LAST_MONTH) {
+					obj_editing_timeout.first.first.month++;
+				} else {
+					obj_editing_timeout.first.first.month = FIRST_MONTH;
+					obj_editing_timeout.first.first.year++;
+				}
+				obj_editing_timeout.first.first.day = _days_per_month[obj_editing_timeout.first.first.month];
+			}
+			this->UpdateButtons();
+			break;
+		case PM_OBJECTIVE_DATE_DECREASE:
+			if (obj_editing_timeout.second && (obj_editing_timeout.first.first.year > 1 || obj_editing_timeout.first.first.month > FIRST_MONTH)) {
+				if (obj_editing_timeout.first.first.month > FIRST_MONTH) {
+					obj_editing_timeout.first.first.month--;
+				} else {
+					obj_editing_timeout.first.first.month = LAST_MONTH;
+					obj_editing_timeout.first.first.year--;
+				}
+				obj_editing_timeout.first.first.day = _days_per_month[obj_editing_timeout.first.first.month];
+			}
+			this->UpdateButtons();
+			break;
+		case PM_OBJECTIVE_DATE_NOT_EXACT:
+			if (obj_editing_timeout.second) {
+				this->obj_editing_timeout.first.second = !this->obj_editing_timeout.first.second;
+			}
+			this->UpdateButtons();
+			break;
+
+		case PM_OBJECTIVE_APPLY: {
+			std::vector<std::shared_ptr<AbstractObjective>> new_objectives;
+
+			if (obj_editing_guests.second) {
+				new_objectives.emplace_back(new ObjectiveGuests(0, obj_editing_guests.first));
+			}
+			if (obj_editing_park_value.second) {
+				new_objectives.emplace_back(new ObjectiveParkValue(0, obj_editing_park_value.first));
+			}
+			if (obj_editing_rating.second) {
+				new_objectives.emplace_back(new ObjectiveParkRating(obj_editing_drop_policy.second ? obj_editing_drop_policy.first : 0, obj_editing_rating.first));
+			}
+
+			if (new_objectives.empty()) {
+				new_objectives.emplace_back(new ObjectiveNone);
+			}
+
+			_scenario.objective.reset(new ScenarioObjective(0,
+					obj_editing_timeout.second ? obj_editing_timeout.first.second ? TIMEOUT_BEFORE : TIMEOUT_EXACT : TIMEOUT_NONE,
+					obj_editing_timeout.first.first, new_objectives));
+			this->UpdateButtons();
+			break;
+		}
+
 		case PM_CLOSE_PARK_PANEL:
 		case PM_CLOSE_PARK_LIGHT:
 			_game_observer.SetParkOpen(false);
@@ -311,6 +577,7 @@ void ParkManagementGui::OnClick(WidgetNumber number, [[maybe_unused]] const Poin
 /** Update all buttons of the window. */
 void ParkManagementGui::UpdateButtons()
 {
+	/* Entrance fee controls. */
 	this->SetWidgetShaded(PM_ENTRANCE_FEE_DECREASE, _game_observer.entrance_fee <= 0 || !_scenario.allow_entrance_fee);
 	this->SetWidgetShaded(PM_ENTRANCE_FEE_INCREASE, !_scenario.allow_entrance_fee);
 
@@ -319,15 +586,44 @@ void ParkManagementGui::UpdateButtons()
 	fee_enable->SetChecked(_scenario.allow_entrance_fee);
 	fee_enable->SetPressed(_scenario.allow_entrance_fee);
 
+	/* Park opening / closing. */
+	LeafWidget *button_open = this->GetWidget<LeafWidget>(PM_OPEN_PARK_LIGHT);
+	LeafWidget *button_close = this->GetWidget<LeafWidget>(PM_CLOSE_PARK_LIGHT);
+	button_open->shift = _game_observer.park_open ? GS_LIGHT : GS_NIGHT;
+	button_close->shift = !_game_observer.park_open ? GS_LIGHT : GS_NIGHT;
+	button_open->SetShaded(_game_observer.won_lost == SCENARIO_LOST);
+	button_close->SetShaded(_game_observer.won_lost == SCENARIO_LOST);
+
+	/* Max guest controls. */
 	this->GetWidget<LeafWidget>(PM_MAX_GUESTS_PANEL)->SetVisible(this, _game_mode_mgr.InEditorMode());
 	this->SetWidgetShaded(PM_MAX_GUESTS_DECREASE, _scenario.max_guests <= MIN_MAX_GUESTS);
 
-	LeafWidget *o = this->GetWidget<LeafWidget>(PM_OPEN_PARK_LIGHT);
-	LeafWidget *c = this->GetWidget<LeafWidget>(PM_CLOSE_PARK_LIGHT);
-	o->shift = _game_observer.park_open ? GS_LIGHT : GS_NIGHT;
-	c->shift = !_game_observer.park_open ? GS_LIGHT : GS_NIGHT;
-	o->SetShaded(_game_observer.won_lost == SCENARIO_LOST);
-	c->SetShaded(_game_observer.won_lost == SCENARIO_LOST);
+	/* Objective editing controls. */
+	this->GetWidget<LeafWidget>(PM_OBJECTIVE_EDIT_PANEL)->SetVisible(this, _game_mode_mgr.InEditorMode());
+
+	this->SetWidgetShaded(PM_OBJECTIVE_GUESTS_INCREASE, !this->obj_editing_guests.second);
+	this->SetWidgetShaded(PM_OBJECTIVE_GUESTS_DECREASE, !this->obj_editing_guests.second || this->obj_editing_guests.first == 0);
+
+	this->SetWidgetShaded(PM_OBJECTIVE_RATING_INCREASE, !this->obj_editing_rating.second);
+	this->SetWidgetShaded(PM_OBJECTIVE_RATING_DECREASE, !this->obj_editing_rating.second || this->obj_editing_rating.first == 0);
+
+	this->SetWidgetShaded(PM_OBJECTIVE_PARK_VALUE_INCREASE, !this->obj_editing_park_value.second);
+	this->SetWidgetShaded(PM_OBJECTIVE_PARK_VALUE_DECREASE, !this->obj_editing_park_value.second || this->obj_editing_park_value.first <= 0);
+
+	this->SetWidgetShaded(PM_OBJECTIVE_DROP_POLICY_INCREASE, !this->obj_editing_drop_policy.second);
+	this->SetWidgetShaded(PM_OBJECTIVE_DROP_POLICY_DECREASE, !this->obj_editing_drop_policy.second || this->obj_editing_drop_policy.first == 0);
+
+	this->SetWidgetShaded(PM_OBJECTIVE_DATE_INCREASE, !this->obj_editing_timeout.second);
+	this->SetWidgetShaded(PM_OBJECTIVE_DATE_DECREASE, !this->obj_editing_timeout.second ||
+			(this->obj_editing_timeout.first.first.year <= 1 && this->obj_editing_timeout.first.first.month <= FIRST_MONTH));
+
+	this->SetWidgetChecked(PM_OBJECTIVE_GUESTS_ENABLE,      this->obj_editing_guests.second);
+	this->SetWidgetChecked(PM_OBJECTIVE_RATING_ENABLE,      this->obj_editing_rating.second);
+	this->SetWidgetChecked(PM_OBJECTIVE_PARK_VALUE_ENABLE,  this->obj_editing_park_value.second);
+	this->SetWidgetChecked(PM_OBJECTIVE_DROP_POLICY_ENABLE, this->obj_editing_drop_policy.second);
+
+	this->SetWidgetChecked(PM_OBJECTIVE_DATE_ENABLE,    this->obj_editing_timeout.second);
+	this->SetWidgetChecked(PM_OBJECTIVE_DATE_NOT_EXACT, this->obj_editing_timeout.second && this->obj_editing_timeout.first.second);
 }
 
 void ParkManagementGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const

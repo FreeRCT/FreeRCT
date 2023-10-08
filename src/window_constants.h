@@ -158,6 +158,7 @@ enum KeyboardShortcut {
 
 	KS_INGAME_QUIT,      ///< Quit FreeRCT.
 	KS_INGAME_SAVE,      ///< Save the game.
+	KS_INGAME_LOAD,      ///< Load a game in-game.
 	KS_INGAME_MAINMENU,  ///< Return to the main menu.
 	KS_INGAME_SETTINGS,  ///< Open the settings window.
 
