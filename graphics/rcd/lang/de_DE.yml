@@ -114,6 +114,7 @@ strings:
 			other: "%1% Besucher"
 
 		# Scenario strings.
+		NO_NAME:                "Unbekannt"
 		DEFAULT_SCENARIO_NAME:  "Unbenannt"
 		DEFAULT_SCENARIO_DESCR: "Für dieses Szenario existiert keine Beschreibung."
 
@@ -320,6 +321,7 @@ strings:
 		PARK_MANAGEMENT_PARKNAME:              "Parkname:"
 		PARK_MANAGEMENT_ENTRANCE_FEE:          "Eintrittspreis:"
 		PARK_MANAGEMENT_MAX_GUESTS:            "Höchste Anzahl Besucher:"
+		PARK_MANAGEMENT_SOLVED:                "Bitte gib deinen Namen ein:"
 		PARK_MANAGEMENT_OBJECTIVE_GUESTS:      "Erforderliche Anzahl Besucher:"
 		PARK_MANAGEMENT_OBJECTIVE_RATING:      "Erforderliche Parkbewertung:"
 		PARK_MANAGEMENT_OBJECTIVE_PARK_VALUE:  "Erforderlicher Park-Verkehrswert:"

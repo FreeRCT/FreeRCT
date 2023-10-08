@@ -2036,24 +2036,10 @@ file("freerct.rcd") {
 		internal_name: "official_easy";
 		texts: strings { key: "mission-official-easy"; }
 		max_unlock: 2;
-		scenarios: 9;
+		scenarios: 1;
 
 		internal_name_0: "emerald_expanses";
 		file_0: "../sprites/scenarios/scenario_emerald_expanses.fct";
 		texts_0: strings { key: "scenario-emerald-expanses"; }
-
-		// NOCOM remove this
-#define NOCOM(x, n) \
-	file_##x : "../sprites/scenarios/scenario_emerald_expanses.fct"; \
-	texts_##x : strings { key: "scenario-emerald-expanses"; } \
-	internal_name_##x : n;
-		NOCOM(1, "NOCOM_1")
-		NOCOM(2, "NOCOM_2")
-		NOCOM(3, "NOCOM_3")
-		NOCOM(4, "NOCOM_4")
-		NOCOM(5, "NOCOM_5")
-		NOCOM(6, "NOCOM_6")
-		NOCOM(7, "NOCOM_7")
-		NOCOM(8, "NOCOM_8")
 	}
 }

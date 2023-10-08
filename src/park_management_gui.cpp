@@ -81,6 +81,9 @@ enum ParkManagementWidgets {
 	PM_RATING_GRAPH,           ///< Park rating graph.
 
 	PM_OBJECTIVE_TEXT,                 ///< Scenario objective text.
+	PM_OBJECTIVE_SOLVED_PANEL,         ///< Scenario solver panel.
+	PM_OBJECTIVE_USERNAME,             ///< Scenario solver name edit box.
+	PM_OBJECTIVE_SAVE,                 ///< Save scenario solver to file.
 	PM_OBJECTIVE_EDIT_PANEL,           ///< Objective editing panel.
 	PM_OBJECTIVE_GUESTS_ENABLE,        ///< Objective editing: Enable guests objective.
 	PM_OBJECTIVE_GUESTS_INCREASE,      ///< Objective editing: Increase guests objective target.
@@ -203,8 +206,15 @@ static const WidgetPart _pm_build_gui_parts[] = {
 						Widget(WT_EMPTY, PM_RATING_GRAPH, COL_RANGE_ORANGE_BROWN), SetMinimalSize(GRAPH_WIDTH, GRAPH_HEIGHT), SetFill(1, 1), SetResize(1, 1),
 
 				Widget(WT_TAB_PANEL, PM_TABPANEL_OBJECTIVE, COL_RANGE_ORANGE_BROWN),
-					Intermediate(2, 1),
+					Intermediate(3, 1),
 						Widget(WT_CENTERED_TEXT, PM_OBJECTIVE_TEXT, COL_RANGE_ORANGE_BROWN), SetData(STR_ARG1, STR_NULL), SetPadding(4, 4, 4, 4),
+						Widget(WT_PANEL, PM_OBJECTIVE_SOLVED_PANEL, COL_RANGE_ORANGE_BROWN), SetPadding(4, 4, 4, 4),
+							Intermediate(2, 1),
+								Widget(WT_CENTERED_TEXT, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN), SetData(GUI_PARK_MANAGEMENT_SOLVED, STR_NULL),
+								Intermediate(1, 2),
+									Widget(WT_TEXT_INPUT, PM_OBJECTIVE_USERNAME, COL_RANGE_ORANGE_BROWN),
+											SetFill(1, 0), SetResize(1, 0), SetMinimalSize(GRAPH_WIDTH / 2, 1),
+									Widget(WT_TEXT_PUSHBUTTON, PM_OBJECTIVE_SAVE, COL_RANGE_ORANGE_BROWN), SetData(GUI_APPLY, STR_NULL),
 						Widget(WT_PANEL, PM_OBJECTIVE_EDIT_PANEL, COL_RANGE_ORANGE_BROWN),
 							Intermediate(3, 1),
 								Intermediate(5, 5),
@@ -274,6 +284,7 @@ ParkManagementGui::ParkManagementGui(ParkManagementGuiTabs tab) : GuiWindow(WC_P
 	};
 
 	/* Initialize objective editor with some default values. */
+	this->GetWidget<LeafWidget>(PM_OBJECTIVE_SOLVED_PANEL)->SetVisible(this, false);
 	this->obj_editing_guests = {1000, false};
 	this->obj_editing_rating = {600, false};
 	this->obj_editing_park_value = {Money(5000000), false};
@@ -314,6 +325,7 @@ void ParkManagementGui::SelectTab(WidgetNumber widget)
 	for (int i = 0; _tab_bar[i] != INVALID_WIDGET_INDEX; ++i) {
 		this->GetWidget<BackgroundWidget>(_tab_container[i])->SetVisible(this, _tab_bar[i] == widget);
 	}
+	this->UpdateButtons();
 }
 
 void ParkManagementGui::SetWidgetStringParameters(WidgetNumber wid_num) const
@@ -359,7 +371,7 @@ void ParkManagementGui::SetWidgetStringParameters(WidgetNumber wid_num) const
 		case PM_OBJECTIVE_TEXT: {
 			std::string str;
 			if (_game_observer.won_lost != SCENARIO_RUNNING) {
-				str += DrawText(_game_observer.won_lost == SCENARIO_WON ? GUI_MESSAGE_SCENARIO_WON : GUI_MESSAGE_SCENARIO_LOST);
+				str += DrawText(_game_observer.won_lost == SCENARIO_LOST ? GUI_MESSAGE_SCENARIO_LOST : GUI_MESSAGE_SCENARIO_WON);
 				str += "\n\n";
 			}
 
@@ -554,6 +566,16 @@ void ParkManagementGui::OnClick(WidgetNumber number, [[maybe_unused]] const Poin
 			break;
 		}
 
+		case PM_OBJECTIVE_SAVE:
+			if (_game_observer.won_lost == SCENARIO_WON_FIRST) {
+				std::string name = this->GetWidget<TextInputWidget>(PM_OBJECTIVE_USERNAME)->GetText();
+				if (!name.empty()) {
+					_scenario.wrapper->solved->user = name;
+					_scenario.wrapper->mission->UpdateUnlockData();
+				}
+			}
+			break;
+
 		case PM_CLOSE_PARK_PANEL:
 		case PM_CLOSE_PARK_LIGHT:
 			_game_observer.SetParkOpen(false);
@@ -601,6 +623,13 @@ void ParkManagementGui::UpdateButtons()
 	this->SetWidgetShaded(PM_MAX_GUESTS_DECREASE, _scenario.max_guests <= MIN_MAX_GUESTS);
 
 	/* Objective editing controls. */
+	LeafWidget *solved_panel = this->GetWidget<LeafWidget>(PM_OBJECTIVE_SOLVED_PANEL);
+	if (_game_observer.won_lost == SCENARIO_WON_FIRST && !solved_panel->visible) {
+		this->GetWidget<TextInputWidget>(PM_OBJECTIVE_USERNAME)->SetText(_scenario.wrapper->solved->user);
+	}
+	this->SetWidgetShaded(PM_OBJECTIVE_SAVE, _game_observer.won_lost != SCENARIO_WON_FIRST || this->GetWidget<TextInputWidget>(PM_PARKNAME)->GetText().empty());
+	solved_panel->SetVisible(this, _game_observer.won_lost == SCENARIO_WON_FIRST);
+
 	this->GetWidget<LeafWidget>(PM_OBJECTIVE_EDIT_PANEL)->SetVisible(this, _game_mode_mgr.InEditorMode());
 
 	this->SetWidgetShaded(PM_OBJECTIVE_GUESTS_INCREASE, !this->obj_editing_guests.second);
@@ -709,6 +738,10 @@ void ParkManagementGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) 
  */
 void ShowParkManagementGui(ParkManagementGuiTabs tab)
 {
-	if (HighlightWindowByType(WC_PARK_MANAGEMENT, ALL_WINDOWS_OF_TYPE) != nullptr) return;
-	new ParkManagementGui(tab);
+	Window *w = HighlightWindowByType(WC_PARK_MANAGEMENT, ALL_WINDOWS_OF_TYPE);
+	if (w != nullptr) {
+		static_cast<ParkManagementGui*>(w)->SelectTab(tab);
+	} else {
+		new ParkManagementGui(tab);
+	}
 }

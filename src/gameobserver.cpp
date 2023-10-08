@@ -65,16 +65,29 @@ void GameObserver::Win()
 	assert(this->won_lost == SCENARIO_RUNNING);
 	this->won_lost = SCENARIO_WON;
 	_inbox.SendMessage(new Message(GUI_MESSAGE_SCENARIO_WON));
-	ShowParkManagementGui(PARK_MANAGEMENT_TAB_OBJECTIVE);
 
 	if (_game_mode_mgr.InPlayMode() && !_scenario.wrapper->solved.has_value()) {
+		this->won_lost = SCENARIO_WON_FIRST;
+
+		std::string username;
+		for (const auto& var : {"USER", "USERNAME"}) {
+			const char *environment_variable = getenv(var);
+			if (environment_variable != nullptr && environment_variable[0] != '\0') {
+				username = environment_variable;
+				break;
+			}
+		}
+		if (username.empty()) username = _language.GetSgText(GUI_NO_NAME);
+
 		_scenario.wrapper->solved = {
-			"NOCOM no name yet",  // NOCOM ask the user for a name
+			username,
 			_finances_manager.GetCompanyValue(),
 			std::time(nullptr)
 		};
 		_scenario.wrapper->mission->UpdateUnlockData();
 	}
+
+	ShowParkManagementGui(PARK_MANAGEMENT_TAB_OBJECTIVE);
 }
 
 /** The game has been lost. */

@@ -114,6 +114,7 @@ strings:
 			other: "%1% Gasten"
 
 		# Scenario strings.
+		NO_NAME:                "Nich bekannt"
 		DEFAULT_SCENARIO_NAME:  "Nich benöömt"
 		DEFAULT_SCENARIO_DESCR: "Deese Rutfödderung is nich beschrieven worden."
 
@@ -320,6 +321,7 @@ strings:
 		PARK_MANAGEMENT_PARKNAME:              "Parknaam:"
 		PARK_MANAGEMENT_ENTRANCE_FEE:          "Intree:"
 		PARK_MANAGEMENT_MAX_GUESTS:            "Gröttste Tahl vun Gasten:"
+		PARK_MANAGEMENT_SOLVED:                "Bidde giff dienen Naam in:"
 		PARK_MANAGEMENT_OBJECTIVE_GUESTS:      "Nödige Tahl vun Gasten:"
 		PARK_MANAGEMENT_OBJECTIVE_RATING:      "Nödige Parkbeweerten:"
 		PARK_MANAGEMENT_OBJECTIVE_PARK_VALUE:  "Nödiger Parkweert:"

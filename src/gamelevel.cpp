@@ -162,7 +162,7 @@ void ScenarioObjective::OnNewDay()
 		this->is_fulfilled &= o->is_fulfilled;
 	}
 
-	if (this->timeout_policy == TIMEOUT_BEFORE && this->is_fulfilled) {
+	if (this->is_fulfilled && this->timeout_policy != TIMEOUT_EXACT) {
 		_game_observer.Win();
 	} else if (this->timeout_policy != TIMEOUT_NONE && timeout_date < _date) {
 		if (this->is_fulfilled) {
