@@ -8,7 +8,6 @@
 /** @file main_menu.cpp Implementation of the main menu. */
 
 #include "stdafx.h"
-#include "config_reader.h"
 #include "gamecontrol.h"
 #include "sprite_store.h"
 #include "viewport.h"
@@ -33,8 +32,6 @@ private:
 	Realtime last_time;            ///< Time when the menu was last redrawn.
 	static bool is_splash_screen;  ///< Whether we're currently displaying the splash screen. Static because the splash screen should be shown only once.
 
-	ConfigFile camera_positions;   ///< Config file listing the camera positions for the savegame.
-	uint32 nr_cameras;             ///< Total number of camera position.
 	uint32 current_camera_id;      ///< ID of the current camera position.
 	uint32 time_in_camera;         ///< Number of milliseconds since the last camera transition.
 
@@ -47,19 +44,12 @@ private:
 
 bool MainMenuGui::is_splash_screen = true;
 
-MainMenuGui::MainMenuGui() : Window(WC_MAIN_MENU, ALL_WINDOWS_OF_TYPE), camera_positions(FindDataFile("data/mainmenu/camera"))
+MainMenuGui::MainMenuGui() : Window(WC_MAIN_MENU, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetSize(_video.Width(),_video.Height());
 	this->animstart = this->last_time = Time();
-	this->nr_cameras = this->camera_positions.GetNum("camera", "nr_cameras");
 	this->time_in_camera = 0;
 	this->current_camera_id = 0;
-
-	/* Mark all expected config file entries as used. */
-	for (uint32 i = 0; i < this->nr_cameras; i++) {
-		const std::string section = std::to_string(i);
-		for (const char *key : {"x", "y", "z", "orientation", "duration"}) camera_positions.GetValue(section, key);
-	}
 }
 
 MainMenuGui::~MainMenuGui()
@@ -109,27 +99,24 @@ void MainMenuGui::OnDraw([[maybe_unused]] MouseModeSelector *selector)
 {
 	const Realtime current_time = Time();
 	double frametime = Delta(this->animstart, current_time);
-	if (is_splash_screen && frametime > 3 * _gui_sprites.mainmenu_splash_duration) {
+	if (is_splash_screen && frametime > 3 * _main_menu_config.splash_duration) {
 		is_splash_screen = false;
 		this->animstart = current_time;
 		frametime = 0;
 	}
 
 	this->time_in_camera += Delta(last_time, current_time);
-	if (static_cast<int64_t>(this->time_in_camera) > this->camera_positions.GetNum(std::to_string(this->current_camera_id), "duration")) {
+	if (this->time_in_camera > _main_menu_config.cameras.at(this->current_camera_id).duration) {
 		this->current_camera_id++;
-		this->current_camera_id %= this->nr_cameras;
+		this->current_camera_id %= _main_menu_config.cameras.size();
 		this->time_in_camera = 0;
-		const std::string section = std::to_string(this->current_camera_id);
 		Viewport *vp = _window_manager.GetViewport();
-		vp->orientation = static_cast<ViewOrientation>(this->camera_positions.GetNum(section, "orientation"));
-		vp->view_pos.x  =                              this->camera_positions.GetNum(section, "x");
-		vp->view_pos.y  =                              this->camera_positions.GetNum(section, "y");
-		vp->view_pos.z  =                              this->camera_positions.GetNum(section, "z");
+		vp->orientation = static_cast<ViewOrientation>(_main_menu_config.cameras.at(this->current_camera_id).orientation);
+		vp->view_pos = _main_menu_config.cameras.at(this->current_camera_id).pos;
 	}
 	this->last_time = current_time;
 
-	if (is_splash_screen && frametime < 2 * _gui_sprites.mainmenu_splash_duration) {
+	if (is_splash_screen && frametime < 2 * _main_menu_config.splash_duration) {
 		_video.FillRectangle(Rectangle32(0, 0, _video.Width(), _video.Height()), 0xff);
 	}
 
@@ -145,7 +132,7 @@ void MainMenuGui::OnDraw([[maybe_unused]] MouseModeSelector *selector)
 	this->settings_rect      = Rectangle32(button_x + 6 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
 	this->quit_rect          = Rectangle32(button_x + 8 * MAIN_MENU_BUTTON_SIZE, button_y - MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE, MAIN_MENU_BUTTON_SIZE);
 
-	if (!is_splash_screen || frametime > 2 * _gui_sprites.mainmenu_splash_duration) {
+	if (!is_splash_screen || frametime > 2 * _main_menu_config.splash_duration) {
 		_video.BlitImage(Point32(_video.Width() / 2, _video.Height() / 4), _gui_sprites.mainmenu_logo);
 
 		_video.BlitImage(CenterSprite(this->new_game_rect,      _gui_sprites.mainmenu_new),           _gui_sprites.mainmenu_new);
@@ -173,15 +160,15 @@ void MainMenuGui::OnDraw([[maybe_unused]] MouseModeSelector *selector)
 	}
 
 	if (is_splash_screen) {
-		if (frametime < 2 * _gui_sprites.mainmenu_splash_duration) {
+		if (frametime < 2 * _main_menu_config.splash_duration) {
 			_video.BlitImage(Point32(_video.Width() / 2, _video.Height() / 2), _gui_sprites.mainmenu_splash);
-			if (frametime > _gui_sprites.mainmenu_splash_duration) {
+			if (frametime > _main_menu_config.splash_duration) {
 				_video.FillRectangle(Rectangle32(0, 0, _video.Width(), _video.Height()),
-						0xff * (frametime - _gui_sprites.mainmenu_splash_duration) / _gui_sprites.mainmenu_splash_duration);
+						0xff * (frametime - _main_menu_config.splash_duration) / _main_menu_config.splash_duration);
 			}
 		} else {
 			_video.FillRectangle(Rectangle32(0, 0, _video.Width(), _video.Height()),
-						0xff - 0xff * (frametime - 2 * _gui_sprites.mainmenu_splash_duration) / _gui_sprites.mainmenu_splash_duration);
+						0xff - 0xff * (frametime - 2 * _main_menu_config.splash_duration) / _main_menu_config.splash_duration);
 		}
 	}
 }

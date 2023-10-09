@@ -31,6 +31,7 @@
 
 SpriteManager _sprite_manager; ///< Sprite manager.
 GuiSprites _gui_sprites;       ///< GUI sprites.
+MainMenuConfiguration _main_menu_config;  ///< Main menu configuration.
 
 static const int MAX_NUM_TEXT_STRINGS = 512; ///< Maximal number of strings in a TEXT data block.
 
@@ -1199,10 +1200,12 @@ void GuiSprites::LoadGSLP(RcdFileReader *rcd_file, const ImageMap &sprites, cons
  */
 void GuiSprites::LoadMENU(RcdFileReader *rcd_file, const ImageMap &sprites)
 {
-	rcd_file->CheckVersion(2);
-	rcd_file->CheckExactLength(rcd_file->size, 44 - 12, "header");
+	rcd_file->CheckVersion(3);
+	uint32 length = rcd_file->size;
+	rcd_file->CheckMinLength(length, 56 - 12, "header");
+	length -= 56 - 12;
 
-	this->mainmenu_splash_duration = rcd_file->GetUInt32();
+	_main_menu_config.splash_duration = rcd_file->GetUInt32();
 	LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_logo);
 	LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_splash);
 	LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_new);
@@ -1210,6 +1213,33 @@ void GuiSprites::LoadMENU(RcdFileReader *rcd_file, const ImageMap &sprites)
 	LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_launch_editor);
 	LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_settings);
 	LoadSpriteFromFile(rcd_file, sprites, &this->mainmenu_quit);
+
+	_main_menu_config.default_scenario_length = rcd_file->GetUInt32();
+	rcd_file->CheckMinLength(length, _main_menu_config.default_scenario_length, "default scenario bytes");
+	length -= _main_menu_config.default_scenario_length;
+	_main_menu_config.default_scenario_bytes.reset(new uint8[_main_menu_config.default_scenario_length]);
+	if (!rcd_file->GetBlob(_main_menu_config.default_scenario_bytes.get(), _main_menu_config.default_scenario_length)) {
+		rcd_file->Error("Reading default scenario bytes failed");
+	}
+
+	_main_menu_config.main_menu_savegame_length = rcd_file->GetUInt32();
+	rcd_file->CheckMinLength(length, _main_menu_config.main_menu_savegame_length, "main menu savegame bytes");
+	length -= _main_menu_config.main_menu_savegame_length;
+	_main_menu_config.main_menu_savegame_bytes.reset(new uint8[_main_menu_config.main_menu_savegame_length]);
+	if (!rcd_file->GetBlob(_main_menu_config.main_menu_savegame_bytes.get(), _main_menu_config.main_menu_savegame_length)) {
+		rcd_file->Error("Reading main menu savegame bytes failed");
+	}
+
+	_main_menu_config.cameras.resize(rcd_file->GetUInt32());
+	rcd_file->CheckExactLength(length, 17 * _main_menu_config.cameras.size(), "end of block");
+
+	for (MainMenuConfiguration::Camera &camera : _main_menu_config.cameras) {
+		camera.pos.x = rcd_file->GetInt32();
+		camera.pos.y = rcd_file->GetInt32();
+		camera.pos.z = rcd_file->GetInt32();
+		camera.orientation = rcd_file->GetUInt8();
+		camera.duration = rcd_file->GetUInt32();
+	}
 }
 
 /** Default constructor. */

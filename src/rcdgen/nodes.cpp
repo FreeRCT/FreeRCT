@@ -1329,14 +1329,14 @@ int GSLPBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-MENUBlock::MENUBlock() : GameBlock("MENU", 2)
+MENUBlock::MENUBlock() : GameBlock("MENU", 3)
 {
 }
 
 int MENUBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 44 - 12);
+	fb->StartSave(this->blk_name, this->version, 56 + this->default_scenario_length + this->main_menu_savegame_length + 17 * this->cameras.size() - 12);
 	fb->SaveUInt32(this->splash_duration);
 	fb->SaveUInt32(this->logo->Write(fw));
 	fb->SaveUInt32(this->splash->Write(fw));
@@ -1345,6 +1345,18 @@ int MENUBlock::Write(FileWriter *fw)
 	fb->SaveUInt32(this->launch_editor->Write(fw));
 	fb->SaveUInt32(this->settings->Write(fw));
 	fb->SaveUInt32(this->quit->Write(fw));
+	fb->SaveUInt32(this->default_scenario_length);
+	fb->SaveBytes(this->default_scenario_bytes.get(), this->default_scenario_length);
+	fb->SaveUInt32(this->main_menu_savegame_length);
+	fb->SaveBytes(this->main_menu_savegame_bytes.get(), this->main_menu_savegame_length);
+	fb->SaveUInt32(this->cameras.size());
+	for (const Camera &c : this->cameras) {
+		fb->SaveInt32(c.x);
+		fb->SaveInt32(c.y);
+		fb->SaveInt32(c.z);
+		fb->SaveUInt8(c.orientation);
+		fb->SaveUInt32(c.duration);
+	}
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }

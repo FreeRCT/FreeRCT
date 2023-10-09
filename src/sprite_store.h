@@ -537,11 +537,28 @@ struct GuiSprites {
 	ImageData *mainmenu_launch_editor;      ///< Main menu: Launch Editor button.
 	ImageData *mainmenu_settings;           ///< Main menu: Settings button.
 	ImageData *mainmenu_quit;               ///< Main menu: Quit button.
-	uint32     mainmenu_splash_duration;    ///< Main menu: Duration of the splash screen.
 
 	TextData *text;                         ///< Texts of the GUI.
 };
 
+/** Data for the main menu savegame. */
+struct MainMenuConfiguration {
+	/** A camera frame. */
+	struct Camera {
+		XYZPoint32 pos;     ///< Camera pixel position.
+		uint32 duration;    ///< Frame duration in milliseconds.
+		uint8 orientation;  ///< Viewport orientation.
+	};
+
+	uint32 default_scenario_length;                     ///< Length of the default scenario.
+	uint32 main_menu_savegame_length;                   ///< Length of the main menu savegame.
+	std::unique_ptr<uint8[]> default_scenario_bytes;    ///< Bytes of the default scenario.
+	std::unique_ptr<uint8[]> main_menu_savegame_bytes;  ///< Bytes of the main menu savegame.
+
+	std::vector<Camera> cameras;  ///< Main menu cameras.
+	uint32 splash_duration;       ///< Duration of the splash screen.
+};
+extern MainMenuConfiguration _main_menu_config;
 
 /**
  * Storage of all sprites for a single tile size.

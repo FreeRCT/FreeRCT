@@ -47,6 +47,17 @@ enum GameSpeed {
 DECLARE_POSTFIX_INCREMENT(GameSpeed)
 
 /**
+ * The current game mode controls what user operations that are allowed
+ * and not. In Game mode most construction operations are limited to
+ * owned land.
+ */
+enum GameMode {
+	GM_NONE,   ///< Neither a running game nor in editor. (eg. startup/quit)
+	GM_PLAY,   ///< The current scenario is being played.
+	GM_EDITOR, ///< The current scenario is being edited.
+};
+
+/**
  * Class controlling the current game.
  */
 class GameControl {
@@ -61,13 +72,13 @@ public:
 		if (this->next_action != GCA_NONE) this->RunAction();
 	}
 
-	void Initialize(const std::string &fname, bool editor);
+	void Initialize(const std::string &fname, GameMode game_mode);
 	void Uninitialize();
 
 	void MainMenu();
 	void NewGame(MissionScenario *scenario);
 	void LaunchEditor();
-	void LoadGame(const std::string &fname, bool editor);
+	void LoadGame(const std::string &fname, GameMode game_mode);
 	void SaveGame(const std::string &fname);
 	void QuitGame();
 
@@ -81,7 +92,7 @@ public:
 private:
 	void RunAction();
 	void InitializeLevel();
-	void StartLevel(bool editor);
+	void StartLevel(GameMode game_mode);
 	void ShutdownLevel();
 
 	GameControlAction next_action; ///< Action game control wants to run, or #GCA_NONE for 'no action'.
@@ -90,17 +101,6 @@ private:
 };
 
 extern GameControl _game_control;
-
-/**
- * The current game mode controls what user operations that are allowed
- * and not. In Game mode most construction operations are limited to
- * owned land.
- */
-enum GameMode {
-	GM_NONE,   ///< Neither a running game nor in editor. (eg. startup/quit)
-	GM_PLAY,   ///< The current scenario is being played.
-	GM_EDITOR, ///< The current scenario is being edited.
-};
 
 /** Class managing the game mode of the program.
  *  @todo Move functionality to GameControl class?

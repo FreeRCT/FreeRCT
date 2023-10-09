@@ -82,6 +82,34 @@ static std::string GetString(std::shared_ptr<Expression> expr, int index, const 
 	return sl->text;
 }
 
+/**
+ * Read a file into memory.
+ * @param pos %Position of the node (for reporting errors).
+ * @param filepath Path of the file to load.
+ * @param out_length [out] Will be filled in with the total number of bytes.
+ * @param out_bytes [out] Will be filled in with the content of the file.
+ */
+static void ReadFile(const Position &pos, const char *filepath, uint32 *out_length, std::unique_ptr<uint8[]> *out_bytes)
+{
+	FILE *in_file = nullptr;
+	in_file = fopen(filepath, "rb");
+	if (in_file == nullptr) {
+		fprintf(stderr, "Error at %s: Could not open input file.\n", pos.ToString());
+		exit(1);
+	}
+
+	fseek(in_file, 0L, SEEK_END);
+	*out_length = ftell(in_file);
+	rewind(in_file);
+
+	out_bytes->reset(new uint8[*out_length]);
+	for (uint32 i = 0; i < *out_length; ++i) {
+		(*out_bytes)[i] = getc(in_file);
+	}
+
+	fclose(in_file);
+}
+
 // No  foo(1234) { ... } nodes exist yet, so number parsing is not needed currently.
 // /* DISABLED RECOGNITION BY DOXYGEN *
 //  * Extract a number from the given expression.
@@ -2393,6 +2421,28 @@ static std::shared_ptr<MENUBlock> ConvertMENUNode(std::shared_ptr<NodeGroup> ng)
 	block->settings = vals.GetSprite("settings");
 	block->quit = vals.GetSprite("quit");
 
+	ReadFile(ng->pos, vals.GetString("default_scenario").c_str(), &block->default_scenario_length, &block->default_scenario_bytes);
+	ReadFile(ng->pos, vals.GetString("main_menu_savegame").c_str(), &block->main_menu_savegame_length, &block->main_menu_savegame_bytes);
+
+	const int nr_cameras = vals.GetNumber("nr_cameras");
+	if (nr_cameras < 1) {
+		fprintf(stderr, "Error at %s: main menu contains no cameras.\n", ng->pos.ToString());
+		exit(1);
+	}
+
+	block->cameras.resize(nr_cameras);
+	for (int i = 0; i < nr_cameras; ++i) {
+		std::string key = "camera_";
+		key += std::to_string(i);
+		key += "_";
+
+		block->cameras.at(i).x = vals.GetNumber((key + "x").c_str());
+		block->cameras.at(i).y = vals.GetNumber((key + "y").c_str());
+		block->cameras.at(i).z = vals.GetNumber((key + "z").c_str());
+		block->cameras.at(i).orientation = vals.GetNumber((key + "orientation").c_str());
+		block->cameras.at(i).duration = vals.GetNumber((key + "duration").c_str());
+	}
+
 	vals.VerifyUsage();
 	return block;
 }
@@ -2734,23 +2784,7 @@ static std::shared_ptr<FTKWBlock> ConvertFTKWNode(std::shared_ptr<NodeGroup> ng)
 	Values vals("FTKW", ng->pos);
 	vals.PrepareNamedValues(ng->values, true, false);
 
-	FILE *in_file = nullptr;
-	in_file = fopen(vals.GetString("file").c_str(), "rb");
-	if (in_file == nullptr) {
-		fprintf(stderr, "Error at %s: Could not open input file.\n", ng->pos.ToString());
-		exit(1);
-	}
-
-	fseek(in_file, 0L, SEEK_END);
-	block->length = ftell(in_file);
-	rewind(in_file);
-
-	block->data.reset(new uint8[block->length]);
-	for (uint32 i = 0; i < block->length; ++i) {
-		block->data[i] = getc(in_file);
-	}
-
-	fclose(in_file);
+	ReadFile(ng->pos, vals.GetString("file").c_str(), &block->length, &block->data);
 
 	vals.VerifyUsage();
 	return block;
@@ -2804,20 +2838,7 @@ static std::shared_ptr<MISNBlock> ConvertMISNNode(std::shared_ptr<NodeGroup> ng)
 
 		key = "file_";
 		key += std::to_string(i);
-		FILE *in_file = fopen(vals.GetString(key.c_str()).c_str(), "rb");
-		if (in_file == nullptr) {
-			fprintf(stderr, "Error at %s: Could not open input file.\n", ng->pos.ToString());
-			exit(1);
-		}
-
-		fseek(in_file, 0L, SEEK_END);
-		block->lengths[i] = ftell(in_file);
-		rewind(in_file);
-
-		block->data[i].reset(new uint8[block->lengths[i]]);
-		for (size_t j = 0; j < block->lengths[i]; ++j) {
-			block->data[i][j] = getc(in_file);
-		}
+		ReadFile(ng->pos, vals.GetString(key.c_str()).c_str(), &block->lengths[i], &block->data[i]);
 	}
 
 	for (auto &string_bundle : block->texts) {

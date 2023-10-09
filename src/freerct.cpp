@@ -168,7 +168,7 @@ int freerct_main(int argc, char **argv)
 	int opt_id;
 	std::string file_name;
 	std::string preferred_language;
-	bool editor = false;
+	GameMode game_mode = GM_PLAY;
 	[[maybe_unused]] bool has_install_prefix_override = false;
 	do {
 		opt_id = opt_data.GetOpt();
@@ -196,7 +196,7 @@ int freerct_main(int argc, char **argv)
 				if (opt_data.opt != nullptr) file_name = opt_data.opt;
 				break;
 			case 'e':
-				editor = true;
+				game_mode = GM_EDITOR;
 				if (opt_data.opt != nullptr) file_name = opt_data.opt;
 				break;
 
@@ -305,7 +305,7 @@ int freerct_main(int argc, char **argv)
 	/* Initialize video. */
 	_video.Initialize(font_path, font_size);
 
-	_game_control.Initialize(file_name, editor);
+	_game_control.Initialize(file_name, game_mode);
 
 	/* Loops until told not to. */
 #ifdef WEBASSEMBLY

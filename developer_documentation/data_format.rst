@@ -1890,7 +1890,7 @@ Version history
 
 Main menu sprites
 ~~~~~~~~~~~~~~~~~
-Sprites for the FreeRCT main menu and splash screen. FreeRCT can read block version 1.
+Sprites for the FreeRCT main menu and splash screen. FreeRCT can read block version 3.
 
 =========  ======  =======  ========================================================================================
 Offset     Length  Version  Description
@@ -1906,7 +1906,14 @@ Offset     Length  Version  Description
   32        4       2-      Scenario Editor button sprite.
   36        4       1-      Settings button sprite.
   40        4       1-      Quit button sprite.
-  44                        Total length.
+  44        4       3-      The length of the default scenario binary file.
+  48        ?       3-      The bytes of the default scenario binary file.
+   ?        4       3-      The length of the main menu savegame binary file.
+   ?        ?       3-      The bytes of the main menu savegame binary file.
+   ?        4       3-      The number c of cameras in the main menu setup.
+   ?       17*c     3-      For each camera: Its X, Y, and Z pixel position (4 bytes each),
+                            viewport orientation (1 byte), and frame duration in milliseconds (4 bytes).
+   ?                        Total length.
 =========  ======  =======  ========================================================================================
 
 Version history
@@ -1914,6 +1921,7 @@ Version history
 
 - 1 (20210401) Initial version.
 - 2 (20231002) Added scenario editor sprite.
+- 3 (20231009) Added savegame data for main menu and editor.
 
 
 Persons

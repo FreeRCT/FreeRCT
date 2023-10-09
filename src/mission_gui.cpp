@@ -99,6 +99,8 @@ ScenarioSelectGui::ScenarioSelectGui() : GuiWindow(WC_SCENARIO_SELECT, ALL_WINDO
 	this->SelectTab(this->tab_bar.front());
 }
 
+#undef SCENARIO_ROW_BUTTON
+
 /**
  * Change the active tab.
  * @param wid_num ID of the tab button widget.

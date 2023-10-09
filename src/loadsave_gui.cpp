@@ -347,7 +347,7 @@ void LoadSaveGui::OnClick(const WidgetNumber number, const Point16 &pos)
 					break;
 				case LOAD:
 					if (sel < 0 || !this->all_files.at(sel).load_success) return;  // The file does not exist or is invalid.
-					_game_control.LoadGame(path, _game_mode_mgr.InEditorMode());
+					_game_control.LoadGame(path, _game_mode_mgr.GetGameMode());
 					break;
 			}
 			delete this;

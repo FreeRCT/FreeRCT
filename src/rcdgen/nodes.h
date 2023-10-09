@@ -931,6 +931,21 @@ public:
 	std::shared_ptr<SpriteBlock> settings;         ///< Settings button.
 	std::shared_ptr<SpriteBlock> quit;             ///< Quit button.
 	uint32                       splash_duration;  ///< Duration of the splash screen animation.
+
+	uint32 default_scenario_length;                     ///< Length of the default scenario.
+	uint32 main_menu_savegame_length;                   ///< Length of the main menu savegame.
+	std::unique_ptr<uint8[]> default_scenario_bytes;    ///< Bytes of the default scenario.
+	std::unique_ptr<uint8[]> main_menu_savegame_bytes;  ///< Bytes of the main menu savegame.
+
+	/** A camera frame. */
+	struct Camera {
+		int32 x;            ///< X pixel coordinate.
+		int32 y;            ///< Y pixel coordinate.
+		int32 z;            ///< Z pixel coordinate.
+		uint32 duration;    ///< Frame duration in milliseconds.
+		uint8 orientation;  ///< Viewport orientation.
+	};
+	std::vector<Camera> cameras;  ///< Main menu cameras.
 };
 
 /**

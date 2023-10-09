@@ -880,6 +880,14 @@ Attributes:
 - ``launch_editor`` - Scenario Editor button sprite.
 - ``settings`` - Settings button sprite.
 - ``quit`` - Quit button sprite.
+- ``default_scenario`` - Path to the FCT file for the default scenario for use in the editor.
+- ``main_menu_savegame`` - Path to the FCT file for the main menu background savegame.
+- ``nr_cameras`` - Number of cameras in the main menu background game.
+- ``camera_N_x`` - X pixel coordinate of the N-th camera.
+- ``camera_N_y`` - Y pixel coordinate of the N-th camera.
+- ``camera_N_z`` - Z pixel coordinate of the N-th camera.
+- ``camera_N_orientation`` - Viewport orientation of the N-th camera.
+- ``camera_N_duration`` - Duration of the N-th camera frame in milliseconds.
 
 MISN
 ~~~~

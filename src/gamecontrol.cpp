@@ -138,21 +138,21 @@ GameControl::GameControl()
 /**
  * Initialize the game controller.
  * @param fname File to load (may be empty).
- * @param editor Launch the editor.
+ * @param game_mode Mode to load the game in.
  */
-void GameControl::Initialize(const std::string &fname, bool editor)
+void GameControl::Initialize(const std::string &fname, GameMode game_mode)
 {
 	this->speed = GSP_1;
 	this->running = true;
 
 	if (fname.empty()) {
-		if (editor) {
+		if (game_mode == GM_EDITOR) {
 			this->LaunchEditor();
 		} else {
 			this->MainMenu();
 		}
 	} else {
-		this->LoadGame(fname, editor);
+		this->LoadGame(fname, game_mode);
 	}
 
 	this->RunAction();
@@ -175,14 +175,14 @@ void GameControl::RunAction()
 			this->ShutdownLevel();
 			LoadGameFile(nullptr);
 			this->InitializeLevel();
-			this->StartLevel(true);
+			this->StartLevel(GM_EDITOR);
 			break;
 
 		case GCA_LOAD_GAME:
 		case GCA_LOAD_EDITOR:
 			this->ShutdownLevel();
 			LoadGameFile(this->fname.c_str());
-			this->StartLevel(this->next_action == GCA_LOAD_EDITOR);
+			this->StartLevel(this->next_action == GCA_LOAD_EDITOR ? GM_EDITOR : GM_PLAY);
 			break;
 
 		case GCA_NEW_GAME: {
@@ -192,7 +192,7 @@ void GameControl::RunAction()
 			::LoadGame(ldr);
 
 			this->InitializeLevel();
-			this->StartLevel(false);
+			this->StartLevel(GM_PLAY);
 
 			this->next_scenario = nullptr;
 			ShowParkManagementGui(PARK_MANAGEMENT_TAB_OBJECTIVE);
@@ -203,11 +203,17 @@ void GameControl::RunAction()
 			SaveGameFile(this->fname.c_str());
 			break;
 
-		case GCA_MENU:
+		case GCA_MENU: {
 			this->main_menu = true;
-			this->Initialize(FindDataFile("data/mainmenu/savegame.fct"), false);
+
+			this->ShutdownLevel();
+			Loader ldr(_main_menu_config.main_menu_savegame_bytes.get(), _main_menu_config.main_menu_savegame_length);
+			::LoadGame(ldr);
+			this->StartLevel(GM_PLAY);
+
 			::ShowMainMenu();
 			break;
+		}
 
 		case GCA_QUIT:
 			this->running = false;
@@ -245,12 +251,12 @@ void GameControl::LaunchEditor()
 /**
  * Prepare for a #GCA_LOAD_GAME or #GCA_LOAD_EDITOR action.
  * @param fname Name of the file to load.
- * @param editor Launch as scenario editor.
+ * @param game_mode Mode to load the game in.
  */
-void GameControl::LoadGame(const std::string &fname, bool editor)
+void GameControl::LoadGame(const std::string &fname, GameMode game_mode)
 {
 	this->fname = fname;
-	this->next_action = editor ? GCA_LOAD_EDITOR : GCA_LOAD_GAME;
+	this->next_action = game_mode == GM_EDITOR ? GCA_LOAD_EDITOR : GCA_LOAD_GAME;
 }
 
 /**
@@ -280,35 +286,8 @@ void GameControl::InitializeLevel()
 		_scenario.name  = _language.GetSgText(this->next_scenario->name);
 		_scenario.descr = _language.GetSgText(this->next_scenario->descr);
 	} else {
-		/* When not loading a scenario, create some default objects. \todo Clean this mess up. */
-
-		_scenario.SetDefaultScenario();
-
-		_world.SetWorldSize(WORLD_X_SIZE - 1, WORLD_Y_SIZE - 1);
-		_world.MakeFlatWorld(8);
-		_world.SetTileOwnerGlobally(OWN_NONE);
-		_world.SetTileOwnerRect(2, 2, 16, 15, OWN_PARK);
-		_world.SetTileOwnerRect(9, 1,  1,  1, OWN_PARK);
-		_world.SetTileOwnerRect(2, 18, 16, 2, OWN_FOR_SALE);
-
-		std::vector<const SceneryType*> park_entrance_types = _scenery.GetAllTypes(SCC_SCENARIO);
-		if (park_entrance_types.size() < 3) {
-			_world.SetTileOwnerRect(8, 0, 4, 2, OWN_PARK); // Allow building path to map edge in north west.
-		} else {
-			/* Assemble a park entrance and some paths. This assumes that the entrance parts are the first three scenario scenery items loaded. */
-			_world.AddEdgesWithoutBorderFence(Point16(9, 0), EDGE_SE);
-			for (int i = 0; i < 3; i++) {
-				SceneryInstance *item = new SceneryInstance(park_entrance_types[i]);
-				item->orientation = 0;
-				item->vox_pos.x = 8 + i;
-				item->vox_pos.y = 1;
-				item->vox_pos.z = (i == 1 ? 12 : 8);
-				_scenery.AddItem(item);
-			}
-			for (int i = 0; i < 6; i++) {
-				BuildFlatPath(XYZPoint16(9, i, 8), PAT_CONCRETE, PAS_NORMAL_PATH, false, false);
-			}
-		}
+		Loader ldr(_main_menu_config.default_scenario_bytes.get(), _main_menu_config.default_scenario_length);
+		::LoadGame(ldr);
 	}
 
 	_inbox.Clear();
@@ -319,12 +298,12 @@ void GameControl::InitializeLevel()
 
 /**
  * Initialize common game settings and view.
- * @oaram editor Launch the game as a scenario editor session.
+ * @param game_mode Mode to start the game in.
  */
-void GameControl::StartLevel(bool editor)
+void GameControl::StartLevel(GameMode game_mode)
 {
-	_game_mode_mgr.SetGameMode(editor ? GM_EDITOR : GM_PLAY);
-	this->speed = editor ? GSP_PAUSE : GSP_1;
+	_game_mode_mgr.SetGameMode(game_mode);
+	this->speed = game_mode != GM_PLAY ? GSP_PAUSE : GSP_1;
 
 	XYZPoint32 view_pos(_world.GetXSize() * 256 / 2, _world.GetYSize() * 256 / 2, 8 * 256);
 	ShowMainDisplay(view_pos);

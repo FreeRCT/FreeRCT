@@ -1976,6 +1976,30 @@ file("freerct.rcd") {
 			file: "../sprites/gui/mainmenu.png";
 			x_offset: 0; y_offset: 0; width: 96; height: 96; crop: 0;
 		}
+
+		default_scenario: "../sprites/scenarios/default.fct";
+		main_menu_savegame: "../sprites/scenarios/main_menu.fct";
+		nr_cameras: 4;
+		camera_0_x: 2560;
+		camera_0_y: 2560;
+		camera_0_z: 2048;
+		camera_0_orientation: 0;
+		camera_0_duration: 10000;
+		camera_1_x: 2560;
+		camera_1_y: 2560;
+		camera_1_z: 2048;
+		camera_1_orientation: 1;
+		camera_1_duration: 10000;
+		camera_2_x: 2560;
+		camera_2_y: 2560;
+		camera_2_z: 2048;
+		camera_2_orientation: 2;
+		camera_2_duration: 10000;
+		camera_3_x: 2560;
+		camera_3_y: 2560;
+		camera_3_z: 2048;
+		camera_3_orientation: 3;
+		camera_3_duration: 10000;
 	}
 
 	// Park border fence
