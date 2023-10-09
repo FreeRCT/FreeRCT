@@ -146,6 +146,8 @@ ENDIF()
 # Compiler flags
 # TODO: Extend for debug/release versions
 IF(MSVC)
+	set(CMAKE_FIND_LIBRARY_SUFFIXES ".lib")
+
 	# "If /Zc:rvalueCast is specified, the compiler follows section 5.4 of the
 	# C++11 standard". We need C++11 for the way we use threads.
 	add_c_cpp_flags(/Zc:rvalueCast)
@@ -160,9 +162,7 @@ IF(MSVC)
 	# Enable static linking.
 	add_definitions(-DWIN32_LEAN_AND_MEAN -D__STDC_FORMAT_MACROS -DNOMINMAX)
 	target_link_libraries(freerct
-		version imm32 winmm
-		graphite2 brotlidec-static brotlicommon-static brotlienc-static
-		ole32 imm32 winmm gdi32 user32 oleaut32 setupapi shell32 advapi32 dinput8 uuid
+		version ole32 imm32 winmm gdi32 user32 oleaut32 setupapi shell32 advapi32 dinput8 uuid
 	)
 	IF(RELEASE)
 		string(REPLACE "/MD" "" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
@@ -179,7 +179,7 @@ ELSE()
 	ELSE()
 		add_c_cpp_flags("-g")
 	ENDIF()
-	add_c_cpp_flags("-Wall -Wextra -pedantic")
+	add_c_cpp_flags("-Wall -Wextra -Wpedantic")
 ENDIF()
 
 # Add platform define
