@@ -76,6 +76,9 @@ Recognized types of values are:
 
 - Decimal *integral constants*, e.g. ``5`` or ``-128``.
 - *String literals* enclosed by double quotes, e.g. ``"Hello World!"``.
+- *File paths*. A file path is a string literal that refers to a file on the hard disk.
+  Paths can be absolute or relative. Relative file paths are always interpreted as relative to the directory in which RCDgen will be invoked.
+  The directory separator should be a forward slash (``/``) on all platforms.
 - `Predefined symbols`_.
 - A *bitset* of integers, defined by the keyword ``bitset`` followed by parentheses enclosing a comma-separated list of integers.
 - A value list. Some `intermediary nodes`_ can expand to multiple values.
@@ -393,8 +396,8 @@ It is valid to specify no named values in this node, in which case the sprite is
 
 Attributes:
 
-- ``file`` - The PNG file path, relative to the directory in which RCDgen will be invoked.
-- ``recolour`` - *Optional*. The PNG file path to the recolouring mask, relative to the directory in which RCDgen will be invoked.
+- ``file`` - The PNG file path.
+- ``recolour`` - *Optional*. The PNG file path to the recolouring mask.
 - ``x_base`` - X coordinate of the upper left corner of the clipping rectangle.
 - ``y_base`` - Y coordinate of the upper left corner of the clipping rectangle.
 - ``width`` - Width of the clipping rectangle.
