@@ -6,7 +6,7 @@ To make the commit messages consistent, the following style of messages is recom
 with
   * **`<type>`** Type of change, see the list below. **Always include this.**
   * **optional `[<section>]`** if the commit is in a special section, for example graphics or build system.
-  * **optional `[Fix #<num>]`** if the commit solves an issue, mention it. This means that a future reader can find the issue to see what the cause for the fix was. Also, the issue integration on GitHub will automatically close said issue if it is included in the commit message.
+  * **optional `[Fix #<num>]`** if the commit solves an issue, mention it. This means that a future reader can find the issue to see what the cause for the fix was. Also, the issue integration on Codeberg will automatically close said issue if it is included in the commit message.
 
 List of types:
 

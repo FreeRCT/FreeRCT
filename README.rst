@@ -23,7 +23,7 @@ Building is as simple as
 
 .. code-block:: bash
 
-        $ git clone https://github.com/FreeRCT/FreeRCT.git
+        $ git clone https://codeberg.org/FreeRCT/FreeRCT.git
         $ cd FreeRCT               # Go into the downloaded source directory.
         $ mkdir build && cd build  # Create and enter a build directory.
         $ cmake ..                 # Checks libraries are where they're supposed to be and replaces some strings.
@@ -156,6 +156,7 @@ MacOS
 #####
 
 To install the dependencies on MacOS you can use Homebrew:
+
 .. code-block:: bash
 
         $ brew install flex bison libpng glfw glew freetype cmake make

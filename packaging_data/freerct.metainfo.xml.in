@@ -33,7 +33,7 @@
 		</release>
 	</releases>
 	<url type="homepage">https://freerct.net</url>
-	<url type="bugtracker">https://github.com/FreeRCT/FreeRCT/issues</url>
+	<url type="bugtracker">https://codeberg.org/FreeRCT/FreeRCT/issues</url>
 	<project_license>GPL-2.0</project_license>
 	<metadata_license>GFDL-1.2</metadata_license>
 </component>

@@ -10,7 +10,7 @@ The code should build out of the box at a Linux system. For Windows, it is curre
 
 If you need graphics that do not exist yet, just make some stub graphics. It does not matter how ugly they are.
 
-Submissions take the form of pull requests via Github.
+Submissions take the form of pull requests via Codeberg.
 
 
 # Graphics development #
@@ -49,5 +49,5 @@ All these topics are quite broad. The trick to make actual progress is not to tr
   * A [discussion group](https://groups.google.com/forum/?fromgroups#!forum/freerctgame) exists, where you can discuss things.
   * An issue in the issue tracker is the center of (mostly technical) communication about the subject.
     * When you have something concrete, find an existing issue or create a new one, and put the information and/or data in it.
-	* If you have made a fix for an issue or added a feature, make a Pull Request through GitHub, which will be reviewed and accepted when it is of good enough quality.
+	* If you have made a fix for an issue or added a feature, make a Pull Request through [Codeberg](https://codeberg.org/FreeRCT/FreeRCT/pulls), which will be reviewed and accepted when it is of good enough quality.
   * Feature suggestions and changes can also be discussed in the [official forum](https://freerct.net/forum/).
