@@ -7,6 +7,10 @@
 # CMake File for FreeRCT
 
 cmake_minimum_required(VERSION 2.8.12...3.27.6)
+IF(POLICY CMP0091)
+	cmake_policy(SET CMP0091 NEW)
+ENDIF()
+
 project(FreeRCT)
 
 # Add a compiler flag VAR_NAME=FLAG. If VAR_NAME is already set, FLAG is appended.
@@ -56,6 +60,12 @@ set(FRCT_BINARY_DIR "${CMAKE_BINARY_DIR}/bin")
 file(MAKE_DIRECTORY "${FRCT_BINARY_DIR}")
 file(MAKE_DIRECTORY "${FRCT_BINARY_DIR}/rcd")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${FRCT_BINARY_DIR}")
+
+IF(RELEASE)
+	set(CMAKE_BUILD_TYPE "Release")
+ELSE()
+	set(CMAKE_BUILD_TYPE "Debug")
+ENDIF()
 
 # Include individual projects
 message(STATUS "Building rcdgen")

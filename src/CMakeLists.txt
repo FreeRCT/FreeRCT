@@ -164,11 +164,12 @@ IF(MSVC)
 	target_link_libraries(freerct
 		version ole32 imm32 winmm gdi32 user32 oleaut32 setupapi shell32 advapi32 dinput8 uuid
 	)
+
 	IF(RELEASE)
-		string(REPLACE "/MD" "" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
+		set_property(TARGET freerct PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded")
 		add_c_cpp_flags("/MT /EHsc")
 	ELSE()
-		string(REPLACE "/MDd" "" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+		set_property(TARGET freerct PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
 		add_c_cpp_flags("/MTd /EHsc")
 	ENDIF()
 ELSE()
