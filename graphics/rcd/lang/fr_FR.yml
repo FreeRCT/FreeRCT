@@ -492,6 +492,7 @@ strings:
         DESCRIPTION_RECOLOUR2: "-"
         DESCRIPTION_RECOLOUR3: "-"
         NAME_ITEM1: "Toilette"
+        NAME_ITEM2: ''
     basic-coaster:
         NAME_INSTANCE: "Le Rouleur Fou"
         NAME_TYPE: "Montagnes Russes de base"
@@ -568,6 +569,7 @@ strings:
         NAME_INSTANCE1: ''
         NAME_INSTANCE2: ''
         DESCRIPTION_TYPE: ''
+        NAME_ITEM2: ''
     chair-swing:
         DESCRIPTION_TYPE: ''
         DESCRIPTION_RECOLOUR1: ''
