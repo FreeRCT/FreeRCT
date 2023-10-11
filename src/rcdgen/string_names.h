@@ -39,11 +39,14 @@ static const char *_gui_string_names[] = {
 	"OBJECTIVETEXT_NONE",
 	"OBJECTIVETEXT_GUESTS",
 	"OBJECTIVETEXT_PARK_RATING",
+	"OBJECTIVETEXT_PARK_VALUE",
 
 	"NUMBERED_INSTANCE_NAME",
 	"RESOLUTION",
 	"GUEST_NAME",
 
+	"NR_DAYS",
+	"APPLY",
 	"INCREASE_BUTTON",
 	"DECREASE_BUTTON",
 
@@ -51,13 +54,13 @@ static const char *_gui_string_names[] = {
 	"TOOLBAR_GUI_DROPDOWN_MAIN",
 	/* Do not change the order of the strings between here… */
 	"MAIN_MENU_SAVE",
-	"MAIN_MENU_MODE",
 	"MAIN_MENU_SETTINGS",
+	"MAIN_MENU_LOAD",
 	"MAIN_MENU_MENU",
 	"MAIN_MENU_QUIT",
 	/* …and here. */
 	"MAIN_MENU_NEW_GAME",
-	"MAIN_MENU_LOAD",
+	"MAIN_MENU_LAUNCH_EDITOR",
 	"TOOLBAR_GUI_DROPDOWN_SPEED",
 	"TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP",
 	"TOOLBAR_GUI_DROPDOWN_VIEW",
@@ -69,8 +72,6 @@ static const char *_gui_string_names[] = {
 	"TOOLBAR_GUI_DROPDOWN_SPEED_4",
 	"TOOLBAR_GUI_DROPDOWN_SPEED_8",
 	/* …and here. */
-	"TOOLBAR_GUI_GAME_MODE_EDITOR",
-	"TOOLBAR_GUI_GAME_MODE_PLAY",
 	"TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP",
 	"TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_OUT",
 	"TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_IN",
@@ -108,6 +109,11 @@ static const char *_gui_string_names[] = {
 	"TOOLBAR_GUI_TOOLTIP_PARK",
 
 	"BOTTOMBAR_GUESTCOUNT",
+
+	/* Scenario strings. */
+	"NO_NAME",
+	"DEFAULT_SCENARIO_NAME",
+	"DEFAULT_SCENARIO_DESCR",
 
 	/* Quit program strings. */
 	"QUIT_CAPTION",
@@ -291,6 +297,10 @@ static const char *_gui_string_names[] = {
 	"TERRAFORM_SUB_TOOLTIP",
 	"TERRAFORM_LEVEL_TEXT",
 	"TERRAFORM_MOVE_TEXT",
+	"TERRAFORM_OWNER_UNCHANGED_TEXT",
+	"TERRAFORM_OWNER_NONE_TEXT",
+	"TERRAFORM_OWNER_PARK_TEXT",
+	"TERRAFORM_OWNER_SALE_TEXT",
 
 	/* Park Management window. */
 	"PARK_MANAGEMENT_TAB_GENERAL",
@@ -307,6 +317,14 @@ static const char *_gui_string_names[] = {
 	"PARK_MANAGEMENT_NO_AWARDS",
 	"PARK_MANAGEMENT_PARKNAME",
 	"PARK_MANAGEMENT_ENTRANCE_FEE",
+	"PARK_MANAGEMENT_MAX_GUESTS",
+	"PARK_MANAGEMENT_SOLVED",
+	"PARK_MANAGEMENT_OBJECTIVE_GUESTS",
+	"PARK_MANAGEMENT_OBJECTIVE_RATING",
+	"PARK_MANAGEMENT_OBJECTIVE_PARK_VALUE",
+	"PARK_MANAGEMENT_OBJECTIVE_DROP_POLICY",
+	"PARK_MANAGEMENT_OBJECTIVE_DATE",
+	"PARK_MANAGEMENT_OBJECTIVE_DATE_NOT_EXACT",
 
 	/* Minimap window. */
 	"MINIMAP_TITLE",
@@ -333,6 +351,9 @@ static const char *_gui_string_names[] = {
 	"FINANCES_CURRENT_LOAN",
 	"FINANCES_LOAN_INTEREST",
 	"FINANCES_LOAN_INTEREST_VALUE",
+	"FINANCES_PARK_VALUE",
+	"FINANCES_COMPANY_VALUE",
+	"FINANCES_PARK_VALUE_VALUE",
 
 	/* Messages and inbox. Do not change the order. */
 	"INBOX_TITLE",
@@ -419,6 +440,12 @@ static const char *_gui_string_names[] = {
 	"SETTING_RESOLUTION",
 	"SETTING_RESOLUTION_TOOLTIP",
 
+	/* Scenario select window. */
+	"SCENARIO_SELECT_TITLE",
+	"SCENARIO_SELECT_NO_MISSIONS",
+	"SCENARIO_SELECT_UNLOCK",
+	"SCENARIO_SELECT_SOLVED",
+
 	/* Loading/saving window. */
 	"LOADSAVE_LOAD",
 	"LOADSAVE_SAVE",
@@ -474,6 +501,12 @@ static const char *_entrance_exit_string_names[] = {
 /** String names of a scenery item. */
 static const char *_scenery_string_names[] = {
 	"NAME",
+};
+
+/** String names of a mission or scenario. */
+static const char *_mission_string_names[] = {
+	"NAME",
+	"DESCR",
 };
 
 #endif

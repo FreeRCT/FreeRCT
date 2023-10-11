@@ -72,8 +72,8 @@ enum ToolbarGuiWidgets {
  */
 enum DropdownMain {
 	DDM_SAVE,      ///< Save game.
-	DDM_GAME_MODE, ///< Switch game mode.
 	DDM_SETTINGS,  ///< General settings.
+	DDM_LOAD,      ///< Load a saved game.
 	DDM_MENU,      ///< Back to main menu.
 	DDM_QUIT,      ///< Quit the game.
 	DDM_COUNT      ///< Number of entries.
@@ -156,36 +156,13 @@ void ToolbarWindow::OnDraw(MouseModeSelector *selector)
 	GuiWindow::OnDraw(selector);
 }
 
-/**
- * Determines the string ID of the string to display
- * for the switch game mode button.
- * @return String id of the string to display.
- */
-StringID GetSwitchGameModeString()
-{
-	switch (_game_mode_mgr.GetGameMode()) {
-		case GM_PLAY:
-			return GUI_TOOLBAR_GUI_GAME_MODE_EDITOR;
-
-		case GM_EDITOR:
-			return GUI_TOOLBAR_GUI_GAME_MODE_PLAY;
-
-		case GM_NONE:
-			/* The toolbar is not visible in none-mode. */
-			return STR_NULL;
-
-		default:
-			NOT_REACHED();
-	}
-}
-
 void ToolbarWindow::OnClick(WidgetNumber number, [[maybe_unused]] const Point16 &pos)
 {
 	switch (number) {
 		case TB_DROPDOWN_MAIN: {
 			DropdownList itemlist;
 			for (int i = 0; i < DDM_COUNT; i++) {
-				_str_params.SetStrID(1, i == DDM_GAME_MODE ? GetSwitchGameModeString() : GUI_MAIN_MENU_SAVE + i);
+				_str_params.SetStrID(1, GUI_MAIN_MENU_SAVE + i);
 				itemlist.push_back(DropdownItem(STR_ARG1));
 			}
 			this->ShowDropdownMenu(number, itemlist, -1);
@@ -314,11 +291,11 @@ void ToolbarWindow::OnChange(ChangeCode code, uint32 parameter)
 						case DDM_SETTINGS:
 							ShowSettingGui();
 							break;
-						case DDM_GAME_MODE:
-							_game_mode_mgr.SetGameMode(_game_mode_mgr.InEditorMode() ? GM_PLAY : GM_EDITOR);
-							break;
 						case DDM_SAVE:
 							ShowSaveGameGui();
+							break;
+						case DDM_LOAD:
+							ShowLoadGameGui();
 							break;
 						case DDM_MENU:
 							ShowConfirmationPrompt(GUI_RETURN_CAPTION, GUI_RETURN_MESSAGE, []() { _game_control.MainMenu(); });
@@ -429,7 +406,7 @@ static const WidgetPart _bottom_toolbar_widgets[] = {
 			Intermediate(1, 0),
 				Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN),
 					Intermediate(3, 1),
-						Widget(WT_CENTERED_TEXT, BTB_CASH, COL_RANGE_ORANGE_BROWN), SetData(STR_ARG1, STR_NULL),
+						Widget(WT_CENTERED_TEXT, BTB_CASH, COL_RANGE_ORANGE_BROWN), SetData(STR_ARG1, GUI_FINANCES_PARK_VALUE_VALUE),
 						Widget(WT_CENTERED_TEXT, BTB_GUESTCOUNT, COL_RANGE_ORANGE_BROWN), SetData(GUI_BOTTOMBAR_GUESTCOUNT, STR_NULL),
 						Widget(WT_EMPTY, BTB_PARK_RATING, COL_RANGE_ORANGE_BROWN), SetData(STR_NULL, GUI_PARK_MANAGEMENT_RATING), SetFill(1, 1),
 				Widget(WT_PANEL, INVALID_WIDGET_INDEX, COL_RANGE_ORANGE_BROWN),
@@ -465,6 +442,8 @@ void BottomToolbarWindow::SetTooltipStringParameters(BaseWidget *tooltip_widget)
 	GuiWindow::SetTooltipStringParameters(tooltip_widget);
 	if (tooltip_widget == this->GetWidget<BaseWidget>(BTB_PARK_RATING)) {
 		_str_params.SetNumber(1, _game_observer.current_park_rating);
+	} else if (tooltip_widget == this->GetWidget<BaseWidget>(BTB_CASH)) {
+		_str_params.SetMoney(1, _finances_manager.GetParkValue());
 	}
 }
 

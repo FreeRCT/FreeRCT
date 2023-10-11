@@ -40,11 +40,16 @@ strings:
 			one:   "Have at least %1% guest in your park."
 			other: "Have at least %1% guests in your park."
 		OBJECTIVETEXT_PARK_RATING: "Achieve a park rating of at least %1%."
+		OBJECTIVETEXT_PARK_VALUE:  "Achieve a park value of at least %1%."
 
 		NUMBERED_INSTANCE_NAME: "%1% #%2%"
 		RESOLUTION:             "%1%x%2%"
 		GUEST_NAME:             "Guest %1%"
 
+		NR_DAYS:
+			one:                  "%1% day"
+			other:                "%1% days"
+		APPLY:                    "Apply"
 		DECREASE_BUTTON:          "-"
 		INCREASE_BUTTON:          "+"
 
@@ -52,10 +57,10 @@ strings:
 		TOOLBAR_GUI_DROPDOWN_MAIN:          "Menu"
 		MAIN_MENU_QUIT:                     "Quit"
 		MAIN_MENU_SETTINGS:                 "Settings"
-		MAIN_MENU_MODE:                     "Play/Editor"
 		MAIN_MENU_LOAD:                     "Load"
 		MAIN_MENU_SAVE:                     "Save"
 		MAIN_MENU_NEW_GAME:                 "New Game"
+		MAIN_MENU_LAUNCH_EDITOR:            "Editor"
 		MAIN_MENU_MENU:                     "Main Menu"
 		TOOLBAR_GUI_DROPDOWN_SPEED:         "Speed"
 		TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP: "Change the game speed"
@@ -82,8 +87,6 @@ strings:
 		TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_OUT:         "Zoom out"
 		TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_IN:          "Zoom in"
 
-		TOOLBAR_GUI_GAME_MODE_PLAY:       "Play"
-		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Editor"
 		TOOLBAR_GUI_PATHS:                "Paths"
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Build paths and queues"
 		TOOLBAR_GUI_RIDE_SELECT:          "Buy ride"
@@ -108,6 +111,11 @@ strings:
 		BOTTOMBAR_GUESTCOUNT:
 			one:   "%1% guest"
 			other: "%1% guests"
+
+		# Scenario strings.
+		NO_NAME:                "Unknown"
+		DEFAULT_SCENARIO_NAME:  "Unnamed"
+		DEFAULT_SCENARIO_DESCR: "This scenario has no description."
 
 		# Quit program strings.
 		QUIT_CAPTION: "Quit?"
@@ -291,6 +299,10 @@ strings:
 		TERRAFORM_SUB_TOOLTIP: "Decrease size of the terraforming area"
 		TERRAFORM_LEVEL_TEXT:  "Level terraforming area"
 		TERRAFORM_MOVE_TEXT:   "Move terraform area as-is"
+		TERRAFORM_OWNER_UNCHANGED_TEXT: "Don’t change tile ownership"
+		TERRAFORM_OWNER_NONE_TEXT:      "Make land unowned"
+		TERRAFORM_OWNER_PARK_TEXT:      "Make land owned by park"
+		TERRAFORM_OWNER_SALE_TEXT:      "Mark land as for sale"
 
 		# Park management gui strings.
 		PARK_MANAGEMENT_TAB_GENERAL:           "General"
@@ -307,6 +319,14 @@ strings:
 		PARK_MANAGEMENT_NO_AWARDS:             "The park did not receive any awards recently."
 		PARK_MANAGEMENT_PARKNAME:              "Park name:"
 		PARK_MANAGEMENT_ENTRANCE_FEE:          "Entrance fee:"
+		PARK_MANAGEMENT_MAX_GUESTS:            "Maximum guest count:"
+		PARK_MANAGEMENT_SOLVED:                "Please enter your name:"
+		PARK_MANAGEMENT_OBJECTIVE_GUESTS:      "Required guests:"
+		PARK_MANAGEMENT_OBJECTIVE_RATING:      "Required park rating:"
+		PARK_MANAGEMENT_OBJECTIVE_PARK_VALUE:  "Required park value:"
+		PARK_MANAGEMENT_OBJECTIVE_DROP_POLICY: "Park closes when objective is not met for:"
+		PARK_MANAGEMENT_OBJECTIVE_DATE:        "Objective must be met by:"
+		PARK_MANAGEMENT_OBJECTIVE_DATE_NOT_EXACT: "Objective may be met at any time"
 
 		# Minimap gui strings.
 		MINIMAP_TITLE: "Minimap"
@@ -333,6 +353,9 @@ strings:
 		FINANCES_LOAN_INTEREST:          "Loan Interest"
 		FINANCES_LOAN_INTEREST_VALUE:    "%.1f%% per year"
 		FINANCES_CASH:                   "Cash"
+		FINANCES_PARK_VALUE:             "Park value"
+		FINANCES_COMPANY_VALUE:          "Company value"
+		FINANCES_PARK_VALUE_VALUE:       "Park value: %1%"
 
 		# Messages and inbox.
 		INBOX_TITLE:              "Inbox"
@@ -426,6 +449,14 @@ strings:
 		SETTING_LANGUAGE_TOOLTIP:   "Change the language of the game"
 		SETTING_RESOLUTION:         "Change resolution"
 		SETTING_RESOLUTION_TOOLTIP: "Change the screen resolution of the game"
+
+		# Scenario select window.
+		SCENARIO_SELECT_TITLE:       "Select Scenario"
+		SCENARIO_SELECT_NO_MISSIONS: "No missions have been loaded."
+		SCENARIO_SELECT_UNLOCK:
+			one:   "Complete %1% more scenario in this mission to unlock this scenario."
+			other: "Complete %1% more scenarios in this mission to unlock this scenario."
+		SCENARIO_SELECT_SOLVED: "Completed by %1% on %2% with a company value of %3%"
 
 		# Loading/saving window.
 		LOADSAVE_LOAD:        "Load"
@@ -566,3 +597,13 @@ strings:
 		NAME: "Tree 3"
 	fountain1:
 		NAME: "Fountain 1"
+
+	mission-official-easy:
+		NAME:  "Official Easy"
+		DESCR: "A pack of easy scenarios provided by the FreeRCT Development Team."
+	scenario-emerald-expanses:
+		NAME:  "Emerald Expanses"
+		DESCR: "Who could behold these vast green lands and not be moved by their beauty? Within the forested confines of their gentle hills, an amusement park is waiting to be developed."
+	scenario-rugged-ravine:
+		NAME:  "Rugged Ravine"
+		DESCR: "A canyon, carved into the countryside by a long dried up river, is the setting for this theme park."

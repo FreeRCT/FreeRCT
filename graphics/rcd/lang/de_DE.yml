@@ -41,11 +41,16 @@ strings:
 			one:   "Erreiche mindestens %1% Besucher im Park."
 			other: "Erreiche mindestens %1% Besucher im Park."
 		OBJECTIVETEXT_PARK_RATING: "Die Parkbewertung muss mindestens %1% betragen."
+		OBJECTIVETEXT_PARK_VALUE:  "Der Park-Verkehrswert muss mindestens %1% betragen."
 
 		NUMBERED_INSTANCE_NAME: "%1% #%2%"
 		RESOLUTION:             "%1%×%2%"
 		GUEST_NAME:             "Besucher %1%"
 
+		NR_DAYS:
+			one:                  "%1% Tag"
+			other:                "%1% Tage"
+		APPLY:                    "Anwenden"
 		DECREASE_BUTTON:          "-"
 		INCREASE_BUTTON:          "+"
 
@@ -53,10 +58,10 @@ strings:
 		TOOLBAR_GUI_DROPDOWN_MAIN:          "Menü"
 		MAIN_MENU_QUIT:                     "Beenden"
 		MAIN_MENU_SETTINGS:                 "Einstellungen"
-		MAIN_MENU_MODE:                     "Spielen/Editor"
 		MAIN_MENU_LOAD:                     "Laden"
 		MAIN_MENU_SAVE:                     "Speichern"
 		MAIN_MENU_NEW_GAME:                 "Neues Spiel"
+		MAIN_MENU_LAUNCH_EDITOR:            "Editor"
 		MAIN_MENU_MENU:                     "Hauptmenü"
 		TOOLBAR_GUI_DROPDOWN_SPEED:         "Geschwindigkeit"
 		TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP: "Die Spielgeschwindigkeit ändern"
@@ -83,8 +88,6 @@ strings:
 		TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_OUT:         "Verkleinern"
 		TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_IN:          "Vergrößern"
 
-		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spielen"
-		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Editor"
 		TOOLBAR_GUI_PATHS:                "Wege"
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Wege und Warteschlangen errichten"
 		TOOLBAR_GUI_RIDE_SELECT:          "Attraktion kaufen"
@@ -109,6 +112,11 @@ strings:
 		BOTTOMBAR_GUESTCOUNT:
 			one:   "%1% Besucher"
 			other: "%1% Besucher"
+
+		# Scenario strings.
+		NO_NAME:                "Unbekannt"
+		DEFAULT_SCENARIO_NAME:  "Unbenannt"
+		DEFAULT_SCENARIO_DESCR: "Für dieses Szenario existiert keine Beschreibung."
 
 		# Quit program strings.
 		QUIT_CAPTION: "Beenden?"
@@ -292,6 +300,10 @@ strings:
 		TERRAFORM_SUB_TOOLTIP: "Verkleinert den zu verändernden Bereich"
 		TERRAFORM_LEVEL_TEXT:  "Gewählten Bereich einebnen"
 		TERRAFORM_MOVE_TEXT:   "Landschaft unverändert verschieben"
+		TERRAFORM_OWNER_UNCHANGED_TEXT: "Eigentümerschaft nicht verändern"
+		TERRAFORM_OWNER_NONE_TEXT:      "Land eigentümerlos machen"
+		TERRAFORM_OWNER_PARK_TEXT:      "Land dem Park hinzufügen"
+		TERRAFORM_OWNER_SALE_TEXT:      "Land als erwerbbar markieren"
 
 		# Park management gui strings.
 		PARK_MANAGEMENT_TAB_GENERAL:           "Allgemein"
@@ -308,6 +320,14 @@ strings:
 		PARK_MANAGEMENT_NO_AWARDS:             "Der Park hat in letzter Zeit keine Auszeichnungen erhalten."
 		PARK_MANAGEMENT_PARKNAME:              "Parkname:"
 		PARK_MANAGEMENT_ENTRANCE_FEE:          "Eintrittspreis:"
+		PARK_MANAGEMENT_MAX_GUESTS:            "Höchste Anzahl Besucher:"
+		PARK_MANAGEMENT_SOLVED:                "Bitte gib deinen Namen ein:"
+		PARK_MANAGEMENT_OBJECTIVE_GUESTS:      "Erforderliche Anzahl Besucher:"
+		PARK_MANAGEMENT_OBJECTIVE_RATING:      "Erforderliche Parkbewertung:"
+		PARK_MANAGEMENT_OBJECTIVE_PARK_VALUE:  "Erforderlicher Park-Verkehrswert:"
+		PARK_MANAGEMENT_OBJECTIVE_DROP_POLICY: "Park schließt, wenn Ziel so lange nicht erfüllt:"
+		PARK_MANAGEMENT_OBJECTIVE_DATE:        "Ziel muss erfüllt werden bis:"
+		PARK_MANAGEMENT_OBJECTIVE_DATE_NOT_EXACT: "Ziel kann jederzeit erfüllt werden."
 
 		# Minimap gui strings.
 		MINIMAP_TITLE: "Übersichtskarte"
@@ -334,6 +354,9 @@ strings:
 		FINANCES_LOAN_INTEREST:          "Darlehenszinssatz"
 		FINANCES_LOAN_INTEREST_VALUE:    "%.1f%% pro Jahr"
 		FINANCES_CASH:                   "Bargeld"
+		FINANCES_PARK_VALUE:             "Park-Verkehrswert"
+		FINANCES_COMPANY_VALUE:          "Firmen-Verkehrswert"
+		FINANCES_PARK_VALUE_VALUE:       "Park-Verkehrswert: %1%"
 
 		# Messages and inbox.
 		INBOX_TITLE:              "Posteingang"
@@ -427,6 +450,14 @@ strings:
 		SETTING_LANGUAGE_TOOLTIP:   "Ändert die Sprache des Spieles"
 		SETTING_RESOLUTION:         "Auflösung wechseln"
 		SETTING_RESOLUTION_TOOLTIP: "Ändert die grafische Auflösung des Spiels"
+
+		# Scenario select window.
+		SCENARIO_SELECT_TITLE:       "Szenario auswählen"
+		SCENARIO_SELECT_NO_MISSIONS: "Es sind keine Kampagne geladen worden."
+		SCENARIO_SELECT_UNLOCK:
+			one:   "Schließe noch %1% Szenario in dieser Kampagne ab, um dieses Szenario freizuschalten."
+			other: "Schließe noch %1% Szenarien in dieser Kampagne ab, um dieses Szenario freizuschalten."
+		SCENARIO_SELECT_SOLVED: "Am %2% von %1% mit einem Firmen-Verkehrswert von %3% abgeschlossen"
 
 		# Loading/saving window.
 		LOADSAVE_LOAD:        "Laden"
@@ -567,3 +598,13 @@ strings:
 		NAME: "Baum 3"
 	fountain1:
 		NAME: "Springbrunnen 1"
+
+	mission-official-easy:
+		NAME:  "Offiziell Leicht"
+		DESCR: "Ein Paket mit leichten Szenarien, die vom FreeRCT-Entwicklungsteam bereitsgestellt werden."
+	scenario-emerald-expanses:
+		NAME:  "Smaragdene Senken"
+		DESCR: "Wer könnte diese grünen Weiten betrachten und nicht von ihrer Schönheit bewegt sein? Inmitten ihrer hügeligen Haine wartet ein Freizeitpark darauf, erschlossen zu werden."
+	scenario-rugged-ravine:
+		NAME:  "Steile Schlucht"
+		DESCR: "Eine Klamm, von einem lang ausgetrockneten Fluss in die Landschaft geschnitten, ist die Szenerie für diesen Themenpark."

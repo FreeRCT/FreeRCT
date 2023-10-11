@@ -12,6 +12,7 @@
 
 #include <ctime>
 #include <memory>
+#include <optional>
 #include <vector>
 #include "fileio.h"
 
@@ -25,6 +26,7 @@ class Loader {
 public:
 	explicit Loader(FILE *fp);
 	explicit Loader(RcdFileReader *rcd);
+	explicit Loader(const uint8 *data, size_t length);
 
 	uint32 OpenPattern(const char *name, bool may_fail = false, bool name_only = false);
 	void ClosePattern();
@@ -38,12 +40,15 @@ public:
 	void VersionMismatch(uint saved_version, uint current_version);
 
 private:
+	bool HasNoInput() const;
 	void PutByte(uint8 val);
 
 	std::vector<std::string> pattern_names; ///< Stack of the currently loaded pattern.
 
+	/** Data streams being loaded. All except at most one of these must be \c nullptr or \c std::nullopt. */
 	FILE *fp;
-	RcdFileReader *rcd_file;  ///< Data streams being loaded. One of these two must be \c nullptr.
+	RcdFileReader *rcd_file;
+	std::optional<std::pair<const uint8*, size_t>> binary_stream;
 
 	int cache_count;      ///< Number of values in #cache.
 	uint8 cache[8];       ///< Stack with temporary values to return on next read.
@@ -91,8 +96,10 @@ struct PreloadData {
 	}
 };
 
+void LoadGame(Loader &ldr);
 bool LoadGameFile(const char *fname);
 bool SaveGameFile(const char *fname);
+PreloadData Preload(Loader &ldr);
 PreloadData PreloadGameFile(const char *fname);
 
 extern bool _automatically_resave_files;

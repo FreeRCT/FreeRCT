@@ -11,36 +11,34 @@
 #include "gamelevel.h"
 #include "messages.h"
 #include "people.h"
+#include "finances.h"
 #include "gameobserver.h"
+#include "config_reader.h"
+#include "rev.h"
+#include "generated/mission_strings.cpp"
+#include "generated/mission_strings.h"
 
 Scenario _scenario; ///< The scenario being played.
 
-/** Scenario default constructor. */
-Scenario::Scenario()
-{
-	SetDefaultScenario();
-}
+std::vector<std::unique_ptr<Mission>> _missions;  ///< All available missions.
 
 /**
- * Default scenario settings.
- * Default settings are useful for debugging, and unlikely to be of use for a 'real' game.
- * @todo Remove when real scenarios are implemented.
+ * Initialize default settings for a new scenario in the editor.
  */
 void Scenario::SetDefaultScenario()
 {
-	this->name = "Default";
+	this->wrapper = nullptr;
+	this->name  = _language.GetSgText(GUI_DEFAULT_SCENARIO_NAME);
+	this->descr = _language.GetSgText(GUI_DEFAULT_SCENARIO_DESCR);
 	this->spawn_lowest  = 200;
 	this->spawn_highest = 600;
 	this->max_guests    = 3000;
-	this->initial_money = 1000000;
-	this->initial_loan  = this->initial_money;
 	this->max_loan      = 3000000;
 	this->interest      = 25;
-
-	Random r;
+	this->allow_entrance_fee = true;
 	this->objective.reset(new ScenarioObjective(0, TIMEOUT_EXACT, Date(31, 10, 1), {
-		std::shared_ptr<AbstractObjective>(new ObjectiveGuests(0, r.Uniform(120) + 60)),
-		std::shared_ptr<AbstractObjective>(new ObjectiveParkRating(0, 500 + r.Uniform(30) * 10)),
+		std::shared_ptr<AbstractObjective>(new ObjectiveGuests(0, 1000)),
+		std::shared_ptr<AbstractObjective>(new ObjectiveParkRating(0, 600)),
 	}));
 }
 
@@ -107,6 +105,12 @@ std::string ObjectiveParkRating::ToString() const
 	return DrawText(GUI_OBJECTIVETEXT_PARK_RATING);
 }
 
+std::string ObjectiveParkValue::ToString() const
+{
+	_str_params.SetNumber(1, this->park_value);
+	return DrawText(GUI_OBJECTIVETEXT_PARK_VALUE);
+}
+
 std::string ScenarioObjective::ToString() const
 {
 	std::string str;
@@ -139,6 +143,12 @@ void ObjectiveParkRating::OnNewDay()
 	AbstractObjective::OnNewDay();
 }
 
+void ObjectiveParkValue::OnNewDay()
+{
+	this->is_fulfilled = _finances_manager.GetParkValue() >= this->park_value;
+	AbstractObjective::OnNewDay();
+}
+
 void ScenarioObjective::OnNewDay()
 {
 	this->is_fulfilled = true;
@@ -147,7 +157,7 @@ void ScenarioObjective::OnNewDay()
 		this->is_fulfilled &= o->is_fulfilled;
 	}
 
-	if (this->timeout_policy == TIMEOUT_BEFORE && this->is_fulfilled) {
+	if (this->is_fulfilled && this->timeout_policy != TIMEOUT_EXACT) {
 		_game_observer.Win();
 	} else if (this->timeout_policy != TIMEOUT_NONE && timeout_date < _date) {
 		if (this->is_fulfilled) {
@@ -160,12 +170,13 @@ void ScenarioObjective::OnNewDay()
 	}
 }
 
-static const uint32 CURRENT_VERSION_SCNO = 1;   ///< Currently supported version of the SCNO Pattern.
+static const uint32 CURRENT_VERSION_SCNO = 3;   ///< Currently supported version of the SCNO Pattern.
 static const uint32 CURRENT_VERSION_OJAO = 1;   ///< Currently supported version of the OJAO Pattern.
 static const uint32 CURRENT_VERSION_OJCN = 1;   ///< Currently supported version of the OJCN Pattern.
 static const uint32 CURRENT_VERSION_OJ00 = 1;   ///< Currently supported version of the OJ00 Pattern.
 static const uint32 CURRENT_VERSION_OJGU = 1;   ///< Currently supported version of the OJGU Pattern.
 static const uint32 CURRENT_VERSION_OJRT = 1;   ///< Currently supported version of the OJRT Pattern.
+static const uint32 CURRENT_VERSION_OJPV = 1;   ///< Currently supported version of the OJPV Pattern.
 
 /**
  * Load game observer data from the save game.
@@ -180,15 +191,39 @@ void Scenario::Load(Loader &ldr)
 			break;
 
 		case 1:
+		case 2:
+		case 3:
 			this->name = ldr.GetText();
+			this->descr = version >= 2 ? ldr.GetText() : _language.GetSgText(GUI_DEFAULT_SCENARIO_DESCR);
+
+			this->objective.reset(new ScenarioObjective(0, TIMEOUT_NONE, Date(), {}));
 			this->objective->Load(ldr);
 			this->spawn_lowest = ldr.GetWord();
 			this->spawn_highest = ldr.GetWord();
 			this->max_guests = ldr.GetLong();
-			this->initial_money = ldr.GetLong();
-			this->initial_loan = ldr.GetLong();
+			if (version <= 2) {
+				ldr.GetLong();  // Was initial money.
+				ldr.GetLong();  // Was initial loan.
+			}
 			this->max_loan = ldr.GetLong();
 			this->interest = ldr.GetWord();
+			this->allow_entrance_fee = version == 1 || ldr.GetByte() != 0;
+
+			this->wrapper = nullptr;
+			if (version >= 3) {
+				std::string int_name = ldr.GetText();
+				if (!int_name.empty()) {
+					for (auto &mission : _missions) {
+						for (MissionScenario &scenario : mission->scenarios) {
+							if (scenario.internal_name == int_name) {
+								this->wrapper = &scenario;
+								break;
+							}
+						}
+					}
+				}
+			}
+
 			break;
 
 		default:
@@ -206,14 +241,15 @@ void Scenario::Save(Saver &svr)
 	svr.StartPattern("SCNO", CURRENT_VERSION_SCNO);
 
 	svr.PutText(this->name);
+	svr.PutText(this->descr);
 	this->objective->Save(svr);
 	svr.PutWord(this->spawn_lowest);
 	svr.PutWord(this->spawn_highest);
 	svr.PutLong(this->max_guests);
-	svr.PutLong(this->initial_money);
-	svr.PutLong(this->initial_loan);
 	svr.PutLong(this->max_loan);
 	svr.PutWord(this->interest);
+	svr.PutByte(this->allow_entrance_fee ? 1 : 0);
+	svr.PutText(this->wrapper != nullptr ? this->wrapper->internal_name : "");
 
 	svr.EndPattern();
 }
@@ -239,6 +275,9 @@ static std::shared_ptr<AbstractObjective> LoadObjective(Loader &ldr)
 			break;
 		case OJT_RATING:
 			result.reset(new ObjectiveParkRating(0, 0));
+			break;
+		case OJT_PARK_VALUE:
+			result.reset(new ObjectiveParkValue(0, 0));
 			break;
 		default:
 			throw LoadingError("Unknown objective type %u", obj_type);
@@ -353,4 +392,160 @@ void ObjectiveParkRating::Save(Saver &svr)
 	AbstractObjective::Save(svr);
 	svr.PutWord(this->rating);
 	svr.EndPattern();
+}
+
+void ObjectiveParkValue::Load(Loader &ldr)
+{
+	uint32 version = ldr.OpenPattern("OJPV");
+	if (version > CURRENT_VERSION_OJPV) ldr.VersionMismatch(version, CURRENT_VERSION_OJPV);
+	AbstractObjective::Load(ldr);
+	this->park_value = ldr.GetLongLong();
+	ldr.ClosePattern();
+}
+
+void ObjectiveParkValue::Save(Saver &svr)
+{
+	svr.StartPattern("OJPV", CURRENT_VERSION_OJPV);
+	AbstractObjective::Save(svr);
+	svr.PutLongLong(this->park_value);
+	svr.EndPattern();
+}
+
+static const std::string MISSION_SECTION_USER ("user");           ///< Section name in the missions config file for the name of the user who first solved a scenario.
+static const std::string MISSION_SECTION_TIME ("timestamp");      ///< Section name in the missions config file for the timestamp when the scenario was solved.
+static const std::string MISSION_SECTION_VALUE("company_value");  ///< Section name in the missions config file for the company value at the end of the scenario.
+
+/**
+ * Get the config file that holds information about solved missions.
+ * @return The config file.
+ */
+static ConfigFile &GetMissionConfigFile()
+{
+	static ConfigFile cfg_file(freerct_userdata_prefix() + DIR_SEP + "missions.cfg");
+	return cfg_file;
+}
+
+/**
+ * Read a mission from the RCD file block and add it to the global list of missions.
+ * @param rcd_file File to read from.
+ * @param texts Already loaded texts.
+ */
+void LoadMission(RcdFileReader *rcd_file, const TextMap &texts)
+{
+	std::unique_ptr<Mission> mission(new Mission);
+
+	rcd_file->CheckVersion(1);
+	int length = rcd_file->size;
+	rcd_file->CheckMinLength(length, 13, "header");
+
+	mission->internal_name = rcd_file->GetText();
+	length -= 13 + mission->internal_name.size();
+
+	for (const auto &m : _missions) {
+		if (m->internal_name == mission->internal_name) {
+			rcd_file->Error("Mission %s already defined", mission->internal_name.c_str());
+		}
+	}
+
+	TextData *text_data;
+	LoadTextFromFile(rcd_file, texts, &text_data);
+	StringID base = _language.RegisterStrings(*text_data, _mission_strings_table) - STR_GENERIC_MISSION_START;
+	mission->name  = base + MISSION_NAME;
+	mission->descr = base + MISSION_DESCR;
+
+	mission->max_unlock = rcd_file->GetUInt32();
+	const uint32 nr_scenarios = rcd_file->GetUInt32();
+
+	if (nr_scenarios == 0) rcd_file->Error("Mission without scenarios");
+
+	ConfigFile &cfg_file = GetMissionConfigFile();
+
+	for (uint32 i = 0; i < nr_scenarios; ++i) {
+		rcd_file->CheckMinLength(length, 9, "scenario header");
+		mission->scenarios.emplace_back();
+		MissionScenario &scenario = mission->scenarios.back();
+		scenario.mission = mission.get();
+		scenario.internal_name = rcd_file->GetText();
+		length -= 9 + scenario.internal_name.size();
+
+		scenario.internal_name.insert(0, "/");  // Prepend mission name to ensure the identifier is globally unique.
+		scenario.internal_name.insert(0, mission->internal_name);
+		for (uint32 j = 0; j < i; ++j) {
+			if (mission->scenarios.at(j).internal_name == scenario.internal_name) {
+				rcd_file->Error("Scenario %s already defined", scenario.internal_name.c_str());
+			}
+		}
+
+		LoadTextFromFile(rcd_file, texts, &text_data);
+		StringID base = _language.RegisterStrings(*text_data, _mission_strings_table) - STR_GENERIC_MISSION_START;
+		scenario.name  = base + MISSION_NAME;
+		scenario.descr = base + MISSION_DESCR;
+
+		scenario.fct_length = rcd_file->GetUInt32();
+		rcd_file->CheckMinLength(length, scenario.fct_length, "scenario blob");
+		length -= scenario.fct_length;
+
+		scenario.fct_bytes.reset(new uint8[scenario.fct_length]);
+		if (!rcd_file->GetBlob(scenario.fct_bytes.get(), scenario.fct_length)) rcd_file->Error("Reading scenario bytes %u failed", i);
+
+		Loader ldr(scenario.fct_bytes.get(), scenario.fct_length);
+		PreloadData preload = Preload(ldr);
+		if (!preload.load_success) rcd_file->Error("Preloading scenario %u failed", i);
+		scenario.scenario = *preload.scenario;
+
+		int64 solved_timestamp = cfg_file.GetNum(MISSION_SECTION_TIME, scenario.internal_name);
+		if (solved_timestamp > 0) {
+			scenario.solved = {
+				cfg_file.GetValue(MISSION_SECTION_USER, scenario.internal_name),
+				cfg_file.GetNum(MISSION_SECTION_VALUE, scenario.internal_name),
+				solved_timestamp
+			};
+		}
+	}
+
+	rcd_file->CheckExactLength(length, 0, "end of block");
+
+	mission->UpdateUnlockData();
+
+	_missions.emplace_back(std::move(mission));
+}
+
+/** Update the information which scenarios are unlocked and save the data for solved missions to the config file. */
+void Mission::UpdateUnlockData()
+{
+	/* Unlock as many scenarios as permitted. */
+	if (this->max_unlock == 0) {
+		for (MissionScenario &scenario : this->scenarios) scenario.required_to_unlock = 0;
+	} else {
+		int32 balance = 0;
+		for (MissionScenario &scenario : this->scenarios) {
+			if (scenario.solved.has_value()) {
+				scenario.required_to_unlock = 0;
+				balance--;
+			} else {
+				scenario.required_to_unlock = std::max(0, balance);
+				balance++;
+			}
+		}
+	}
+
+	/* Save solved data to file. */
+	ConfigFile &cfg_file = GetMissionConfigFile();
+	ConfigSection &section_user  = cfg_file.GetCreateSection(MISSION_SECTION_USER);
+	ConfigSection &section_time  = cfg_file.GetCreateSection(MISSION_SECTION_TIME);
+	ConfigSection &section_value = cfg_file.GetCreateSection(MISSION_SECTION_VALUE);
+
+	for (MissionScenario &scenario : this->scenarios) {
+		if (scenario.solved.has_value()) {
+			section_user .SetItem(scenario.internal_name, scenario.solved->user);
+			section_time .SetItem(scenario.internal_name, std::to_string(scenario.solved->timestamp));
+			section_value.SetItem(scenario.internal_name, std::to_string(scenario.solved->company_value));
+		} else {
+			section_user .RemoveItem(scenario.internal_name);
+			section_time .RemoveItem(scenario.internal_name);
+			section_value.RemoveItem(scenario.internal_name);
+		}
+	}
+
+	cfg_file.Write(true);
 }

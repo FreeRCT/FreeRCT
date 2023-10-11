@@ -7,6 +7,7 @@
 
 /** @file terraform_gui.cpp Terraforming gui code. */
 
+#include <optional>
 #include "stdafx.h"
 #include "window.h"
 #include "viewport.h"
@@ -30,16 +31,20 @@ public:
 
 	void SelectorMouseWheelEvent(int direction) override;
 	void SelectorMouseMoveEvent(Viewport *vp, const Point16 &pos) override;
+	void SelectorMouseButtonEvent(MouseButtons state) override;
 
 	bool level; ///< If true, level the area, else move it up/down as-is.
 	int xsize;  ///< Size of the terraform area in horizontal direction.
 	int ysize;  ///< Size of the terraform area in vertical direction.
+	std::optional<TileOwner> change_owner;  ///< Ownership to apply to the selected area.
 
 private:
-	void Setlevelling(bool level);
+	void SetLevelling(bool level);
+	void SetChangeOwner(std::optional<TileOwner> owner);
 	void SetTerraformSize(int xs = -1, int ys = -1);
 	void IncreaseSize();
 	void DecreaseSize();
+	void DoChangeLandOwner();
 
 	CursorMouseMode tiles_selector;  ///< %Selector for displaying/handling tile(s).
 };
@@ -53,6 +58,15 @@ enum TerraformWidgets {
 	TERR_LEVEL_TEXT, ///< Text of the 'level' radio button.
 	TERR_MOVE,       ///< Move the terraform area.
 	TERR_MOVE_TEXT,  ///< Textof the 'move' radio button.
+	TERR_OWNER_PANEL,           ///< Land ownership panel.
+	TERR_OWNER_UNCHANGED,       ///< Do not change land ownership radio button.
+	TERR_OWNER_UNCHANGED_TEXT,  ///< Do not change land ownership label.
+	TERR_OWNER_NONE,            ///< Set land ownership to None radio button.
+	TERR_OWNER_NONE_TEXT,       ///< Set land ownership to None label.
+	TERR_OWNER_PARK,            ///< Set land ownership to Own Park radio button.
+	TERR_OWNER_PARK_TEXT,       ///< Set land ownership to Own Park label.
+	TERR_OWNER_SALE,            ///< Set land ownership to For Sale radio button.
+	TERR_OWNER_SALE_TEXT,       ///< Set land ownership to For Sale label.
 };
 
 /** Widget parts of the #TerraformGui window. */
@@ -76,6 +90,16 @@ static const WidgetPart _terraform_gui_parts[] = {
 				Widget(WT_LEFT_TEXT, TERR_LEVEL_TEXT, COL_RANGE_DARK_GREEN), SetData(GUI_TERRAFORM_LEVEL_TEXT, STR_NULL),
 				Widget(WT_RADIOBUTTON, TERR_MOVE, COL_RANGE_DARK_GREEN), SetPadding(0, 2, 0, 0),
 				Widget(WT_LEFT_TEXT, TERR_MOVE_TEXT, COL_RANGE_DARK_GREEN), SetData(GUI_TERRAFORM_MOVE_TEXT, STR_NULL),
+		Widget(WT_PANEL, TERR_OWNER_PANEL, COL_RANGE_DARK_GREEN),
+			Intermediate(4, 2),
+				Widget(WT_RADIOBUTTON, TERR_OWNER_UNCHANGED, COL_RANGE_DARK_GREEN), SetPadding(0, 2, 0, 0),
+				Widget(WT_LEFT_TEXT, TERR_OWNER_UNCHANGED_TEXT, COL_RANGE_DARK_GREEN), SetData(GUI_TERRAFORM_OWNER_UNCHANGED_TEXT, STR_NULL),
+				Widget(WT_RADIOBUTTON, TERR_OWNER_NONE, COL_RANGE_DARK_GREEN), SetPadding(0, 2, 0, 0),
+				Widget(WT_LEFT_TEXT, TERR_OWNER_NONE_TEXT, COL_RANGE_DARK_GREEN), SetData(GUI_TERRAFORM_OWNER_NONE_TEXT, STR_NULL),
+				Widget(WT_RADIOBUTTON, TERR_OWNER_PARK, COL_RANGE_DARK_GREEN), SetPadding(0, 2, 0, 0),
+				Widget(WT_LEFT_TEXT, TERR_OWNER_PARK_TEXT, COL_RANGE_DARK_GREEN), SetData(GUI_TERRAFORM_OWNER_PARK_TEXT, STR_NULL),
+				Widget(WT_RADIOBUTTON, TERR_OWNER_SALE, COL_RANGE_DARK_GREEN), SetPadding(0, 2, 0, 0),
+				Widget(WT_LEFT_TEXT, TERR_OWNER_SALE_TEXT, COL_RANGE_DARK_GREEN), SetData(GUI_TERRAFORM_OWNER_SALE_TEXT, STR_NULL),
 	EndContainer(),
 };
 
@@ -83,7 +107,8 @@ TerraformGui::TerraformGui() : GuiWindow(WC_TERRAFORM, ALL_WINDOWS_OF_TYPE)
 {
 	this->SetupWidgetTree(_terraform_gui_parts, lengthof(_terraform_gui_parts));
 	this->tiles_selector.default_enable_cursors = true;
-	this->Setlevelling(true);
+	this->SetLevelling(true);
+	this->SetChangeOwner(std::nullopt);
 	this->SetTerraformSize(1, 1);
 }
 
@@ -117,6 +142,27 @@ void TerraformGui::SelectorMouseMoveEvent(Viewport *vp, [[maybe_unused]] const P
 
 	this->tiles_selector.cur_cursor = fdata.cursor; // Copy cursor and position.
 	this->tiles_selector.SetPosition(fdata.voxel_pos.x - sel_rect.width / 2, fdata.voxel_pos.y - sel_rect.height / 2);
+
+	if (_video.GetMouseDragging()) this->DoChangeLandOwner();
+}
+
+void TerraformGui::SelectorMouseButtonEvent(MouseButtons state)
+{
+	if (state == MB_LEFT) {
+		_video.SetMouseDragging(state, true, false);
+		this->DoChangeLandOwner();
+	}
+}
+
+/** Change the land ownership in the current area if applicable. */
+void TerraformGui::DoChangeLandOwner()
+{
+	if (this->selector == nullptr || this->xsize < 1 || this->ysize < 1 || !_game_mode_mgr.InEditorMode()) return;
+
+	if (this->change_owner.has_value()) {
+		_world.SetTileOwnerRect(this->tiles_selector.area.base.x, this->tiles_selector.area.base.y,
+				this->tiles_selector.area.width, this->tiles_selector.area.height, *this->change_owner);
+	}
 }
 
 void TerraformGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) const
@@ -172,12 +218,29 @@ void TerraformGui::OnClick(WidgetNumber wid, [[maybe_unused]] const Point16 &pos
 
 		case TERR_LEVEL_TEXT:
 		case TERR_LEVEL:
-			if (!this->level) this->Setlevelling(true);
+			if (!this->level) this->SetLevelling(true);
 			break;
 
 		case TERR_MOVE_TEXT:
 		case TERR_MOVE:
-			if (this->level) this->Setlevelling(false);
+			if (this->level) this->SetLevelling(false);
+			break;
+
+		case TERR_OWNER_UNCHANGED_TEXT:
+		case TERR_OWNER_UNCHANGED:
+			if (_game_mode_mgr.InEditorMode()) this->SetChangeOwner(std::nullopt);
+			break;
+		case TERR_OWNER_NONE_TEXT:
+		case TERR_OWNER_NONE:
+			if (_game_mode_mgr.InEditorMode()) this->SetChangeOwner(OWN_NONE);
+			break;
+		case TERR_OWNER_PARK_TEXT:
+		case TERR_OWNER_PARK:
+			if (_game_mode_mgr.InEditorMode()) this->SetChangeOwner(OWN_PARK);
+			break;
+		case TERR_OWNER_SALE_TEXT:
+		case TERR_OWNER_SALE:
+			if (_game_mode_mgr.InEditorMode()) this->SetChangeOwner(OWN_FOR_SALE);
 			break;
 
 		default:
@@ -191,13 +254,23 @@ void TerraformGui::OnClick(WidgetNumber wid, [[maybe_unused]] const Point16 &pos
  * - 'moving':    Move entire area up or down.
  * @param level If \c true, set levelling mode, else set moving mode.
  */
-void TerraformGui::Setlevelling(bool level)
+void TerraformGui::SetLevelling(bool level)
 {
 	this->level = level;
-	this->SetWidgetChecked(TERR_LEVEL, this->level);
-	this->SetWidgetChecked(TERR_MOVE, !this->level);
-	this->SetWidgetPressed(TERR_LEVEL, this->level);
-	this->SetWidgetPressed(TERR_MOVE, !this->level);
+
+	this->SetWidgetCheckedAndPressed(TERR_LEVEL, this->level);
+	this->SetWidgetCheckedAndPressed(TERR_MOVE, !this->level);
+}
+
+void TerraformGui::SetChangeOwner(std::optional<TileOwner> owner)
+{
+	this->change_owner = owner;
+
+	this->GetWidget<LeafWidget>(TERR_OWNER_PANEL)->SetVisible(this, _game_mode_mgr.InEditorMode());
+	this->SetWidgetCheckedAndPressed(TERR_OWNER_UNCHANGED, !this->change_owner.has_value());
+	this->SetWidgetCheckedAndPressed(TERR_OWNER_NONE, this->change_owner.has_value() && this->change_owner == OWN_NONE);
+	this->SetWidgetCheckedAndPressed(TERR_OWNER_PARK, this->change_owner.has_value() && this->change_owner == OWN_PARK);
+	this->SetWidgetCheckedAndPressed(TERR_OWNER_SALE, this->change_owner.has_value() && this->change_owner == OWN_FOR_SALE);
 }
 
 /**

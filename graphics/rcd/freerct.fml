@@ -1971,11 +1971,35 @@ file("freerct.rcd") {
 			x_base: 0; y_base: 0; width: 256; height: 256;
 		}
 		splash_duration: 3000;
-		(new_game, load_game, settings, quit): sheet {
+		(new_game, load_game, settings, quit, launch_editor): sheet {
 			x_base: 0; y_base: 0; x_step: 96; y_step: 0;
 			file: "../sprites/gui/mainmenu.png";
 			x_offset: 0; y_offset: 0; width: 96; height: 96; crop: 0;
 		}
+
+		default_scenario: "../sprites/scenarios/default.fct";
+		main_menu_savegame: "../sprites/scenarios/main_menu.fct";
+		nr_cameras: 4;
+		camera_0_x: 2560;
+		camera_0_y: 2560;
+		camera_0_z: 2048;
+		camera_0_orientation: 0;
+		camera_0_duration: 10000;
+		camera_1_x: 2560;
+		camera_1_y: 2560;
+		camera_1_z: 2048;
+		camera_1_orientation: 1;
+		camera_1_duration: 10000;
+		camera_2_x: 2560;
+		camera_2_y: 2560;
+		camera_2_z: 2048;
+		camera_2_orientation: 2;
+		camera_2_duration: 10000;
+		camera_3_x: 2560;
+		camera_3_y: 2560;
+		camera_3_z: 2048;
+		camera_3_orientation: 3;
+		camera_3_duration: 10000;
 	}
 
 	// Park border fence
@@ -2029,5 +2053,21 @@ file("freerct.rcd") {
 			file: "../sprites/scenery/fences/fence_bricks8bpp64.png";
 			x_offset: -32; y_offset: -33; width: 64; height: 64;
 		}
+	}
+
+	// Missions.
+	MISN {
+		internal_name: "official_easy";
+		texts: strings { key: "mission-official-easy"; }
+		max_unlock: 2;
+		scenarios: 2;
+
+		internal_name_0: "emerald_expanses";
+		file_0: "../sprites/scenarios/scenario_emerald_expanses.fct";
+		texts_0: strings { key: "scenario-emerald-expanses"; }
+
+		internal_name_1: "rugged_ravine";
+		file_1: "../sprites/scenarios/scenario_rugged_ravine.fct";
+		texts_1: strings { key: "scenario-rugged-ravine"; }
 	}
 }

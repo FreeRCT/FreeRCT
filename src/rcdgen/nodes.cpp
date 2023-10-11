@@ -1329,21 +1329,34 @@ int GSLPBlock::Write(FileWriter *fw)
 	return fw->AddBlock(fb);
 }
 
-MENUBlock::MENUBlock() : GameBlock("MENU", 1)
+MENUBlock::MENUBlock() : GameBlock("MENU", 3)
 {
 }
 
 int MENUBlock::Write(FileWriter *fw)
 {
 	FileBlock *fb = new FileBlock;
-	fb->StartSave(this->blk_name, this->version, 40 - 12);
+	fb->StartSave(this->blk_name, this->version, 56 + this->default_scenario_length + this->main_menu_savegame_length + 17 * this->cameras.size() - 12);
 	fb->SaveUInt32(this->splash_duration);
 	fb->SaveUInt32(this->logo->Write(fw));
 	fb->SaveUInt32(this->splash->Write(fw));
 	fb->SaveUInt32(this->new_game->Write(fw));
 	fb->SaveUInt32(this->load_game->Write(fw));
+	fb->SaveUInt32(this->launch_editor->Write(fw));
 	fb->SaveUInt32(this->settings->Write(fw));
 	fb->SaveUInt32(this->quit->Write(fw));
+	fb->SaveUInt32(this->default_scenario_length);
+	fb->SaveBytes(this->default_scenario_bytes.get(), this->default_scenario_length);
+	fb->SaveUInt32(this->main_menu_savegame_length);
+	fb->SaveBytes(this->main_menu_savegame_bytes.get(), this->main_menu_savegame_length);
+	fb->SaveUInt32(this->cameras.size());
+	for (const Camera &c : this->cameras) {
+		fb->SaveInt32(c.x);
+		fb->SaveInt32(c.y);
+		fb->SaveInt32(c.z);
+		fb->SaveUInt8(c.orientation);
+		fb->SaveUInt32(c.duration);
+	}
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }
@@ -1899,6 +1912,33 @@ int FTKWBlock::Write(FileWriter *fw)
 	FileBlock *fb = new FileBlock;
 	fb->StartSave(this->blk_name, this->version, this->length);
 	fb->SaveBytes(this->data.get(), this->length);
+	fb->CheckEndSave();
+	return fw->AddBlock(fb);
+}
+
+MISNBlock::MISNBlock() : GameBlock("MISN", 1)
+{
+}
+
+int MISNBlock::Write(FileWriter *fw)
+{
+	uint32 total_length = 0;
+	for (uint32 l : this->lengths) total_length += l;
+	for (const std::string &name : this->internal_names) total_length += name.size() + 1;
+
+	/* Write the data. */
+	FileBlock *fb = new FileBlock;
+	fb->StartSave(this->blk_name, this->version, total_length + 24 + 8 * lengths.size() - 12);
+	fb->SaveText(this->internal_names.back());
+	fb->SaveUInt32(this->texts.back()->Write(fw));
+	fb->SaveUInt32(this->max_unlock);
+	fb->SaveUInt32(this->lengths.size());
+	for (uint32 i = 0; i < this->lengths.size(); ++i) {
+		fb->SaveText(this->internal_names.at(i));
+		fb->SaveUInt32(this->texts.at(i)->Write(fw));
+		fb->SaveUInt32(this->lengths.at(i));
+		fb->SaveBytes(this->data.at(i).get(), this->lengths.at(i));
+	}
 	fb->CheckEndSave();
 	return fw->AddBlock(fb);
 }

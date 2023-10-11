@@ -56,6 +56,7 @@ static const OptionData _options[] = {
 	GETOPT_NOVAL('h', "--help"),
 	GETOPT_NOVAL('v', "--version"),
 	GETOPT_VALUE('l', "--load"),
+	GETOPT_VALUE('e', "--editor"),
 	GETOPT_NOVAL('r', "--resave"),
 	GETOPT_VALUE('a', "--language"),
 	GETOPT_VALUE('i', "--installdir"),
@@ -71,6 +72,7 @@ static void PrintUsage()
 	printf("  -h, --help             Display this help text and exit.\n");
 	printf("  -v, --version          Display version and build info and exit.\n");
 	printf("  -l, --load FILE        Load game from specified file.\n");
+	printf("  -e, --editor FILE      Launch the editor with the specified file.\n");
 	printf("  -r, --resave           Automatically resave games after loading.\n");
 	printf("  -a, --language LANG    Use the specified language.\n");
 	printf("  -i, --installdir DIR   Use the specified installation directory.\n");
@@ -166,6 +168,7 @@ int freerct_main(int argc, char **argv)
 	int opt_id;
 	std::string file_name;
 	std::string preferred_language;
+	GameMode game_mode = GM_PLAY;
 	[[maybe_unused]] bool has_install_prefix_override = false;
 	do {
 		opt_id = opt_data.GetOpt();
@@ -190,6 +193,10 @@ int freerct_main(int argc, char **argv)
 				_automatically_resave_files = true;
 				break;
 			case 'l':
+				if (opt_data.opt != nullptr) file_name = opt_data.opt;
+				break;
+			case 'e':
+				game_mode = GM_EDITOR;
 				if (opt_data.opt != nullptr) file_name = opt_data.opt;
 				break;
 
@@ -298,7 +305,7 @@ int freerct_main(int argc, char **argv)
 	/* Initialize video. */
 	_video.Initialize(font_path, font_size);
 
-	_game_control.Initialize(file_name);
+	_game_control.Initialize(file_name, game_mode);
 
 	/* Loops until told not to. */
 #ifdef WEBASSEMBLY

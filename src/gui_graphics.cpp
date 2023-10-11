@@ -182,17 +182,16 @@ static char *GetSingleLine(char *text, int max_width, int *width)
 
 /**
  * Get the size of a text when printed in multi-line format.
- * @param strid Text to 'print'.
+ * @param buffer Text to layout.
  * @param max_width Longest allowed length of a line.
  * @param width [out]  Actual width of the text.
  * @param height [out] Actual height of the text.
- * @note After the call, NL characters have been inserted at line break points.
+ * @return The text, with additional newline characters as required for layouting.
  * @note Actual width (returned in \c *width) may be larger than \a max_width in case of long words.
  */
-void GetMultilineTextSize(StringID strid, int max_width, int *width, int *height)
+std::string GetMultilineTextSize(const std::string &buffer, int max_width, int *width, int *height)
 {
 	/* \todo This design is ugly. Fix the utility function GetSingleLine() to work on std::string with a start index instead of mutable char*. */
-	const std::string buffer = DrawText(strid);
 	std::unique_ptr<char[]> mutable_buffer(new char[buffer.size() + 1]);
 	strcpy(mutable_buffer.get(), buffer.c_str());
 	char *text = mutable_buffer.get();
@@ -209,6 +208,22 @@ void GetMultilineTextSize(StringID strid, int max_width, int *width, int *height
 		assert(*text == '\n');
 		text++;
 	}
+
+	return mutable_buffer.get();
+}
+
+/**
+ * Get the size of a text when printed in multi-line format.
+ * @param strid Text to 'print'.
+ * @param max_width Longest allowed length of a line.
+ * @param width [out]  Actual width of the text.
+ * @param height [out] Actual height of the text.
+ * @return The text, with additional newline characters as required for layouting.
+ * @note Actual width (returned in \c *width) may be larger than \a max_width in case of long words.
+ */
+std::string GetMultilineTextSize(StringID strid, int max_width, int *width, int *height)
+{
+	return GetMultilineTextSize(DrawText(strid), max_width, width, height);
 }
 
 /**
@@ -219,9 +234,10 @@ void GetMultilineTextSize(StringID strid, int max_width, int *width, int *height
  * @param max_width Available width of the text.
  * @param max_height Available height of the text.
  * @param colour Colour of the text.
+ * @param align Horizontal alignment of the string.
  * @return The height was sufficient to output all lines.
  */
-bool DrawMultilineString(StringID strid, int x, int y, int max_width, int max_height, uint8 colour)
+bool DrawMultilineString(StringID strid, int x, int y, int max_width, int max_height, uint8 colour, Alignment align)
 {
 	const std::string buffer = DrawText(strid);
 	std::unique_ptr<char[]> mutable_buffer(new char[buffer.size() + 1]);
@@ -235,13 +251,26 @@ bool DrawMultilineString(StringID strid, int x, int y, int max_width, int max_he
 		int line_width;
 		char *end = GetSingleLine(text, max_width, &line_width);
 		if (*end == '\0') {
-			_video.BlitText(text, _palette[colour], x, y, max_width);
+			_video.BlitText(text, _palette[colour], x, y, max_width, align);
 			break;
 		}
 		*end = '\0';
-		_video.BlitText(text, _palette[colour], x, y, max_width);
+		_video.BlitText(text, _palette[colour], x, y, max_width, align);
 		y += _video.GetTextHeight();
 		text = end + 1;
 	}
 	return true;
+}
+
+/**
+ * Calculate the render offset of a sprite so that it is centered in the given rectangle.
+ * @param rect Rectangle to center the sprite in.
+ * @param img Sprite to center.
+ * @return The offset to use.
+ */
+Point32 CenterSprite(const Rectangle32 &rect, const ImageData *img)
+{
+	return Point32(
+			rect.base.x + (static_cast<int32>(rect.width ) - static_cast<int32>(img->width )) / 2,
+			rect.base.y + (static_cast<int32>(rect.height) - static_cast<int32>(img->height)) / 2);
 }

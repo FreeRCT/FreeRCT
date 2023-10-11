@@ -14,6 +14,8 @@
 #include "language.h"
 #include "money.h"
 
+struct MissionScenario;
+
 void OnNewDay();
 void OnNewMonth();
 void OnNewYear();
@@ -23,12 +25,14 @@ extern int _max_autosaves;
 
 /** Actions that can be run to control the game. */
 enum GameControlAction {
-	GCA_NONE,      ///< No action to run.
-	GCA_MENU,      ///< Open the main menu.
-	GCA_NEW_GAME,  ///< Prepare a new game.
-	GCA_LOAD_GAME, ///< Load a saved game.
-	GCA_SAVE_GAME, ///< Save the current game.
-	GCA_QUIT,      ///< Quit the game.
+	GCA_NONE,           ///< No action to run.
+	GCA_MENU,           ///< Open the main menu.
+	GCA_NEW_GAME,       ///< Prepare a new game.
+	GCA_LOAD_GAME,      ///< Load a saved game.
+	GCA_LOAD_EDITOR,    ///< Load a game in the editor.
+	GCA_LAUNCH_EDITOR,  ///< Prepare the scenario editor.
+	GCA_SAVE_GAME,      ///< Save the current game.
+	GCA_QUIT,           ///< Quit the game.
 };
 
 /** How fast the game should run. */
@@ -41,6 +45,17 @@ enum GameSpeed {
 	GSP_COUNT   ///< Number of entries.
 };
 DECLARE_POSTFIX_INCREMENT(GameSpeed)
+
+/**
+ * The current game mode controls what user operations that are allowed
+ * and not. In Game mode most construction operations are limited to
+ * owned land.
+ */
+enum GameMode {
+	GM_NONE,   ///< Neither a running game nor in editor. (eg. startup/quit)
+	GM_PLAY,   ///< The current scenario is being played.
+	GM_EDITOR, ///< The current scenario is being edited.
+};
 
 /**
  * Class controlling the current game.
@@ -57,12 +72,13 @@ public:
 		if (this->next_action != GCA_NONE) this->RunAction();
 	}
 
-	void Initialize(const std::string &fname);
+	void Initialize(const std::string &fname, GameMode game_mode);
 	void Uninitialize();
 
 	void MainMenu();
-	void NewGame();
-	void LoadGame(const std::string &fname);
+	void NewGame(MissionScenario *scenario);
+	void LaunchEditor();
+	void LoadGame(const std::string &fname, GameMode game_mode);
 	void SaveGame(const std::string &fname);
 	void QuitGame();
 
@@ -75,26 +91,16 @@ public:
 
 private:
 	void RunAction();
-	void NewLevel();
-	void StartLevel();
+	void InitializeLevel();
+	void StartLevel(GameMode game_mode);
 	void ShutdownLevel();
 
 	GameControlAction next_action; ///< Action game control wants to run, or #GCA_NONE for 'no action'.
 	std::string fname;             ///< Filename of game level to load from or save to.
+	MissionScenario *next_scenario;  ///< The scenario to load on the next tick.
 };
 
 extern GameControl _game_control;
-
-/**
- * The current game mode controls what user operations that are allowed
- * and not. In Game mode most construction operations are limited to
- * owned land.
- */
-enum GameMode {
-	GM_NONE,   ///< Neither a running game nor in editor. (eg. startup/quit)
-	GM_PLAY,   ///< The current scenario is being played.
-	GM_EDITOR, ///< The current scenario is being edited.
-};
 
 /** Class managing the game mode of the program.
  *  @todo Move functionality to GameControl class?

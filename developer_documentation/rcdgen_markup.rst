@@ -1,5 +1,5 @@
 :Author: The FreeRCT Team
-:Version: 2022-09-27
+:Version: 2023-10-02
 
 .. contents::
    :depth: 3
@@ -76,6 +76,9 @@ Recognized types of values are:
 
 - Decimal *integral constants*, e.g. ``5`` or ``-128``.
 - *String literals* enclosed by double quotes, e.g. ``"Hello World!"``.
+- *File paths*. A file path is a string literal that refers to a file on the hard disk.
+  Paths can be absolute or relative. Relative file paths are always interpreted as relative to the directory in which RCDgen will be invoked.
+  The directory separator should be a forward slash (``/``) on all platforms.
 - `Predefined symbols`_.
 - A *bitset* of integers, defined by the keyword ``bitset`` followed by parentheses enclosing a comma-separated list of integers.
 - A value list. Some `intermediary nodes`_ can expand to multiple values.
@@ -350,6 +353,10 @@ Fences (FENC_ Blocks)
 - conifer
 - bricks
 
+Missions (MISN_ Blocks)
+~~~~~~~~~~~~~~~~~~~~~~~
+- unlimited
+
 
 Intermediary Nodes
 ==================
@@ -389,8 +396,8 @@ It is valid to specify no named values in this node, in which case the sprite is
 
 Attributes:
 
-- ``file`` - The PNG file path, relative to the directory in which RCDgen will be invoked.
-- ``recolour`` - *Optional*. The PNG file path to the recolouring mask, relative to the directory in which RCDgen will be invoked.
+- ``file`` - The PNG file path.
+- ``recolour`` - *Optional*. The PNG file path to the recolouring mask.
 - ``x_base`` - X coordinate of the upper left corner of the clipping rectangle.
 - ``y_base`` - Y coordinate of the upper left corner of the clipping rectangle.
 - ``width`` - Width of the clipping rectangle.
@@ -873,8 +880,29 @@ Attributes:
 - ``logo`` - FreeRCT logo sprite.
 - ``new_game`` - New Game button sprite.
 - ``load_game`` - Load Game button sprite.
+- ``launch_editor`` - Scenario Editor button sprite.
 - ``settings`` - Settings button sprite.
 - ``quit`` - Quit button sprite.
+- ``default_scenario`` - Path to the FCT file for the default scenario for use in the editor.
+- ``main_menu_savegame`` - Path to the FCT file for the main menu background savegame.
+- ``nr_cameras`` - Number of cameras in the main menu background game.
+- ``camera_N_x`` - X pixel coordinate of the N-th camera.
+- ``camera_N_y`` - Y pixel coordinate of the N-th camera.
+- ``camera_N_z`` - Z pixel coordinate of the N-th camera.
+- ``camera_N_orientation`` - Viewport orientation of the N-th camera.
+- ``camera_N_duration`` - Duration of the N-th camera frame in milliseconds.
+
+MISN
+~~~~
+Attributes:
+
+- ``internal_name`` - Internal name of the mission.
+- ``texts`` - strings_ node containing the mission's texts.
+- ``max_unlock`` - Maximum number of unlocked unsolved scenarios in the mission.
+- ``scenarios`` - Total number of scenarios in the mission.
+- ``file_N`` - Path to the FCT file for the N-th scenario.
+- ``internal_name_N`` - Internal name of the N-th scenario.
+- ``texts_N`` - strings_ node containing the N-th scenario's texts.
 
 PATH
 ~~~~

@@ -199,7 +199,7 @@ void CoasterType::Load(RcdFileReader *rcd_file, const TextMap &texts, const Trac
 	TextData *text_data;
 	LoadTextFromFile(rcd_file, texts, &text_data);
 	StringID base = _language.RegisterStrings(*text_data, _coasters_strings_table);
-	this->SetupStrings(text_data, base, STR_GENERIC_COASTER_START, COASTERS_STRING_TABLE_END, COASTERS_NAME_TYPE, COASTERS_DESCRIPTION_TYPE);
+	this->SetupStrings(text_data, base, STR_GENERIC_COASTERS_START, COASTERS_STRING_TABLE_END, COASTERS_NAME_TYPE, COASTERS_DESCRIPTION_TYPE);
 
 	int piece_count = rcd_file->GetUInt16();
 	length -= 4 * piece_count;

@@ -184,6 +184,8 @@ protected:
 	void SetWidgetShaded(WidgetNumber widget, bool value);
 	bool IsWidgetShaded(WidgetNumber widget) const;
 
+	void SetWidgetCheckedAndPressed(WidgetNumber widget, bool value);
+
 	void SetRadioButtonsSelected(const WidgetNumber *wids, WidgetNumber selected);
 	WidgetNumber GetSelectedRadioButton(const WidgetNumber *wids);
 
@@ -467,6 +469,7 @@ void ShowBottomToolbar();
 void ShowConfirmationPrompt(StringID title, StringID message, std::function<void()> callback);
 void ShowSaveGameGui();
 void ShowLoadGameGui();
+void ShowScenarioSelectGui();
 void ShowPersonInfoGui(const Person *person);
 void ShowStaffManagementGui();
 void ShowPathBuildGui();

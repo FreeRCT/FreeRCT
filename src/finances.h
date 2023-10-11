@@ -63,6 +63,8 @@ protected:
 	Money cash;                             ///< The user's current cash.
 	Money loan;                             ///< The user's current loan.
 
+	Money park_value;  ///< The cached park value.
+
 public:
 	FinancesManager();
 
@@ -70,7 +72,6 @@ public:
 	void AdvanceMonth();
 	void OnNewDay();
 	void CashToStrParams();
-	void SetScenario(const Scenario &s);
 
 	void DoTransaction(const Money &income);
 	void TakeLoan(const Money &delta);
@@ -83,7 +84,7 @@ public:
 	 * The amount of cash the player currently possesses.
 	 * @return The cash.
 	 */
-	inline const Money &GetCash()
+	inline const Money &GetCash() const
 	{
 		return this->cash;
 	}
@@ -92,10 +93,21 @@ public:
 	 * The amount of money the player has currently loaned.
 	 * @return The loan.
 	 */
-	inline const Money &GetLoan()
+	inline const Money &GetLoan() const
 	{
 		return this->loan;
 	}
+
+	/**
+	 * The current total value of the park.
+	 * @return The park value.
+	 */
+	inline const Money &GetParkValue() const
+	{
+		return this->park_value;
+	}
+
+	Money GetCompanyValue() const;
 
 	/**
 	 * Access method for monthly transactions.
@@ -239,6 +251,7 @@ public:
 
 private:
 	void Reset();
+	void RecomputeParkValue();
 	void NotifyGui();
 };
 

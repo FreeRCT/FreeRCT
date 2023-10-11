@@ -241,7 +241,7 @@ bool TerrainChanges::ChangeCorner(const Point16 &pos, TileCorner corner, int dir
 		Point16 pos2(pos.x + vc.rel_xy.x, pos.y + vc.rel_xy.y);
 		gd = this->GetGroundData(pos2);
 		if (gd == nullptr) continue;
-		if (_world.GetTileOwner(pos2.x, pos2.y) != OWN_PARK) continue;
+		if (_game_mode_mgr.InPlayMode() && _world.GetTileOwner(pos2.x, pos2.y) != OWN_PARK) continue;
 		uint height = gd->GetOrigHeight(vc.corner);
 		if (old_height == height && !this->ChangeCorner(pos2, vc.corner, direction)) return false;
 	}

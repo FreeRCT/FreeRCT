@@ -21,6 +21,7 @@ enum WonLost {
 	SCENARIO_RUNNING = 0,  ///< The scenario has not been won or lost yet.
 	SCENARIO_WON     = 1,  ///< The scenario has been won.
 	SCENARIO_LOST    = 2,  ///< The scenario has been lost.
+	SCENARIO_WON_FIRST = 3,  ///< The scenario has been won for the first time.
 };
 
 static const unsigned STATISTICS_HISTORY = DaysInParkYear();  ///< Number of days for statistics are kept around.

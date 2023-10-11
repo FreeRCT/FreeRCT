@@ -368,7 +368,7 @@ StringID GuiWindow::TranslateStringNumber(StringID str_id) const
 {
 	assert(str_id != STR_INVALID);
 
-	if (this->ride_type != nullptr && str_id >= STR_GENERIC_SHOP_START) return this->ride_type->GetString(str_id);
+	if (this->ride_type != nullptr && str_id >= STR_GENERIC_SHOPS_START) return this->ride_type->GetString(str_id);
 	return str_id;
 }
 
@@ -599,6 +599,20 @@ void GuiWindow::SetWidgetShaded(WidgetNumber widget, bool value)
 bool GuiWindow::IsWidgetShaded(WidgetNumber widget) const
 {
 	return this->GetWidget<LeafWidget>(widget)->IsShaded();
+}
+
+/**
+ * Set both the pressed and the checked state of the given widget.
+ * @param widget %Widget number.
+ * @param value New pressed and checked state value.
+ */
+void GuiWindow::SetWidgetCheckedAndPressed(WidgetNumber widget, bool value)
+{
+	LeafWidget *lw = this->GetWidget<LeafWidget>(widget);
+	if (lw->IsPressed() != value || lw->IsChecked() != value) {
+		lw->SetPressed(value);
+		lw->SetChecked(value);
+	}
 }
 
 /**
@@ -1051,6 +1065,7 @@ void WindowManager::UpdateWindows()
 	MouseModeSelector *selector = (sel_window == nullptr) ? nullptr : sel_window->selector;
 	for (Window *w = this->bottom; w != nullptr; w = w->higher) w->OnDraw(selector);
 
+	_str_params.Clear();
 	if (tooltip_widget != nullptr) {
 		tooltip_window->SetTooltipStringParameters(tooltip_widget);
 		tooltip_widget->DrawTooltip(tooltip_window->rect.base);
@@ -1286,11 +1301,13 @@ Shortcuts::Shortcuts()
 
 	this->values[KS_MAINMENU_NEW] = ShortcutInfo("mainmenu_new", Keybinding("n"), Scope::MAIN_MENU);
 	this->values[KS_MAINMENU_LOAD] = ShortcutInfo("mainmenu_load", Keybinding("l"), Scope::MAIN_MENU);
+	this->values[KS_MAINMENU_LAUNCH_EDITOR] = ShortcutInfo("mainmenu_launch_editor", Keybinding("e"), Scope::MAIN_MENU);
 	this->values[KS_MAINMENU_SETTINGS] = ShortcutInfo("mainmenu_settings", Keybinding("o"), Scope::MAIN_MENU);
 	this->values[KS_MAINMENU_QUIT] = ShortcutInfo("mainmenu_quit", Keybinding("q"), Scope::MAIN_MENU);
 
 	this->values[KS_INGAME_QUIT] = ShortcutInfo("quit", Keybinding("q", WMKM_CTRL), Scope::INGAME);
 	this->values[KS_INGAME_SAVE] = ShortcutInfo("save", Keybinding("s", WMKM_CTRL), Scope::INGAME);
+	this->values[KS_INGAME_LOAD] = ShortcutInfo("load", Keybinding("l", WMKM_CTRL), Scope::INGAME);
 	this->values[KS_INGAME_MAINMENU] = ShortcutInfo("mainmenu", Keybinding("w", WMKM_CTRL), Scope::INGAME);
 	this->values[KS_INGAME_SETTINGS] = ShortcutInfo("settings", Keybinding("o", WMKM_CTRL), Scope::INGAME);
 

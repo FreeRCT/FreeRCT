@@ -927,9 +927,25 @@ public:
 	std::shared_ptr<SpriteBlock> splash;           ///< FreeRCT splashscreen.
 	std::shared_ptr<SpriteBlock> new_game;         ///< New Game button.
 	std::shared_ptr<SpriteBlock> load_game;        ///< Load Game button.
+	std::shared_ptr<SpriteBlock> launch_editor;    ///< Launch Editor button.
 	std::shared_ptr<SpriteBlock> settings;         ///< Settings button.
 	std::shared_ptr<SpriteBlock> quit;             ///< Quit button.
 	uint32                       splash_duration;  ///< Duration of the splash screen animation.
+
+	uint32 default_scenario_length;                     ///< Length of the default scenario.
+	uint32 main_menu_savegame_length;                   ///< Length of the main menu savegame.
+	std::unique_ptr<uint8[]> default_scenario_bytes;    ///< Bytes of the default scenario.
+	std::unique_ptr<uint8[]> main_menu_savegame_bytes;  ///< Bytes of the main menu savegame.
+
+	/** A camera frame. */
+	struct Camera {
+		int32 x;            ///< X pixel coordinate.
+		int32 y;            ///< Y pixel coordinate.
+		int32 z;            ///< Z pixel coordinate.
+		uint32 duration;    ///< Frame duration in milliseconds.
+		uint8 orientation;  ///< Viewport orientation.
+	};
+	std::vector<Camera> cameras;  ///< Main menu cameras.
 };
 
 /**
@@ -1123,6 +1139,21 @@ public:
 
 	uint32 length;                  ///< Number of bytes in the file.
 	std::unique_ptr<uint8[]> data;  ///< The raw FTK file data.
+};
+
+/** 'MISN' game block. */
+class MISNBlock : public GameBlock {
+public:
+	MISNBlock();
+	virtual ~MISNBlock() = default;
+
+	int Write(FileWriter *fw) override;
+
+	std::vector<std::string> internal_names;           ///< The internal name for each mission and the mission.
+	std::vector<std::shared_ptr<StringBundle>> texts;  ///< The strings for each scenario and the mission.
+	uint32 max_unlock;                                 ///< Maximum number of unlocked unsolved scenarios.
+	std::vector<uint32> lengths;                       ///< The length of each scenario file.
+	std::vector<std::unique_ptr<uint8[]>> data;        ///< The raw file data of each file.
 };
 
 /** 'FENC' game block. */

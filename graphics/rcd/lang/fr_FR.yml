@@ -32,7 +32,6 @@ strings:
 		# Toolbar gui strings.
 		MAIN_MENU_QUIT:     "Quitter"
 		MAIN_MENU_SETTINGS: "Paramètres"
-		MAIN_MENU_MODE:     "Jouer/Editeur"
 		MAIN_MENU_LOAD:     "Charger"
 		MAIN_MENU_SAVE:     "Sauvegarder"
 		MAIN_MENU_NEW_GAME: "Nouveau jeu"
@@ -50,8 +49,6 @@ strings:
 		TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP:     "Minimap"
 
 
-		TOOLBAR_GUI_GAME_MODE_PLAY:       "Jouer"
-		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Editeur"
 		TOOLBAR_GUI_PATHS:                "Chemins"
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Construire les allées et files d'attente"
 		TOOLBAR_GUI_RIDE_SELECT:          "Acheter"

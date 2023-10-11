@@ -17,6 +17,8 @@ struct BorderSpriteData;
 void DrawBorderSprites(const BorderSpriteData &bsd, bool pressed, const Rectangle32 &rect, ColourRange colour);
 void OverlayShaded(const Rectangle32 &rect);
 
+Point32 CenterSprite(const Rectangle32 &rect, const ImageData *img);
+
 /**
  * Get the height of the text.
  * @return Height of the text (in pixels).
@@ -28,8 +30,9 @@ inline int GetTextHeight()
 
 void DrawString(StringID strid, uint8 colour, int x, int y, int width = 0x7FFF, Alignment align = ALG_LEFT, bool outline = false);
 void DrawString(const std::string &buffer, uint8 colour, int x, int y, int width = 0x7FFF, Alignment align = ALG_LEFT, bool outline = false);
-bool DrawMultilineString(StringID strid, int x, int y, int max_width, int max_height, uint8 colour);
+bool DrawMultilineString(StringID strid, int x, int y, int max_width, int max_height, uint8 colour, Alignment align = ALG_LEFT);
 
-void GetMultilineTextSize(StringID strid, int max_width, int *width, int *height);
+std::string GetMultilineTextSize(StringID strid,            int max_width, int *width, int *height);
+std::string GetMultilineTextSize(const std::string &buffer, int max_width, int *width, int *height);
 
 #endif

@@ -33,19 +33,24 @@ strings:
 		MONTH_DECEMBER:  "Dezember"
 
 		OBJECTIVE_TIMEOUT_BEFORE:  "Deese Upgaav mutt vör %1% daankregen worden."
-		OBJECTIVE_TIMEOUT_EXACT:   "Deese Upgaav mutt um %1% daankregen sien."
+		OBJECTIVE_TIMEOUT_EXACT:   "Deese Upgaav mutt um %1% daankregen wesen."
 		OBJECTIVE_TIMEOUT_NONE:    "Deese Upgaav kann to elkeen Tied daankregen worden."
-		OBJECTIVE_STRICT:          "Deese Upgaav mutt alltiedens daankregen sien!"
+		OBJECTIVE_STRICT:          "Deese Upgaav mutt alltiedens daankregen wesen!"
 		OBJECTIVETEXT_NONE:        "Hebb Spaaß!"
 		OBJECTIVETEXT_GUESTS:
 			one:   "Hebb tominnst %1% Gast im Park."
 			other: "Hebb tominnst %1% Gasten im Park."
-		OBJECTIVETEXT_PARK_RATING: "De Parkbeweerten mutt tominnst %1% sien."
+		OBJECTIVETEXT_PARK_RATING: "De Parkbeweerten mutt tominnst %1% wesen."
+		OBJECTIVETEXT_PARK_VALUE:  "De Parkweert mutt tominnst %1% wesen."
 
 		NUMBERED_INSTANCE_NAME: "%1% #%2%"
 		RESOLUTION:             "%1%×%2%"
 		GUEST_NAME:             "Gast %1%"
 
+		NR_DAYS:
+			one:                  "%1% Dag"
+			other:                "%1% Daag"
+		APPLY:                    "Anwennen"
 		DECREASE_BUTTON:          "-"
 		INCREASE_BUTTON:          "+"
 
@@ -53,10 +58,10 @@ strings:
 		TOOLBAR_GUI_DROPDOWN_MAIN:          "Menü"
 		MAIN_MENU_QUIT:                     "Verlaten"
 		MAIN_MENU_SETTINGS:                 "Instellens"
-		MAIN_MENU_MODE:                     "Spölen/Bewarker"
 		MAIN_MENU_LOAD:                     "Laden"
 		MAIN_MENU_SAVE:                     "Sekern"
 		MAIN_MENU_NEW_GAME:                 "Nejes Speel"
+		MAIN_MENU_LAUNCH_EDITOR:            "Bewarker"
 		MAIN_MENU_MENU:                     "Höövdmenü"
 		TOOLBAR_GUI_DROPDOWN_SPEED:         "Gauheid"
 		TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP: "De Speel-Gauheid ännern"
@@ -83,8 +88,6 @@ strings:
 		TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_OUT:         "Lütter maken"
 		TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_IN:          "Groter maken"
 
-		TOOLBAR_GUI_GAME_MODE_PLAY:       "Spölen"
-		TOOLBAR_GUI_GAME_MODE_EDITOR:     "Bewarker"
 		TOOLBAR_GUI_PATHS:                "Wege"
 		TOOLBAR_GUI_TOOLTIP_BUILD_PATHS:  "Wege un Wachtslangen bauen"
 		TOOLBAR_GUI_RIDE_SELECT:          "Bude bauen"
@@ -109,6 +112,11 @@ strings:
 		BOTTOMBAR_GUESTCOUNT:
 			one:   "%1% Gast"
 			other: "%1% Gasten"
+
+		# Scenario strings.
+		NO_NAME:                "Nich bekannt"
+		DEFAULT_SCENARIO_NAME:  "Nich benöömt"
+		DEFAULT_SCENARIO_DESCR: "Deese Rutfödderung is nich beschrieven worden."
 
 		# Quit program strings.
 		QUIT_CAPTION: "Verlaten?"
@@ -292,6 +300,10 @@ strings:
 		TERRAFORM_SUB_TOOLTIP: "Grött vun de Kuntrei tum Bewarken minnern"
 		TERRAFORM_LEVEL_TEXT:  "Kuntrei tum Bewarken platt maken"
 		TERRAFORM_MOVE_TEXT:   "Kuntrei tum Bewarken verschuven as se is"
+		TERRAFORM_OWNER_UNCHANGED_TEXT: "Landegendoom nich ännern"
+		TERRAFORM_OWNER_NONE_TEXT:      "Dat Land sünner Eegner maken"
+		TERRAFORM_OWNER_PARK_TEXT:      "Dat Land to de Park daartogeven"
+		TERRAFORM_OWNER_SALE_TEXT:      "Dat Land as tum Kopen markeren"
 
 		# Park management gui strings.
 		PARK_MANAGEMENT_TAB_GENERAL:           "Allgemeen"
@@ -308,6 +320,14 @@ strings:
 		PARK_MANAGEMENT_NO_AWARDS:             "De Park hett in de lesten Tied keene Priesen kregen."
 		PARK_MANAGEMENT_PARKNAME:              "Parknaam:"
 		PARK_MANAGEMENT_ENTRANCE_FEE:          "Intree:"
+		PARK_MANAGEMENT_MAX_GUESTS:            "Gröttste Tahl vun Gasten:"
+		PARK_MANAGEMENT_SOLVED:                "Bidde giff dienen Naam in:"
+		PARK_MANAGEMENT_OBJECTIVE_GUESTS:      "Nödige Tahl vun Gasten:"
+		PARK_MANAGEMENT_OBJECTIVE_RATING:      "Nödige Parkbeweerten:"
+		PARK_MANAGEMENT_OBJECTIVE_PARK_VALUE:  "Nödiger Parkweert:"
+		PARK_MANAGEMENT_OBJECTIVE_DROP_POLICY: "Park word dichtmaakt, wenn Upgaav so lang nich daankregen is:"
+		PARK_MANAGEMENT_OBJECTIVE_DATE:        "Upgaav mutt daankregen worden bit:"
+		PARK_MANAGEMENT_OBJECTIVE_DATE_NOT_EXACT: "Upgaav kann to elkeen Tied daankregen worden."
 
 		# Minimap gui strings.
 		MINIMAP_TITLE: "Lütt Kaart"
@@ -334,6 +354,9 @@ strings:
 		FINANCES_LOAN_INTEREST:          "Börgtins"
 		FINANCES_LOAN_INTEREST_VALUE:    "%.1f%% pro Jahr"
 		FINANCES_CASH:                   "Geld"
+		FINANCES_PARK_VALUE:             "Parkweert"
+		FINANCES_COMPANY_VALUE:          "Firmenweert"
+		FINANCES_PARK_VALUE_VALUE:       "Parkweert: %1%"
 
 		# Messages and inbox.
 		INBOX_TITLE:              "Narichtens"
@@ -427,6 +450,14 @@ strings:
 		SETTING_LANGUAGE_TOOLTIP:   "De Spraak vun de Speel ännern"
 		SETTING_RESOLUTION:         "Uplösen ännern"
 		SETTING_RESOLUTION_TOOLTIP: "De Grött vun de Speelfenster ännern"
+
+		# Scenario select window.
+		SCENARIO_SELECT_TITLE:       "Rutfödderung utkören"
+		SCENARIO_SELECT_NO_MISSIONS: "’t sünd keene Rutfödderungs-Riegen laden worden."
+		SCENARIO_SELECT_UNLOCK:
+			one:   "Sluut noch %1% Rutfödderung in deeser Rieg of, um deese Rutfödderung freeitoschalten."
+			other: "Sluut noch %1% Rutfödderungen in deeser Rieg of, um deese Rutfödderung freeitoschalten."
+		SCENARIO_SELECT_SOLVED: "An %2% vun %1% mit eenem Firmenweert vun %3% ofsluten"
 
 		# Loading/saving window.
 		LOADSAVE_LOAD:        "Laden"
@@ -567,3 +598,13 @@ strings:
 		NAME: "Boom 3"
 	fountain1:
 		NAME: "Springbrunnen 1"
+
+	mission-official-easy:
+		NAME:  "Offiziell Licht"
+		DESCR: "Een Packen vun lichten Rutfödderungen, wat vun de FreeRCT-Entwickeln-Klottje klaarmaakt worden."
+	scenario-emerald-expanses:
+		NAME:  "Smaragden Schüünten"
+		DESCR: "Well kann deese grönen Wiedens bekieken un nich vun hör Mooigheid bewegt worden? Middens tüsken hör bewaldt Schüünten wacht een Vergnögenspark daarup, opmaakt to worden."
+	scenario-rugged-ravine:
+		NAME:  "Stuve Schlucht"
+		DESCR: "Eene Klamm, wat een lang utdröögt Stroom in de Landskupp insneden hett, is de Umgeven för deesen Themenpark."

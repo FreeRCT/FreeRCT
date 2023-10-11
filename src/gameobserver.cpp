@@ -10,6 +10,8 @@
 #include "stdafx.h"
 #include "gameobserver.h"
 #include "gamelevel.h"
+#include "gamecontrol.h"
+#include "finances.h"
 #include "messages.h"
 #include "people.h"
 #include "window.h"
@@ -63,8 +65,29 @@ void GameObserver::Win()
 	assert(this->won_lost == SCENARIO_RUNNING);
 	this->won_lost = SCENARIO_WON;
 	_inbox.SendMessage(new Message(GUI_MESSAGE_SCENARIO_WON));
+
+	if (_game_mode_mgr.InPlayMode() && !_scenario.wrapper->solved.has_value()) {
+		this->won_lost = SCENARIO_WON_FIRST;
+
+		std::string username;
+		for (const auto& var : {"USER", "USERNAME"}) {
+			const char *environment_variable = getenv(var);
+			if (environment_variable != nullptr && environment_variable[0] != '\0') {
+				username = environment_variable;
+				break;
+			}
+		}
+		if (username.empty()) username = _language.GetSgText(GUI_NO_NAME);
+
+		_scenario.wrapper->solved = {
+			username,
+			_finances_manager.GetCompanyValue(),
+			std::time(nullptr)
+		};
+		_scenario.wrapper->mission->UpdateUnlockData();
+	}
+
 	ShowParkManagementGui(PARK_MANAGEMENT_TAB_OBJECTIVE);
-	/* \todo Record the player's name and other data for the highscores. */
 }
 
 /** The game has been lost. */

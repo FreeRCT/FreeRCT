@@ -17,6 +17,10 @@
 #include "dates.h"
 #include "money.h"
 #include "loadsave.h"
+#include "sprite_store.h"
+
+struct Mission;
+struct MissionScenario;
 
 /** The policy how to interpret an objective's due date. */
 enum ObjectiveTimeoutPolicy {
@@ -31,6 +35,7 @@ enum ObjectiveType {
 	OJT_NONE,
 	OJT_GUESTS,
 	OJT_RATING,
+	OJT_PARK_VALUE,
 };
 
 /** Abstract representation of a scenario objective. */
@@ -98,7 +103,7 @@ public:
 /** Objective to achieve a minimum park rating. */
 class ObjectiveParkRating : public AbstractObjective {
 public:
-	explicit ObjectiveParkRating(uint32 d, uint32 r) : AbstractObjective(d), rating(r) {}
+	explicit ObjectiveParkRating(uint32 d, uint16 r) : AbstractObjective(d), rating(r) {}
 
 	std::string ToString() const override;
 	void OnNewDay() override;
@@ -111,6 +116,24 @@ public:
 	void Save(Saver &svr) override;
 
 	uint16 rating;  ///< Park rating to achieve.
+};
+
+/** Objective to achieve a minimum park value. */
+class ObjectiveParkValue : public AbstractObjective {
+public:
+	explicit ObjectiveParkValue(uint32 d, Money v) : AbstractObjective(d), park_value(v) {}
+
+	std::string ToString() const override;
+	void OnNewDay() override;
+
+	inline ObjectiveType Type() const override
+	{
+		return OJT_PARK_VALUE;
+	}
+	void Load(Loader &ldr) override;
+	void Save(Saver &svr) override;
+
+	Money park_value;  ///< Park value to achieve.
 };
 
 /** Objective to achieve all of one or more objectives. */
@@ -135,8 +158,7 @@ public:
 
 /** %Scenario settings. */
 struct Scenario {
-	Scenario();
-
+	Scenario() = default;
 	void SetDefaultScenario();
 
 	void Load(Loader &ldr);
@@ -149,14 +171,57 @@ struct Scenario {
 	uint32 max_guests;    ///< Maximal number of guests.
 
 	std::string name;                              ///< Title of the scenario.
+	std::string descr;                             ///< Description of the scenario.
 	std::shared_ptr<ScenarioObjective> objective;  ///< The scenario's objective.
 
-	Money initial_money;  ///< Initial amount of money of the player.
-	Money initial_loan;   ///< Initial loan of the player.
-	Money max_loan;       ///< Maximum loan the player can take.
-	uint16 interest;      ///< Annual interest rate in 0.1 percent over the current loan.
+	Money max_loan;           ///< Maximum loan the player can take.
+	uint16 interest;          ///< Annual interest rate in 0.1 percent over the current loan.
+	bool allow_entrance_fee;  ///< Whether the player may set a park entrance fee.
+
+	MissionScenario *wrapper;  ///< The metadata wrapper around this scenario (not owned).
 };
 
+/** Wrapper around a scenario in a mission plus metadata. */
+struct MissionScenario {
+	MissionScenario() = default;
+
+	Mission *mission;              ///< The mission this scenario belongs to.
+	std::string internal_name;     ///< The scenario's internal name.
+
+	size_t fct_length;                   ///< Number of bytes in the scenario file.
+	std::unique_ptr<uint8[]> fct_bytes;  ///< The bytes of the scenario file.
+
+	Scenario scenario;                   ///< The wrapped scenario.
+	StringID name;                       ///< String ID of the title of the scenario.
+	StringID descr;                      ///< String ID of the description of the scenario.
+
+	/** Data about the first time a scenario was solved. */
+	struct Solved {
+		std::string user;         ///< Name of the person who solved the scenario.
+		Money company_value = 0;  ///< Company value at the end of the scenario.
+		time_t timestamp = 0;     ///< Timestamp when the scenario was solved.
+	};
+
+	std::optional<Solved> solved;  ///< Who solved this scenario and with what company value, if applicable.
+	uint32 required_to_unlock;     ///< How many other scenarios must be solved to unlock this one (0 means it is unlocked).
+};
+
+/** A %mission of several scenarios. */
+struct Mission {
+	Mission() = default;
+
+	std::vector<MissionScenario> scenarios;  ///< All scenarios in this mission.
+	std::string internal_name;               ///< The mission's internal name.
+	uint32 max_unlock;                       ///< Maximum number of unlocked unsolved scenarios.
+	StringID name;                           ///< String ID of the title of the scenario.
+	StringID descr;                          ///< String ID of the description of the scenario.
+
+	void UpdateUnlockData();
+};
+
+void LoadMission(RcdFileReader *rcd_file, const TextMap &texts);
+
 extern Scenario _scenario;
+extern std::vector<std::unique_ptr<Mission>> _missions;
 
 #endif

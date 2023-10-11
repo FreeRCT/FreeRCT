@@ -1,5 +1,5 @@
 :Author: The FreeRCT team
-:Version: 2021-04-26
+:Version: 2023-10-02
 
 .. contents::
    :depth: 4
@@ -100,27 +100,32 @@ Scenario
 ~~~~~~~~
 Stores the scenario parameters.
 
-======  ======  =======  =====================================================================
+======  ======  =======  ===============================================================================
 Offset  Length  Version  Description
-======  ======  =======  =====================================================================
+======  ======  =======  ===============================================================================
    0       4      1-     "SCNO".
    4       4      1-     Version number.
    8       ?      1-     Name of the scenario.
+   ?       ?      2-     Description of the scenario.
    ?       ?      1-     The scenario's `objective container`_.
    ?       2      1-     Lowest guest spawn probability.
    ?       2      1-     Highest guest spawn probability.
    ?       4      1-     Maximum guest count.
-   ?       4      1-     Initial amount of money.
-   ?       4      1-     Initial loan.
+           4      1-2    Initial amount of money.
+           4      1-2    Initial loan.
    ?       4      1-     Maximum loan.
    ?       2      1-     Interest rate.
+   ?       1      2-     Whether entrance fees are enabled (1 or 0).
+   ?       ?      3-     Internal name of the mission scenario being played (empty if not a mission).
    ?       4      1-     "ONCS"
-======  ======  =======  =====================================================================
+======  ======  =======  ===============================================================================
 
 Version history
 ...............
 
 - 1 (20220820) Initial version.
+- 2 (20231002) Added description and entrance fee parameter.
+- 3 (20231006) Removed initial money and loan and added internal name reference.
 
 
 Abstract objective
@@ -225,6 +230,26 @@ Version history
 ...............
 
 - 1 (20220820) Initial version.
+
+
+Park value objective
+~~~~~~~~~~~~~~~~~~~~
+An objective to achieve a certain park value.
+
+======  ======  =======  =====================================================================
+Offset  Length  Version  Description
+======  ======  =======  =====================================================================
+   0       4      1-     "OJPV".
+   4       4      1-     Version number.
+   8      21      1-     The `abstract objective`_ data.
+  29       8      1-     The park value to achieve.
+  37       4      1-     "VPJO"
+======  ======  =======  =====================================================================
+
+Version history
+...............
+
+- 1 (20231008) Initial version.
 
 
 Finance history

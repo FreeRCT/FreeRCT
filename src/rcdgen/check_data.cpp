@@ -82,6 +82,34 @@ static std::string GetString(std::shared_ptr<Expression> expr, int index, const 
 	return sl->text;
 }
 
+/**
+ * Read a file into memory.
+ * @param pos %Position of the node (for reporting errors).
+ * @param filepath Path of the file to load.
+ * @param out_length [out] Will be filled in with the total number of bytes.
+ * @param out_bytes [out] Will be filled in with the content of the file.
+ */
+static void ReadFile(const Position &pos, const char *filepath, uint32 *out_length, std::unique_ptr<uint8[]> *out_bytes)
+{
+	FILE *in_file = nullptr;
+	in_file = fopen(filepath, "rb");
+	if (in_file == nullptr) {
+		fprintf(stderr, "Error at %s: Could not open input file.\n", pos.ToString());
+		exit(1);
+	}
+
+	fseek(in_file, 0L, SEEK_END);
+	*out_length = ftell(in_file);
+	rewind(in_file);
+
+	out_bytes->reset(new uint8[*out_length]);
+	for (uint32 i = 0; i < *out_length; ++i) {
+		(*out_bytes)[i] = getc(in_file);
+	}
+
+	fclose(in_file);
+}
+
 // No  foo(1234) { ... } nodes exist yet, so number parsing is not needed currently.
 // /* DISABLED RECOGNITION BY DOXYGEN *
 //  * Extract a number from the given expression.
@@ -2389,8 +2417,31 @@ static std::shared_ptr<MENUBlock> ConvertMENUNode(std::shared_ptr<NodeGroup> ng)
 	block->logo = vals.GetSprite("logo");
 	block->new_game = vals.GetSprite("new_game");
 	block->load_game = vals.GetSprite("load_game");
+	block->launch_editor = vals.GetSprite("launch_editor");
 	block->settings = vals.GetSprite("settings");
 	block->quit = vals.GetSprite("quit");
+
+	ReadFile(ng->pos, vals.GetString("default_scenario").c_str(), &block->default_scenario_length, &block->default_scenario_bytes);
+	ReadFile(ng->pos, vals.GetString("main_menu_savegame").c_str(), &block->main_menu_savegame_length, &block->main_menu_savegame_bytes);
+
+	const int nr_cameras = vals.GetNumber("nr_cameras");
+	if (nr_cameras < 1) {
+		fprintf(stderr, "Error at %s: main menu contains no cameras.\n", ng->pos.ToString());
+		exit(1);
+	}
+
+	block->cameras.resize(nr_cameras);
+	for (int i = 0; i < nr_cameras; ++i) {
+		std::string key = "camera_";
+		key += std::to_string(i);
+		key += "_";
+
+		block->cameras.at(i).x = vals.GetNumber((key + "x").c_str());
+		block->cameras.at(i).y = vals.GetNumber((key + "y").c_str());
+		block->cameras.at(i).z = vals.GetNumber((key + "z").c_str());
+		block->cameras.at(i).orientation = vals.GetNumber((key + "orientation").c_str());
+		block->cameras.at(i).duration = vals.GetNumber((key + "duration").c_str());
+	}
 
 	vals.VerifyUsage();
 	return block;
@@ -2733,23 +2784,66 @@ static std::shared_ptr<FTKWBlock> ConvertFTKWNode(std::shared_ptr<NodeGroup> ng)
 	Values vals("FTKW", ng->pos);
 	vals.PrepareNamedValues(ng->values, true, false);
 
-	FILE *in_file = nullptr;
-	in_file = fopen(vals.GetString("file").c_str(), "rb");
-	if (in_file == nullptr) {
-		fprintf(stderr, "Error at %s: Could not open input file.\n", ng->pos.ToString());
+	ReadFile(ng->pos, vals.GetString("file").c_str(), &block->length, &block->data);
+
+	vals.VerifyUsage();
+	return block;
+}
+
+/** Available symbols for the MISN node. */
+static const Symbol _misn_symbols[] = {
+	{"unlimited",  0},
+	{nullptr, 0}
+};
+
+/**
+ * Convert a node group to a MISN game block.
+ * @param ng Generic tree of nodes to convert.
+ * @return The created MISN game block.
+ */
+static std::shared_ptr<MISNBlock> ConvertMISNNode(std::shared_ptr<NodeGroup> ng)
+{
+	ExpandNoExpression(ng->exprs, ng->pos, "MISN");
+	auto block = std::make_shared<MISNBlock>();
+
+	Values vals("MISN", ng->pos);
+	vals.PrepareNamedValues(ng->values, true, false, _misn_symbols);
+
+	const size_t nr_scenarios = vals.GetNumber("scenarios");
+	if (nr_scenarios < 1) {
+		fprintf(stderr, "Error at %s: mission contains no scenarios.\n", ng->pos.ToString());
 		exit(1);
 	}
 
-	fseek(in_file, 0L, SEEK_END);
-	block->length = ftell(in_file);
-	rewind(in_file);
+	block->max_unlock = vals.GetNumber("max_unlock");
 
-	block->data.reset(new uint8[block->length]);
-	for (uint32 i = 0; i < block->length; ++i) {
-		block->data[i] = getc(in_file);
+	block->lengths.resize(nr_scenarios);
+	block->data.resize(nr_scenarios);
+	block->internal_names.resize(nr_scenarios + 1);
+	block->texts.resize(nr_scenarios + 1);
+
+	block->texts.back() = std::make_shared<StringBundle>();
+	block->texts.back()->Fill(vals.GetStrings("texts"), ng->pos);
+	block->internal_names.back() = vals.GetString("internal_name");
+
+	for (size_t i = 0; i < nr_scenarios; ++i) {
+		std::string key = "texts_";
+		key += std::to_string(i);
+		block->texts.at(i) = std::make_shared<StringBundle>();
+		block->texts.at(i)->Fill(vals.GetStrings(key.c_str()), ng->pos);
+
+		key = "internal_name_";
+		key += std::to_string(i);
+		block->internal_names.at(i) = vals.GetString(key.c_str());
+
+		key = "file_";
+		key += std::to_string(i);
+		ReadFile(ng->pos, vals.GetString(key.c_str()).c_str(), &block->lengths[i], &block->data[i]);
 	}
 
-	fclose(in_file);
+	for (auto &string_bundle : block->texts) {
+		string_bundle->CheckTranslations(_mission_string_names, lengthof(_mission_string_names), ng->pos);
+	}
 
 	vals.VerifyUsage();
 	return block;
@@ -2945,6 +3039,7 @@ static std::shared_ptr<BlockNode> ConvertNodeGroup(std::shared_ptr<NodeGroup> ng
 	if (ng->name == "GSLP") return ConvertGSLPNode(ng);
 	if (ng->name == "INFO") return ConvertINFONode(ng);
 	if (ng->name == "MENU") return ConvertMENUNode(ng);
+	if (ng->name == "MISN") return ConvertMISNNode(ng);
 	if (ng->name == "PATH") return ConvertPATHNode(ng);
 	if (ng->name == "PDEC") return ConvertPDECNode(ng);
 	if (ng->name == "PLAT") return ConvertPLATNode(ng);
@@ -3030,6 +3125,10 @@ void GenerateStringsHeaderFile(const char *prefix, const char *base, const char 
 		names = _scenery_string_names;
 		length = lengthof(_scenery_string_names);
 		nice_name = "Scenery";
+	} else if (strcmp(prefix, "MISSION") == 0) {
+		names = _mission_string_names;
+		length = lengthof(_mission_string_names);
+		nice_name = "Mission";
 	} else {
 		fprintf(stderr, "ERROR: Prefix \"%s\" is not known.\n", prefix);
 		exit(1);
@@ -3105,6 +3204,11 @@ void GenerateStringsCodeFile(const char *prefix, const char *code)
 		length = lengthof(_scenery_string_names);
 		nice_name = "Scenery";
 		lower_name = "scenery";
+	} else if (strcmp(prefix, "MISSION") == 0) {
+		names = _mission_string_names;
+		length = lengthof(_mission_string_names);
+		nice_name = "Mission";
+		lower_name = "mission";
 	} else {
 		fprintf(stderr, "ERROR: Prefix \"%s\" is not known.\n", prefix);
 		exit(1);

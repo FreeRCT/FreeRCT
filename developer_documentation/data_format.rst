@@ -1,5 +1,5 @@
-:Author: Alberth
-:Version: 2022-09-16
+:Author: The FreeRCT Team
+:Version: 2023-10-02
 
 .. contents::
    :depth: 3
@@ -1529,6 +1529,36 @@ Version history
 - 1 (20230318) Initial version.
 
 
+Missions
+~~~~~~~~
+Scenarios are stored in a ``MISN`` block. Each mission can contain one or more scenarios.
+Each scenario is the content of an FCT savegame file. See the file "savegame.rst" for the file format specification.
+FreeRCT can load version 1 of these blocks.
+
+=======  ======  =======  ======================================================================================
+Offset   Length  Version  Description
+=======  ======  =======  ======================================================================================
+   0        4      1-     Magic string 'MISN'.
+   4        4      1-     Version number of the block.
+   8        4      1-     Length of the block excluding magic string, version, and length.
+  12        ?      1-     Characters of the mission's internal name, nul-terminated.
+   ?        4      1-     Text of the mission (reference to a TEXT block).
+   ?        4      1-     Maximum number of unlocked unsolved scenarios in the mission (0 for unlimited).
+   ?        4      1-     Number of scenarios in the mission.
+   ?        ?      1-     For each scenario:
+                          The characters of the scenario's internal name, nul-terminated.
+                          Then the texts of the scenario (reference to a TEXT block; 4 bytes).
+                          Then the length of the scenario binary file (4 bytes).
+                          Then the bytes of the file.
+   ?                      Total length of the block.
+=======  ======  =======  ======================================================================================
+
+Version history
+...............
+
+- 1 (20231002) Initial version.
+
+
 GUI
 ===
 GUI sprites, in various forms.
@@ -1860,7 +1890,7 @@ Version history
 
 Main menu sprites
 ~~~~~~~~~~~~~~~~~
-Sprites for the FreeRCT main menu and splash screen. FreeRCT can read block version 1.
+Sprites for the FreeRCT main menu and splash screen. FreeRCT can read block version 3.
 
 =========  ======  =======  ========================================================================================
 Offset     Length  Version  Description
@@ -1873,15 +1903,25 @@ Offset     Length  Version  Description
   20        4       1-      FreeRCT splashscreen sprite.
   24        4       1-      New Game button sprite.
   28        4       1-      Load Game button sprite.
-  32        4       1-      Settings button sprite.
-  36        4       1-      Quit button sprite.
-  40                        Total length.
+  32        4       2-      Scenario Editor button sprite.
+  36        4       1-      Settings button sprite.
+  40        4       1-      Quit button sprite.
+  44        4       3-      The length of the default scenario binary file.
+  48        ?       3-      The bytes of the default scenario binary file.
+   ?        4       3-      The length of the main menu savegame binary file.
+   ?        ?       3-      The bytes of the main menu savegame binary file.
+   ?        4       3-      The number c of cameras in the main menu setup.
+   ?       17*c     3-      For each camera: Its X, Y, and Z pixel position (4 bytes each),
+                            viewport orientation (1 byte), and frame duration in milliseconds (4 bytes).
+   ?                        Total length.
 =========  ======  =======  ========================================================================================
 
 Version history
 ...............
 
 - 1 (20210401) Initial version.
+- 2 (20231002) Added scenario editor sprite.
+- 3 (20231009) Added savegame data for main menu and editor.
 
 
 Persons

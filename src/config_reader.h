@@ -23,10 +23,11 @@ class ConfigFile;
  */
 class ConfigItem {
 public:
-	explicit ConfigItem(const ConfigSection &section, const std::string &key, const std::string &value);
+	explicit ConfigItem(const ConfigSection &section, const std::string &key, const std::string &value, bool used);
 	~ConfigItem();
 
-	int GetNum() const;
+	bool IsUsed() const;
+	int64 GetNum() const;
 	const std::string &GetString() const;
 
 private:
@@ -45,8 +46,12 @@ public:
 	explicit ConfigSection(const ConfigFile &file, const std::string &name);
 	~ConfigSection();
 
+	bool IsUsed() const;
 	bool HasItem(const std::string &key) const;
 	const ConfigItem *GetItem(const std::string &key) const;
+
+	void SetItem(const std::string &key, const std::string &value);
+	void RemoveItem(const std::string &key);
 
 	const ConfigFile &file;  ///< Config file backlink.
 	const std::string name;  ///< Section name.
@@ -64,12 +69,14 @@ private:
 class ConfigFile {
 public:
 	explicit ConfigFile(const std::string &fname);
+	bool Write(bool include_unused);
 
 	const ConfigSection *GetSection(const std::string &name) const;
+	ConfigSection &GetCreateSection(const std::string &name);
 
 	bool HasValue(const std::string &sect_name, const std::string &key) const;
 	std::string GetValue(const std::string &sect_name, const std::string &key) const;
-	int GetNum(const std::string &sect_name, const std::string &key) const;
+	int64 GetNum(const std::string &sect_name, const std::string &key) const;
 
 	const std::string filename;                                      ///< Name of the config file.
 	std::map<std::string, std::unique_ptr<ConfigSection>> sections;  ///< Sections of the configuration file.

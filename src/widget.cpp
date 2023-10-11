@@ -351,6 +351,17 @@ void LeafWidget::SetupMinimalSize(GuiWindow *w, BaseWidget **wid_array)
 			break;
 		}
 
+		case WT_CHECKBOX: {
+			const CheckableWidgetSpriteData cwsd = _gui_sprites.checkbox;
+			this->InitMinimalSize(cwsd.width, cwsd.height, 0, 0);
+
+			this->fill_x = 0;
+			this->fill_y = 0;
+			this->resize_x = 0;
+			this->resize_y = 0;
+			break;
+		}
+
 		case WT_LEFT_FILLER_TAB:
 			this->InitMinimalSize(&_gui_sprites.left_tabbar, 0, 0);
 			break;
@@ -375,14 +386,14 @@ void LeafWidget::DoDraw(const GuiWindow *w)
 	static Recolouring rc;
 	rc.Set(0, RecolourEntry(COL_RANGE_BROWN, this->colour));
 
-	if (this->wtype == WT_RADIOBUTTON) {
+	if (this->wtype == WT_RADIOBUTTON || this->wtype == WT_CHECKBOX) {
 		int spr_num = ((this->flags & LWF_CHECKED) != 0) ? WCS_CHECKED : WCS_EMPTY;
 		if ((this->flags & LWF_SHADED) != 0) {
 			spr_num += WCS_SHADED_EMPTY;
 		} else if ((this->flags & LWF_PRESSED) != 0) {
 			spr_num += WCS_EMPTY_PRESSED;
 		}
-		_video.BlitImage({left, top}, _gui_sprites.radio_button.sprites[spr_num], rc, this->shift);
+		_video.BlitImage({left, top}, (this->wtype == WT_CHECKBOX ? _gui_sprites.checkbox : _gui_sprites.radio_button).sprites[spr_num], rc, this->shift);
 		return;
 	}
 
@@ -1962,6 +1973,7 @@ static int MakeWidget(const WidgetPart *parts, int remaining, BaseWidget **dest)
 						break;
 
 					case WT_RADIOBUTTON:
+					case WT_CHECKBOX:
 					case WT_CLOSEBOX:
 					case WT_RESIZEBOX:
 					case WT_LEFT_FILLER_TAB:

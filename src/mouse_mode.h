@@ -13,6 +13,7 @@
 #include "geometry.h"
 #include "math_func.h"
 #include "map.h"
+#include "gamecontrol.h"
 
 /**
  * Available cursor types.
@@ -228,7 +229,8 @@ public:
 				int ypos = this->area.base.y + y;
 				TileData &td = this->tile_data[this->GetTileOffset(x, y)];
 				td.Init();
-				td.cursor_enabled = (this->default_enable_cursors && IsVoxelstackInsideWorld(xpos, ypos) && _world.GetTileOwner(xpos, ypos) == OWN_PARK);
+				td.cursor_enabled = (this->default_enable_cursors && IsVoxelstackInsideWorld(xpos, ypos) &&
+						(_game_mode_mgr.InEditorMode() || _world.GetTileOwner(xpos, ypos) == OWN_PARK));
 			}
 		}
 	}
