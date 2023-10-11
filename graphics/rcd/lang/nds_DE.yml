@@ -130,12 +130,12 @@ strings:
 
         # Error message strings.
     ERROR_MESSAGE_CAPTION: "Wahrschau"
-    ERROR_MESSAGE_SPRITE: "Kunn Sprite-Billers nich teken!"
+    ERROR_MESSAGE_SPRITE: "Kunn Sprite-Billers nich teken"
     ERROR_MESSAGE_HEADING_BUILD: "Dat kann hier nich baut worden …"
     ERROR_MESSAGE_HEADING_REMOVE: "Dat kann nich ofrieten worden …"
     ERROR_MESSAGE_HEADING_COST: "Kosten to Verwachten:"
     ERROR_MESSAGE_HEADING_RETURN: "Weergeven to Verwachten:"
-    ERROR_MESSAGE_UNREMOVABLE: "Deeses Ding kann man nich wegmaken!"
+    ERROR_MESSAGE_UNREMOVABLE: "Deeses Ding kann man nich wegmaken."
     ERROR_MESSAGE_UNOWNED_LAND: "Dat Land höört nich to de Park!"
     ERROR_MESSAGE_EXPENSIVE: "Du bruukst tominnst %1%."
     ERROR_MESSAGE_BAD_LOCATION: "De Stee is nich gadelk."
@@ -330,7 +330,7 @@ strings:
       nich daankregen is:"
     PARK_MANAGEMENT_OBJECTIVE_DATE: "Upgaav mutt daankregen worden bit:"
     PARK_MANAGEMENT_OBJECTIVE_DATE_NOT_EXACT: "Upgaav kann to elkeen Tied daankregen
-      worden."
+      worden"
 
         # Minimap gui strings.
     MINIMAP_TITLE: "Lütt Kaart"
@@ -486,7 +486,7 @@ strings:
     NAME_INSTANCE1: "De Ies-Palast"
     NAME_INSTANCE2: "Kolle Dranken"
     NAME_TYPE: "Iesverkoop"
-    DESCRIPTION_TYPE: "Verkoopt kolle Drankens un Ies."
+    DESCRIPTION_TYPE: "Verkoopt kolle Drankens un Ies"
     DESCRIPTION_RECOLOUR1: "Becherfarv"
     DESCRIPTION_RECOLOUR2: "Iesfarv"
     DESCRIPTION_RECOLOUR3: "-"
@@ -497,7 +497,7 @@ strings:
     NAME_INSTANCE1: "Happkes Imbiss"
     NAME_INSTANCE2: "Pizza-Palast"
     NAME_TYPE: "Imbiss"
-    DESCRIPTION_TYPE: "Laden, waar du gode Kookjes kopen kannst."
+    DESCRIPTION_TYPE: "Laden, waar du gode Kookjes kopen kannst"
     DESCRIPTION_RECOLOUR1: "-"
     DESCRIPTION_RECOLOUR2: "-"
     DESCRIPTION_RECOLOUR3: "-"
@@ -508,11 +508,12 @@ strings:
     NAME_INSTANCE1: "Klo"
     NAME_INSTANCE2: "Gemack"
     NAME_TYPE: "Oftritt"
-    DESCRIPTION_TYPE: "Wenn du maal muttst, muttst du hier hen."
+    DESCRIPTION_TYPE: "Wenn du maal muttst, muttst du hier hen"
     DESCRIPTION_RECOLOUR1: "Oftritt-Farv"
     DESCRIPTION_RECOLOUR2: "-"
     DESCRIPTION_RECOLOUR3: "-"
     NAME_ITEM1: "Oftritt"
+    NAME_ITEM2: '-'
   atm:
     NAME_INSTANCE1: "Bankautomaat"
     NAME_INSTANCE2: "Bankomaat"
@@ -522,10 +523,11 @@ strings:
     DESCRIPTION_RECOLOUR2: "-"
     DESCRIPTION_RECOLOUR3: "-"
     NAME_ITEM1: "Baargeld"
+    NAME_ITEM2: '-'
   basic-coaster:
     NAME_INSTANCE: "Malle Rull"
     NAME_TYPE: "Normaale Achterbahn"
-    DESCRIPTION_TYPE: "Normaale Achterbahn ut Stahl."
+    DESCRIPTION_TYPE: "Normaale Achterbahn ut Stahl"
 
   entrance-generic:
     NAME: "Normaaler Ingang"
