@@ -131,12 +131,12 @@ strings:
 
         # Error message strings.
     ERROR_MESSAGE_CAPTION: "Achtung"
-    ERROR_MESSAGE_SPRITE: "Sprite konnte nicht gezeichnet werden (Failed to draw sprite)."
+    ERROR_MESSAGE_SPRITE: "Sprite konnte nicht gezeichnet werden"
     ERROR_MESSAGE_HEADING_BUILD: "Das kann hier nicht gebaut werden …"
     ERROR_MESSAGE_HEADING_REMOVE: "Das kann nicht entfernt werden …"
     ERROR_MESSAGE_HEADING_COST: "Zu erwartende Kosten:"
     ERROR_MESSAGE_HEADING_RETURN: "Zu erwartende Erstattung:"
-    ERROR_MESSAGE_UNREMOVABLE: "Unentfernbares Objekt!"
+    ERROR_MESSAGE_UNREMOVABLE: "Dieses Objekt kann nicht entfernt werden."
     ERROR_MESSAGE_UNOWNED_LAND: "Gelände gehört dem Park nicht!"
     ERROR_MESSAGE_EXPENSIVE: "%1% benötigt."
     ERROR_MESSAGE_BAD_LOCATION: "Ungeeigneter Ort."
@@ -332,7 +332,7 @@ strings:
     PARK_MANAGEMENT_OBJECTIVE_DROP_POLICY: "Park schließt, wenn Ziel so lange nicht
       erfüllt:"
     PARK_MANAGEMENT_OBJECTIVE_DATE: "Ziel muss erfüllt werden bis:"
-    PARK_MANAGEMENT_OBJECTIVE_DATE_NOT_EXACT: "Ziel kann jederzeit erfüllt werden."
+    PARK_MANAGEMENT_OBJECTIVE_DATE_NOT_EXACT: "Ziel kann jederzeit erfüllt werden"
 
         # Minimap gui strings.
     MINIMAP_TITLE: "Übersichtskarte"
@@ -350,7 +350,7 @@ strings:
     FINANCES_FOOD_SALES_TEXT: "Essens-/Getränkeverkäufe"
     FINANCES_FOOD_STOCK_TEXT: "Essens-/Getränkeinventur"
     FINANCES_STAFF_WAGES_TEXT: "Mitarbeiterlöhne"
-    FINANCES_MARKETING_TEXT: "Marketing"
+    FINANCES_MARKETING_TEXT: "Werbung"
     FINANCES_RESEARCH_TEXT: "Forschung"
     FINANCES_LOAN_INTEREST_TEXT: "Darlehenszinsen"
     FINANCES_TOTAL_TEXT: "Gesamt"
@@ -518,7 +518,8 @@ strings:
     DESCRIPTION_RECOLOUR1: "Toilettenfarbe"
     DESCRIPTION_RECOLOUR2: "-"
     DESCRIPTION_RECOLOUR3: "-"
-    NAME_ITEM1: "Toilet"
+    NAME_ITEM1: "Toilette"
+    NAME_ITEM2: '-'
   atm:
     NAME_INSTANCE1: "Bankautomat"
     NAME_INSTANCE2: "Bankomat"
@@ -528,6 +529,7 @@ strings:
     DESCRIPTION_RECOLOUR2: "-"
     DESCRIPTION_RECOLOUR3: "-"
     NAME_ITEM1: "Bargeld"
+    NAME_ITEM2: '-'
   basic-coaster:
     NAME_INSTANCE: "Verrückte Achterbahn"
     NAME_TYPE: "Standard-Achterbahn"
