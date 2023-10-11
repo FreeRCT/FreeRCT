@@ -469,6 +469,7 @@ strings:
         NAME_INSTANCE2: ''
         NAME_TYPE: ''
         DESCRIPTION_RECOLOUR3: ''
+        NAME_ITEM2: ''
     ice-cream-stall:
         NAME_ITEM2: ''
         NAME_ITEM1: ''
@@ -496,6 +497,7 @@ strings:
         NAME_INSTANCE1: ''
         NAME_INSTANCE2: ''
         DESCRIPTION_TYPE: ''
+        NAME_ITEM2: ''
     chair-swing:
         DESCRIPTION_TYPE: ''
         DESCRIPTION_RECOLOUR1: ''
