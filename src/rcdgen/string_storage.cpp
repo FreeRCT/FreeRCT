@@ -148,42 +148,43 @@ std::string YAMLParser::ParseValue()
 	size_t nr_chars = this->line.size();
 
 	for (;; ++pos) {
-		if (pos >= nr_chars) SyntaxError(this->line_number, "unterminated line in quoted value");
-		if (this->line[pos] == delimiter) break;  // End of quoted string.
-		if (this->line[pos] != '\\') {
-			value.push_back(this->line[pos]);
-			continue;
-		}
-
-		/* Backslash-escaped character. */
-		++pos;
 		if (pos < nr_chars) {
-			switch (this->line[pos]) {
-				case 'n':
-					value.push_back('\n');
-					break;
-				case 't':
-					value.push_back('\t');
-					break;
-				case ' ':
-					value.push_back(' ');
-					break;
-				case '\"':
-					value.push_back('\"');
-					break;
-				case '\'':
-					value.push_back('\'');
-					break;
-				case '\\':
-					value.push_back('\\');
-					break;
-				default:
-					SyntaxError(this->line_number, "invalid escape character");
+			if (this->line[pos] == delimiter) break;  // End of quoted string.
+			if (this->line[pos] != '\\') {
+				value.push_back(this->line[pos]);
+				continue;
 			}
-			continue;
+
+			/* Backslash-escaped character. */
+			++pos;
+			if (pos < nr_chars) {
+				switch (this->line[pos]) {
+					case 'n':
+						value.push_back('\n');
+						break;
+					case 't':
+						value.push_back('\t');
+						break;
+					case ' ':
+						value.push_back(' ');
+						break;
+					case '\"':
+						value.push_back('\"');
+						break;
+					case '\'':
+						value.push_back('\'');
+						break;
+					case '\\':
+						value.push_back('\\');
+						break;
+					default:
+						SyntaxError(this->line_number, "invalid escape character");
+				}
+				continue;
+			}
 		}
 
-		/* The backslash escapes a line break. Load the next line and continue reading (discarding leading whitespace). */
+		/* Line break. Load the next line and continue reading (discarding leading whitespace). */
 		if (this->stream.peek() == EOF) SyntaxError(this->line_number, "unterminated string at end of file");
 		++this->line_number;
 		std::getline(this->stream, this->line);
