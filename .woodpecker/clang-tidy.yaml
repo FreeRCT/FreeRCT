@@ -1,0 +1,28 @@
+when:
+  - event: pull_request
+
+steps:
+  - name: Run clang-tidy
+    image: "ubuntu:focal"
+    environment:
+      - DEBIAN_FRONTEND="noninteractive"
+    commands:
+      - apt-get update
+      - apt-get install -y --no-install-recommends cmake make cpp zlib1g-dev libpng-dev libglfw3-dev libglew-dev libfreetype-dev python-yaml python3-yaml clang clang-tidy
+      - export CC=clang
+      - export CXX=clang++
+      - mkdir build
+      - cd build
+      - cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
+      - echo "Will use $(nproc) cores."
+      - cmake --build . -j $(nproc)
+      - python3 ../utils/run-clang-tidy.py -checks=*,-android*,-fuchsia* | tee ../clang-tidy.log
+      - cd ..
+
+  - name: Check Results
+    image: "python:3"
+    environment:
+      - DEBIAN_FRONTEND="noninteractive"
+    commands:
+      - python3 ./utils/check_clang_tidy_results.py clang-tidy.log
+
