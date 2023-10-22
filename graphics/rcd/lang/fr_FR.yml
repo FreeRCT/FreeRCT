@@ -366,101 +366,6 @@ strings:
         LOADSAVE_SAVE: "Sauvegarder"
         LOADSAVE_CANCEL: "Annuler"
 
-        TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_OUT: ''
-        TERRAFORM_OWNER_SALE_TEXT: ''
-        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_PEOPLE: ''
-        NR_DAYS:
-            one: ''
-            other: ''
-        RIDE_SELECT_THRILL: ''
-        TERRAFORM_OWNER_NONE_TEXT: ''
-        TOOLBAR_GUI_DROPDOWN_VIEW_GRID: ''
-        LOADSAVE_DELETE: ''
-        OBJECTIVETEXT_NONE: ''
-        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SUPPORTS: ''
-        PARK_MANAGEMENT_TAB_GENERAL_TOOLTIP: ''
-        LOADSAVE_COLUMN_NAME: ''
-        TERRAFORM_OWNER_PARK_TEXT: ''
-        OBJECTIVE_TIMEOUT_BEFORE: ''
-        RIDE_SELECT_NO_DESIGNS: ''
-        ENTITY_REMOVE_COST: ''
-        SCENARIO_SELECT_TITLE: ''
-        PARK_MANAGEMENT_MAX_GUESTS: ''
-        PARK_MANAGEMENT_TAB_AWARDS: ''
-        INCREASE_BUTTON: ''
-        PARK_MANAGEMENT_TAB_OBJECTIVE: ''
-        SCENARIO_SELECT_NO_MISSIONS: ''
-        PARK_MANAGEMENT_TAB_GUESTS: ''
-        PARK_MANAGEMENT_OBJECTIVE_GUESTS: ''
-        PARK_MANAGEMENT_OBJECTIVE_DATE_NOT_EXACT: ''
-        OBJECTIVE_STRICT: ''
-        OBJECTIVETEXT_PARK_VALUE: ''
-        PARK_MANAGEMENT_TAB_RATING_TOOLTIP: ''
-        OBJECTIVETEXT_GUESTS:
-            other: ''
-            one: ''
-        MAIN_MENU_LAUNCH_EDITOR: ''
-        SCENARIO_SELECT_UNLOCK:
-            one: ''
-            other: ''
-        FINANCES_PARK_VALUE_VALUE: ''
-        COASTER_MANAGER_SAVE_DESIGN: ''
-        DEFAULT_SCENARIO_DESCR: ''
-        RIDE_MANAGER_RIDE_NAME_TEXT: ''
-        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_FOUNDATIONS: ''
-        PARK_MANAGEMENT_TAB_GENERAL: ''
-        FINANCES_PARK_VALUE: ''
-        PARK_MANAGEMENT_TAB_OBJECTIVE_TOOLTIP: ''
-        PARK_MANAGEMENT_OBJECTIVE_DATE: ''
-        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_RIDES: ''
-        NOT_AVAILABLE: ''
-        PARK_MANAGEMENT_NO_AWARDS: ''
-        OBJECTIVE_TIMEOUT_NONE: ''
-        TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_IN: ''
-        TOOLBAR_GUI_PARK: ''
-        PERSON_STATUS_GOING_HOME: ''
-        PARK_MANAGEMENT_OBJECTIVE_PARK_VALUE: ''
-        FINANCES_COMPANY_VALUE: ''
-        DEFAULT_SCENARIO_NAME: ''
-        TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_RIDES: ''
-        SETTING_RESOLUTION_TOOLTIP: ''
-        APPLY: ''
-        PARK_MANAGEMENT_SOLVED: ''
-        RIDE_SELECT_CUSTOM_DESIGN: ''
-        TOOLBAR_GUI_TOOLTIP_PARK: ''
-        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SURFACES: ''
-        DATE_FORMAT: ''
-        PARK_MANAGEMENT_OBJECTIVE_DROP_POLICY: ''
-        PARK_MANAGEMENT_OBJECTIVE_RATING: ''
-        LOADSAVE_COLUMN_TIME: ''
-        PARK_MANAGEMENT_TAB_GUESTS_TOOLTIP: ''
-        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_PATHS: ''
-        NO_NAME: ''
-        PARK_MANAGEMENT_PARKNAME: ''
-        TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_SCENERY: ''
-        OBJECTIVE_TIMEOUT_EXACT: ''
-        LOADSAVE_CONFIRM_DELETE: ''
-        MINIMAP_TITLE: ''
-        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_TERRAIN: ''
-        LOADSAVE_CONFIRM_TITLE: ''
-        PARK_MANAGEMENT_ENTRANCE_FEE: ''
-        PARK_MANAGEMENT_TAB_RATING: ''
-        DECREASE_BUTTON: ''
-        SETTING_RESOLUTION: ''
-        OBJECTIVETEXT_PARK_RATING: ''
-        LOADSAVE_COLUMN_FILE: ''
-        GUEST_NAME: ''
-        RESOLUTION: ''
-        DATETIME_FORMAT: ''
-        TERRAFORM_OWNER_UNCHANGED_TEXT: ''
-        RIDE_SELECT_THRILL_TOOLTIP: ''
-        SCENARIO_SELECT_SOLVED: ''
-        TOOLBAR_GUI_DROPDOWN_MAIN: ''
-        TITLEBAR_TIP: ''
-        TOOLBAR_GUI_DROPDOWN_VIEW_UNDERWATER: ''
-        LOADSAVE_CONFIRM_OVERWRITE: ''
-        PARK_MANAGEMENT_TAB_AWARDS_TOOLTIP: ''
-        PARK_MANAGEMENT_RATING: ''
     ice-cream-stall:
         NAME_INSTANCE1: "Le palais de glace"
         NAME_INSTANCE2: "Boissons fraîches"
@@ -480,9 +385,6 @@ strings:
         NAME_ITEM1: "Pâtisseries"
         NAME_ITEM2: "Pizza"
 
-        DESCRIPTION_RECOLOUR2: ''
-        DESCRIPTION_RECOLOUR3: ''
-        DESCRIPTION_RECOLOUR1: ''
     toilet:
         NAME_INSTANCE1: "Toilettes"
         NAME_INSTANCE2: "Salle de bain"
@@ -492,7 +394,6 @@ strings:
         DESCRIPTION_RECOLOUR2: "-"
         DESCRIPTION_RECOLOUR3: "-"
         NAME_ITEM1: "Toilette"
-        NAME_ITEM2: ''
     basic-coaster:
         NAME_INSTANCE: "Le Rouleur Fou"
         NAME_TYPE: "Montagnes Russes de base"
@@ -552,46 +453,3 @@ strings:
         NAME: "Arbre 3"
     fountain1:
         NAME: "Fontaine 1"
-    top-spin:
-        DESCRIPTION_RECOLOUR3: ''
-        NAME_TYPE: ''
-        DESCRIPTION_RECOLOUR2: ''
-        DESCRIPTION_TYPE: ''
-        NAME_INSTANCE2: ''
-        DESCRIPTION_RECOLOUR1: ''
-        NAME_INSTANCE1: ''
-    atm:
-        DESCRIPTION_RECOLOUR2: ''
-        DESCRIPTION_RECOLOUR1: ''
-        DESCRIPTION_RECOLOUR3: ''
-        NAME_TYPE: ''
-        NAME_ITEM1: ''
-        NAME_INSTANCE1: ''
-        NAME_INSTANCE2: ''
-        DESCRIPTION_TYPE: ''
-        NAME_ITEM2: ''
-    chair-swing:
-        DESCRIPTION_TYPE: ''
-        DESCRIPTION_RECOLOUR1: ''
-        NAME_TYPE: ''
-        DESCRIPTION_RECOLOUR2: ''
-        DESCRIPTION_RECOLOUR3: ''
-        NAME_INSTANCE2: ''
-        NAME_INSTANCE1: ''
-    mission-official-easy:
-        NAME: ''
-        DESCR: ''
-    spiral-slide:
-        NAME_TYPE: ''
-        NAME_INSTANCE1: ''
-        NAME_INSTANCE2: ''
-        DESCRIPTION_RECOLOUR1: ''
-        DESCRIPTION_RECOLOUR3: ''
-        DESCRIPTION_TYPE: ''
-        DESCRIPTION_RECOLOUR2: ''
-    scenario-rugged-ravine:
-        NAME: ''
-        DESCR: ''
-    scenario-emerald-expanses:
-        DESCR: ''
-        NAME: ''
