@@ -366,6 +366,52 @@ strings:
         LOADSAVE_SAVE: "Sauvegarder"
         LOADSAVE_CANCEL: "Annuler"
 
+        TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_OUT: dézoomer
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_PEOPLE: Cacher des gens
+        NR_DAYS:
+            one: '%1% jour'
+            other: '%1% jours'
+        RIDE_SELECT_THRILL: Attractions à frissons
+        TOOLBAR_GUI_DROPDOWN_VIEW_GRID: Grille
+        OBJECTIVETEXT_NONE: Amuse-toi !
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SUPPORTS: Cacher le support
+        OBJECTIVE_TIMEOUT_BEFORE: L'objectif doit être atteint avant %1%.
+        INCREASE_BUTTON: +
+        OBJECTIVE_STRICT: Cet objectif doit être atteint en tout temps !
+        OBJECTIVETEXT_PARK_VALUE: Atteindre une valeur de parc d'au moins %1%.
+        OBJECTIVETEXT_GUESTS:
+            other: Avoir au moins %1% visiteurs dans votre parc.
+            one: Avoir au moins %1% visiteur dans votre parc.
+        MAIN_MENU_LAUNCH_EDITOR: Editeur
+        DEFAULT_SCENARIO_DESCR: Ce scénario n'a pas de description.
+        RIDE_MANAGER_RIDE_NAME_TEXT: 'Nom :'
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_FOUNDATIONS: Cacher les fondations verticales
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_RIDES: Marques d'altitude sur les attractions
+        NOT_AVAILABLE: n. d.
+        OBJECTIVE_TIMEOUT_NONE: Cet objectif peut être atteint à tout moment.
+        TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_IN: zoomer
+        TOOLBAR_GUI_PARK: Gestion du parc
+        PERSON_STATUS_GOING_HOME: En rentrant
+        DEFAULT_SCENARIO_NAME: Non nommée
+        TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_RIDES: Attractions wireframe
+        APPLY: Appliquer
+        TOOLBAR_GUI_TOOLTIP_PARK: Gérez les détails de votre parc
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SURFACES: Cacher les surfaces horizontales
+        DATE_FORMAT: '%1% %2%, Année %3%'
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_PATHS: Marques d'altitude sur les sentiers
+        NO_NAME: Inconnu
+        TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_SCENERY: Paysage wireframe
+        OBJECTIVE_TIMEOUT_EXACT: L'ojectif doit être atteint à %1%.
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_TERRAIN: Marques d'altitude sur le paysage
+        DECREASE_BUTTON: '-'
+        OBJECTIVETEXT_PARK_RATING: Atteindre un classement du parc d'au moins %1%.
+        GUEST_NAME: Visiteur %1%
+        RESOLUTION: '%1%x%2%'
+        DATETIME_FORMAT: '%d/%m/%Y %H h %M %S'
+        RIDE_SELECT_THRILL_TOOLTIP: Cliquer pour afficher les Attractions à frissons disponibles
+        TOOLBAR_GUI_DROPDOWN_MAIN: Menu
+        TITLEBAR_TIP: Cliquez sur la barre de titre pour relever la fenêtre, faites glisser la barre de titre pour déplacer la fenêtre
+        TOOLBAR_GUI_DROPDOWN_VIEW_UNDERWATER: Vue sous-marine
     ice-cream-stall:
         NAME_INSTANCE1: "Le palais de glace"
         NAME_INSTANCE2: "Boissons fraîches"
