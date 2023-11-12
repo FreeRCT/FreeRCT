@@ -6,7 +6,7 @@
     packages.x86_64-linux.default =
       with import nixpkgs { system = "x86_64-linux"; };
       stdenv.mkDerivation {
-        name = "freertc";
+        name = "freerct";
         src = self;
         nativeBuildInputs = [git cmake];
         buildInputs = [libpng glfw glew freetype];
