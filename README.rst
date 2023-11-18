@@ -30,6 +30,11 @@ Building is as simple as
         $ make                     # Let make do the heavy work.
         $ make install             # Optional step to install the program on the system. May require root privileges.
 
+or, if you use `Nix <https://nixos.org/>`_ with flake support:
+
+.. code-block:: bash
+
+        $ nix build
 
 CMake accepts the following options:
 
