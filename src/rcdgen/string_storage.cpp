@@ -182,6 +182,8 @@ std::string YAMLParser::ParseValue()
 				}
 				continue;
 			}
+		} else {
+			value.push_back(' ');
 		}
 
 		/* Line break. Load the next line and continue reading (discarding leading whitespace). */

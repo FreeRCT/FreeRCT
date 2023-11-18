@@ -350,17 +350,15 @@ void MakeDirectory(const std::string &path)
  */
 void CopyBinaryFile(const std::string &src, const std::string &dest)
 {
-
 	if (src.empty() || !PathIsFile(src)) {
-		error("Path is empty or not a file: %s\n", src.c_str());
+		error("Copy: Source path is empty or not a file: '%s'\n", src.c_str());
 	}
 
-	if (dest.empty() || !PathIsFile(dest)) {
-		error("Path is empty or not a file: %s\n", dest.c_str());
+	if (dest.empty()) {
+		error("Copy: Destination path is empty\n");
 	}
 
 	std::filesystem::copy_file(src, dest, std::filesystem::copy_options::overwrite_existing);
-
 }
 
 /**
