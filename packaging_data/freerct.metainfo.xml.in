@@ -34,6 +34,9 @@
 	</releases>
 	<url type="homepage">https://freerct.net</url>
 	<url type="bugtracker">https://codeberg.org/FreeRCT/FreeRCT/issues</url>
+	<url type="help">https://freerct.net/manual</url>
+	<url type="translate">https://translate.codeberg.org/projects/freerct</url>
+	<url type="vcs-browser">https://codeberg.org/FreeRCT/FreeRCT</url>
 	<project_license>GPL-2.0</project_license>
 	<metadata_license>GFDL-1.2</metadata_license>
 </component>
