@@ -3,6 +3,13 @@ FreeRCT aims to be a free and open source game which captures the look, feel and
 .. image:: freerct.png
         :alt: mainview
 
+Development moved
+-----------------
+
+This repository is dormant. More active development can be found at
+`codeberg.org/FreeRCT/FreeRCT <https://codeberg.org/FreeRCT/FreeRCT>`_.
+You may also want to check the `freerct.net <https://freerct.net>`_ website.
+
 Building the program
 --------------------
 
