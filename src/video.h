@@ -59,6 +59,8 @@ private:
 	GLuint vbo;                               ///< The OpenGL vertex buffer.
 };
 
+extern TextRenderer _text_renderer;
+
 /** How to align text during drawing. */
 enum Alignment {
 	ALG_LEFT,    ///< Align to the left edge.
@@ -149,11 +151,9 @@ public:
 
 	GLuint ConfigureShader(const std::string &name);
 
-	TextRenderer &GetCurrentTextRenderer() const;
-
 	int GetTextHeight() const
 	{
-		return this->GetCurrentTextRenderer().GetTextHeight();
+		return _text_renderer.GetTextHeight();
 	}
 
 	void BlitText(const std::string &text, uint32 colour, int xpos, int ypos, int width = 0x7FFF, Alignment align = ALG_LEFT);
@@ -249,8 +249,6 @@ private:
 	GLuint vao;            ///< The OpenGL vertex array.
 	GLuint vbo;            ///< The OpenGL vertex buffer.
 	GLuint ebo;            ///< The OpenGL element buffer.
-
-	std::map<const FontSet*, std::unique_ptr<TextRenderer>> text_renderers;  ///< The text renderer for each supported font set.
 
 	std::vector<Rectangle32> clip;  ///< Current clipping area stack.
 

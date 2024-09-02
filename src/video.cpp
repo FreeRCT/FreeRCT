@@ -39,6 +39,7 @@
 #include FT_FREETYPE_H
 
 VideoSystem _video;           ///< The #VideoSystem singleton instance.
+TextRenderer _text_renderer;  ///< The #TextRenderer singleton instance.
 
 /* Text renderer implementation. */
 
@@ -102,7 +103,7 @@ void TextRenderer::LoadFont(const FontSet *font)
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	/* Load all characters we may need. */
-	for (uint32 codepoint = 1; codepoint <= MAX_CODEPOINT; codepoint = NextCodepointToLoad(font, codepoint)) {
+	for (uint32 codepoint = font->codepoint_ranges.front().first; codepoint <= MAX_CODEPOINT; codepoint = NextCodepointToLoad(font, codepoint)) {
 		if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER) != 0) {
 			this->characters[codepoint].valid = false;
 			char buffer[] = {0, 0, 0, 0, 0};
@@ -602,11 +603,8 @@ void VideoSystem::Initialize(std::vector<const FontSet*> fonts)
 	this->image_shader = this->ConfigureShader("image");
 
 	/* Initialize the text renderer. */
-	for (const FontSet *font : fonts) {
-		TextRenderer &tr = *this->text_renderers.emplace(font, new TextRenderer).first->second;
-		tr.Initialize();
-		tr.LoadFont(font);
-	}
+	_text_renderer.Initialize();
+	for (const FontSet *font : fonts) _text_renderer.LoadFont(font);
 
 	/* Initialize remaining data structures. */
 	this->last_frame = std::chrono::high_resolution_clock::now();
@@ -692,15 +690,6 @@ double VideoSystem::AvgFPS() const
 void VideoSystem::SetResolution(const Point32 &res)
 {
 	glfwSetWindowSize(this->window, res.x, res.y);
-}
-
-/**
- * Return the text renderer that can render text in the language currently in use.
- * @return The text renderer to use.
- */
-TextRenderer &VideoSystem::GetCurrentTextRenderer() const
-{
-	return *this->text_renderers.at(_all_languages[_current_language].font);
 }
 
 /**
@@ -953,9 +942,8 @@ void VideoSystem::GetNumberRangeSize(int64 smallest, int64 biggest, int *width, 
 	if (width != nullptr) *width = 0;
 	if (height != nullptr) *height = 0;
 
-	TextRenderer &tr = this->GetCurrentTextRenderer();
 	for (; smallest <= biggest; ++smallest) {
-		PointF vec = tr.EstimateBounds(std::to_string(smallest));
+		PointF vec = _text_renderer.EstimateBounds(std::to_string(smallest));
 		if (width != nullptr) *width = std::max<int>(*width, vec.x);
 		if (height != nullptr) *height = std::max<int>(*height, vec.y);
 	}
@@ -971,7 +959,7 @@ void VideoSystem::GetNumberRangeSize(int64 smallest, int64 biggest, int *width, 
 void VideoSystem::GetTextSize(const std::string &text, int *width, int *height, bool add_padding)
 {
 	if (width == nullptr && height == nullptr) return;
-	PointF vec = this->GetCurrentTextRenderer().EstimateBounds(text, add_padding);
+	PointF vec = _text_renderer.EstimateBounds(text, add_padding);
 	if (width != nullptr) *width = vec.x;
 	if (height != nullptr) *height = vec.y;
 }
@@ -987,10 +975,9 @@ void VideoSystem::GetTextSize(const std::string &text, int *width, int *height, 
  */
 void VideoSystem::BlitText(const std::string &text, uint32 colour, int xpos, int ypos, int width, Alignment align)
 {
-	TextRenderer &tr = this->GetCurrentTextRenderer();
 	float x = xpos;
 	if (align != ALG_LEFT) {
-		PointF vec = tr.EstimateBounds(text);
+		PointF vec = _text_renderer.EstimateBounds(text);
 		if (align == ALG_RIGHT) {
 			x += width - vec.x;
 		} else {
@@ -998,7 +985,7 @@ void VideoSystem::BlitText(const std::string &text, uint32 colour, int xpos, int
 		}
 	}
 
-	tr.Draw(text, x, ypos, width, colour);
+	_text_renderer.Draw(text, x, ypos, width, colour);
 }
 
 /**

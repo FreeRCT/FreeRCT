@@ -10,7 +10,7 @@
 #include "language_definitions.h"
 
 FontSet FONT_LATIN({{0, 0x303f}, {0xFD3E, 0xfffd}});
-FontSet FONT_CJK({{0, 0x303f}, {0x4E00, 0x9FFF}, {0xFD3E, 0xfffd}});
+FontSet FONT_CJK({{0x4e00, 0x9fff}});
 
 /**
  * Get the index number of a given language.
