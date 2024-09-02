@@ -6,8 +6,9 @@
 
 strings:
     meta:
-        nplurals: "1"
+        nplurals: "2"
         plural_0: "one"
+        plural_1: "other"
         lang: "zh_Hant"
 
     gui:
