@@ -4,7 +4,7 @@
 # See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http:#www.gnu.org/licenses/>.
 #
 
-strings:
+zh_Hant:
     meta:
         nplurals: "1"
         plural_0: "one"
@@ -50,7 +50,6 @@ strings:
         OBJECTIVETEXT_NONE: 玩得開心！
         OBJECTIVETEXT_GUESTS:
             one: 你的樂園內有至少 %1% 名訪客。
-            other: 你的樂園內有至少 %1% 名訪客。
         RESOLUTION: '%1%x%2%'
         APPLY: 套用
         DECREASE_BUTTON: '-'
@@ -105,7 +104,6 @@ strings:
         TOOLBAR_GUI_TOOLTIP_PARK: 管理你樂園的詳細資訊
         BOTTOMBAR_GUESTCOUNT:
             one: '%1% 名訪客'
-            other: '%1% 名訪客'
         DEFAULT_SCENARIO_DESCR: 此場景沒有描述。
         QUIT_MESSAGE: 退出 FreeRCT？
         RETURN_MESSAGE: 返回至主選單？
@@ -249,7 +247,6 @@ strings:
         SCENARIO_SELECT_TITLE: 選擇場景
         SCENARIO_SELECT_NO_MISSIONS: 尚未載入任何任務。
         SCENARIO_SELECT_UNLOCK:
-            other: 在此任務中完成多 %1% 個場景以解鎖此場景。
             one: 在此任務中完成多 %1% 個場景以解鎖此場景。
         SCENARIO_SELECT_SOLVED: 由 %1% 於 %2% 完成，公司價值為 %3%
         LOADSAVE_COLUMN_TIME: 儲存日期
