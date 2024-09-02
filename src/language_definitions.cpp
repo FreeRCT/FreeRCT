@@ -9,6 +9,9 @@
 
 #include "language_definitions.h"
 
+FontSet FONT_LATIN({{0, 0x303f}, {0xFD3E, 0xfffd}});
+FontSet FONT_CJK({{0, 0x303f}, {0x4E00, 0x9FFF}, {0xFD3E, 0xfffd}});
+
 /**
  * Get the index number of a given language.
  * @param lang_name Name of the language.

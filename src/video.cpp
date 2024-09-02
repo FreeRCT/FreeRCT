@@ -39,7 +39,6 @@
 #include FT_FREETYPE_H
 
 VideoSystem _video;           ///< The #VideoSystem singleton instance.
-TextRenderer _text_renderer;  ///< The #TextRenderer singleton instance.
 
 /* Text renderer implementation. */
 
@@ -66,43 +65,44 @@ void TextRenderer::Initialize()
 
 /**
  * Find the next-highest codepoint that we want to be able to render, skipping over codepoints we don't care about,
+ * @param font The font being loaded.
  * @param c Unicode codepoint from which to start searching.
  * @return Next unicode codepoint to render or \c 0xffffffff if none.
  */
-static uint32 NextCodepointToLoad(uint32 c)
+static uint32 NextCodepointToLoad(const FontSet *font, uint32 c)
 {
-	if (c < 0x303f) return c + 1;     // Lots of interesting characters in the lower ranges.
-	/* \todo When we get translations with non-latin character sets, these may need to be added here as well. */
-	c = std::max<uint32>(c, 0xFD3E);  // Start of the next moderately useful character block.
-	if (c < 0xfffd) return c + 1;     // Some more interesting characters in the high four-digit ranges.
-	return 0xffffffff;                // Nothing of interest in the very high ranges.
+	for (const auto &pair : font->codepoint_ranges) {
+		c = std::max<uint32>(c, pair.first);
+		if (c < pair.second) return c + 1;
+	}
+
+	return 0xffffffff;
 }
 
 /**
  * Load a font. This font will be used for all subsequent rendering operations. Any previously loaded font will be forgotten.
- * @param font_path File path of the font file.
- * @param font_size Size of the font to load.
+ * @param font The font to load.
  */
-void TextRenderer::LoadFont(const std::string &font_path, GLuint font_size)
+void TextRenderer::LoadFont(const FontSet *font)
 {
-	this->font_size = font_size;
+	this->font_size = font->font_size;
 
 	FT_Library ft;
 	if (FT_Init_FreeType(&ft)) {
 		error("TextRenderer::LoadFont: Could not init FreeType Library");
 	}
 	FT_Face face;
-	if (FT_New_Face(ft, font_path.c_str(), 0, &face)) {
-		error("TextRenderer::LoadFont: Failed to load font '%s'", font_path.c_str());
+	if (FT_New_Face(ft, font->font_path.c_str(), 0, &face)) {
+		error("TextRenderer::LoadFont: Failed to load font '%s'", font->font_path.c_str());
 	}
 
 	FT_Select_Charmap(face, FT_ENCODING_UNICODE);
 
-	FT_Set_Pixel_Sizes(face, 0, font_size);
+	FT_Set_Pixel_Sizes(face, 0, font->font_size);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	/* Load all characters we may need. */
-	for (uint32 codepoint = 1; codepoint <= MAX_CODEPOINT; codepoint = NextCodepointToLoad(codepoint)) {
+	for (uint32 codepoint = 1; codepoint <= MAX_CODEPOINT; codepoint = NextCodepointToLoad(font, codepoint)) {
 		if (FT_Load_Char(face, codepoint, FT_LOAD_RENDER) != 0) {
 			this->characters[codepoint].valid = false;
 			char buffer[] = {0, 0, 0, 0, 0};
@@ -536,10 +536,9 @@ void VideoSystem::Shutdown()
 
 /**
  * Initialize the graphics system.
- * @param font Font file to load.
- * @param font_size Size in which to load the font.
+ * @param fonts Font files to load.
  */
-void VideoSystem::Initialize(const std::string &font, int font_size)
+void VideoSystem::Initialize(std::vector<const FontSet*> fonts)
 {
 	if (!glfwInit()) error("Failed to initialize GLFW\n");
 
@@ -603,8 +602,11 @@ void VideoSystem::Initialize(const std::string &font, int font_size)
 	this->image_shader = this->ConfigureShader("image");
 
 	/* Initialize the text renderer. */
-	_text_renderer.Initialize();
-	_text_renderer.LoadFont(font, font_size);
+	for (const FontSet *font : fonts) {
+		TextRenderer &tr = *this->text_renderers.emplace(font, new TextRenderer).first->second;
+		tr.Initialize();
+		tr.LoadFont(font);
+	}
 
 	/* Initialize remaining data structures. */
 	this->last_frame = std::chrono::high_resolution_clock::now();
@@ -690,6 +692,15 @@ double VideoSystem::AvgFPS() const
 void VideoSystem::SetResolution(const Point32 &res)
 {
 	glfwSetWindowSize(this->window, res.x, res.y);
+}
+
+/**
+ * Return the text renderer that can render text in the language currently in use.
+ * @return The text renderer to use.
+ */
+TextRenderer &VideoSystem::GetCurrentTextRenderer() const
+{
+	return *this->text_renderers.at(_all_languages[_current_language].font);
 }
 
 /**
@@ -941,8 +952,10 @@ void VideoSystem::GetNumberRangeSize(int64 smallest, int64 biggest, int *width, 
 
 	if (width != nullptr) *width = 0;
 	if (height != nullptr) *height = 0;
+
+	TextRenderer &tr = this->GetCurrentTextRenderer();
 	for (; smallest <= biggest; ++smallest) {
-		PointF vec = _text_renderer.EstimateBounds(std::to_string(smallest));
+		PointF vec = tr.EstimateBounds(std::to_string(smallest));
 		if (width != nullptr) *width = std::max<int>(*width, vec.x);
 		if (height != nullptr) *height = std::max<int>(*height, vec.y);
 	}
@@ -958,7 +971,7 @@ void VideoSystem::GetNumberRangeSize(int64 smallest, int64 biggest, int *width, 
 void VideoSystem::GetTextSize(const std::string &text, int *width, int *height, bool add_padding)
 {
 	if (width == nullptr && height == nullptr) return;
-	PointF vec = _text_renderer.EstimateBounds(text, add_padding);
+	PointF vec = this->GetCurrentTextRenderer().EstimateBounds(text, add_padding);
 	if (width != nullptr) *width = vec.x;
 	if (height != nullptr) *height = vec.y;
 }
@@ -974,9 +987,10 @@ void VideoSystem::GetTextSize(const std::string &text, int *width, int *height, 
  */
 void VideoSystem::BlitText(const std::string &text, uint32 colour, int xpos, int ypos, int width, Alignment align)
 {
+	TextRenderer &tr = this->GetCurrentTextRenderer();
 	float x = xpos;
 	if (align != ALG_LEFT) {
-		PointF vec = _text_renderer.EstimateBounds(text);
+		PointF vec = tr.EstimateBounds(text);
 		if (align == ALG_RIGHT) {
 			x += width - vec.x;
 		} else {
@@ -984,7 +998,7 @@ void VideoSystem::BlitText(const std::string &text, uint32 colour, int xpos, int
 		}
 	}
 
-	_text_renderer.Draw(text, x, ypos, width, colour);
+	tr.Draw(text, x, ypos, width, colour);
 }
 
 /**

@@ -24,6 +24,7 @@
 #include <GLFW/glfw3.h>
 
 struct FontGlyph;
+struct FontSet;
 class ImageData;
 
 /** Class responsible for rendering text. */
@@ -32,7 +33,7 @@ public:
 	static constexpr const uint32 MAX_CODEPOINT = 0xFFFD;  ///< Highest unicode codepoint we can render (arbitrary limit).
 
 	void Initialize();
-	void LoadFont(const std::string &font_path, GLuint font_size);
+	void LoadFont(const FontSet *font);
 
 	GLuint GetTextHeight() const;
 	PointF EstimateBounds(const std::string &text, bool add_padding = true, float scale = 1.0f) const;
@@ -58,8 +59,6 @@ private:
 	GLuint vbo;                               ///< The OpenGL vertex buffer.
 };
 
-extern TextRenderer _text_renderer;
-
 /** How to align text during drawing. */
 enum Alignment {
 	ALG_LEFT,    ///< Align to the left edge.
@@ -70,7 +69,7 @@ enum Alignment {
 /** Class providing the interface to the OpenGL rendering backend. */
 class VideoSystem {
 public:
-	void Initialize(const std::string &font, int font_size);
+	void Initialize(std::vector<const FontSet*> fonts);
 
 	static void MainLoopCycle();
 	void MainLoop();
@@ -150,9 +149,11 @@ public:
 
 	GLuint ConfigureShader(const std::string &name);
 
+	TextRenderer &GetCurrentTextRenderer() const;
+
 	int GetTextHeight() const
 	{
-		return _text_renderer.GetTextHeight();
+		return this->GetCurrentTextRenderer().GetTextHeight();
 	}
 
 	void BlitText(const std::string &text, uint32 colour, int xpos, int ypos, int width = 0x7FFF, Alignment align = ALG_LEFT);
@@ -248,6 +249,8 @@ private:
 	GLuint vao;            ///< The OpenGL vertex array.
 	GLuint vbo;            ///< The OpenGL vertex buffer.
 	GLuint ebo;            ///< The OpenGL element buffer.
+
+	std::map<const FontSet*, std::unique_ptr<TextRenderer>> text_renderers;  ///< The text renderer for each supported font set.
 
 	std::vector<Rectangle32> clip;  ///< Current clipping area stack.
 
