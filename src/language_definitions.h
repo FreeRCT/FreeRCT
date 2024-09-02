@@ -24,6 +24,12 @@ inline int plural_rule_french(int64 amount)
 	return amount > 1 ? 1 : 0;
 }
 
+/** The one plural rule: There's only one form. */
+inline int plural_rule_one(int64 /*amount*/)
+{
+	return 0;
+}
+
 /** Information about a language. */
 struct LanguageDefinition {
 	constexpr LanguageDefinition(const char *n, int p, int(*r)(int64)) : name(n), nplurals(p), PluralRule(r) {}
@@ -45,6 +51,7 @@ constexpr const LanguageDefinition _all_languages[] = {
 	LanguageDefinition("nds_DE", 2, &plural_rule_standard),
 	LanguageDefinition("nl_NL", 2, &plural_rule_standard),
 	LanguageDefinition("sv_SE", 2, &plural_rule_standard),
+	LanguageDefinition("zh_Hant", 1, &plural_rule_one),
 };
 
 int GetLanguageIndex(const std::string &name);
