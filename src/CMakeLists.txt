@@ -17,8 +17,8 @@ IF(WEBASSEMBLY)
 	message(STATUS "Configuring for WebAssembly (experimental)")
 	add_definitions("-DWEBASSEMBLY")
 
-	set(CMAKE_INSTALL_PREFIX "wasm_static")
-	set(USERDATA_PREFIX "wasm_userdata")
+	set(CMAKE_INSTALL_PREFIX "wasm")
+	set(USERDATA_PREFIX "wasm/userdata")
 
 	set(CMAKE_C_COMPILER   "emcc")
 	set(CMAKE_CXX_COMPILER "em++")
@@ -27,16 +27,20 @@ IF(WEBASSEMBLY)
 	set(WASM_FLAGS "-s USE_LIBPNG=1 -s USE_ZLIB=1 -s USE_FREETYPE=1")
 	add_c_cpp_flags("${WASM_FLAGS}")
 
-	add_custom_target(prepare_wasm_rcd ALL
+	add_custom_target(prepare_wasm ALL
 		COMMAND ${CMAKE_COMMAND} -E copy_directory "${FRCT_BINARY_DIR}/rcd" "${CMAKE_INSTALL_PREFIX}/${PACKAGING_DATA_DIR}/rcd"
-		DEPENDS rcd
-	)
-	add_custom_target(prepare_wasm_data ALL
 		COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/data" "${CMAKE_INSTALL_PREFIX}/${PACKAGING_DATA_DIR}/data"
+		# WebAssembly can not create new directories. We therefore have to place all userdata under the
+		# install directory and populate all subdirectories with a dummy file to force their creation.
+		COMMAND ${CMAKE_COMMAND} -E make_directory "${USERDATA_PREFIX}/save"
+		COMMAND ${CMAKE_COMMAND} -E make_directory "${USERDATA_PREFIX}/tracks"
+		COMMAND ${CMAKE_COMMAND} -E touch "${USERDATA_PREFIX}/save/dummy"
+		COMMAND ${CMAKE_COMMAND} -E touch "${USERDATA_PREFIX}/tracks/dummy"
+		DEPENDS rcd
 	)
 
 	add_flags(CMAKE_EXE_LINKER_FLAGS "${WASM_FLAGS} \
-			-s FORCE_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 -s EXIT_RUNTIME=1 -s USE_GLFW=3 -s FULL_ES3 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY \
+			-s FORCE_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 -s EXIT_RUNTIME=1 -s STACK_SIZE=131072 -s USE_GLFW=3 -s FULL_ES3 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY \
 			--preload-file ${CMAKE_INSTALL_PREFIX}")
 
 	FUNCTION(find_package)
@@ -193,7 +197,7 @@ ELSE()
 ENDIF()
 
 IF(WEBASSEMBLY)
-	add_dependencies(freerct prepare_wasm_rcd prepare_wasm_data)
+	add_dependencies(freerct prepare_wasm)
 ENDIF()
 
 include(GNUInstallDirs)
