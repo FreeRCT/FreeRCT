@@ -1,0 +1,72 @@
+when:
+  - event: pull_request
+  - event: push
+    branch:
+     - master
+
+matrix:
+  include:
+    - Config: Debug
+      Image: "ubuntu:latest"
+      Compiler: gcc
+    - Config: Debug
+      Image: "ubuntu:latest"
+      Compiler: clang
+
+    - Config: Release
+      Image: "ubuntu:latest"
+      Compiler: gcc
+    - Config: Release
+      Image: "ubuntu:latest"
+      Compiler: clang
+
+    - Config: WASM
+      Image: "emscripten/emsdk:latest"
+      Compiler: gcc
+    - Config: WASM
+      Image: "emscripten/emsdk:latest"
+      Compiler: clang
+
+steps:
+  - name: Compile for ${Config} on ${Image} with ${Compiler}
+    image: ${Image}
+    pull: true
+    environment:
+      - DEBIAN_FRONTEND="noninteractive"
+    commands:
+      - apt-get update
+      - apt-get install -y --no-install-recommends cmake make cpp zlib1g-dev libpng-dev libglfw3-dev libglew-dev libfreetype-dev doxygen flex bison
+      - mkdir build
+      - cd build
+      - |
+        if [ "${Compiler}" = clang ]
+        then
+          apt-get install -y clang
+          export CC=clang
+          export CXX=clang++
+        else
+          apt-get install -y g++
+          export CC=gcc
+          export CXX=g++
+        fi
+
+      - |
+        if [ "${Config}" = Debug ]
+        then
+          cmake .. -DRELEASE=OFF -DASAN=ON
+        elif [ "${Config}" = Release ]
+        then
+          cmake .. -DRELEASE=ON -DASAN=OFF
+        else
+          cmake .. -DRELEASE=ON -DASAN=OFF -DWEBASSEMBLY=ON
+        fi
+
+      - |
+        if [ "${Config}" = WASM ]
+        then
+          make -j1
+        else
+          echo "Will use $(nproc) cores."
+          make -j$(nproc)
+        fi
+
