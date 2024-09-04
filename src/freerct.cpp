@@ -257,8 +257,6 @@ int freerct_main(int argc, char **argv)
 	cfg_file_path += "freerct.cfg";
 	ConfigFile cfg_file(cfg_file_path);
 
-	std::string font_path = cfg_file.GetValue("font", "medium-path");
-	int font_size = cfg_file.GetNum("font", "medium-size");
 	if (cfg_file.GetNum("saveloading", "auto-resave") > 0) _automatically_resave_files = true;
 
 	{
@@ -266,9 +264,20 @@ int freerct_main(int argc, char **argv)
 		if (autosaves >= 0) _max_autosaves = autosaves;
 	}
 
-	/* Use default values if no font has been set. */
-	if (font_path.empty()) font_path = FindDataFile(std::string("data") + DIR_SEP + "font" + DIR_SEP + "FreeSans.ttf");
-	if (font_size < 1) font_size = 15;
+	{
+		FONT_LATIN.font_path = cfg_file.GetValue("font-latin", "medium-path");
+		FONT_LATIN.font_size = cfg_file.GetNum("font-latin", "medium-size");
+		/* Use default values if no font has been set. */
+		if (FONT_LATIN.font_path.empty()) FONT_LATIN.font_path = FindDataFile(std::string("data") + DIR_SEP + "font" + DIR_SEP + "latin" + DIR_SEP + "FreeSans.ttf");
+		if (FONT_LATIN.font_size < 1) FONT_LATIN.font_size = 15;
+	}
+	{
+		FONT_CJK.font_path = cfg_file.GetValue("font-cjk", "medium-path");
+		FONT_CJK.font_size = cfg_file.GetNum("font-cjk", "medium-size");
+		/* Use default values if no font has been set. */
+		if (FONT_CJK.font_path.empty()) FONT_CJK.font_path = FindDataFile(std::string("data") + DIR_SEP + "font" + DIR_SEP + "cjk" + DIR_SEP + "NotoSansCJK-Regular.ttc");
+		if (FONT_CJK.font_size < 1) FONT_CJK.font_size = 15;
+	}
 
 	/* Overwrite the default language settings if the user specified a custom language on the command line or in the config file. */
 	bool language_set = false;
@@ -303,7 +312,7 @@ int freerct_main(int argc, char **argv)
 	_shortcuts.ReadConfig(cfg_file);
 
 	/* Initialize video. */
-	_video.Initialize(font_path, font_size);
+	_video.Initialize({&FONT_LATIN, &FONT_CJK});
 
 	_game_control.Initialize(file_name, game_mode);
 

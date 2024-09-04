@@ -1,0 +1,526 @@
+# This file is part of FreeRCT.
+# FreeRCT is free software you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, version 2.
+# FreeRCT is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details. You should have received a copy of the GNU General Public License along with FreeRCT. If not, see <http:#www.gnu.org/licenses/>.
+#
+
+strings:
+    meta:
+        nplurals: "2"
+        plural_0: "one"
+        plural_1: "other"
+        lang: "zh_Hant"
+
+    gui:
+        LANGUAGE_NAME: "正體中文"
+
+        MAIN_MENU_QUIT: 退出
+        COASTER_MANAGER_GRAPH_SPEED: 速度
+        LOADSAVE_COLUMN_NAME: 場景
+        RIDE_SELECT_GENTLE: 溫和的遊樂設施
+        TOOLBAR_GUI_DROPDOWN_SPEED_PAUSE: 暫停
+        TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP: 小地圖
+        TOOLBAR_GUI_TOOLTIP_RIDE_SELECT: 為你的樂區購買新遊樂設施
+        TOOLBAR_GUI_DROPDOWN_VIEW: 檢視
+        TOOLBAR_GUI_SCENERY: 風景
+        PERSON_STATUS_WANDER: 閒逛中
+        RIDE_SELECT_RIDE: 選取
+        FINANCES_LANDSCAPING_TEXT: 地形改造
+        ERROR_MESSAGE_UNREMOVABLE: 此物件不能被移除。
+        MESSAGE_CHEAP_FEE: 訪客們紛紛表示入場費便宜得驚人。
+        NOT_AVAILABLE: 無法使用
+        MONTH_JANUARY: 一月
+        MONTH_FEBRUARY: 二月
+        MONTH_MARCH: 三月
+        MONTH_APRIL: 四月
+        MONTH_MAY: 五月
+        MONTH_JUNE: 六月
+        MONTH_JULY: 七月
+        MONTH_AUGUST: 八月
+        MONTH_SEPTEMBER: 九月
+        TITLEBAR_TIP: 點擊標題列以升起視窗，拖曳標題列以移動視窗
+        DATETIME_FORMAT: '%Y-%m-%d %H:M:%S'
+        DATE_FORMAT: '%1% %2% 日，第 %3% 年'
+        MONTH_OCTOBER: 十月
+        MONTH_NOVEMBER: 十一月
+        MONTH_DECEMBER: 十二月
+        OBJECTIVE_TIMEOUT_BEFORE: 此目標必須在 %1% 之前達成。
+        OBJECTIVE_TIMEOUT_EXACT: 此目標必須在 %1% 時達成。
+        OBJECTIVE_TIMEOUT_NONE: 此目標可以在任何時間達成。
+        OBJECTIVE_STRICT: 此目標在任何時間都必須達成！
+        OBJECTIVETEXT_NONE: 玩得開心！
+        OBJECTIVETEXT_GUESTS:
+            one: 你的樂園內有至少 %1% 名訪客。
+            other: 你的樂園內有至少 %1% 名訪客。
+        RESOLUTION: '%1%x%2%'
+        APPLY: 套用
+        DECREASE_BUTTON: '-'
+        INCREASE_BUTTON: +
+        TOOLBAR_GUI_DROPDOWN_MAIN: 選單
+        GUEST_NAME: 訪客 %1%
+        OBJECTIVETEXT_PARK_VALUE: 樂園價值至少達到 %1%。
+        MAIN_MENU_SETTINGS: 設定
+        MAIN_MENU_LOAD: 載入
+        MAIN_MENU_SAVE: 儲存
+        MAIN_MENU_LAUNCH_EDITOR: 編輯器
+        TOOLBAR_GUI_DROPDOWN_SPEED: 速度
+        MAIN_MENU_NEW_GAME: 新遊戲
+        MAIN_MENU_MENU: 主選單
+        TOOLBAR_GUI_DROPDOWN_SPEED_1: 1 倍
+        TOOLBAR_GUI_DROPDOWN_SPEED_2: 2 倍
+        TOOLBAR_GUI_DROPDOWN_SPEED_4: 4 倍
+        TOOLBAR_GUI_DROPDOWN_SPEED_8: 8 倍
+        TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP: 變更遊戲速度
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SUPPORTS: 隱藏支撐
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SURFACES: 隱藏水平表面
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_FOUNDATIONS: 隱藏垂直地基
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_RIDES: 在遊樂設施上顯示高度標記
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_PATHS: 在路徑上顯示高度標記
+        TOOLBAR_GUI_PATHS: 路徑
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_TERRAIN: 在地形上顯示高度標記
+        TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_OUT: 縮小
+        TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_IN: 放大
+        TOOLBAR_GUI_TOOLTIP_BUILD_PATHS: 建造路徑和隊列
+        TOOLBAR_GUI_RIDE_SELECT: 購買遊樂設施
+        TOOLBAR_GUI_TERRAFORM: 地形改造
+        TOOLBAR_GUI_FENCE: 建造柵欄
+        TOOLBAR_GUI_TOOLTIP_FENCE: 在你的樂園建造柵欄
+        TOOLBAR_GUI_TOOLTIP_SCENERY: 在你的樂園建造風景物品
+        TOOLBAR_GUI_PATH_OBJECTS: 路徑物件
+        TOOLBAR_GUI_TOOLTIP_PATH_OBJECTS: 在你的樂園中建造路徑物件
+        TOOLBAR_GUI_FINANCES: 財政
+        TOOLBAR_GUI_STAFF: 員工
+        TOOLBAR_GUI_INBOX: 收件匣
+        TOOLBAR_GUI_TOOLTIP_TERRAFORM: 修改地形
+        TOOLBAR_GUI_TOOLTIP_STAFF: 聘用和解僱員工
+        TOOLBAR_GUI_TOOLTIP_FINANCES: 管理公司財政
+        NO_NAME: 未知
+        DEFAULT_SCENARIO_NAME: 未命名
+        QUIT_CAPTION: 退出？
+        RETURN_CAPTION: 返回？
+        CONFIRM_NO: 否
+        CONFIRM_YES: 是
+        ERROR_MESSAGE_CAPTION: 訊息
+        TOOLBAR_GUI_TOOLTIP_INBOX: 檢視你的所有訊息
+        TOOLBAR_GUI_PARK: 樂園管理
+        TOOLBAR_GUI_TOOLTIP_PARK: 管理你樂園的詳細資訊
+        BOTTOMBAR_GUESTCOUNT:
+            one: '%1% 名訪客'
+            other: '%1% 名訪客'
+        DEFAULT_SCENARIO_DESCR: 此場景沒有描述。
+        QUIT_MESSAGE: 退出 FreeRCT？
+        RETURN_MESSAGE: 返回至主選單？
+        ERROR_MESSAGE_SPRITE: 無法繪製精靈圖
+        ERROR_MESSAGE_HEADING_REMOVE: 這個不能移除…
+        ERROR_MESSAGE_HEADING_BUILD: 這個不能放在這裏…
+        ERROR_MESSAGE_HEADING_COST: 預計成本：
+        ERROR_MESSAGE_HEADING_RETURN: 預期回報：
+        ERROR_MESSAGE_UNOWNED_LAND: 你並不擁有此土地！
+        ERROR_MESSAGE_EXPENSIVE: 你需要至少 %1%。
+        ERROR_MESSAGE_BAD_LOCATION: 位置不合適。
+        ERROR_MESSAGE_SLOPE: 不能建造在斜坡上。
+        ERROR_MESSAGE_UNDERGROUND: 不能建造在地下。
+        PERSON_STATUS_HEADING_TO_RIDE: 前往%s中
+        PERSON_STATUS_GOING_HOME: 回家中
+        PERSON_STATUS_INSPECTING: 檢查%s中
+        PERSON_STATUS_REPAIRING: 維修%s中
+        PERSON_STATUS_WATERING: 給花壇澆水中
+        PERSON_STATUS_SWEEPING: 清掃路徑中
+        GUEST_INFO_HUNGER: 飢餓
+        GUEST_INFO_THIRST: 口渴
+        GUEST_INFO_WASTE: 垃圾
+        GUEST_INFO_MONEY: 可用現金
+        GUEST_INFO_MONEY_SPENT: 已花費現金
+        GUEST_INFO_HAPPINESS: 開心程度
+        GUEST_INFO_NAUSEA: 噁心
+        ITEM_NONE: 無
+        ITEM_MAP: 地圖
+        ITEM_UMBRELLA: 雨傘
+        ITEM_WRAPPER: 包裝紙
+        GUEST_INFO_ITEMS: 持有物品
+        STAFF_MANAGEMENT_TITLE: 員工
+        STAFF_DISMISS: 解僱
+        STAFF_HIRE: 聘用
+        STAFF_TITLE_NAME: 名稱
+        STAFF_TITLE_STATUS: 狀態
+        PATH_GUI_TITLE: 路徑
+        PATH_GUI_LONG: 長
+        PATH_GUI_BUY: 購買
+        PATH_GUI_REMOVE: 移除
+        PATH_GUI_FORWARD: 向前
+        PATH_GUI_BACKWARD: 向後
+        STAFF_SALARY: 每日薪資：%1%
+        STAFF_NAME_HANDYMAN: 雜工 %d
+        STAFF_NAME_GUARD: 警衛 %d
+        STAFF_NAME_ENTERTAINER: 藝人 %d
+        STAFF_NAME_MECHANIC: 技工 %d
+        PATH_GUI_DIRECTIONAL: 方向性
+        RIDE_SELECT_SHOPS: 商店
+        RIDE_MANAGER_RIDE_NAME_TEXT: 名稱：
+        RIDE_MANAGER_MAINTENANCE_NEVER: 永不
+        PATH_GUI_DIRECTIONAL_TIP: 開始方向性路徑放置
+        RIDE_SELECT_CUSTOM_DESIGN: 設計自訂軌道…
+        RIDE_SELECT_NO_DESIGNS: 無已儲存的軌道設計
+        RIDE_MANAGER_ENTRANCE_FEE_TEXT: 入場費：
+        RIDE_SELECT_WET: 濕滑的遊樂設施
+        RIDE_SELECT_THRILL: 驚險的遊樂設施
+        RIDE_SELECT_COASTER: 雲霄飛車
+        RIDE_MANAGER_RELIABILITY: 可靠性：%.1f%%
+        RIDE_MANAGER_BROKEN_DOWN: 故障
+        RIDE_MANAGER_MAINTENANCE_TEXT: 維護間隔（分鐘）：
+        RIDE_MANAGER_RATING_NOT_YET_CALCULATED: ???
+        RIDE_MANAGER_NAUSEA: 噁心評級：
+        RIDE_MANAGER_RATING_VERY_LOW: '%.2f（非常低）'
+        RIDE_MANAGER_RATING_LOW: '%.2f（低）'
+        RIDE_MANAGER_RATING_MEDIUM: '%.2f（中）'
+        RIDE_MANAGER_RATING_HIGH: '%.2f（高）'
+        RIDE_MANAGER_RATING_VERY_HIGH: '%.2f（非常高）'
+        RIDE_MANAGER_RATING_EXTREME: '%.2f（極端）'
+        SHOP_MANAGER_TOTAL_PROFIT_TEXT: 總利潤
+        SCENERY_TITLE: 風景
+        SCENERY_CATEGORY_TREES: 樹木
+        SCENERY_CATEGORY_FLOWERBEDS: 花壇
+        SCENERY_CATEGORY_FOUNTAINS: 噴泉
+        TERRAFORM_ADD_TEXT: +
+        TERRAFORM_SUB_TEXT: '-'
+        PARK_MANAGEMENT_TAB_GENERAL: 一般
+        PARK_MANAGEMENT_TAB_GUESTS: 訪客
+        PARK_MANAGEMENT_TAB_RATING: 評級
+        PARK_MANAGEMENT_TAB_OBJECTIVE: 目標
+        PARK_MANAGEMENT_TAB_AWARDS: 獎項
+        PARK_MANAGEMENT_ENTRANCE_FEE: 入場費：
+        PARK_MANAGEMENT_TAB_GUESTS_TOOLTIP: 顯示隨時間變化的樂園內的訪客人數
+        PARK_MANAGEMENT_PARKNAME: 樂園名稱：
+        FENCE_TYPE_BRICK: 磚牆
+        TERRAFORM_TITLE: 修改地形
+        SCENERY_ROTATE_NEG: 順時針旋轉物品
+        MINIMAP_TITLE: 小地圖
+        FINANCES_MARKETING_TEXT: 行銷
+        FINANCES_RESEARCH_TEXT: 研究
+        FINANCES_TOTAL_TEXT: 總計
+        FINANCES_CASH: 現金
+        INBOX_TITLE: 收件匣
+        FINANCES_TITLE: 管理財政
+        FINANCES_RIDE_CONSTRUCTION_TEXT: 遊樂設施建造
+        FINANCES_RIDE_RUNNING_TEXT: 遊樂設施運行成本
+        FINANCES_LAND_PURCHASE_TEXT: 土地購買
+        FINANCES_PARK_TICKETS_TEXT: 樂園入口門票
+        FINANCES_RIDE_TICKETS_TEXT: 遊樂設施門票
+        FINANCES_SHOP_SALES_TEXT: 商店銷售
+        FINANCES_SHOP_STOCK_TEXT: 商店庫存
+        FINANCES_FOOD_STOCK_TEXT: 食物／飲料庫存
+        FINANCES_STAFF_WAGES_TEXT: 員工薪資
+        FINANCES_LOAN_INTEREST_TEXT: 貸款利息
+        FINANCES_MAX_LOAN: 最高貸款額
+        FINANCES_CURRENT_LOAN: 目前貸款
+        FINANCES_LOAN_INTEREST: 貸款利息
+        FINANCES_LOAN_INTEREST_VALUE: 每年 %.1f%%
+        FINANCES_PARK_VALUE: 樂園價值
+        FINANCES_COMPANY_VALUE: 公司價值
+        FINANCES_PARK_VALUE_VALUE: 樂園價值：%1%
+        COASTER_MANAGER_GRAPH_VERT_G: 垂直 G 力
+        COASTER_MANAGER_GRAPH_HORZ_G: 水平 G 力
+        COASTER_MANAGER_EDIT: 編輯軌道
+        COASTER_MANAGER_SAVE_DESIGN: 儲存軌道設計
+        COASTER_MANAGER_NO_GRAPHS_YET: 尚未測量
+        ENTITY_REMOVE_CAPTION: 移除
+        ENTITY_REMOVE_YES: 是
+        ENTITY_REMOVE_NO: 否
+        MONEY_CURRENCY_SYMBOL: $
+        MONEY_THOUSANDS_SEPARATOR: ','
+        MONEY_DECIMAL_SEPARATOR: .
+        SETTING_TITLE: 設定
+        LOADSAVE_LOAD: 載入
+        LOADSAVE_SAVE: 儲存
+        LOADSAVE_CANCEL: 取消
+        LOADSAVE_COLUMN_FILE: 檔案名稱
+        COASTER_MANAGER_GRAPH_TOOLTIP_SPEED: 顯示速度圖
+        COASTER_MANAGER_GRAPH_TOOLTIP_VERT_G: 顯示垂直 G 力圖
+        COASTER_MANAGER_GRAPH_TOOLTIP_HORZ_G: 顯示水平 G 力圖
+        PLACE_ENTRANCE: 放置入口
+        PLACE_ENTRANCE_TOOLTIP: 放置遊樂設施的入口
+        PLACE_EXIT: 放置出口
+        CHOOSE_ENTRANCE: 入口風格
+        CHOOSE_EXIT: 出口風格
+        CHOOSE_ENTRANCE_TOOLTIP: 變更遊樂設施入口的風格
+        CHOOSE_EXIT_TOOLTIP: 變更遊樂設施出口的風格
+        SETTING_LANGUAGE: 變更語言
+        SETTING_RESOLUTION: 變更解析度
+        SETTING_RESOLUTION_TOOLTIP: 變更遊戲的螢幕解析度
+        SCENARIO_SELECT_TITLE: 選擇場景
+        SCENARIO_SELECT_NO_MISSIONS: 尚未載入任何任務。
+        SCENARIO_SELECT_UNLOCK:
+            other: 在此任務中完成多 %1% 個場景以解鎖此場景。
+            one: 在此任務中完成多 %1% 個場景以解鎖此場景。
+        SCENARIO_SELECT_SOLVED: 由 %1% 於 %2% 完成，公司價值為 %3%
+        LOADSAVE_COLUMN_TIME: 儲存日期
+        LOADSAVE_CONFIRM_TITLE: 確認
+        ENTITY_REMOVE: 移除
+        LOADSAVE_DELETE: 刪除
+        OBJECTIVETEXT_PARK_RATING: 樂園評級至少達到 %1%。
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_PEOPLE: 隱藏人
+        SCENERY_ROTATE_POS: 逆時針旋轉物品
+        PLACE_EXIT_TOOLTIP: 放置遊樂設施的出口
+        PERSON_STATUS_EMPTYING: 清空垃圾箱中
+        SETTING_LANGUAGE_TOOLTIP: 變更遊戲語言
+        FINANCES_FOOD_SALES_TEXT: 食物／飲料銷售
+        NR_DAYS:
+            one: '%1% 天'
+            other: '%1% 天'
+        NUMBERED_INSTANCE_NAME: '%1% #%2%'
+        TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: 地下檢視
+        TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP: 視圖選項
+        TOOLBAR_GUI_DROPDOWN_VIEW_UNDERWATER: 水下檢視
+        TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_RIDES: 線框遊樂設施
+        ERROR_MESSAGE_PAUSED: 遊戲暫停時不允許。
+        STAFF_CATEGORY_MECHANICS: 技工（%1%）
+        STAFF_CATEGORY_HANDYMEN: 雜工（%1%）
+        STAFF_CATEGORY_GUARDS: 警衛（%1%）
+        STAFF_CATEGORY_ENTERTAINERS: 藝人（%1%）
+        PATH_GUI_LONG_TIP: 建造一條長路徑
+        PATH_GUI_BUY_TIP: 購買一塊路徑磚
+        PATH_GUI_BULLDOZER_TIP: 點擊以移除最後建造的路徑並取回你的錢（直至你關閉視窗為止）
+        PATH_GUI_SLOPE_DOWN_TIP: 建造向下的路徑
+        PATH_GUI_SLOPE_FLAT_TIP: 建造水平的路徑
+        PATH_GUI_SLOPE_UP_TIP: 建造向上的路徑
+        PATH_GUI_NW_DIRECTION_TIP: 建造向西北方向的路徑
+        PATH_GUI_NE_DIRECTION_TIP: 建造向東北方向的路徑
+        PATH_GUI_SW_DIRECTION_TIP: 建造向西南方向的路徑
+        PATH_GUI_SE_DIRECTION_TIP: 建造向東南方向的路徑
+        PATH_GUI_NORMAL_PATH: 正常路徑
+        PATH_GUI_QUEUE_PATH: 隊列路徑
+        PATH_GUI_SINGLE: 單一
+        PATH_GUI_SINGLE_TIP: 放置單一路徑
+        RIDE_SELECT_SHOPS_TOOLTIP: 點擊以顯示可用的商店類型
+        RIDE_SELECT_GENTLE_TOOLTIP: 點擊以顯示可用的溫和遊樂設施類型
+        RIDE_SELECT_THRILL_TOOLTIP: 點擊以顯示可用的驚險遊樂設施類型
+        RIDE_SELECT_WET_TOOLTIP: 點擊以顯示可用的濕滑遊樂設施類型
+        RIDE_SELECT_TITLE: 遊樂設施選擇
+        PATH_GUI_FORWARD_TIP: 向前移動一個地塊
+        PATH_GUI_BACKWARD_TIP: 向後移動一個地塊
+        RIDE_SELECT_COASTER_TOOLTIP: 點擊以顯示可用的雲霄飛車類型
+        RIDE_SELECT_ROT_POS_TOOLTIP: 點擊以逆時針方向旋轉遊樂設施
+        RIDE_SELECT_RIDE_TOOLTIP: 點擊以選取已選取的遊樂設施
+        RIDE_SELECT_ROT_NEG_TOOLTIP: 點擊以順時針方向旋轉遊樂設施
+        RIDE_MANAGER_MAX_IDLE_TEXT: 最大閒置時間（秒）：
+        RIDE_MANAGER_MIN_IDLE_TEXT: 最小閒置時間（秒）：
+        RIDE_MANAGER_EXCITEMENT: 興奮評級：
+        RIDE_MANAGER_INTENSITY: 強度評級：
+        SHOP_MANAGER_TITLE: 商店「%1%」
+        SHOP_MANAGER_COST_PRICE_TEXT: 成本價
+        SHOP_MANAGER_SELLING_PRICE_TEXT: 售價
+        SHOP_MANAGER_ITEMS_SOLD_TEXT: 已售出物品數
+        SHOP_MANAGER_ITEM_PROFIT_TEXT: 物品利潤
+        SHOP_MANAGER_SELL_PROFIT_TEXT: 銷售利潤
+        SHOP_MANAGER_SHOP_COST_TEXT: 員工薪資
+        GENTLE_THRILL_RIDES_MANAGER_TITLE: '%1%「%2%」'
+        GENTLE_THRILL_RIDES_MANAGER_CYCLES_TEXT: 循環次數：
+        FENCE_TITLE: 建造柵欄
+        FENCE_TYPE_WOOD: 木柵欄
+        GENTLE_RIDES_MANAGER_TITLE: 溫和的遊樂設施
+        THRILL_RIDES_MANAGER_TITLE: 驚險的遊樂設施
+        GENTLE_THRILL_RIDES_MANAGER_MONTHLY_COST_TEXT: 每月成本：
+        PATH_OBJECTS_TITLE: 路徑物件
+        PATH_OBJECTS_BENCH: 放置長椅
+        FENCE_TYPE_HEDGE: 針葉樹籬
+        PATH_OBJECTS_LAMP: 放置燈
+        PATH_OBJECTS_BIN: 放置垃圾箱
+        TERRAFORM_ADD_TOOLTIP: 增加地形改造區域的大小
+        TERRAFORM_SUB_TOOLTIP: 減少地形改造區域的大小
+        TERRAFORM_LEVEL_TEXT: 水平地形改造區域
+        TERRAFORM_MOVE_TEXT: 原樣移動地形區域
+        TERRAFORM_OWNER_UNCHANGED_TEXT: 不要變更地塊所有權
+        TERRAFORM_OWNER_PARK_TEXT: 使土地歸樂園所有
+        TERRAFORM_OWNER_NONE_TEXT: 使土地非樂園所有
+        TERRAFORM_OWNER_SALE_TEXT: 標記土地為待售
+        PARK_MANAGEMENT_TAB_OBJECTIVE_TOOLTIP: 檢視場景目標
+        PARK_MANAGEMENT_TAB_GENERAL_TOOLTIP: 管理一般樂園設定
+        PARK_MANAGEMENT_TAB_AWARDS_TOOLTIP: 檢視你的樂園獲得的獎項
+        PARK_MANAGEMENT_SOLVED: 請輸入你的名稱：
+        PARK_MANAGEMENT_OBJECTIVE_GUESTS: 所需訪客：
+        PARK_MANAGEMENT_OBJECTIVE_RATING: 所需樂園評級：
+        PARK_MANAGEMENT_OBJECTIVE_DROP_POLICY: 樂園將會在未達到目標時關閉：
+        PARK_MANAGEMENT_OBJECTIVE_DATE: 目標必須透過此方式實現：
+        PARK_MANAGEMENT_RATING: 樂園評級：%1%
+        PARK_MANAGEMENT_NO_AWARDS: 樂園最近沒有獲得任何獎項。
+        PARK_MANAGEMENT_MAX_GUESTS: 最多訪客計數：
+        MESSAGE_NEW_RIDE: 有一個新的遊樂設施可用：%1%
+        MESSAGE_SCENARIO_WON: 恭喜，你贏了此場景！
+        MESSAGE_SCENARIO_LOST: 你已在此場景失敗。願你在再次嘗試時更加幸運。
+        MESSAGE_BROKEN_DOWN: '%1%故障了。'
+        MESSAGE_REPAIRED: '%1%已修復。'
+        MESSAGE_CRASH_NO_DEAD: '%1%墜毀了！'
+        MESSAGE_CRASH_WITH_DEAD:
+            one: '%1%墜毀時，有 %2% 名訪客死亡！'
+            other: '%1%墜毀時，有 %2% 名訪客死亡！'
+        MESSAGE_BAD_RATING:
+            one: 樂園評級極低。如果評級沒有改善，樂園將在 %1% 週內關閉。
+            other: 樂園評級極低。如果評級沒有改善，樂園將在 %1% 週內關閉。
+        MESSAGE_GUEST_LOST: '%1%迷路了，找不到樂園出口。'
+        MESSAGE_COMPLAIN_QUEUE: '%1% 的排隊隊伍很長。'
+        MESSAGE_COMPLAIN_TOILET: 很多訪客需要廁所，並不知道在哪裏可以找到。
+        MESSAGE_COMPLAIN_LITTER: 訪客們抱怨樂園裏的路徑骯髒。
+        MESSAGE_COMPLAIN_VANDALISM: 訪客們抱怨樂園裏有許多破壞的物件。
+        MESSAGE_AWARD_WON: 樂園已獲得一個獎項：%1%
+        MESSAGE_NEGATIVE_AWARD: 樂園已獲得一個負面獎項：%1%
+        COASTER_MANAGER_NUMBER_TRAINS:
+            one: '%1% 列列車'
+            other: '%1% 列列車'
+        COASTER_MANAGER_NUMBER_CARS:
+            one: '%1% 輛車'
+            other: '%1% 輛車'
+        COASTER_BUILD_NO_BEND_TOOLTIP: 選擇直的軌道件
+        COASTER_BUILD_RIGHT_BEND_TOOLTIP: 選擇向右彎曲的軌道件
+        COASTER_BUILD_BANK_LEFT_TOOLTIP: 選擇以左側傾斜結尾的軌道件
+        COASTER_BUILD_BANK_NONE_TOOLTIP: 選擇以水平傾斜結尾的軌道件
+        ENTITY_REMOVE_TOOLTIP: 移除此遊樂設施
+        ENTITY_REMOVE_MESSAGE: 移除%1%？
+        ENTITY_REMOVE_COST: 退回：%1%
+        RIDE_BUILD_TITLEBAR_SHOP: 放置商店
+        RIDE_BUILD_TITLEBAR_GENTLE: 放置溫和的遊樂設施
+        RIDE_BUILD_TITLEBAR_THRILL: 放置驚險的遊樂設施
+        RIDE_BUILD_ROTATE_TOOLTIP: 點擊以旋轉遊樂設施
+        RIDE_BUILD_DISPLAY_TOOLTIP: 你購買中的遊樂設施圖片
+        RIDE_BUILD_NAME_TEXT: 購買%1%中
+        RIDE_BUILD_COST_TEXT: 花費 %1%
+        LOADSAVE_CONFIRM_OVERWRITE: 你確定你要覆寫此已儲存的遊戲嗎？
+        LOADSAVE_CONFIRM_DELETE: 你確定你要刪除此已儲存的遊戲嗎？
+        TOOLBAR_GUI_DROPDOWN_VIEW_GRID: 網格
+        MESSAGE_COMPLAIN_HUNGRY: 很多訪客都餓了，並不知道去哪裏購買食物。
+        TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_SCENERY: 線框風景
+        COASTER_BUILD_BUY_TOOLTIP: 點擊以購買已選取的軌道件
+        ERROR_MESSAGE_OCCUPIED: 有東西擋住了！
+        PARK_MANAGEMENT_TAB_RATING_TOOLTIP: 顯示隨時間變化的樂園評級
+        MESSAGE_COMPLAIN_THIRSTY: 很多訪客口渴了，並不知道去哪裏購買飲料。
+        COASTER_BUILD_BANK_RIGHT_TOOLTIP: 選擇以右側傾斜結尾的軌道件
+        PARK_MANAGEMENT_OBJECTIVE_DATE_NOT_EXACT: 目標可以在任何時間達成
+        PARK_MANAGEMENT_OBJECTIVE_PARK_VALUE: 所需樂園價值：
+        COASTER_BUILD_LEFT_BEND_TOOLTIP: 選擇向左彎曲的軌道件
+    snack-shop:
+        NAME_ITEM1: 曲奇餅
+        NAME_ITEM2: 披薩
+        NAME_INSTANCE1: 快樂小吃貨
+        DESCRIPTION_TYPE: 可以買到優質曲奇餅的商店
+        DESCRIPTION_RECOLOUR1: '-'
+        DESCRIPTION_RECOLOUR2: '-'
+        NAME_INSTANCE2: 披薩宮
+        NAME_TYPE: 小吃店
+        DESCRIPTION_RECOLOUR3: '-'
+    basic-coaster:
+        DESCRIPTION_TYPE: 基本鋼製雲霄飛車
+        NAME_TYPE: 基本雲霄飛車
+        NAME_INSTANCE: 瘋狂滾筒
+    toilet:
+        NAME_INSTANCE1: 洗手間
+        NAME_INSTANCE2: 浴室
+        NAME_TYPE: 洗手間
+        NAME_ITEM1: 洗手間
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+        NAME_ITEM2: '-'
+        DESCRIPTION_TYPE: 當你要去的時候去這裏
+        DESCRIPTION_RECOLOUR1: 洗手間顏色
+    atm:
+        NAME_INSTANCE1: 提款點
+        NAME_TYPE: 自動櫃員機
+        DESCRIPTION_RECOLOUR1: 牆
+        NAME_ITEM1: 現金
+        NAME_INSTANCE2: 提款機
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+        DESCRIPTION_TYPE: 允許訪客用完錢時可以讓他們提領更多的錢。
+        NAME_ITEM2: '-'
+    entrance-generic:
+        NAME: 一般入口
+        DESCRIPTION_RECOLOUR1: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+        DESCRIPTION_RECOLOUR2: '-'
+    exit-generic:
+        NAME: 一般出口
+        DESCRIPTION_RECOLOUR1: '-'
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+    exit-alt:
+        DESCRIPTION_RECOLOUR1: 牆
+        NAME: 替代出口
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+    spooky-manor:
+        DESCRIPTION_RECOLOUR1: 牆
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+        NAME_INSTANCE1: 恐懼宮殿
+        NAME_INSTANCE2: 黑暗走道
+        NAME_TYPE: 幽靈莊園
+        DESCRIPTION_TYPE: 一座黑暗、令人毛骨悚然的宅邸，任何勇敢進入的訪客都會感到驚嚇。
+    spiral-slide:
+        DESCRIPTION_RECOLOUR1: 牆 1
+        DESCRIPTION_RECOLOUR2: 牆 2
+        NAME_INSTANCE1: 旋轉和旋轉
+        NAME_TYPE: 螺旋滑梯
+        DESCRIPTION_TYPE: 圍繞樓梯間的塔樓建造的螺旋形滑梯。
+        NAME_INSTANCE2: 天旋地轉
+        DESCRIPTION_RECOLOUR3: 滑梯
+    entrance-alt:
+        NAME: 替代入口
+        DESCRIPTION_RECOLOUR1: 牆
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+    ice-cream-stall:
+        DESCRIPTION_RECOLOUR3: '-'
+        NAME_INSTANCE1: 冰宮
+        NAME_TYPE: 冰淇淋攤位
+        DESCRIPTION_TYPE: 陽光飲料和冰淇淋攤位
+        DESCRIPTION_RECOLOUR1: 杯子顏色
+        DESCRIPTION_RECOLOUR2: 冰顏色
+        NAME_ITEM1: 香草冰淇淋
+        NAME_ITEM2: 蘇打
+        NAME_INSTANCE2: 蘇打小屋
+    ship-swing:
+        DESCRIPTION_RECOLOUR2: '-'
+        NAME_INSTANCE1: 龍骨運輸者
+        NAME_INSTANCE2: 阿霍伊海盜
+        NAME_TYPE: 搖擺船
+        DESCRIPTION_RECOLOUR3: '-'
+        DESCRIPTION_RECOLOUR1: '-'
+        DESCRIPTION_TYPE: 一艘船來回搖擺。
+    top-spin:
+        DESCRIPTION_RECOLOUR1: 貢多拉 1
+        DESCRIPTION_RECOLOUR2: 貢多拉 2
+        NAME_INSTANCE1: 神魂顛倒
+        NAME_INSTANCE2: 超越最高
+        NAME_TYPE: 上旋
+        DESCRIPTION_TYPE: 貢多拉繞軸旋轉，同時來回擺動。
+        DESCRIPTION_RECOLOUR3: 約束
+    chair-swing:
+        NAME_TYPE: 椅子鞦韆
+        DESCRIPTION_TYPE: 八張椅子懸掛在長鏈條上，鏈條固定在旋轉圓盤上。
+        DESCRIPTION_RECOLOUR1: 建造
+        NAME_INSTANCE2: 搖搖擺
+        DESCRIPTION_RECOLOUR2: 屋頂
+        DESCRIPTION_RECOLOUR3: 基座
+    scenario-emerald-expanses:
+        NAME: 遼闊的綠寶石
+        DESCR: 誰能夠在看到這片廣闊的綠色大地時不被它的美麗所感動？在其平緩山丘的森林範圍內，一座遊樂園正在等待開發。
+    mission-official-easy:
+        DESCR: FreeRCT 開發團隊提供的一組簡單場景。
+        NAME: 官方簡單
+    fountain1:
+        NAME: 噴泉 1
+    tree3:
+        NAME: 樹木 3
+    tree2:
+        NAME: 樹木 2
+    tree1:
+        NAME: 樹木 1
+    flowers1:
+        NAME: 花壇 1
+    flowers2:
+        NAME: 花壇 2
+    flowers3:
+        NAME: 花壇 3
+    park-entrance-generic:
+        NAME: 一般樂園入口
+    scenario-rugged-ravine:
+        DESCR: 此主題樂園的背景是一條由乾涸的長河切入鄉村的峽谷。
+        NAME: 崎嶇的峽谷

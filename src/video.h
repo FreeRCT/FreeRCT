@@ -24,6 +24,7 @@
 #include <GLFW/glfw3.h>
 
 struct FontGlyph;
+struct FontSet;
 class ImageData;
 
 /** Class responsible for rendering text. */
@@ -32,7 +33,7 @@ public:
 	static constexpr const uint32 MAX_CODEPOINT = 0xFFFD;  ///< Highest unicode codepoint we can render (arbitrary limit).
 
 	void Initialize();
-	void LoadFont(const std::string &font_path, GLuint font_size);
+	void LoadFont(const FontSet *font);
 
 	GLuint GetTextHeight() const;
 	PointF EstimateBounds(const std::string &text, bool add_padding = true, float scale = 1.0f) const;
@@ -70,7 +71,7 @@ enum Alignment {
 /** Class providing the interface to the OpenGL rendering backend. */
 class VideoSystem {
 public:
-	void Initialize(const std::string &font, int font_size);
+	void Initialize(std::vector<const FontSet*> fonts);
 
 	static void MainLoopCycle();
 	void MainLoop();

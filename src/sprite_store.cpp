@@ -181,7 +181,7 @@ void TextData::Load(RcdFileReader *rcd_file)
 		assert(trs_length == 0);
 		used_strings++;
 	}
-	assert (length == 0);
+	assert(length == 0);
 
 	this->strings.reset(new TextString[used_strings]);
 	this->string_count = used_strings;
