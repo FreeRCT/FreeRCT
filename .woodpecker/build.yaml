@@ -41,11 +41,11 @@ steps:
       - |
         if [ "${Compiler}" = clang ]
         then
-          apt-get install -y --no-install-recommends clang
+          apt-get install -y clang
           export CC=clang
           export CXX=clang++
         else
-          apt-get install -y --no-install-recommends g++
+          apt-get install -y g++
           export CC=gcc
           export CXX=g++
         fi
