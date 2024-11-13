@@ -110,7 +110,7 @@ static void ReadUtf8Text(RcdFileReader *rcd_file, size_t expected_length, char *
 void TextData::Load(RcdFileReader *rcd_file)
 {
 	rcd_file->CheckVersion(3);
-	char buffer[64*1024]; // Arbitrary sized block of temporary memory to store the text data.
+	char buffer[1024 * 1024];  // Arbitrary sized block of temporary memory to store the text data.
 	size_t used_size = 0;
 	uint32 length = rcd_file->size;
 
