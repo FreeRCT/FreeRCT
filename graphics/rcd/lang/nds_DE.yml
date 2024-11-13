@@ -439,7 +439,7 @@ strings:
         RIDE_BUILD_COST_TEXT: "Kosten: %1%"
 
         # Money symbols.
-        MONEY_CURRENCY_SYMBOL: "DM"
+        MONEY_CURRENCY_SYMBOL: "DM "
         MONEY_THOUSANDS_SEPARATOR: "."
         MONEY_DECIMAL_SEPARATOR: ","
 
