@@ -3,6 +3,9 @@
 	<id>@FREERCT_BASENAME@</id>
 	<name>FreeRCT</name>
 	<summary>Theme park strategy game</summary>
+	<developer id="net.freerct">
+		<name>FreeRCT developers</name>
+	</developer>
 	<description>
 		<p>FreeRCT aims to be a free and open source game which captures the look, feel and gameplay of the popular games RollerCoaster Tycoon 1 and 2.</p>
 		<p>The game is still in an early alpha state, but it is already playable and offers a variety of features.</p>
