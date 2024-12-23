@@ -115,7 +115,7 @@ strings:
         SHOP_MANAGER_ITEMS_SOLD_TEXT: "Ting solgt"
         SHOP_MANAGER_ITEM_PROFIT_TEXT: "Indtægt per ting"
         SHOP_MANAGER_SELL_PROFIT_TEXT: "Omsætning"
-        SHOP_MANAGER_SHOP_COST_TEXT: "Lønninger"
+        SHOP_MANAGER_SHOP_COST_TEXT: "Personlige udgifter"
         SHOP_MANAGER_TOTAL_PROFIT_TEXT: "Total profit"
 
         # Terraform gui strings.
@@ -138,7 +138,7 @@ strings:
         FINANCES_SHOP_STOCK_TEXT: "Butiksvareindkøb"
         FINANCES_FOOD_SALES_TEXT: "Mad/Drikkeindtægt"
         FINANCES_FOOD_STOCK_TEXT: "Mad/Drikkevareindkøb"
-        FINANCES_STAFF_WAGES_TEXT: "Lønninger"
+        FINANCES_STAFF_WAGES_TEXT: "Personale Lønninger"
         FINANCES_MARKETING_TEXT: "Markedsføring"
         FINANCES_RESEARCH_TEXT: "Forskning"
         FINANCES_LOAN_INTEREST_TEXT: "Renter"
@@ -164,6 +164,54 @@ strings:
         SETTING_LANGUAGE_TOOLTIP: "SKift sproget i spillet"
 
 
+        DATETIME_FORMAT: '%Y-%m-%d, %I:%M:%S %p'
+        DATE_FORMAT: '%2% %1%, År %3%'
+        NOT_AVAILABLE: n/a
+        OBJECTIVE_TIMEOUT_BEFORE: Dette mål skal være opfyldt før %1%.
+        OBJECTIVE_TIMEOUT_EXACT: Dette mål skal opfyldes ved %1%.
+        OBJECTIVE_TIMEOUT_NONE: Dette mål kan nås til enhver tid.
+        OBJECTIVE_STRICT: Dette mål skal til enhver tid opfyldes!
+        OBJECTIVETEXT_NONE: God fornøjelse!
+        OBJECTIVETEXT_GUESTS:
+            one: Hav mindst %1% gæst i din park.
+            other: Hav mindst %1% gæster i din park.
+        OBJECTIVETEXT_PARK_RATING: Opnå en parkvurdering på mindst %1%.
+        OBJECTIVETEXT_PARK_VALUE: Opnå en parkværdi på mindst %1%.
+        TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP: Skift spilhastigheden
+        MAIN_MENU_MENU: Hovedmenu
+        TOOLBAR_GUI_DROPDOWN_SPEED: Hastighed
+        TOOLBAR_GUI_DROPDOWN_SPEED_PAUSE: Pause
+        TOOLBAR_GUI_DROPDOWN_SPEED_1: 1×
+        TOOLBAR_GUI_DROPDOWN_SPEED_2: 2×
+        TOOLBAR_GUI_DROPDOWN_SPEED_4: 4×
+        TOOLBAR_GUI_DROPDOWN_SPEED_8: 8×
+        TOOLBAR_GUI_DROPDOWN_VIEW: Se
+        TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP: Udsigtsmuligheder
+        TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP: Minikort
+        TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: Se under jorden
+        TOOLBAR_GUI_DROPDOWN_VIEW_GRID: Gitter
+        TOOLBAR_GUI_DROPDOWN_VIEW_UNDERWATER: Se under vandet
+        TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_RIDES: Trådramme ture
+        TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_SCENERY: Trådramme landskab
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_PEOPLE: Skjul folk
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SUPPORTS: Skjul supports
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SURFACES: Skjul vandrette overflader
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_FOUNDATIONS: Skjul lodrette fundamenter
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_RIDES: Vis højdemarkører på forlystelser
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_PATHS: Vis højdemarkører på stier
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_TERRAIN: Vis højdemarkører på terræn
+        TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_OUT: Zoom ud
+        TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_IN: Zoom ind
+        TOOLBAR_GUI_TOOLTIP_SCENERY: Byg landskabsgenstande i din park
+        TOOLBAR_GUI_PATH_OBJECTS: Sti objekter
+        TOOLBAR_GUI_TOOLTIP_PATH_OBJECTS: Byg stiobjekter i din park
+        TOOLBAR_GUI_STAFF: Personale
+        TOOLBAR_GUI_FENCE: Byg hegn
+        TOOLBAR_GUI_TOOLTIP_FENCE: Byg hegn i din park
+        TOOLBAR_GUI_SCENERY: Landskab
+        TOOLBAR_GUI_TOOLTIP_STAFF: Ansæt og fyr personale
+        TOOLBAR_GUI_INBOX: Indbakke
+        TOOLBAR_GUI_TOOLTIP_INBOX: Se alle dine beskeder
     snack-shop:
         NAME_INSTANCE1: "Den glade snack"
         NAME_INSTANCE2: "Pizza palads"
