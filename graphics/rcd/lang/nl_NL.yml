@@ -12,21 +12,21 @@ strings:
         lang: "nl_NL"
 
     gui:
-        TITLEBAR_TIP: "Klik op de titelbalk om het venster te verhogen, sleep de titelbalk om het venster te verplaatsen"
+        TITLEBAR_TIP: "Klik op de titelbalk om het venster te verhogen; versleep de titelbalk om het venster te verplaatsen"
         LANGUAGE_NAME: "Nederlands (NL)"
 
-        MONTH_JANUARY: "Januari"
-        MONTH_FEBRUARY: "Februari"
-        MONTH_MARCH: "Maart"
-        MONTH_APRIL: "April"
-        MONTH_MAY: "Mei"
-        MONTH_JUNE: "Juni"
-        MONTH_JULY: "Juli"
-        MONTH_AUGUST: "Augustus"
-        MONTH_SEPTEMBER: "September"
-        MONTH_OCTOBER: "Oktober"
-        MONTH_NOVEMBER: "November"
-        MONTH_DECEMBER: "December"
+        MONTH_JANUARY: "januari"
+        MONTH_FEBRUARY: "februari"
+        MONTH_MARCH: "maart"
+        MONTH_APRIL: "april"
+        MONTH_MAY: "mei"
+        MONTH_JUNE: "juni"
+        MONTH_JULY: "juli"
+        MONTH_AUGUST: "augustus"
+        MONTH_SEPTEMBER: "september"
+        MONTH_OCTOBER: "oktober"
+        MONTH_NOVEMBER: "november"
+        MONTH_DECEMBER: "december"
 
         NUMBERED_INSTANCE_NAME: "%1% #%2%"
         RESOLUTION: "%1%x%2%"
@@ -39,38 +39,38 @@ strings:
         MAIN_MENU_SETTINGS: "Instellingen"
         MAIN_MENU_LOAD: "Laden"
         MAIN_MENU_SAVE: "Opslaan"
-        MAIN_MENU_NEW_GAME: "Nieuw Spel"
-        MAIN_MENU_MENU: "Thuismenu"
+        MAIN_MENU_NEW_GAME: "Nieuw spel"
+        MAIN_MENU_MENU: "Hoofdmenu"
 
         TOOLBAR_GUI_DROPDOWN_SPEED: "Snelheid"
-        TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP: "Verander de snelheid van het spel"
-        TOOLBAR_GUI_DROPDOWN_SPEED_PAUSE: "Pauzeer"
+        TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP: "Pas de snelheid van het spel aan"
+        TOOLBAR_GUI_DROPDOWN_SPEED_PAUSE: "Pauzeren"
         TOOLBAR_GUI_DROPDOWN_SPEED_1: "1×"
         TOOLBAR_GUI_DROPDOWN_SPEED_2: "2×"
         TOOLBAR_GUI_DROPDOWN_SPEED_4: "4×"
         TOOLBAR_GUI_DROPDOWN_SPEED_8: "8×"
-        TOOLBAR_GUI_DROPDOWN_VIEW: "Zicht"
-        TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP: "Zichtveld opties"
-        TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: "Ondergronds zicht"
+        TOOLBAR_GUI_DROPDOWN_VIEW: "Beeld"
+        TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP: "Zichtveldsopties"
+        TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: "Ondergrondse weergave"
         TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP: "Minikaart"
 
         TOOLBAR_GUI_PATHS: "Paden"
         TOOLBAR_GUI_TOOLTIP_BUILD_PATHS: "Bouw paden en wachtrijen"
-        TOOLBAR_GUI_RIDE_SELECT: "Koop een attractie"
+        TOOLBAR_GUI_RIDE_SELECT: "Attractie aanschaffen"
         TOOLBAR_GUI_TOOLTIP_RIDE_SELECT: "Koop een nieuwe attractie voor in je park"
-        TOOLBAR_GUI_FENCE: "Bouw hekwerk"
-        TOOLBAR_GUI_TOOLTIP_FENCE: "Bouw hekwerk in je park"
+        TOOLBAR_GUI_FENCE: "Hekwerk houwen"
+        TOOLBAR_GUI_TOOLTIP_FENCE: "Bouw hekwerken in je park"
         TOOLBAR_GUI_SCENERY: "Decoraties"
         TOOLBAR_GUI_TOOLTIP_SCENERY: "Bouw decoraties in je park"
-        TOOLBAR_GUI_PATH_OBJECTS: "Pad objecten"
-        TOOLBAR_GUI_TOOLTIP_PATH_OBJECTS: "Bouw pad objecten in je park"
+        TOOLBAR_GUI_PATH_OBJECTS: "Padobjecten"
+        TOOLBAR_GUI_TOOLTIP_PATH_OBJECTS: "Bouw padobjecten in je park"
         TOOLBAR_GUI_TERRAFORM: "Terravorming"
         TOOLBAR_GUI_TOOLTIP_TERRAFORM: "Verander het landschap"
         TOOLBAR_GUI_FINANCES: "Financiën"
         TOOLBAR_GUI_TOOLTIP_FINANCES: "Beheer de bedrijfsfinanciën"
         TOOLBAR_GUI_STAFF: "Personeel"
         TOOLBAR_GUI_TOOLTIP_STAFF: "Huur nieuw personeel in of ontsla personeel"
-        TOOLBAR_GUI_INBOX: "Inbox"
+        TOOLBAR_GUI_INBOX: "Postvak in"
         TOOLBAR_GUI_TOOLTIP_INBOX: "Bekijk al je berichten"
 
         BOTTOMBAR_GUESTCOUNT:
@@ -78,44 +78,44 @@ strings:
             other: "%1% bezoekers"
 
         # Quit program strings.
-        QUIT_CAPTION: "Programma sluiten?"
-        QUIT_MESSAGE: "FreeRCT sluiten?"
-        RETURN_CAPTION: "Ga terug?"
-        RETURN_MESSAGE: "Ga terug naar het thuismenu?"
+        QUIT_CAPTION: "Afsluiten?"
+        QUIT_MESSAGE: "Wil je FreeRCT afsluiten?"
+        RETURN_CAPTION: "Terug?"
+        RETURN_MESSAGE: "Wil je teruggaan naar het hoofdmenu?"
 
         # Confirmation prompt strings.
         CONFIRM_NO: "Nee"
         CONFIRM_YES: "Ja"
 
         # Error message strings.
-        ERROR_MESSAGE_CAPTION: "Boodschap"
-        ERROR_MESSAGE_SPRITE: "Het tekenen van de sprite is mislukt"
-        ERROR_MESSAGE_HEADING_BUILD: "Dit kan hier niet worden geplaatst"
+        ERROR_MESSAGE_CAPTION: "Bericht"
+        ERROR_MESSAGE_SPRITE: "De sprite kan niet worden getekend"
+        ERROR_MESSAGE_HEADING_BUILD: "Dit kan hier niet worden geplaatst…"
         ERROR_MESSAGE_HEADING_REMOVE: "Dit kan niet worden verwijderd…"
         ERROR_MESSAGE_HEADING_COST: "Verwachte kosten:"
         ERROR_MESSAGE_HEADING_RETURN: "Verwachte opbrengst:"
         ERROR_MESSAGE_UNREMOVABLE: "Dit object kan niet worden verwijderd."
-        ERROR_MESSAGE_UNOWNED_LAND: "Je bezit dit gebied niet!"
+        ERROR_MESSAGE_UNOWNED_LAND: "Je hebt dit gebied niet in bezit!"
         ERROR_MESSAGE_EXPENSIVE: "Je hebt tenminste %1% nodig."
         ERROR_MESSAGE_BAD_LOCATION: "Ongeschikte locatie."
         ERROR_MESSAGE_SLOPE: "Dit kan niet op een helling worden gebouwd."
         ERROR_MESSAGE_UNDERGROUND: "Dit kan niet ondergronds worden gebouwd."
         ERROR_MESSAGE_OCCUPIED: "Er zit iets in de weg!"
-        ERROR_MESSAGE_PAUSED: "Dit is niet toegestaan terwijl het spel gepauzeerd is."
+        ERROR_MESSAGE_PAUSED: "Dit kan niet terwijl het spel gepauzeerd is."
 
         # Person status strings.
         PERSON_STATUS_WANDER: "Aan het rondlopen"
         PERSON_STATUS_HEADING_TO_RIDE: "Richting %s aan het gaan"
         PERSON_STATUS_INSPECTING: "%s aan het inspecteren"
         PERSON_STATUS_REPAIRING: "%s aan het repareren"
-        PERSON_STATUS_WATERING: "De bloembedden aan het water geven"
+        PERSON_STATUS_WATERING: "Bloembedden water aan het geven"
         PERSON_STATUS_EMPTYING: "Prullenbakken aan het leegmaken"
         PERSON_STATUS_SWEEPING: "Paden aan het vegen"
 
         # Guest info gui strings.
         GUEST_INFO_MONEY: "Geld op zak"
-        GUEST_INFO_MONEY_SPENT: "Geld uitgegeven"
-        GUEST_INFO_HAPPINESS: "Gelukkigheid"
+        GUEST_INFO_MONEY_SPENT: "Uitgegeven"
+        GUEST_INFO_HAPPINESS: "Blijdschapsniveau"
         GUEST_INFO_HUNGER: "Honger"
         GUEST_INFO_THIRST: "Dorst"
         GUEST_INFO_WASTE: "Afval"
@@ -147,10 +147,10 @@ strings:
         # Path gui strings.
         PATH_GUI_TITLE: "Paden"
         PATH_GUI_LONG: "Lang"
-        PATH_GUI_BUY: "Koop"
+        PATH_GUI_BUY: "Kopen"
         PATH_GUI_REMOVE: "Verwijderen"
         PATH_GUI_LONG_TIP: "Bouw een lang pad"
-        PATH_GUI_BUY_TIP: "Koop een pad tegel"
+        PATH_GUI_BUY_TIP: "Koop een tegel"
         PATH_GUI_BULLDOZER_TIP: "Klik om het laatst geplaatste pad te verwijderen en je geld terug te krijgen (werkt totdat je het venster sluit)"
         PATH_GUI_SLOPE_DOWN_TIP: "Bouw pad omlaag"
         PATH_GUI_SLOPE_FLAT_TIP: "Bouw pad vlak"
@@ -158,8 +158,8 @@ strings:
 
         PATH_GUI_FORWARD: "Vooruit"
         PATH_GUI_BACKWARD: "Terug"
-        PATH_GUI_FORWARD_TIP: "Beweeg een tegel vooruit"
-        PATH_GUI_BACKWARD_TIP: "Beweeg een tegel terug"
+        PATH_GUI_FORWARD_TIP: "Eén tegel vooruit"
+        PATH_GUI_BACKWARD_TIP: "Eén tegel terug"
 
         PATH_GUI_NW_DIRECTION_TIP: "Bouw pad in noordwestelijke richting"
         PATH_GUI_NE_DIRECTION_TIP: "Bouw pad in noordoostelijke richting"
@@ -175,146 +175,146 @@ strings:
         PATH_GUI_DIRECTIONAL_TIP: "Begin een gericht pad te leggen"
 
         # Ride select gui strings.
-        RIDE_SELECT_TITLE: "Attractie selectie"
-        RIDE_SELECT_SHOPS: "Winkel"
-        RIDE_SELECT_SHOPS_TOOLTIP: "Klik voor een weergave van beschikbare winkels"
+        RIDE_SELECT_TITLE: "Attractiekeuze"
+        RIDE_SELECT_SHOPS: "Winkels"
+        RIDE_SELECT_SHOPS_TOOLTIP: "Klik om de beschikbare winkels te tonen"
         RIDE_SELECT_GENTLE: "Rustige attracties"
-        RIDE_SELECT_GENTLE_TOOLTIP: "Klik voor een weergave van beschikbare rustige attracties"
+        RIDE_SELECT_GENTLE_TOOLTIP: "Klik om de beschikbare rustige attracties te tonen"
         RIDE_SELECT_THRILL: "Spannende attracties"
-        RIDE_SELECT_THRILL_TOOLTIP: "Klik voor een weergave van beschikbare spannende attracties"
-        RIDE_SELECT_WET: "Water attracties"
-        RIDE_SELECT_WET_TOOLTIP: "Klik voor een weergave van beschikbare water attracties"
+        RIDE_SELECT_THRILL_TOOLTIP: "Klik om de beschikbare spannende attracties te tonen"
+        RIDE_SELECT_WET: "Waterattracties"
+        RIDE_SELECT_WET_TOOLTIP: "Klik om de beschikbare waterattracties te tonen"
         RIDE_SELECT_COASTER: "Achtbanen"
-        RIDE_SELECT_COASTER_TOOLTIP: "Klik voor een weergave van beschikbare achtbanen"
-        RIDE_SELECT_RIDE: "Selecteer"
-        RIDE_SELECT_RIDE_TOOLTIP: "Klik om de geselecteerde attractie te selecteren"
+        RIDE_SELECT_COASTER_TOOLTIP: "Klik om de beschikbare achtbanen te tonen"
+        RIDE_SELECT_RIDE: "Kiezen"
+        RIDE_SELECT_RIDE_TOOLTIP: "Klik om de geselecteerde attractie te kiezen"
         RIDE_SELECT_ROT_POS_TOOLTIP: "Klik om je attractie tegen de klok in te draaien"
         RIDE_SELECT_ROT_NEG_TOOLTIP: "Klik om je attractie met de klok mee te draaien"
 
         # Generic ride manager window strings.
-        RIDE_MANAGER_ENTRANCE_FEE_TEXT: "Toegansprijs:"
+        RIDE_MANAGER_ENTRANCE_FEE_TEXT: "Toegangsprijs:"
         RIDE_MANAGER_RELIABILITY: "Betrouwbaarheid: %.1f%%"
         RIDE_MANAGER_BROKEN_DOWN: "Kapot"
-        RIDE_MANAGER_MAINTENANCE_TEXT: "Onderhouds interval (minuten):"
+        RIDE_MANAGER_MAINTENANCE_TEXT: "Tijd tussen onderhoudsbeurten (in minuten):"
         RIDE_MANAGER_MAINTENANCE_NEVER: "Nooit"
-        RIDE_MANAGER_MAX_IDLE_TEXT: "Maximale inactieve tijd (seconden):"
-        RIDE_MANAGER_MIN_IDLE_TEXT: "Minimum inactieve tijd (seconden):"
-        RIDE_MANAGER_EXCITEMENT: "Spanningsbeoordeling:"
+        RIDE_MANAGER_MAX_IDLE_TEXT: "Maximale inactieve tijd (in seconden):"
+        RIDE_MANAGER_MIN_IDLE_TEXT: "Minimale inactieve tijd (in seconden):"
+        RIDE_MANAGER_EXCITEMENT: "Sensatiebeoordeling:"
         RIDE_MANAGER_INTENSITY: "Intensiteitsbeoordeling:"
         RIDE_MANAGER_NAUSEA: "Misselijkheidsbeoordeling:"
         RIDE_MANAGER_RATING_VERY_LOW: "%.2f (zeer laag)"
         RIDE_MANAGER_RATING_LOW: "%.2f (laag)"
-        RIDE_MANAGER_RATING_MEDIUM: "%.2f (gemmideld)"
+        RIDE_MANAGER_RATING_MEDIUM: "%.2f (gemiddeld)"
         RIDE_MANAGER_RATING_HIGH: "%.2f (hoog)"
         RIDE_MANAGER_RATING_VERY_HIGH: "%.2f (zeer hoog)"
         RIDE_MANAGER_RATING_EXTREME: "%.2f (extreem)"
         RIDE_MANAGER_RATING_NOT_YET_CALCULATED: "???"
 
         # Shop manager window strings.
-        SHOP_MANAGER_TITLE: "Winkel \"%1%\""
+        SHOP_MANAGER_TITLE: "Winkel “%1%”"
         SHOP_MANAGER_COST_PRICE_TEXT: "Kostprijs"
-        SHOP_MANAGER_SELLING_PRICE_TEXT: "Verkoop prijs"
-        SHOP_MANAGER_ITEMS_SOLD_TEXT: "Verkochte voorwerpen"
-        SHOP_MANAGER_ITEM_PROFIT_TEXT: "Voorwerp winst"
-        SHOP_MANAGER_SELL_PROFIT_TEXT: "Verkoop winst"
+        SHOP_MANAGER_SELLING_PRICE_TEXT: "Verkoopprijs"
+        SHOP_MANAGER_ITEMS_SOLD_TEXT: "Aantal verkopen"
+        SHOP_MANAGER_ITEM_PROFIT_TEXT: "Winst per voorwerp"
+        SHOP_MANAGER_SELL_PROFIT_TEXT: "Verkoopwinst"
         SHOP_MANAGER_SHOP_COST_TEXT: "Personeelskosten"
         SHOP_MANAGER_TOTAL_PROFIT_TEXT: "Totale winst"
 
         # Gentle/thrill ride manager window strings.
-        GENTLE_THRILL_RIDES_MANAGER_TITLE: "%1% \"%2%\""
-        GENTLE_RIDES_MANAGER_TITLE: "Rustige Atractie"
-        THRILL_RIDES_MANAGER_TITLE: "Spannende Atractie"
+        GENTLE_THRILL_RIDES_MANAGER_TITLE: "%1% “%2%”"
+        GENTLE_RIDES_MANAGER_TITLE: "Rustige attractie"
+        THRILL_RIDES_MANAGER_TITLE: "Spannende attractie"
         GENTLE_THRILL_RIDES_MANAGER_MONTHLY_COST_TEXT: "Maandelijkse kosten:"
-        GENTLE_THRILL_RIDES_MANAGER_CYCLES_TEXT: "Aantal cyclussen:"
+        GENTLE_THRILL_RIDES_MANAGER_CYCLES_TEXT: "Aantal cycli:"
 
         # Fence gui strings.
-        FENCE_TITLE: "Bouw hekwerk"
+        FENCE_TITLE: "Hekwerk bouwen"
         FENCE_TYPE_WOOD: "Houten hekwerk"
-        FENCE_TYPE_HEDGE: "Naaldboom heg"
+        FENCE_TYPE_HEDGE: "Coniferenheg"
         FENCE_TYPE_BRICK: "Stenen muur"
 
         # Scenery gui strings.
         SCENERY_TITLE: "Decoraties"
-        SCENERY_ROTATE_POS: "Roteer object tegen de klok in"
-        SCENERY_ROTATE_NEG: "Roteer object met de klok mee"
+        SCENERY_ROTATE_POS: "Object tegen de klok in draaien"
+        SCENERY_ROTATE_NEG: "Object met de klok mee draaien"
         SCENERY_CATEGORY_TREES: "Bomen"
         SCENERY_CATEGORY_FLOWERBEDS: "Bloembedden"
         SCENERY_CATEGORY_FOUNTAINS: "Fonteinen"
 
         # Path objects gui strings.
-        PATH_OBJECTS_TITLE: "Pad Objecten"
-        PATH_OBJECTS_BENCH: "Plaats banken"
-        PATH_OBJECTS_BIN: "Plaats prullenbakken"
-        PATH_OBJECTS_LAMP: "Plaats lampen"
+        PATH_OBJECTS_TITLE: "Padobjecten"
+        PATH_OBJECTS_BENCH: "Banken plaatsen"
+        PATH_OBJECTS_BIN: "Prullenbakken plaatsen"
+        PATH_OBJECTS_LAMP: "Lantaarnpalen plaatsen"
 
         # Terraform gui strings.
-        TERRAFORM_TITLE: "Pas landschap aan"
+        TERRAFORM_TITLE: "Landschap aanpassen"
         TERRAFORM_ADD_TEXT: "+"
-        TERRAFORM_ADD_TOOLTIP: "Vergoot het terravorm gebied"
+        TERRAFORM_ADD_TOOLTIP: "Terraformgebied vergroten"
         TERRAFORM_SUB_TEXT: "-"
-        TERRAFORM_SUB_TOOLTIP: "Verklein het terravorm gebied"
-        TERRAFORM_LEVEL_TEXT: "Niveau terravorm gebied"
-        TERRAFORM_MOVE_TEXT: "Verplaats het terravorm gebied"
+        TERRAFORM_SUB_TOOLTIP: "Terraformgebied verkleinen"
+        TERRAFORM_LEVEL_TEXT: "Terravormgebied vlakmaken"
+        TERRAFORM_MOVE_TEXT: "Terravormgebied verplaatsen"
 
         # Minimap gui strings.
         MINIMAP_TITLE: "Minikaart"
 
         # Finances gui strings.
-        FINANCES_TITLE: "Beheer financiën"
-        FINANCES_RIDE_CONSTRUCTION_TEXT: "Attractie bouw"
-        FINANCES_RIDE_RUNNING_TEXT: "Attractie exploitatiekosten"
-        FINANCES_LAND_PURCHASE_TEXT: "Schaf nieuw gebied aan"
+        FINANCES_TITLE: "Financiën beheren"
+        FINANCES_RIDE_CONSTRUCTION_TEXT: "Attractiebouw"
+        FINANCES_RIDE_RUNNING_TEXT: "Attractie-exploitatiekosten"
+        FINANCES_LAND_PURCHASE_TEXT: "Gebiedsaankoop"
         FINANCES_LANDSCAPING_TEXT: "Terravorming"
-        FINANCES_PARK_TICKETS_TEXT: "Park toegangsbewijzen"
-        FINANCES_RIDE_TICKETS_TEXT: "Attractie toegangsbewijzen"
-        FINANCES_SHOP_SALES_TEXT: "Verkopen winkel"
-        FINANCES_SHOP_STOCK_TEXT: "Winkel voorraden"
-        FINANCES_FOOD_SALES_TEXT: "Verkopen eten/drinken"
-        FINANCES_FOOD_STOCK_TEXT: "Eten/drinken voorraden"
+        FINANCES_PARK_TICKETS_TEXT: "Parktoegangsbewijzen"
+        FINANCES_RIDE_TICKETS_TEXT: "Attractietoegangsbewijzen"
+        FINANCES_SHOP_SALES_TEXT: "Winkelverkopen"
+        FINANCES_SHOP_STOCK_TEXT: "Winkelvoorraden"
+        FINANCES_FOOD_SALES_TEXT: "Verkoop van eten/drinken"
+        FINANCES_FOOD_STOCK_TEXT: "Voorraden van eten/drinken"
         FINANCES_STAFF_WAGES_TEXT: "Personeelskosten"
         FINANCES_MARKETING_TEXT: "Marketing"
         FINANCES_RESEARCH_TEXT: "Onderzoek"
-        FINANCES_LOAN_INTEREST_TEXT: "Lening rente"
+        FINANCES_LOAN_INTEREST_TEXT: "Rente op lening"
         FINANCES_TOTAL_TEXT: "Totaal"
         FINANCES_MAX_LOAN: "Maximale lening"
         FINANCES_CURRENT_LOAN: "Huidige lening"
-        FINANCES_LOAN_INTEREST: "Rente op Lening"
+        FINANCES_LOAN_INTEREST: "Rente op lening"
         FINANCES_LOAN_INTEREST_VALUE: "%.1f%% per jaar"
         FINANCES_CASH: "Contant geld"
 
         # Messages and inbox.
-        INBOX_TITLE: "Inbox"
-        MESSAGE_NEW_RIDE: "Een nieuwe attractie is nu beschikbaar: %1%"
+        INBOX_TITLE: "Postvak in"
+        MESSAGE_NEW_RIDE: "Er is een nieuwe attractie beschikbaar: %1%"
         MESSAGE_SCENARIO_WON: "Gefeliciteerd, je hebt het scenario voltooid!"
         MESSAGE_SCENARIO_LOST: "Je hebt het scenario verloren. Hopelijk heb je de volgende keer meer geluk."
-        MESSAGE_BROKEN_DOWN: "%1% is kapot gegaan."
+        MESSAGE_BROKEN_DOWN: "%1% is kapotgegaan."
         MESSAGE_REPAIRED: "%1% is gerepareerd."
         MESSAGE_CRASH_NO_DEAD: "%1% is gecrasht!"
         MESSAGE_CRASH_WITH_DEAD:
-            one: "%2% bezoekers is gestorven toen %1% crashde!"
-            other: "%2% bezoekers zijn gestorven toen %1% crashde!"
+            one: "%2% bezoeker is omgekomen tijdens de crash van %1%!"
+            other: "%2% bezoekers zijn omgekomen tijdens de crash van %1%!"
         MESSAGE_BAD_RATING:
-            one: "De waardering van het park heeft een zorgwekkend niveau bereikt. Het park zal worden gesloten in %1% week als de waardering niet verbeterd."
-            other: "De waardering van het park heeft een zorgwekkend niveau bereikt. Het park zal worden gesloten in %1% weken als de waardering niet verbeterd."
+            one: "De parkwaardering heeft een zorgwekkend niveau bereikt. Het park zal over %1% week worden gesloten als dit niet verbetert."
+            other: "De parkwaardering heeft een zorgwekkend niveau bereikt. Het park zal over %1% weken worden gesloten als dit niet verbetert."
         MESSAGE_GUEST_LOST: "%1% is verdwaald en kan de uitgang niet vinden."
-        MESSAGE_COMPLAIN_QUEUE: "De wachtrij voor %1% is erg lang."
-        MESSAGE_COMPLAIN_HUNGRY: "Veel bezoekers hebben hunger en weten niet waar ze eten kunnen kopen."
+        MESSAGE_COMPLAIN_QUEUE: "De wachtrij bij %1% is erg lang."
+        MESSAGE_COMPLAIN_HUNGRY: "Veel bezoekers hebben honger en weten niet waar ze eten kunnen kopen."
         MESSAGE_COMPLAIN_THIRSTY: "Veel bezoekers hebben dorst en weten niet waar ze drinken kunnen kopen."
-        MESSAGE_COMPLAIN_TOILET: "Veel bezoekers moeten naar het toilet maar weten niet waar ze er een kunnen vinden."
+        MESSAGE_COMPLAIN_TOILET: "Veel bezoekers moeten naar het toilet, maar weten niet waar ze er een kunnen vinden."
         MESSAGE_COMPLAIN_LITTER: "Je bezoekers klagen over troep op de paden."
         MESSAGE_COMPLAIN_VANDALISM: "Je bezoekers klagen over de hoeveelheid gevandaliseerde objecten in je park."
         MESSAGE_CHEAP_FEE: "Je bezoekers vinden de toegansprijs verbazingwekkend laag."
         MESSAGE_AWARD_WON: "Je park heeft een prijs gewonnen: %1%"
-        MESSAGE_NEGATIVE_AWARD: "Je park heeft een negatieve toekenning gekregen: %1%"
+        MESSAGE_NEGATIVE_AWARD: "Je park heeft een koude douche gekregen: %1%"
 
         # Coaster construction strings.
-        COASTER_BUILD_LEFT_BEND_TOOLTIP: "Selecteer een baanstuk met een bocht naar links"
-        COASTER_BUILD_NO_BEND_TOOLTIP: "Selecteer een recht baanstuk"
-        COASTER_BUILD_RIGHT_BEND_TOOLTIP: "Selecteer een baanstuk met een bocht naar rechts"
-        COASTER_BUILD_BANK_LEFT_TOOLTIP: "Selecteer een baanstuk dat eindigt met een wenteling naar links"
-        COASTER_BUILD_BANK_NONE_TOOLTIP: "Selecteer een baanstuk dat zonder wenteling eindigt"
-        COASTER_BUILD_BANK_RIGHT_TOOLTIP: "Selecteer een baanstuk dat eindigt met een wenteling naar rechts"
-        COASTER_BUILD_BUY_TOOLTIP: "Klik om het geselecteerde baanstuk te kopen"
+        COASTER_BUILD_LEFT_BEND_TOOLTIP: "Kies baanstukken met een bocht naar links"
+        COASTER_BUILD_NO_BEND_TOOLTIP: "Kies een recht baanstuk"
+        COASTER_BUILD_RIGHT_BEND_TOOLTIP: "Kies baanstukken met een bocht naar rechts"
+        COASTER_BUILD_BANK_LEFT_TOOLTIP: "Kies baanstukken die eindigen met een wenteling naar links"
+        COASTER_BUILD_BANK_NONE_TOOLTIP: "Kies baanstukken die zonder wenteling eindigen"
+        COASTER_BUILD_BANK_RIGHT_TOOLTIP: "Kies baanstukken die eindigen met een wenteling naar rechts"
+        COASTER_BUILD_BUY_TOOLTIP: "Klik om het gekozen baanstuk te kopen"
 
         # Coaster management strings.
         COASTER_MANAGER_NUMBER_TRAINS:
@@ -323,41 +323,41 @@ strings:
         COASTER_MANAGER_NUMBER_CARS:
             one: "%1% wagon"
             other: "%1% wagons"
-        COASTER_MANAGER_EDIT: "Wijzig baan"
-        COASTER_MANAGER_NO_GRAPHS_YET: "Er zijn nog geen metingen"
+        COASTER_MANAGER_EDIT: "Baan aanpassen"
+        COASTER_MANAGER_NO_GRAPHS_YET: "Er zijn nog geen metingen verricht"
         COASTER_MANAGER_GRAPH_SPEED: "Snelheid"
         COASTER_MANAGER_GRAPH_VERT_G: "Verticale G-krachten"
         COASTER_MANAGER_GRAPH_HORZ_G: "Horizontale G-krachten"
-        COASTER_MANAGER_GRAPH_TOOLTIP_SPEED: "Laat een grafiek van de snelheid zien"
-        COASTER_MANAGER_GRAPH_TOOLTIP_VERT_G: "Laat een grafiek van de verticale G-krachten zien"
-        COASTER_MANAGER_GRAPH_TOOLTIP_HORZ_G: "Laat een grafiek van de horizontale G-krachten zien"
+        COASTER_MANAGER_GRAPH_TOOLTIP_SPEED: "Toon een grafiek met daarop de snelheid"
+        COASTER_MANAGER_GRAPH_TOOLTIP_VERT_G: "Toon een grafiek met daarop de verticale G-krachten"
+        COASTER_MANAGER_GRAPH_TOOLTIP_HORZ_G: "Toon een grafiek met daarop de horizontale G-krachten"
 
         # Entity remove button strings.
-        ENTITY_REMOVE: "Verwijder"
-        ENTITY_REMOVE_TOOLTIP: "Verwijder dit?"
+        ENTITY_REMOVE: "Verwijderen"
+        ENTITY_REMOVE_TOOLTIP: "Verwijder deze attractie"
 
         # Entity remove window strings.
-        ENTITY_REMOVE_CAPTION: "Verwijder"
-        ENTITY_REMOVE_MESSAGE: "Verwijder %1%?"
+        ENTITY_REMOVE_CAPTION: "Verwijderen"
+        ENTITY_REMOVE_MESSAGE: "%1% verwijderen?"
         ENTITY_REMOVE_YES: "Ja"
         ENTITY_REMOVE_NO: "Nee"
 
         # Ride entrance/exit placement buttons.
-        PLACE_ENTRANCE: "Plaats Ingang"
-        PLACE_ENTRANCE_TOOLTIP: "Plaats een ingang voor de attractie"
-        PLACE_EXIT: "Plaats Uitgang"
-        PLACE_EXIT_TOOLTIP: "Plaats een uitgang voor de attractie"
-        CHOOSE_ENTRANCE: "Ingang Stijl"
-        CHOOSE_ENTRANCE_TOOLTIP: "Verander de stijl van de ingang"
-        CHOOSE_EXIT: "Uitgang Stijl"
-        CHOOSE_EXIT_TOOLTIP: "Verander de stijl van de uitgang"
+        PLACE_ENTRANCE: "Ingang plaatsen"
+        PLACE_ENTRANCE_TOOLTIP: "Plaats de ingang van de attractie"
+        PLACE_EXIT: "Uitgang plaatsen"
+        PLACE_EXIT_TOOLTIP: "Plaats de uitgang van de attractie"
+        CHOOSE_ENTRANCE: "Stijl van ingang"
+        CHOOSE_ENTRANCE_TOOLTIP: "Pas de stijl van de ingang aan"
+        CHOOSE_EXIT: "Stijl van uitgang"
+        CHOOSE_EXIT_TOOLTIP: "Pas de stijl van de uitgang aan"
 
         # Ride build window strings.
-        RIDE_BUILD_TITLEBAR_SHOP: "Bouw winkel"
-        RIDE_BUILD_TITLEBAR_GENTLE: "Bouw rustige attractie"
-        RIDE_BUILD_TITLEBAR_THRILL: "Bouw spannende attractie"
+        RIDE_BUILD_TITLEBAR_SHOP: "Winkel plaatsen"
+        RIDE_BUILD_TITLEBAR_GENTLE: "Rustige attractie plaatsen"
+        RIDE_BUILD_TITLEBAR_THRILL: "Spannende attractie plaatsen"
         RIDE_BUILD_ROTATE_TOOLTIP: "Klik om de attractie te draaien"
-        RIDE_BUILD_DISPLAY_TOOLTIP: "Een afbeelding van de attractie die je aan het kopen bent"
+        RIDE_BUILD_DISPLAY_TOOLTIP: "Een afbeelding van de attractie die je koopt"
         RIDE_BUILD_NAME_TEXT: "%1% aan het kopen"
         RIDE_BUILD_COST_TEXT: "Kost %1%"
 
@@ -368,32 +368,118 @@ strings:
 
         # Setting gui strings.
         SETTING_TITLE: "Instellingen"
-        SETTING_LANGUAGE: "Verander taal"
-        SETTING_LANGUAGE_TOOLTIP: "Verander de taal van het spel"
-        SETTING_RESOLUTION: "Verander de resolutie"
-        SETTING_RESOLUTION_TOOLTIP: "Verander de resolutie van het spel"
+        SETTING_LANGUAGE: "Taal wĳzigen"
+        SETTING_LANGUAGE_TOOLTIP: "Wijzig de taal van het spel"
+        SETTING_RESOLUTION: "Resolutie aanpassen"
+        SETTING_RESOLUTION_TOOLTIP: "Pas de resolutie van het spel aan"
 
         # Loading/saving window.
-        LOADSAVE_LOAD: "Laad"
+        LOADSAVE_LOAD: "Laden"
         LOADSAVE_SAVE: "Opslaan"
         LOADSAVE_CANCEL: "Annuleren"
 
+        TOOLBAR_GUI_DROPDOWN_VIEW_GRID: Rooster
+        TOOLBAR_GUI_DROPDOWN_VIEW_UNDERWATER: Onderwaterweergave
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SURFACES: Horizontale oppervlakken verbergen
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_FOUNDATIONS: Verticale steunen verbergen
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_RIDES: Hoogtemarkeringen op attracties tonen
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_PATHS: Hoogtemarkeringen op paden tonen
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_TERRAIN: Hoogtemarkeringen op terrein tonen
+        TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_OUT: Uitzoomen
+        TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_IN: Inzoomen
+        NO_NAME: Onbekend
+        DEFAULT_SCENARIO_NAME: Naamloos
+        DEFAULT_SCENARIO_DESCR: Dit scenario is niet van een beschrijving voorzien.
+        PERSON_STATUS_GOING_HOME: Naar huis aan het gaan
+        RIDE_SELECT_NO_DESIGNS: Er zijn geen opgeslagen baanontwerpen
+        RIDE_MANAGER_RIDE_NAME_TEXT: 'Naam:'
+        TERRAFORM_OWNER_UNCHANGED_TEXT: Eigendom niet aanpassen
+        TERRAFORM_OWNER_NONE_TEXT: Land afstoten
+        TERRAFORM_OWNER_PARK_TEXT: Land eigendom van park maken
+        TERRAFORM_OWNER_SALE_TEXT: Land te koop zetten
+        PARK_MANAGEMENT_TAB_GENERAL: Algemeen
+        PARK_MANAGEMENT_TAB_GENERAL_TOOLTIP: Beheer de algemene parkinstellingen
+        PARK_MANAGEMENT_TAB_GUESTS: Bezoekers
+        PARK_MANAGEMENT_TAB_GUESTS_TOOLTIP: Toon het aantal bezoekers gedurende de jaren
+        PARK_MANAGEMENT_TAB_RATING: Waardering
+        PARK_MANAGEMENT_TAB_RATING_TOOLTIP: Toon de parkwaardering gedurende de jaren
+        PARK_MANAGEMENT_TAB_OBJECTIVE: Doel
+        PARK_MANAGEMENT_TAB_OBJECTIVE_TOOLTIP: Toon het doel van het scenario
+        PARK_MANAGEMENT_TAB_AWARDS: Prijzen
+        PARK_MANAGEMENT_TAB_AWARDS_TOOLTIP: Toon de prijzen die je park heeft gekregen
+        PARK_MANAGEMENT_RATING: 'Parkwaardering: %1%'
+        PARK_MANAGEMENT_PARKNAME: 'Parknaam:'
+        PARK_MANAGEMENT_ENTRANCE_FEE: 'Toegangsprijs:'
+        PARK_MANAGEMENT_MAX_GUESTS: 'Maximaal aantal gasten:'
+        PARK_MANAGEMENT_SOLVED: 'Voer je naam in:'
+        PARK_MANAGEMENT_OBJECTIVE_GUESTS: 'Vereist aantal gasten:'
+        PARK_MANAGEMENT_OBJECTIVE_RATING: 'Vereiste parkwaardering:'
+        PARK_MANAGEMENT_OBJECTIVE_PARK_VALUE: 'Vereiste parkwaarde:'
+        PARK_MANAGEMENT_OBJECTIVE_DATE: 'Doel moet behaald worden op:'
+        PARK_MANAGEMENT_OBJECTIVE_DATE_NOT_EXACT: Doel mag ieder moment behaald worden
+        FINANCES_PARK_VALUE: Parkwaarde
+        FINANCES_COMPANY_VALUE: Bedrijfswaarde
+        FINANCES_PARK_VALUE_VALUE: 'Parkwaarde: %1%'
+        COASTER_MANAGER_SAVE_DESIGN: Baanontwerp opslaan
+        ENTITY_REMOVE_COST: 'Teruggave: %1%'
+        SCENARIO_SELECT_TITLE: Scenario kiezen
+        SCENARIO_SELECT_NO_MISSIONS: Er zijn geen missies geladen.
+        SCENARIO_SELECT_UNLOCK:
+            one: Voltooi nog %1% scenario binnen deze missie om dit scenario te ontgrendelen.
+            other: Voltooi nog %1% scenario's binnen deze missie om dit scenario te ontgrendelen.
+        SCENARIO_SELECT_SOLVED: Voltooid in %1% op %2%, met een parkwaarde van %3%
+        LOADSAVE_COLUMN_TIME: Gegevens opgeslagen
+        LOADSAVE_COLUMN_NAME: Scenario
+        LOADSAVE_CONFIRM_TITLE: Bevestiging
+        LOADSAVE_CONFIRM_OVERWRITE: Weet je zeker dat je dit opgeslagen spel wilt overschrijven?
+        NOT_AVAILABLE: n/b
+        DATETIME_FORMAT: '%Y-%m-%d, %I:%M:%S %p'
+        DATE_FORMAT: '%2% %1%, jaar %3%'
+        OBJECTIVE_TIMEOUT_EXACT: Dit doel moet op %1% behaald zijn.
+        OBJECTIVE_TIMEOUT_NONE: Dit doel kan op ieder moment behaald worden.
+        OBJECTIVE_STRICT: Dit doel moet sowieso behaald worden!
+        OBJECTIVETEXT_NONE: Veel plezier!
+        OBJECTIVETEXT_PARK_VALUE: Behaal een parkwaarde van minimaal %1%.
+        OBJECTIVETEXT_GUESTS:
+            other: Zorg voor minimaal %1% bezoekers in je park.
+            one: Zorg voor minimaal %1% bezoeker in je park.
+        GUEST_NAME: Bezoeker %1%
+        NR_DAYS:
+            other: '%1% dagen'
+            one: '%1% dag'
+        APPLY: Toepassen
+        MAIN_MENU_LAUNCH_EDITOR: Bewerker
+        TOOLBAR_GUI_DROPDOWN_MAIN: Menu
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SUPPORTS: Steunpilaren verbergen
+        RIDE_SELECT_CUSTOM_DESIGN: Eigen baan bouwen…
+        OBJECTIVETEXT_PARK_RATING: Behaal een parkwaardering van minimaal %1%.
+        TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_RIDES: Attracties voorzien van draadmodellen
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_PEOPLE: Bezoekers verbergen
+        TOOLBAR_GUI_PARK: Parkbeheer
+        OBJECTIVE_TIMEOUT_BEFORE: Dit doel moet vóór %1% behaald zijn.
+        PARK_MANAGEMENT_OBJECTIVE_DROP_POLICY: 'Park sluit indien het doel niet behaald is gedurende:'
+        TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_SCENERY: Decoraties voorzien van draadmodellen
+        TOOLBAR_GUI_TOOLTIP_PARK: Beheer alle informatie over het park
+        PARK_MANAGEMENT_NO_AWARDS: Je park heeft de laatste tijd geen prijzen gekregen.
+        LOADSAVE_CONFIRM_DELETE: Weet je zeker dat je dit opgeslagen spel wilt verwijderen?
+        LOADSAVE_DELETE: Verwijderen
+        LOADSAVE_COLUMN_FILE: Bestandsnaam
     ice-cream-stall:
-        NAME_INSTANCE1: "Het IJs Paleis"
-        NAME_INSTANCE2: "Koele drankjes"
-        NAME_TYPE: "IJskraampje"
-        DESCRIPTION_TYPE: "Winkel voor drankjes en ijs"
-        DESCRIPTION_RECOLOUR1: "Kleur van de bekers"
-        DESCRIPTION_RECOLOUR2: "Kleur van het ijs"
+        NAME_INSTANCE1: "Het ijspaleis"
+        NAME_INSTANCE2: "De koudste drankjes"
+        NAME_TYPE: "IJskraam"
+        DESCRIPTION_TYPE: "Een winkel die koude drankjes en ijs verkoopt"
+        DESCRIPTION_RECOLOUR1: "Bekerkleur"
+        DESCRIPTION_RECOLOUR2: "IJskleur"
         DESCRIPTION_RECOLOUR3: "-"
-        NAME_ITEM1: "Vanille IJs"
+        NAME_ITEM1: "Vanille-ijs"
         NAME_ITEM2: "Frisdrank"
 
     snack-shop:
         NAME_INSTANCE1: "De blije oppeuzelaar"
-        NAME_INSTANCE2: "Pizza Paleis"
-        NAME_TYPE: "Snack Kraampje"
-        DESCRIPTION_TYPE: "Winkel waar je snacks kunt kopen"
+        NAME_INSTANCE2: "Pizzapaleis"
+        NAME_TYPE: "Snackkraam"
+        DESCRIPTION_TYPE: "Een winkel waar je snacks kunt kopen"
         DESCRIPTION_RECOLOUR1: "-"
         DESCRIPTION_RECOLOUR2: "-"
         DESCRIPTION_RECOLOUR3: "-"
@@ -402,50 +488,51 @@ strings:
 
     toilet:
         NAME_INSTANCE1: "Toilet"
-        NAME_INSTANCE2: "Badkamer"
+        NAME_INSTANCE2: "WC"
         NAME_TYPE: "Toilet"
-        DESCRIPTION_TYPE: "Ga hierheen wanneer je nodig moet"
-        DESCRIPTION_RECOLOUR1: "Kleur van het toilet"
+        DESCRIPTION_TYPE: "Voor als je nodig moet"
+        DESCRIPTION_RECOLOUR1: "Toiletkleur"
         DESCRIPTION_RECOLOUR2: "-"
         DESCRIPTION_RECOLOUR3: "-"
         NAME_ITEM1: "Toilet"
+        NAME_ITEM2: '-'
     basic-coaster:
         NAME_INSTANCE: "Gekke achtbaan"
         NAME_TYPE: "Standaard achtbaan"
         DESCRIPTION_TYPE: "Standaard stalen achtbaan"
 
     entrance-generic:
-        NAME: "Standaard Ingang"
+        NAME: "Standaard ingang"
         DESCRIPTION_RECOLOUR1: "-"
         DESCRIPTION_RECOLOUR2: "-"
         DESCRIPTION_RECOLOUR3: "-"
     exit-generic:
-        NAME: "Standaard Uitgang"
+        NAME: "Standaard uitgang"
         DESCRIPTION_RECOLOUR1: "-"
         DESCRIPTION_RECOLOUR2: "-"
         DESCRIPTION_RECOLOUR3: "-"
     entrance-alt:
-        NAME: "Alternatieve Ingang"
+        NAME: "Alternatieve ingang"
         DESCRIPTION_RECOLOUR1: "Muren"
         DESCRIPTION_RECOLOUR2: "-"
         DESCRIPTION_RECOLOUR3: "-"
     exit-alt:
-        NAME: "Alternatieve Uitgang"
+        NAME: "Alternatieve uitgang"
         DESCRIPTION_RECOLOUR1: "Muren"
         DESCRIPTION_RECOLOUR2: "-"
         DESCRIPTION_RECOLOUR3: "-"
 
     spooky-manor:
         NAME_INSTANCE1: "Angstpaleis"
-        NAME_INSTANCE2: "Gangen van Duisternis"
-        NAME_TYPE: "Spookachtig Landhuis"
-        DESCRIPTION_TYPE: "Een donker en eng landhuis dat iedere dappere bezoeker bang maakt."
+        NAME_INSTANCE2: "Duistere gangen"
+        NAME_TYPE: "Spookachtig landhuis"
+        DESCRIPTION_TYPE: "Een donker, eng landhuis dat zelfs de dapperste bezoekers de stuipen op het lijf jaagt."
         DESCRIPTION_RECOLOUR1: "Muren"
         DESCRIPTION_RECOLOUR2: "-"
         DESCRIPTION_RECOLOUR3: "-"
     ship-swing:
         NAME_INSTANCE1: "Kielhaler"
-        NAME_INSTANCE2: "Piraten Ahoy"
+        NAME_INSTANCE2: "Ahoy, piraten"
         NAME_TYPE: "Schommelschip"
         DESCRIPTION_TYPE: "Een schip dat heen en weer schommelt."
         DESCRIPTION_RECOLOUR1: "-"
@@ -453,7 +540,7 @@ strings:
         DESCRIPTION_RECOLOUR3: "-"
 
     park-entrance-generic:
-        NAME: "Standaard park ingang"
+        NAME: "Standaard parkingang"
     flowers1:
         NAME: "Bloembed 1"
     flowers2:
@@ -468,3 +555,46 @@ strings:
         NAME: "Boom 3"
     fountain1:
         NAME: "Fontein 1"
+    atm:
+        NAME_INSTANCE1: Geldautomaat
+        NAME_INSTANCE2: Geldopname
+        NAME_TYPE: Geldautomaat
+        DESCRIPTION_TYPE: Hier kunnen bezoekers geld opnemen als ze te weinig hebben.
+        DESCRIPTION_RECOLOUR1: Muren
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+        NAME_ITEM1: Geld
+        NAME_ITEM2: '-'
+    spiral-slide:
+        NAME_INSTANCE1: In de rondte
+        NAME_INSTANCE2: Duizelingwekking
+        NAME_TYPE: Bochtige glijbaan
+        DESCRIPTION_TYPE: Een glijbaan die met bochten om het trappenhuis heen gaat.
+        DESCRIPTION_RECOLOUR1: Muren 1
+        DESCRIPTION_RECOLOUR2: Muren 2
+        DESCRIPTION_RECOLOUR3: Glijbaan
+    top-spin:
+        NAME_INSTANCE2: De hoogte in
+        NAME_TYPE: Topspin
+        DESCRIPTION_RECOLOUR1: Gondel 1
+        DESCRIPTION_RECOLOUR3: Armen
+        NAME_INSTANCE1: Halsoverkop
+        DESCRIPTION_RECOLOUR2: Gondel 2
+        DESCRIPTION_TYPE: Een gondel die rond zijn as draait, terwijl die ook nog heen en weer schommelt.
+    chair-swing:
+        NAME_INSTANCE1: Kabelloos
+        NAME_INSTANCE2: Schommelend
+        NAME_TYPE: Schommelstoelen
+        DESCRIPTION_TYPE: Acht stoelen die met kabels vastzitten aan een draaiende schijf.
+        DESCRIPTION_RECOLOUR1: Constructie
+        DESCRIPTION_RECOLOUR2: Dak
+        DESCRIPTION_RECOLOUR3: Onderstel
+    scenario-emerald-expanses:
+        NAME: Groene paradijzen
+        DESCR: Wie kan deze adembenemende groene landschappen omvormen tot een samensmelting tussen mens en natuur? Een attractiepark tussen de hoge bomen en het heuvellandschap.
+    scenario-rugged-ravine:
+        NAME: Ruige ravijnen
+        DESCR: Een ravijn in een buitengebied, nabij een sinds jaar en dag drooggelegde rivier, wachtend op de komst van een attractiepark.
+    mission-official-easy:
+        NAME: Makkelijk zat
+        DESCR: Een pakket met makkelijke scenario's, gemaakt door het FreeRCT-ontwikkelteam.
