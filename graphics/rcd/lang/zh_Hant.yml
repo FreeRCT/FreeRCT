@@ -499,6 +499,7 @@ strings:
         NAME_INSTANCE2: 搖搖擺
         DESCRIPTION_RECOLOUR2: 屋頂
         DESCRIPTION_RECOLOUR3: 基座
+        NAME_INSTANCE1: 不受束縛
     scenario-emerald-expanses:
         NAME: 遼闊的綠寶石
         DESCR: 誰能夠在看到這片廣闊的綠色大地時不被它的美麗所感動？在其平緩山丘的森林範圍內，一座遊樂園正在等待開發。
