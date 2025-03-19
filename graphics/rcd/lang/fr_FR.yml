@@ -412,6 +412,35 @@ strings:
         TOOLBAR_GUI_DROPDOWN_MAIN: Menu
         TITLEBAR_TIP: Cliquez sur la barre de titre pour relever la fenêtre, faites glisser la barre de titre pour déplacer la fenêtre
         TOOLBAR_GUI_DROPDOWN_VIEW_UNDERWATER: Vue sous-marine
+        PARK_MANAGEMENT_OBJECTIVE_PARK_VALUE: 'Valeur du parc exigée :'
+        PARK_MANAGEMENT_OBJECTIVE_DROP_POLICY: "Le parc ferme lorsque l'objectif n'est pas atteint :"
+        RIDE_SELECT_CUSTOM_DESIGN: Concevoir une piste personnalisée…
+        RIDE_SELECT_NO_DESIGNS: Pas de piste personnalisée sauvegardée
+        TERRAFORM_OWNER_UNCHANGED_TEXT: Ne pas modifier le propriétaire de la tuile
+        TERRAFORM_OWNER_NONE_TEXT: Rendre les terres sans propriétaire
+        TERRAFORM_OWNER_PARK_TEXT: Rendre les terre possédée par le parc
+        TERRAFORM_OWNER_SALE_TEXT: Marquer un terrain comme étant à vendre
+        PARK_MANAGEMENT_TAB_GENERAL: Général
+        PARK_MANAGEMENT_TAB_GENERAL_TOOLTIP: Gérer les paramètres généraux du parc
+        PARK_MANAGEMENT_TAB_GUESTS: Invités
+        PARK_MANAGEMENT_TAB_GUESTS_TOOLTIP: Afficher le nombre d'invités dans le parc au fil du temps
+        PARK_MANAGEMENT_TAB_RATING: Évaluation
+        PARK_MANAGEMENT_TAB_RATING_TOOLTIP: Afficher l'évaluation du parc au fil du temps
+        PARK_MANAGEMENT_TAB_OBJECTIVE: Objectif
+        PARK_MANAGEMENT_TAB_OBJECTIVE_TOOLTIP: Voir l'objectif du scénario
+        PARK_MANAGEMENT_TAB_AWARDS: Récompenses
+        PARK_MANAGEMENT_TAB_AWARDS_TOOLTIP: Voir les récompenses reçues par votre parc
+        PARK_MANAGEMENT_RATING: 'Classement du parc : %1%'
+        PARK_MANAGEMENT_NO_AWARDS: Le parc n'a pas reçu de récompenses récemment.
+        PARK_MANAGEMENT_PARKNAME: 'Nom du parc :'
+        PARK_MANAGEMENT_ENTRANCE_FEE: "Prix d'entrée :"
+        PARK_MANAGEMENT_MAX_GUESTS: "Nombre maximal d'invités :"
+        PARK_MANAGEMENT_SOLVED: 'Entrez votre nom :'
+        PARK_MANAGEMENT_OBJECTIVE_GUESTS: 'Invités obligatoires :'
+        PARK_MANAGEMENT_OBJECTIVE_RATING: 'Côte du parc exigée :'
+        PARK_MANAGEMENT_OBJECTIVE_DATE: "L'objectif doit être atteint au :"
+        PARK_MANAGEMENT_OBJECTIVE_DATE_NOT_EXACT: L'objectiv peut être atteint n'importe quand
+        MINIMAP_TITLE: Mini-carte
     ice-cream-stall:
         NAME_INSTANCE1: "Le palais de glace"
         NAME_INSTANCE2: "Boissons fraîches"
