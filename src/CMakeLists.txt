@@ -40,7 +40,7 @@ IF(WEBASSEMBLY)
 	)
 
 	add_flags(CMAKE_EXE_LINKER_FLAGS "${WASM_FLAGS} \
-			-s FORCE_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 -s EXIT_RUNTIME=1 -s STACK_SIZE=131072 -s USE_GLFW=3 -s FULL_ES3 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY \
+			-s FORCE_FILESYSTEM=1 -s ALLOW_MEMORY_GROWTH=1 -s USE_WEBGL2=1 -s INITIAL_MEMORY=67108864 -s EXIT_RUNTIME=1 -s STACK_SIZE=18668848 -s USE_GLFW=3 -s GL_UNSAFE_OPTS=0 -s LEGACY_GL_EMULATION=1 -s ASSERTIONS=1 -s WASM=1 -s ASYNCIFY \
 			--preload-file ${CMAKE_INSTALL_PREFIX}")
 
 	FUNCTION(find_package)
@@ -107,7 +107,7 @@ add_dependencies(freerct rcd)
 IF(NOT WEBASSEMBLY)
 	find_package(PNG REQUIRED)
 	find_package(OpenGL REQUIRED)
-	find_package(glfw3 3.3 REQUIRED)
+	#find_package(glfw3 3.3 REQUIRED)
 	find_package(GLEW REQUIRED)
 	find_package(Freetype REQUIRED)
 	include_directories(freerct ${GLEW_INCLUDE_DIR} ${FREETYPE_INCLUDE_DIRS})
@@ -145,6 +145,13 @@ IF(ASAN)
 		message(FATAL_ERROR "ASan should be used only in debug builds.")
 	ENDIF()
 	add_c_cpp_flags("-fsanitize=address -fno-optimize-sibling-calls -fsanitize-address-use-after-scope -fno-omit-frame-pointer -g")
+ENDIF()
+
+IF(GPERF)
+	if(RELEASE)
+		message(FATAL_ERROR "GPerfTools should only be used in debug builds.")
+	ENDIF()
+	target_link_libraries(freerct profiler)
 ENDIF()
 
 # Compiler flags

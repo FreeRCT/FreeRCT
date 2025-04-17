@@ -51,17 +51,7 @@ constexpr const float FONT_PADDING_H = 0.2f;                   ///< Total horizo
 /** Initialize the text renderer. */
 void TextRenderer::Initialize()
 {
-	this->shader = _video.ConfigureShader("text");
-	glUniform1i(glGetUniformLocation(this->shader, "text"), 0);
-	glGenVertexArrays(1, &this->vao);
-	glGenBuffers(1, &this->vbo);
-	glBindVertexArray(this->vao);
-	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), nullptr);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+	return;
 }
 
 /**
@@ -118,11 +108,11 @@ void TextRenderer::LoadFont(const FontSet *font)
 		glTexImage2D(
 				GL_TEXTURE_2D,
 				0,
-				GL_R8,
+				GL_ALPHA,
 				face->glyph->bitmap.width,
 				face->glyph->bitmap.rows,
 				0,
-				GL_RED,
+				GL_ALPHA,
 				GL_UNSIGNED_BYTE,
 				face->glyph->bitmap.buffer
 		);
@@ -203,15 +193,8 @@ void TextRenderer::Draw(const std::string &text, float x, float y, float max_wid
 {
 	if (text.empty()) return;
 
-	glUseProgram(this->shader);
-	glUniform1f(glGetUniformLocation(this->shader, "text_colour_r"), FGetR(colour));
-	glUniform1f(glGetUniformLocation(this->shader, "text_colour_g"), FGetG(colour));
-	glUniform1f(glGetUniformLocation(this->shader, "text_colour_b"), FGetB(colour));
-	glUniform1f(glGetUniformLocation(this->shader, "text_colour_a"), FGetA(colour));
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindVertexArray(this->vao);
-
+	// glColor4f(FGetR(colour), FGetG(colour), FGetB(colour), FGetA(colour));
 	/* Insert some padding around the text.
 	 * Horizontal spacing is distributed equally on both sides of the text,
 	 * but we want more vertical spacing above than below.
@@ -219,7 +202,12 @@ void TextRenderer::Draw(const std::string &text, float x, float y, float max_wid
 	y += 0.75f * FONT_PADDING_V * this->font_size * scale;
 	x += FONT_PADDING_H * 0.5f;
 	max_width -= FONT_PADDING_H;
-
+	
+	float r = FGetR(colour);
+	float g = FGetG(colour);
+	float b = FGetB(colour);
+	float a = FGetA(colour);
+	
 	size_t text_length = text.size();
 	for (const char *c = text.c_str(); *c != '\0';) {
 		const FontGlyph &fg = this->GetFontGlyph(&c, text_length);
@@ -238,23 +226,33 @@ void TextRenderer::Draw(const std::string &text, float x, float y, float max_wid
 		_video.CoordsToGL(&x1, &y1);
 		_video.CoordsToGL(&x2, &y2);
 
-		GLfloat vertices[6][4] = {
-			{ x1, y2,   0.f, 1.f },
-			{ x2, y1,   1.f, 0.f },
-			{ x1, y1,   0.f, 0.f },
+		GLfloat vertices[] = {
+			 x1, y2,   0.f, 1.f , r, g, b, a,
+			 x2, y1,   1.f, 0.f , r, g, b, a,
+			 x1, y1,   0.f, 0.f , r, g, b, a,
 
-			{ x1, y2,   0.f, 1.f },
-			{ x2, y2,   1.f, 1.f },
-			{ x2, y1,   1.f, 0.f }
+			 x1, y2,   0.f, 1.f , r, g, b, a,
+			 x2, y2,   1.f, 1.f , r, g, b, a,
+			 x2, y1,   1.f, 0.f , r, g, b, a
 		};
+		
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+
+		glVertexPointer(2, GL_FLOAT, 8 * sizeof(float), vertices);
+		glTexCoordPointer(2, GL_FLOAT, 8 * sizeof(float), vertices+2);
+		glColorPointer(4, GL_FLOAT, 8 * sizeof(float), vertices+4);
 		glBindTexture(GL_TEXTURE_2D, fg.texture_id);
-		glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		// 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glDisableClientState(GL_COLOR_ARRAY);
+		
 		x += (fg.advance >> 6) * scale;
 	}
-	glBindVertexArray(0);
+	// glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -544,11 +542,12 @@ void VideoSystem::Initialize(std::vector<const FontSet*> fonts)
 	if (!glfwInit()) error("Failed to initialize GLFW\n");
 
 	/* Create a window. */
-	glfwWindowHint(GLFW_SAMPLES, 4);  // 4x antialiasing.
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);  // Require OpenGL 3.3 or higher.
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	// glfwWindowHint(GLFW_SAMPLES, 4);  // 4x antialiasing.
+	// glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);  // Require OpenGL 3.3 or higher.
+	// glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+	// glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+	// glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	// glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_ES_PROFILE);
 	this->width = 800;
 	this->height = 600;
 	this->mouse_x = this->width / 2;
@@ -582,8 +581,9 @@ void VideoSystem::Initialize(std::vector<const FontSet*> fonts)
 	/* Prepare the window. */
 	glClearColor(0.f, 0.f, 0.f, 1.0f);
 	glEnable(GL_BLEND);
+	glEnable(GL_TEXTURE_2D);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glDisable(GL_POINT_SMOOTH);
+	// glDisable(GL_POINT_SMOOTH);
 	glGetError();  // Clear error messages.
 
 	/* List available resolutions. */
@@ -594,13 +594,6 @@ void VideoSystem::Initialize(std::vector<const FontSet*> fonts)
 		for (int i = 0; i < count; ++i) this->resolutions.emplace(modes[i].width, modes[i].height);
 	}
 
-	/* Initialize basic rendering functionality. */
-	glGenVertexArrays(1, &this->vao);
-	glGenBuffers(1, &this->vbo);
-	glGenBuffers(1, &this->ebo);
-
-	this->colour_shader = this->ConfigureShader("colour");
-	this->image_shader = this->ConfigureShader("image");
 
 	/* Initialize the text renderer. */
 	_text_renderer.Initialize();
@@ -761,19 +754,7 @@ void VideoSystem::CoordsToGL(float *x, float *y) const {
  */
 GLuint VideoSystem::ConfigureShader(const std::string &name)
 {
-	std::string v = "data";
-	std::string f = "data";
-	v += DIR_SEP;
-	f += DIR_SEP;
-	v += "shaders";
-	f += "shaders";
-	v += DIR_SEP;
-	f += DIR_SEP;
-	v += name;
-	f += name;
-	v += ".vp";
-	f += ".fp";
-	return this->LoadShaders(FindDataFile(v).c_str(), FindDataFile(f).c_str());
+
 }
 
 /**
@@ -784,85 +765,8 @@ GLuint VideoSystem::ConfigureShader(const std::string &name)
  */
 GLuint VideoSystem::LoadShaders(const char *vp, const char *fp)
 {
-	/* Create the shaders. */
-	GLuint vertex_shader_id = glCreateShader(GL_VERTEX_SHADER);
-	GLuint fragment_shader_id = glCreateShader(GL_FRAGMENT_SHADER);
 
-	/* Read the Vertex Shader code from the file. */
-	std::string vertex_shader_code;
-	std::ifstream vertex_shader_stream(vp, std::ios::in);
-	if (vertex_shader_stream.is_open()) {
-		std::stringstream sstr;
-		sstr << vertex_shader_stream.rdbuf();
-		vertex_shader_code = sstr.str();
-		vertex_shader_stream.close();
-	} else {
-		error("ERROR: Unable to open shader '%s'!\n", vp);
-	}
-
-	/* Read the Fragment Shader code from the file. */
-	std::string fragment_shader_code;
-	std::ifstream fragment_shader_stream(fp, std::ios::in);
-	if (fragment_shader_stream.is_open()) {
-		std::stringstream sstr;
-		sstr << fragment_shader_stream.rdbuf();
-		fragment_shader_code = sstr.str();
-		fragment_shader_stream.close();
-	}
-
-	GLint result = GL_FALSE;
-	int info_log_length;
-
-	/* Compile Vertex Shader. */
-	char const* vertex_source_pointer = vertex_shader_code.c_str();
-	glShaderSource(vertex_shader_id, 1, &vertex_source_pointer, nullptr);
-	glCompileShader(vertex_shader_id);
-
-	/* Check Vertex Shader. */
-	glGetShaderiv(vertex_shader_id, GL_COMPILE_STATUS, &result);
-	if (result != GL_TRUE) {
-		glGetShaderiv(vertex_shader_id, GL_INFO_LOG_LENGTH, &info_log_length);
-		std::vector<char> vertex_shader_error_message(info_log_length + 1);
-		glGetShaderInfoLog(vertex_shader_id, info_log_length, nullptr, vertex_shader_error_message.data());
-		error("Compile error in shader %s: %s\n", vp, vertex_shader_error_message.data());
-	}
-
-	/* Compile Fragment Shader. */
-	char const* FragmentSourcePointer = fragment_shader_code.c_str();
-	glShaderSource(fragment_shader_id, 1, &FragmentSourcePointer, nullptr);
-	glCompileShader(fragment_shader_id);
-
-	/* Check Fragment Shader. */
-	glGetShaderiv(fragment_shader_id, GL_COMPILE_STATUS, &result);
-	if (result != GL_TRUE) {
-		glGetShaderiv(fragment_shader_id, GL_INFO_LOG_LENGTH, &info_log_length);
-		std::vector<char> fragment_shader_error_message(info_log_length + 1);
-		glGetShaderInfoLog(fragment_shader_id, info_log_length, nullptr, fragment_shader_error_message.data());
-		error("Compile error in shader %s: %s\n", fp, fragment_shader_error_message.data());
-	}
-
-	/* Link the program. */
-	GLuint program_id = glCreateProgram();
-	glAttachShader(program_id, vertex_shader_id);
-	glAttachShader(program_id, fragment_shader_id);
-	glLinkProgram(program_id);
-
-	/* Check the program. */
-	glGetProgramiv(program_id, GL_LINK_STATUS, &result);
-	if (result != GL_TRUE) {
-		glGetProgramiv(program_id, GL_INFO_LOG_LENGTH, &info_log_length);
-		std::vector<char> program_error_message(info_log_length + 1);
-		glGetProgramInfoLog(program_id, info_log_length, nullptr, program_error_message.data());
-		error("Linking error in shader pair %s/%s: %s\n", vp, fp, program_error_message.data());
-	}
-
-	glDetachShader(program_id, vertex_shader_id);
-	glDetachShader(program_id, fragment_shader_id);
-
-	glDeleteShader(vertex_shader_id);
-	glDeleteShader(fragment_shader_id);
-
-	return program_id;
+	return 0;
 }
 
 /**
@@ -1002,33 +906,37 @@ void VideoSystem::DoDrawImage(GLuint texture, float x1, float y1, float x2, floa
 {
 	this->CoordsToGL(&x1, &y1);
 	this->CoordsToGL(&x2, &y2);
+	float r = FGetR(col);
+	float g = FGetG(col);
+	float b = FGetB(col);
+	float a = FGetA(col);
 	float vertices[] = {
-		// positions  // colours                                      // texture coords
-		x2, y1, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col), tex.z, tex.w, // top right
-		x2, y2, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col), tex.z, tex.y, // bottom right
-		x1, y2, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col), tex.x, tex.y, // bottom left
-		x1, y1, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col), tex.x, tex.w  // top left
-	};
-	GLuint indices[] = {
-		0, 1, 3, // first triangle
-		1, 2, 3  // second triangle
+		// positions        // colors    // texture coords
+		x2, y1, 0.0f,       r, g, b, a, tex.z, tex.w, // top right
+		x2, y2, 0.0f,       r, g, b, a, tex.z, tex.y, // bottom right
+		x1, y1, 0.0f,       r, g, b, a, tex.x, tex.w, // top left
+
+		x2, y2, 0.0f,       r, g, b, a, tex.z, tex.y, // bottom right
+		x1, y2, 0.0f,       r, g, b, a, tex.x, tex.y, // bottom left
+		x1, y1, 0.0f,       r, g, b, a, tex.x, tex.w  // top left
 	};
 
-	glBindVertexArray(this->vao);
-	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)nullptr);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(7 * sizeof(float)));
-	glEnableVertexAttribArray(2);
+
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	glVertexPointer(3, GL_FLOAT, 9 * sizeof(float), vertices);
+	glColorPointer(4, GL_FLOAT, 9 * sizeof(float), vertices+3);
+
+	glTexCoordPointer(2, GL_FLOAT, 9 * sizeof(float), vertices+7);
 	glBindTexture(GL_TEXTURE_2D, texture);
-	glUseProgram(this->image_shader);
-	glBindVertexArray(this->vao);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+	
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 /**
@@ -1046,7 +954,7 @@ void VideoSystem::DoDrawPlainColours(const std::vector<Point<float>> &points, ui
 		float alpha;
 	};
 	static_assert(sizeof(PerVertexData) == 6 * sizeof(float), "PerVertexData must be tightly packed.");
-
+	
 	std::vector<PerVertexData> vertices;
 	vertices.reserve(points.size());
 	for (const auto &p : points) {
@@ -1060,15 +968,15 @@ void VideoSystem::DoDrawPlainColours(const std::vector<Point<float>> &points, ui
 		back.b = FGetB(col);
 		back.alpha = FGetA(col);
 	}
-	glBindVertexArray(this->vao);
-	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)nullptr);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glUseProgram(this->colour_shader);
-	glBindVertexArray(this->vao);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+
+	glVertexPointer(2, GL_FLOAT, 7 * sizeof(float), vertices.data());
+	glColorPointer(4, GL_FLOAT, 7 * sizeof(float), vertices.data()+2);
+
 	glDrawArrays(GL_POINTS, 0, vertices.size());
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 }
 
 /**
@@ -1082,20 +990,27 @@ void VideoSystem::DoDrawPlainColours(const std::vector<Point<float>> &points, ui
 void VideoSystem::DoDrawLine(float x1, float y1, float x2, float y2, uint32 col) {
 	this->CoordsToGL(&x1, &y1);
 	this->CoordsToGL(&x2, &y2);
+	float r = FGetR(col);
+	float g = FGetG(col);
+	float b = FGetB(col);
+	float a = FGetA(col);
 	float vertices[] = {
-		x1, y1, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col),
-		x2, y2, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col),
+		x1, y1, 0.0f, r, g, b, a,
+		x2, y2, 0.0f, r, g, b, a,
 	};
-	glBindVertexArray(this->vao);
-	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)nullptr);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glUseProgram(this->colour_shader);
-	glBindVertexArray(this->vao);
+	
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+
+	glVertexPointer(3, GL_FLOAT, 7 * sizeof(float), vertices);
+	glColorPointer(4, GL_FLOAT, 7 * sizeof(float), vertices+3);
+	
 	glDrawArrays(GL_LINES, 0, 2);
+	
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+
+	
 }
 
 /**
@@ -1107,29 +1022,33 @@ void VideoSystem::DoDrawLine(float x1, float y1, float x2, float y2, uint32 col)
  * @param col RGBA colour to use.
  */
 void VideoSystem::DoFillPlainColour(float x1, float y1, float x2, float y2, uint32 col) {
+
 	this->CoordsToGL(&x1, &y1);
 	this->CoordsToGL(&x2, &y2);
+	float r = FGetR(col);
+	float g = FGetG(col);
+	float b = FGetB(col);
+	float a = FGetA(col);
 	float vertices[] = {
-		// positions  // colours
-		x2, y1, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col),
-		x2, y2, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col),
-		x1, y1, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col),
-		x1, y2, 0.0f, FGetR(col), FGetG(col), FGetB(col), FGetA(col),
+		// positions       // colours
+		x2, y1, 0.0f,      r, g, b, a, // top right
+		x2, y2, 0.0f,      r, g, b, a, // bottom right
+		x1, y1, 0.0f,      r, g, b, a, // top left
+
+		x2, y2, 0.0f,      r, g, b, a, // bottom right
+		x1, y2, 0.0f,      r, g, b, a, // bottom left
+		x1, y1, 0.0f,      r, g, b, a, // top left
 	};
-	GLuint indices[] = {
-		0, 1, 2,
-		1, 2, 3,
-	};
-	glBindVertexArray(this->vao);
-	glBindBuffer(GL_ARRAY_BUFFER, this->vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)nullptr);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	glUseProgram(this->colour_shader);
-	glBindVertexArray(this->vao);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+
+
+	glVertexPointer(3, GL_FLOAT, 7 * sizeof(float), vertices);
+	glColorPointer(4, GL_FLOAT, 7 * sizeof(float), vertices+3);
+
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 }
