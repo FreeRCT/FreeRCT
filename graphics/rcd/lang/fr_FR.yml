@@ -441,6 +441,23 @@ strings:
         PARK_MANAGEMENT_OBJECTIVE_DATE: "L'objectif doit être atteint au :"
         PARK_MANAGEMENT_OBJECTIVE_DATE_NOT_EXACT: L'objectiv peut être atteint n'importe quand
         MINIMAP_TITLE: Mini-carte
+        FINANCES_COMPANY_VALUE: Valeur de la compagnie
+        SETTING_RESOLUTION: Changer le résolution
+        SETTING_RESOLUTION_TOOLTIP: Changer le résolution de l'écran du jeu
+        SCENARIO_SELECT_TITLE: Sélectionner le scénario
+        SCENARIO_SELECT_NO_MISSIONS: Aucune mission n'a été chargée.
+        SCENARIO_SELECT_UNLOCK:
+            one: Compléter encore %1% scénarios dans cette mission pour débloquer ce scénario.
+            other: Complétez encore %1% scénarios dans cette mission pour débloquer ce scénario.
+        SCENARIO_SELECT_SOLVED: Complété par %1% sur %2% avec la valeur de compagnie de %3%
+        LOADSAVE_DELETE: Supprimer
+        LOADSAVE_COLUMN_FILE: Nom de fichier
+        LOADSAVE_COLUMN_TIME: Données sauvegardées
+        LOADSAVE_COLUMN_NAME: Scénario
+        LOADSAVE_CONFIRM_TITLE: Confirmer
+        LOADSAVE_CONFIRM_OVERWRITE: Êtes vous sûr·e de vouloir écraser cette sauvegarde ?
+        LOADSAVE_CONFIRM_DELETE: Êtes-vous sûr·e de vouloir supprimer cette sauvegarde ?
+        ENTITY_REMOVE_COST: 'Retour : %1%'
     ice-cream-stall:
         NAME_INSTANCE1: "Le palais de glace"
         NAME_INSTANCE2: "Boissons fraîches"
@@ -460,6 +477,9 @@ strings:
         NAME_ITEM1: "Pâtisseries"
         NAME_ITEM2: "Pizza"
 
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+        DESCRIPTION_RECOLOUR1: '-'
     toilet:
         NAME_INSTANCE1: "Toilettes"
         NAME_INSTANCE2: "Salle de bain"
@@ -469,6 +489,7 @@ strings:
         DESCRIPTION_RECOLOUR2: "-"
         DESCRIPTION_RECOLOUR3: "-"
         NAME_ITEM1: "Toilette"
+        NAME_ITEM2: '-'
     basic-coaster:
         NAME_INSTANCE: "Le Rouleur Fou"
         NAME_TYPE: "Montagnes Russes de base"
@@ -528,3 +549,25 @@ strings:
         NAME: "Arbre 3"
     fountain1:
         NAME: "Fontaine 1"
+    atm:
+        NAME_INSTANCE1: Point de vente
+        NAME_TYPE: Distributeur Automatique de Billets
+        DESCRIPTION_TYPE: Autorise les invités à retirer plus d'argent quand il n'y en a plus.
+        DESCRIPTION_RECOLOUR1: Murs
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+        NAME_ITEM1: Argent
+        NAME_ITEM2: '-'
+        NAME_INSTANCE2: Distributeur de billets
+    spiral-slide:
+        DESCRIPTION_RECOLOUR1: Murs 1
+        DESCRIPTION_RECOLOUR2: Murs 2
+        NAME_INSTANCE2: Étourdissement
+    top-spin:
+        DESCRIPTION_RECOLOUR1: Gondole 1
+        DESCRIPTION_RECOLOUR2: Gondole 2
+        DESCRIPTION_RECOLOUR3: Contraintes
+    chair-swing:
+        DESCRIPTION_RECOLOUR2: Toît
+        DESCRIPTION_RECOLOUR3: Base
+        DESCRIPTION_RECOLOUR1: Construction
