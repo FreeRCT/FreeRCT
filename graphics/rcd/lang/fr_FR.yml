@@ -458,6 +458,9 @@ strings:
         LOADSAVE_CONFIRM_OVERWRITE: Êtes vous sûr·e de vouloir écraser cette sauvegarde ?
         LOADSAVE_CONFIRM_DELETE: Êtes-vous sûr·e de vouloir supprimer cette sauvegarde ?
         ENTITY_REMOVE_COST: 'Retour : %1%'
+        FINANCES_PARK_VALUE: Valeur du parc
+        FINANCES_PARK_VALUE_VALUE: 'Valeur du parc : %1%'
+        COASTER_MANAGER_SAVE_DESIGN: Sauvegarder le concept du circuit
     ice-cream-stall:
         NAME_INSTANCE1: "Le palais de glace"
         NAME_INSTANCE2: "Boissons fraîches"
