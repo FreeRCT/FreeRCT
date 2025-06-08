@@ -65,6 +65,7 @@ constexpr const LanguageDefinition _all_languages[] = {
 	LanguageDefinition("pt_BR", 2, &plural_rule_standard, &FONT_LATIN),
 	LanguageDefinition("sv_SE", 2, &plural_rule_standard, &FONT_LATIN),
 	/* \todo Our file format and Weblate integration currently require exactly 2 plural forms. Actually Chinese has only one. */
+	LanguageDefinition("zh_Hans", 2, &plural_rule_one, &FONT_CJK),
 	LanguageDefinition("zh_Hant", 2, &plural_rule_one, &FONT_CJK),
 };
 
