@@ -6,11 +6,180 @@
 
 strings:
     meta:
-        nplurals: "2"
+        nplurals: "1"
         plural_0: "one"
         plural_1: "other"
         lang: "zh_Hans"
 
     gui:
-        LANGUAGE_NAME: "正體中文"
+        LANGUAGE_NAME: "简体中文"
 
+        NOT_AVAILABLE: 不适用
+        DATETIME_FORMAT: '%Y年%m月%d日 %H:M:%S'
+        DATE_FORMAT: 第 %3% 年%1% %2% 日
+        MONTH_JANUARY: 一月
+        MONTH_FEBRUARY: 二月
+        MONTH_APRIL: 四月
+        MONTH_MAY: 五月
+        MONTH_JUNE: 六月
+        MONTH_JULY: 七月
+        MONTH_AUGUST: 八月
+        MONTH_SEPTEMBER: 九月
+        MONTH_OCTOBER: 十月
+        MONTH_NOVEMBER: 十一月
+        MONTH_DECEMBER: 十二月
+        OBJECTIVE_TIMEOUT_EXACT: 该目标必须在 %1% 时实现。
+        OBJECTIVE_TIMEOUT_NONE: 该目标可以随时实现。
+        OBJECTIVE_STRICT: 该目标在任何时候都必须实现！
+        OBJECTIVETEXT_NONE: 游玩愉快！
+        OBJECTIVETEXT_PARK_RATING: 游乐园评级至少达到 %1%。
+        OBJECTIVETEXT_PARK_VALUE: 游乐园价值至少达到 %1%。
+        NUMBERED_INSTANCE_NAME: '%1% #%2%'
+        RESOLUTION: '%1%x%2%'
+        GUEST_NAME: 游客 %1%
+        NR_DAYS:
+            one: '%1% 日'
+            other: '%1% 日'
+        APPLY: 应用
+        DECREASE_BUTTON: '-'
+        INCREASE_BUTTON: +
+        TOOLBAR_GUI_DROPDOWN_MAIN: 菜单
+        MAIN_MENU_QUIT: 退出
+        MAIN_MENU_SETTINGS: 设置
+        MAIN_MENU_LOAD: 加载
+        MAIN_MENU_SAVE: 保存
+        MAIN_MENU_NEW_GAME: 新游戏
+        MAIN_MENU_LAUNCH_EDITOR: 编辑器
+        TOOLBAR_GUI_DROPDOWN_SPEED: 速度
+        TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP: 改变游戏速度
+        TOOLBAR_GUI_DROPDOWN_SPEED_PAUSE: 暂停
+        OBJECTIVETEXT_GUESTS:
+            other: 游乐园内有至少 %1% 位游客。
+            one: 游乐园内有至少 %1% 位游客。
+        TOOLBAR_GUI_DROPDOWN_SPEED_2: 2 倍
+        TOOLBAR_GUI_DROPDOWN_SPEED_4: 4 倍
+        TOOLBAR_GUI_DROPDOWN_SPEED_8: 8 倍
+        TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP: 视图选项
+        TOOLBAR_GUI_DROPDOWN_VIEW: 视图
+        TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: 地下视图
+        TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP: 缩略图
+        TOOLBAR_GUI_DROPDOWN_VIEW_GRID: 网格
+        TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_RIDES: 游乐设施线框
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_PEOPLE: 隐藏人群
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SUPPORTS: 隐藏支撑
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SURFACES: 隐藏水平面
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_FOUNDATIONS: 隐藏垂直地基
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_RIDES: 在设施上显示高度标注
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_TERRAIN: 在地形上显示高度标注
+        TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_OUT: 缩小
+        TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_IN: 放大
+        TOOLBAR_GUI_RIDE_SELECT: 购置游乐设施
+        TOOLBAR_GUI_TOOLTIP_RIDE_SELECT: 为游乐园购置新游乐设施
+        TOOLBAR_GUI_FENCE: 修建围栏
+        TOOLBAR_GUI_TOOLTIP_FENCE: 在游乐园内修建围栏
+        TOOLBAR_GUI_SCENERY: 景观
+        TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_SCENERY: 景观线框
+        TOOLBAR_GUI_TERRAFORM: 地形改造
+        TOOLBAR_GUI_TOOLTIP_TERRAFORM: 修改地形
+        TOOLBAR_GUI_FINANCES: 财务
+        TOOLBAR_GUI_TOOLTIP_FINANCES: 管理公司财务
+        TOOLBAR_GUI_STAFF: 职工
+        TOOLBAR_GUI_TOOLTIP_STAFF: 聘用与解聘职工
+        TOOLBAR_GUI_INBOX: 信箱
+        TOOLBAR_GUI_TOOLTIP_INBOX: 查看所有消息
+        TOOLBAR_GUI_TOOLTIP_PARK: 管理游乐园详情
+        BOTTOMBAR_GUESTCOUNT:
+            one: '%1% 位游客'
+            other: '%1% 位游客'
+        NO_NAME: 未知
+        DEFAULT_SCENARIO_NAME: 未名
+        TOOLBAR_GUI_PATHS: 步道
+        TOOLBAR_GUI_PATH_OBJECTS: 步道对象
+        TOOLBAR_GUI_TOOLTIP_PATH_OBJECTS: 在公园内修建步道对象
+        TOOLBAR_GUI_TOOLTIP_BUILD_PATHS: 修建步道与排队通道
+        QUIT_CAPTION: 退出吗？
+        QUIT_MESSAGE: 退出 FreeRCT 吗？
+        RETURN_CAPTION: 返回吗？
+        RETURN_MESSAGE: 返回主菜单吗？
+        CONFIRM_NO: 否
+        CONFIRM_YES: 是
+        ERROR_MESSAGE_CAPTION: 消息
+        ERROR_MESSAGE_HEADING_REMOVE: 这个不能移除……
+        ERROR_MESSAGE_HEADING_COST: 预期成本：
+        ERROR_MESSAGE_HEADING_RETURN: 预期回报：
+        ERROR_MESSAGE_UNREMOVABLE: 该对象不可移除。
+        ERROR_MESSAGE_UNOWNED_LAND: 您并不拥有这片土地！
+        ERROR_MESSAGE_EXPENSIVE: 您需要至少 %1%。
+        ERROR_MESSAGE_BAD_LOCATION: 地点不合适。
+        ERROR_MESSAGE_SLOPE: 不可建于斜坡。
+        ERROR_MESSAGE_OCCUPIED: 有东西挡住了！
+        ERROR_MESSAGE_PAUSED: 游戏暂停时禁止。
+        PERSON_STATUS_WANDER: 溜达中
+        PERSON_STATUS_HEADING_TO_RIDE: 前往 %s 中
+        PERSON_STATUS_GOING_HOME: 回家中
+        PERSON_STATUS_INSPECTING: 检查 %s 中
+        PERSON_STATUS_REPAIRING: 维修 %s 中
+        PERSON_STATUS_WATERING: 浇灌花圃
+        GUEST_INFO_MONEY: 现款
+        GUEST_INFO_MONEY_SPENT: 支出款额
+        GUEST_INFO_HAPPINESS: 快乐程度
+        GUEST_INFO_HUNGER: 饥饿
+        GUEST_INFO_THIRST: 口渴
+        GUEST_INFO_WASTE: 垃圾
+        GUEST_INFO_NAUSEA: 恶心
+        GUEST_INFO_ITEMS: 持有物品
+        ITEM_NONE: 无
+        ITEM_MAP: 地图
+        ITEM_UMBRELLA: 雨伞
+        ITEM_WRAPPER: 包装纸
+        STAFF_MANAGEMENT_TITLE: 职工
+        STAFF_SALARY: 日工资：%1%
+        STAFF_DISMISS: 解聘
+        STAFF_HIRE: 聘用
+        PERSON_STATUS_SWEEPING: 清扫步道中
+        ERROR_MESSAGE_SPRITE: 绘制图像失败
+        STAFF_NAME_GUARD: 保安 %d
+        STAFF_NAME_ENTERTAINER: 艺人 %d
+        STAFF_CATEGORY_MECHANICS: 技工 (%1%)
+        STAFF_CATEGORY_HANDYMEN: 杂工 (%1%)
+        STAFF_CATEGORY_GUARDS: 保安 (%1%)
+        STAFF_TITLE_NAME: 名称
+        STAFF_TITLE_STATUS: 状态
+        PATH_GUI_LONG: 长
+        PATH_GUI_BUY: 购买
+        PATH_GUI_REMOVE: 移除
+        PATH_GUI_BUY_TIP: 购买路面砖
+        PATH_GUI_FORWARD: 向前
+        PATH_GUI_BACKWARD: 向后
+        PATH_GUI_TITLE: 步道
+        PATH_GUI_LONG_TIP: 修建一条长步道
+        PATH_GUI_SLOPE_DOWN_TIP: 修建向下步道
+        PATH_GUI_SLOPE_FLAT_TIP: 修建水平步道
+        PATH_GUI_SLOPE_UP_TIP: 修建向上步道
+        PATH_GUI_QUEUE_PATH: 排队通道
+        PATH_GUI_FORWARD_TIP: 向前移动一个地块
+        PATH_GUI_BACKWARD_TIP: 向后移动一个地块
+        PATH_GUI_NW_DIRECTION_TIP: 向西北方向修建步道
+        PATH_GUI_NE_DIRECTION_TIP: 向东北方向修建步道
+        PATH_GUI_SW_DIRECTION_TIP: 向西南方向修建步道
+        PATH_GUI_SE_DIRECTION_TIP: 向东南方向修建步道
+        PATH_GUI_NORMAL_PATH: 正常步道
+        PATH_GUI_SINGLE: 单一
+        OBJECTIVE_TIMEOUT_BEFORE: 该目标必须在 %1% 之前实现。
+        STAFF_NAME_MECHANIC: 技工 %d
+        STAFF_CATEGORY_ENTERTAINERS: 艺人 (%1%)
+        MAIN_MENU_MENU: 主菜单
+        TITLEBAR_TIP: 单击标题栏提升窗口，拖动标题栏移动窗口
+        PERSON_STATUS_EMPTYING: 清倒垃圾箱中
+        STAFF_NAME_HANDYMAN: 杂工 %d
+        ERROR_MESSAGE_HEADING_BUILD: 这个不能放在此处……
+        DEFAULT_SCENARIO_DESCR: 该场景无描述。
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_PATHS: 在步道上显示高度标注
+        MONTH_MARCH: 三月
+        TOOLBAR_GUI_PARK: 游乐园管理
+        TOOLBAR_GUI_DROPDOWN_SPEED_1: 1 倍
+        TOOLBAR_GUI_DROPDOWN_VIEW_UNDERWATER: 水下视图
+        TOOLBAR_GUI_TOOLTIP_SCENERY: 在游乐园内修建景观项目
+        ERROR_MESSAGE_UNDERGROUND: 不可建于地下。
+        PATH_GUI_BULLDOZER_TIP: 单击以删除最后修建的步道并取回钱款（在关闭窗口前一直有效）
+        MESSAGE_COMPLAIN_QUEUE: '%1% 的队伍排得很长。'
