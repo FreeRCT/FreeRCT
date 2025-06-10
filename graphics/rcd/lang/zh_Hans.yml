@@ -169,7 +169,7 @@ strings:
         STAFF_NAME_MECHANIC: 技工 %d
         STAFF_CATEGORY_ENTERTAINERS: 艺人 (%1%)
         MAIN_MENU_MENU: 主菜单
-        TITLEBAR_TIP: 单击标题栏提升窗口，拖动标题栏移动窗口
+        TITLEBAR_TIP: 点击标题栏提升窗口，拖动标题栏移动窗口
         PERSON_STATUS_EMPTYING: 清倒垃圾箱中
         STAFF_NAME_HANDYMAN: 杂工 %d
         ERROR_MESSAGE_HEADING_BUILD: 这个不能放在此处……
@@ -181,5 +181,86 @@ strings:
         TOOLBAR_GUI_DROPDOWN_VIEW_UNDERWATER: 水下视图
         TOOLBAR_GUI_TOOLTIP_SCENERY: 在游乐园内修建景观项目
         ERROR_MESSAGE_UNDERGROUND: 不可建于地下。
-        PATH_GUI_BULLDOZER_TIP: 单击以删除最后修建的步道并取回钱款（在关闭窗口前一直有效）
+        PATH_GUI_BULLDOZER_TIP: 点击以删除最后修建的步道并取回钱款（在关闭窗口前一直有效）
         MESSAGE_COMPLAIN_QUEUE: '%1% 的队伍排得很长。'
+        PATH_GUI_SINGLE_TIP: 放置单向步道
+        PATH_GUI_DIRECTIONAL_TIP: 开始放置定向步道
+        PATH_GUI_DIRECTIONAL: 定向
+        RIDE_SELECT_TITLE: 游乐设施选择
+        RIDE_SELECT_SHOPS: 商店
+        RIDE_SELECT_SHOPS_TOOLTIP: 点击显示可用商店类型
+        RIDE_SELECT_GENTLE: 温和类游乐设施
+        RIDE_SELECT_GENTLE_TOOLTIP: 点击以显示可用温和类游乐设施类型
+        RIDE_SELECT_THRILL: 刺激类游乐设施
+        RIDE_SELECT_THRILL_TOOLTIP: 点击显示可用刺激类游乐设施类型
+        RIDE_SELECT_WET: 溅水类游乐设施
+        RIDE_SELECT_COASTER: 过山车
+        RIDE_SELECT_COASTER_TOOLTIP: 点击显示可用过山车类型
+        RIDE_SELECT_RIDE: 选择
+        RIDE_SELECT_RIDE_TOOLTIP: 单击选择所选游乐设施
+        RIDE_SELECT_ROT_NEG_TOOLTIP: 点击以顺时针方向旋转游乐设施
+        RIDE_SELECT_CUSTOM_DESIGN: 设计自定义轨道……
+        RIDE_SELECT_NO_DESIGNS: 无已保存轨道设计
+        RIDE_MANAGER_ENTRANCE_FEE_TEXT: 门票：
+        RIDE_MANAGER_RIDE_NAME_TEXT: 名称：
+        RIDE_MANAGER_RELIABILITY: 可靠度：%.1f%%
+        RIDE_MANAGER_BROKEN_DOWN: 故障
+        RIDE_MANAGER_MAINTENANCE_TEXT: 维护间隔（分钟）：
+        RIDE_MANAGER_MAINTENANCE_NEVER: 永不
+        RIDE_MANAGER_MIN_IDLE_TEXT: 最小闲置时间（秒）：
+        RIDE_MANAGER_EXCITEMENT: 兴奋度评级：
+        RIDE_MANAGER_INTENSITY: 强度评级：
+        RIDE_MANAGER_NAUSEA: 恶心评级：
+        RIDE_MANAGER_RATING_VERY_LOW: '%.2f（甚低）'
+        RIDE_MANAGER_RATING_LOW: '%.2f（低）'
+        RIDE_MANAGER_RATING_MEDIUM: '%.2f（中）'
+        RIDE_MANAGER_RATING_HIGH: '%.2f（高）'
+        RIDE_MANAGER_RATING_EXTREME: '%.2f（极高）'
+        RIDE_MANAGER_RATING_VERY_HIGH: '%.2f（甚高）'
+        RIDE_MANAGER_RATING_NOT_YET_CALCULATED: ？？？
+        SHOP_MANAGER_TITLE: 商店 “%1%”
+        SHOP_MANAGER_SELLING_PRICE_TEXT: 售价
+        SHOP_MANAGER_ITEMS_SOLD_TEXT: 已售物品
+        SHOP_MANAGER_ITEM_PROFIT_TEXT: 物品利润
+        SHOP_MANAGER_SELL_PROFIT_TEXT: 销售利润
+        SHOP_MANAGER_SHOP_COST_TEXT: 员工薪水
+        SHOP_MANAGER_TOTAL_PROFIT_TEXT: 总利润
+        GENTLE_THRILL_RIDES_MANAGER_TITLE: '%1% “%2%”'
+        GENTLE_RIDES_MANAGER_TITLE: 温和类游乐设施
+        THRILL_RIDES_MANAGER_TITLE: 刺激类游乐设施
+        GENTLE_THRILL_RIDES_MANAGER_CYCLES_TEXT: 循环次数：
+        FENCE_TITLE: 建造围栏
+        FENCE_TYPE_WOOD: 木围栏
+        FENCE_TYPE_HEDGE: 松树绿篱
+        FENCE_TYPE_BRICK: 砖墙
+        SCENERY_TITLE: 景观
+        SCENERY_ROTATE_NEG: 顺时针旋转项目
+        SCENERY_CATEGORY_TREES: 树木
+        SCENERY_CATEGORY_FLOWERBEDS: 花圃
+        PATH_OBJECTS_TITLE: 步道对象
+        PATH_OBJECTS_BENCH: 放置长椅
+        PATH_OBJECTS_BIN: 放置垃圾箱
+        PATH_OBJECTS_LAMP: 放置灯
+        TERRAFORM_TITLE: 修改地形
+        TERRAFORM_ADD_TEXT: +
+        TERRAFORM_ADD_TOOLTIP: 扩大地形改造区域面积
+        TERRAFORM_SUB_TEXT: '-'
+        TERRAFORM_LEVEL_TEXT: 水平地形改造区
+        TERRAFORM_MOVE_TEXT: 原样移动地形改造区域
+        TERRAFORM_OWNER_UNCHANGED_TEXT: 莫变更地块所有权
+        TERRAFORM_OWNER_NONE_TEXT: 使土地无主
+        TERRAFORM_OWNER_PARK_TEXT: 使土地归游乐园所有
+        TERRAFORM_OWNER_SALE_TEXT: 标记土地为待售
+        PARK_MANAGEMENT_TAB_GENERAL: 一般
+        PARK_MANAGEMENT_TAB_GUESTS: 游客
+        TERRAFORM_SUB_TOOLTIP: 缩小地形改造区域面积
+        RIDE_SELECT_ROT_POS_TOOLTIP: 点击以逆时针方向旋转游乐设施
+        RIDE_SELECT_WET_TOOLTIP: 点击显示可用溅水类游乐设施类型
+        GENTLE_THRILL_RIDES_MANAGER_MONTHLY_COST_TEXT: 月成本：
+        RIDE_MANAGER_MAX_IDLE_TEXT: 最长闲置时间（秒）：
+        SHOP_MANAGER_COST_PRICE_TEXT: 成本
+        SCENERY_ROTATE_POS: 逆时针旋转项目
+        SCENERY_CATEGORY_FOUNTAINS: 喷泉
+        PARK_MANAGEMENT_TAB_GENERAL_TOOLTIP: 管理一般游乐园设置
+    mission-official-easy:
+        DESCR: FreeRCT 开发团队提供的简易情景包。
