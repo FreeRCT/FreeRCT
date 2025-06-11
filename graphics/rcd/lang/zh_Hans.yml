@@ -262,5 +262,74 @@ strings:
         SCENERY_ROTATE_POS: 逆时针旋转项目
         SCENERY_CATEGORY_FOUNTAINS: 喷泉
         PARK_MANAGEMENT_TAB_GENERAL_TOOLTIP: 管理一般游乐园设置
+        PARK_MANAGEMENT_TAB_GUESTS_TOOLTIP: 显示随时间变化的游乐园内游客人数
+        PARK_MANAGEMENT_TAB_RATING: 评级
+        PARK_MANAGEMENT_TAB_RATING_TOOLTIP: 显示随时间变化的游乐园评级
+        PARK_MANAGEMENT_TAB_OBJECTIVE: 目标
+        PARK_MANAGEMENT_TAB_OBJECTIVE_TOOLTIP: 查看情景目标
+        PARK_MANAGEMENT_TAB_AWARDS: 奖项
+        PARK_MANAGEMENT_TAB_AWARDS_TOOLTIP: 查看游乐园已获奖项
+        PARK_MANAGEMENT_RATING: 游乐园评级：%1%
+        PARK_MANAGEMENT_NO_AWARDS: 公园最近未获任何奖项。
+        PARK_MANAGEMENT_PARKNAME: 游乐园名称：
+        PARK_MANAGEMENT_MAX_GUESTS: 最多游客计数：
+        PARK_MANAGEMENT_SOLVED: 请输入您的名称：
+        PARK_MANAGEMENT_OBJECTIVE_GUESTS: 所需游客：
+        PARK_MANAGEMENT_OBJECTIVE_RATING: 所需游乐园评级：
+        PARK_MANAGEMENT_OBJECTIVE_PARK_VALUE: 所需游乐园价值：
+        PARK_MANAGEMENT_OBJECTIVE_DATE: 必须通过此方式实现目标：
+        PARK_MANAGEMENT_OBJECTIVE_DROP_POLICY: 未达到此目标时将关闭游乐园：
+        PARK_MANAGEMENT_OBJECTIVE_DATE_NOT_EXACT: 目标可随时实现
+        MINIMAP_TITLE: 缩略图
+        FINANCES_TITLE: 管理财务
+        PARK_MANAGEMENT_ENTRANCE_FEE: 门票：
+        FINANCES_RIDE_CONSTRUCTION_TEXT: 游乐设施建造
+        FINANCES_RIDE_RUNNING_TEXT: 游乐设施运行成本
+        FINANCES_LAND_PURCHASE_TEXT: 土地购置
+        FINANCES_PARK_TICKETS_TEXT: 游乐园门票
+        FINANCES_RIDE_TICKETS_TEXT: 游乐设施门票
+        FINANCES_SHOP_SALES_TEXT: 商店销售
+        FINANCES_SHOP_STOCK_TEXT: 商店库存
+        FINANCES_FOOD_SALES_TEXT: 食品/饮料销售
+        FINANCES_FOOD_STOCK_TEXT: 食品/饮料库存
+        FINANCES_STAFF_WAGES_TEXT: 职工工资
+        FINANCES_MARKETING_TEXT: 行销
+        FINANCES_RESEARCH_TEXT: 研究
+        FINANCES_LOAN_INTEREST_TEXT: 贷款利息
+        FINANCES_TOTAL_TEXT: 总计
+        FINANCES_MAX_LOAN: 最高贷款额
+        FINANCES_LOAN_INTEREST: 贷款利率
+        FINANCES_LOAN_INTEREST_VALUE: 每年 %.1f%%
+        FINANCES_CASH: 现金
+        FINANCES_PARK_VALUE: 游乐园价值
+        FINANCES_COMPANY_VALUE: 公司价值
+        FINANCES_PARK_VALUE_VALUE: 游乐园价值：%1%
+        INBOX_TITLE: 信箱
+        MESSAGE_NEW_RIDE: 现在有了新的游乐设施：%1%
+        MESSAGE_SCENARIO_LOST: 你输掉了此情景。愿你再次尝试时运气更佳。
+        MESSAGE_BROKEN_DOWN: '%1% 故障了。'
+        MESSAGE_REPAIRED: '%1% 已修复。'
+        MESSAGE_CRASH_NO_DEAD: '%1% 坠毁了！'
+        MESSAGE_CRASH_WITH_DEAD:
+            one: '%1% 坠毁时，%2% 游客死亡！'
+            other: '%1% 坠毁时，%2% 游客死亡！'
+        MESSAGE_BAD_RATING:
+            one: 公园评级极低。如果评级没有改善，游乐园将在 %1% 周内关闭。
+            other: 公园评级极低。如果评级没有改善，游乐园将在 %1% 周内关闭。
+        MESSAGE_GUEST_LOST: '%1%迷路了，找不到游乐园出口。'
+        MESSAGE_COMPLAIN_HUNGRY: 很多游客饥肠辘辘，却不知何处可买食物。
+        MESSAGE_COMPLAIN_THIRSTY: 很大游客渴不可耐，却不知何处可买饮品。
+        MESSAGE_COMPLAIN_TOILET: 很多游客内急突袭，却不知何处有厕所。
+        MESSAGE_COMPLAIN_LITTER: 游客们嫌游乐园内步道垃圾遍地。
+        MESSAGE_COMPLAIN_VANDALISM: 游客们嫌游乐园内有许多被破坏物品。
+        MESSAGE_AWARD_WON: 游乐园已获奖： %1%
+        SETTING_LANGUAGE: 变更语言
+        SETTING_LANGUAGE_TOOLTIP: 变更游戏语言
+        FINANCES_LANDSCAPING_TEXT: 地形改造
+        FINANCES_CURRENT_LOAN: 当前贷款
+        MESSAGE_CHEAP_FEE: 游客们说，这里的门票出奇地便宜，捡大漏了。
+        COASTER_BUILD_LEFT_BEND_TOOLTIP: 选择向左弯曲的轨道件
+        MESSAGE_SCENARIO_WON: 恭喜您赢了此情景！
+        MESSAGE_NEGATIVE_AWARD: 游乐园已获负奖：%1%
     mission-official-easy:
         DESCR: FreeRCT 开发团队提供的简易情景包。
