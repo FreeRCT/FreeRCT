@@ -328,8 +328,145 @@ strings:
         FINANCES_LANDSCAPING_TEXT: 地形改造
         FINANCES_CURRENT_LOAN: 当前贷款
         MESSAGE_CHEAP_FEE: 游客们说，这里的门票出奇地便宜，捡大漏了。
-        COASTER_BUILD_LEFT_BEND_TOOLTIP: 选择向左弯曲的轨道件
+        COASTER_BUILD_LEFT_BEND_TOOLTIP: 选择向左弯曲轨道件
         MESSAGE_SCENARIO_WON: 恭喜您赢了此情景！
         MESSAGE_NEGATIVE_AWARD: 游乐园已获负奖：%1%
+        COASTER_BUILD_NO_BEND_TOOLTIP: 选择直线轨道件
+        COASTER_BUILD_RIGHT_BEND_TOOLTIP: 选择向右弯曲轨道件
+        COASTER_BUILD_BANK_LEFT_TOOLTIP: 选择以左侧倾斜结尾轨道件
+        COASTER_BUILD_BANK_NONE_TOOLTIP: 选择以水平倾斜结尾轨道件
+        COASTER_BUILD_BANK_RIGHT_TOOLTIP: 选择以右侧倾斜结尾轨道件
+        COASTER_BUILD_BUY_TOOLTIP: 点击购买所选轨道件
+        COASTER_MANAGER_NUMBER_TRAINS:
+            one: '%1% 列车'
+            other: '%1% 列车'
+        COASTER_MANAGER_NUMBER_CARS:
+            one: '%1% 辆车'
+            other: '%1% 辆车'
+        COASTER_MANAGER_EDIT: 编辑轨道
+        COASTER_MANAGER_SAVE_DESIGN: 保存轨道设计
+        COASTER_MANAGER_NO_GRAPHS_YET: 尚未测量
+        COASTER_MANAGER_GRAPH_SPEED: 速度
+        COASTER_MANAGER_GRAPH_VERT_G: 垂直 G 力
+        COASTER_MANAGER_GRAPH_HORZ_G: 水平 G 力
+        COASTER_MANAGER_GRAPH_TOOLTIP_SPEED: 显示速度图
+        COASTER_MANAGER_GRAPH_TOOLTIP_VERT_G: 显示垂直 G 力图
+        ENTITY_REMOVE: 移除
+        ENTITY_REMOVE_TOOLTIP: 移除此游乐设施
+        ENTITY_REMOVE_CAPTION: 移除
+        ENTITY_REMOVE_MESSAGE: 移除 %1% 吗？
+        ENTITY_REMOVE_COST: 返回：%1%
+        ENTITY_REMOVE_YES: 是
+        ENTITY_REMOVE_NO: 否
+        PLACE_ENTRANCE: 放置入口
+        PLACE_ENTRANCE_TOOLTIP: 放置游乐设施入口
+        PLACE_EXIT: 放置出口
+        PLACE_EXIT_TOOLTIP: 放置游乐设施出口
+        CHOOSE_ENTRANCE: 入口式样
+        CHOOSE_EXIT: 出口式样
+        CHOOSE_EXIT_TOOLTIP: 改变游乐设施出口式样
+        RIDE_BUILD_TITLEBAR_SHOP: 放置商店
+        RIDE_BUILD_TITLEBAR_GENTLE: 放置温和类游乐设施
+        RIDE_BUILD_TITLEBAR_THRILL: 放置刺激类游乐设施
+        RIDE_BUILD_ROTATE_TOOLTIP: 点击以旋转游乐设施
+        RIDE_BUILD_NAME_TEXT: 正购买 %1%
+        RIDE_BUILD_COST_TEXT: 花费 %1%
+        MONEY_CURRENCY_SYMBOL: ￥
+        MONEY_THOUSANDS_SEPARATOR:  
+        MONEY_DECIMAL_SEPARATOR: .
+        SETTING_TITLE: 设置
+        SETTING_RESOLUTION: 变更分辨率
+        SETTING_RESOLUTION_TOOLTIP: 变更游戏屏幕分辨率
+        SCENARIO_SELECT_TITLE: 选择情景
+        SCENARIO_SELECT_NO_MISSIONS: 尚未加载任何任务。
+        SCENARIO_SELECT_UNLOCK:
+            other: 在此任务中再完成 %1% 的情景，即可解锁此情景。
+            one: 在此任务中再完成 %1% 的情景，即可解锁此情景。
+        SCENARIO_SELECT_SOLVED: 由 %1% 于 %2% 完成，公司价值为 %3%
+        LOADSAVE_LOAD: 加载
+        LOADSAVE_SAVE: 保存
+        LOADSAVE_CANCEL: 取消
+        LOADSAVE_DELETE: 删除
+        LOADSAVE_COLUMN_FILE: 文件名
+        LOADSAVE_COLUMN_TIME: 保存日期
+        LOADSAVE_COLUMN_NAME: 情景
+        LOADSAVE_CONFIRM_TITLE: 确定
+        LOADSAVE_CONFIRM_DELETE: 您确定要删除该已保存游戏吗？
+        LOADSAVE_CONFIRM_OVERWRITE: 您确定要覆盖该已保存游戏吗？
+        CHOOSE_ENTRANCE_TOOLTIP: 改变游乐设施入口式样
+        RIDE_BUILD_DISPLAY_TOOLTIP: 您正购买的游乐设施的图片
+        COASTER_MANAGER_GRAPH_TOOLTIP_HORZ_G: 显示水平 G 力图
     mission-official-easy:
         DESCR: FreeRCT 开发团队提供的简易情景包。
+    ice-cream-stall:
+        NAME_INSTANCE2: 冰点酷饮
+        NAME_INSTANCE1: 冰晶宫殿
+        NAME_TYPE: 冰激凌摊
+        DESCRIPTION_TYPE: 阳光饮料与冰激凌店
+        DESCRIPTION_RECOLOUR1: 杯子颜色
+        DESCRIPTION_RECOLOUR2: 冰颜色
+        DESCRIPTION_RECOLOUR3: '-'
+        NAME_ITEM1: 香草冰激凌
+        NAME_ITEM2: 鲜制特饮
+    snack-shop:
+        NAME_INSTANCE1: 馋嘴小栈
+        NAME_TYPE: 小吃店
+        DESCRIPTION_RECOLOUR1: '-'
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+        NAME_ITEM1: 曲奇饼干
+        NAME_ITEM2: 比萨饼
+        NAME_INSTANCE2: 比萨狂欢堡
+        DESCRIPTION_TYPE: 能买到曲奇饼干的商店
+    toilet:
+        NAME_INSTANCE1: 洗手间
+        NAME_INSTANCE2: 盥洗室
+        NAME_TYPE: 洗手间
+        DESCRIPTION_TYPE: 此刻刚需？速往此方
+        DESCRIPTION_RECOLOUR1: 洗手间颜色
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+        NAME_ITEM1: 洗手间
+        NAME_ITEM2: '-'
+    atm:
+        NAME_INSTANCE1: 取款点
+        NAME_TYPE: 自动取款机
+        DESCRIPTION_TYPE: 允许游客花光钱后提取更多的钱。
+        DESCRIPTION_RECOLOUR1: 墙
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+        NAME_ITEM1: 现金
+        NAME_ITEM2: '-'
+        NAME_INSTANCE2: 取款机
+    basic-coaster:
+        NAME_INSTANCE: 狂飙怒轨
+        NAME_TYPE: 基本过山车
+        DESCRIPTION_TYPE: 基本钢制过山车
+    entrance-generic:
+        NAME: 一般入口
+        DESCRIPTION_RECOLOUR1: '-'
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+    exit-generic:
+        NAME: 一般出口
+        DESCRIPTION_RECOLOUR1: '-'
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+    entrance-alt:
+        NAME: 替代入口
+        DESCRIPTION_RECOLOUR1: 墙
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+    exit-alt:
+        NAME: 替代出口
+        DESCRIPTION_RECOLOUR1: 墙
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+    spooky-manor:
+        NAME_INSTANCE1: 惊魂诡宫
+        NAME_INSTANCE2: 幽邃禁廊
+        NAME_TYPE: 魅影古邸
+        DESCRIPTION_RECOLOUR1: 墙
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+        DESCRIPTION_TYPE: 幽垓鬼邸，慑魄诛心——勇者入则魂颤。
