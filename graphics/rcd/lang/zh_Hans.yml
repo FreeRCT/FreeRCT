@@ -398,6 +398,7 @@ strings:
         COASTER_MANAGER_GRAPH_TOOLTIP_HORZ_G: 显示水平 G 力图
     mission-official-easy:
         DESCR: FreeRCT 开发团队提供的简易情景包。
+        NAME: 官方简易
     ice-cream-stall:
         NAME_INSTANCE2: 冰点酷饮
         NAME_INSTANCE1: 冰晶宫殿
@@ -470,3 +471,57 @@ strings:
         DESCRIPTION_RECOLOUR2: '-'
         DESCRIPTION_RECOLOUR3: '-'
         DESCRIPTION_TYPE: 幽垓鬼邸，慑魄诛心——勇者入则魂颤。
+    ship-swing:
+        NAME_INSTANCE1: 怒涛荡寇
+        NAME_INSTANCE2: 劫海！哟嚯——
+        DESCRIPTION_RECOLOUR1: '-'
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+        NAME_TYPE: 摇摆船
+        DESCRIPTION_TYPE: 一艘来回摆动的船。
+    spiral-slide:
+        NAME_INSTANCE1: 旋乐回环
+        NAME_INSTANCE2: 幻旋失宙
+        NAME_TYPE: 螺旋滑梯
+        DESCRIPTION_TYPE: 一个螺旋形的滑梯围绕着一个塔楼，将楼梯间包裹起来。
+        DESCRIPTION_RECOLOUR1: 墙 1
+        DESCRIPTION_RECOLOUR2: 墙 2
+        DESCRIPTION_RECOLOUR3: 滑梯
+    top-spin:
+        NAME_INSTANCE1: 倒天旋地
+        NAME_INSTANCE2: 凌绝癫顶
+        NAME_TYPE: 上旋
+        DESCRIPTION_RECOLOUR1: 缆车 1
+        DESCRIPTION_RECOLOUR2: 缆车 2
+        DESCRIPTION_RECOLOUR3: 限制
+        DESCRIPTION_TYPE: 缆车绕轴旋转，同时前后摆动。
+    chair-swing:
+        NAME_INSTANCE1: 不羁
+        NAME_INSTANCE2: 飞荡椅
+        NAME_TYPE: 旋转秋千
+        DESCRIPTION_TYPE: 八把椅子悬挂在固定在旋转圆盘上的长链条上。
+        DESCRIPTION_RECOLOUR1: 建造
+        DESCRIPTION_RECOLOUR2: 屋顶
+        DESCRIPTION_RECOLOUR3: 基座
+    park-entrance-generic:
+        NAME: 一般游乐园入口
+    flowers1:
+        NAME: 花圃 1
+    flowers2:
+        NAME: 花圃 2
+    flowers3:
+        NAME: 花圃 3
+    tree1:
+        NAME: 树木 1
+    tree2:
+        NAME: 树木 2
+    tree3:
+        NAME: 树木 3
+    fountain1:
+        NAME: 喷泉 1
+    scenario-emerald-expanses:
+        NAME: 翡翠广袤
+        DESCR: 谁能不为这片广袤的绿色土地的美丽而动容？在森林覆盖的平缓山丘上，一座游乐园正等待开发。
+    scenario-rugged-ravine:
+        NAME: 崎岖峡谷
+        DESCR: 这条干涸已久的河流在乡间凿出了一条峡谷，这就是这座主题公园的背景。
