@@ -178,6 +178,7 @@ public:
 	 */
 	inline void DrawRectangle(const Rectangle32 &rect, uint32 col)
 	{
+
 		this->DoDrawLine(rect.base.x, rect.base.y,
 				rect.base.x + static_cast<float>(rect.width), rect.base.y, col);
 		this->DoDrawLine(rect.base.x, rect.base.y,
