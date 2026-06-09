@@ -208,6 +208,7 @@ strings:
         GUEST_NAME: Guest %1%
         NR_DAYS:
             one: '%1% day'
+        OBJECTIVE_TIMEOUT_EXACT: This objective must be met at %1%.
     ice-cream-stall:
         NAME_INSTANCE1: "The Ice Palace"
         NAME_INSTANCE2: "Soda Shack"
