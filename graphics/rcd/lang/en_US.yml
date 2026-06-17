@@ -208,7 +208,83 @@ strings:
         GUEST_NAME: Guest %1%
         NR_DAYS:
             one: '%1% day'
+            other: '%1% days'
         OBJECTIVE_TIMEOUT_EXACT: This objective must be met at %1%.
+        APPLY: Apply
+        DECREASE_BUTTON: '-'
+        INCREASE_BUTTON: +
+        TOOLBAR_GUI_DROPDOWN_MAIN: Menu
+        MAIN_MENU_NEW_GAME: New Game
+        MAIN_MENU_LAUNCH_EDITOR: Editor
+        MAIN_MENU_MENU: Main Menu
+        TOOLBAR_GUI_DROPDOWN_SPEED: Speed
+        TOOLBAR_GUI_DROPDOWN_SPEED_TOOLTIP: Change the game speed
+        TOOLBAR_GUI_DROPDOWN_SPEED_PAUSE: Pause
+        TOOLBAR_GUI_DROPDOWN_SPEED_1: 1×
+        TOOLBAR_GUI_DROPDOWN_SPEED_2: 2×
+        TOOLBAR_GUI_DROPDOWN_SPEED_4: 4×
+        TOOLBAR_GUI_DROPDOWN_SPEED_8: 8×
+        TOOLBAR_GUI_DROPDOWN_VIEW: View
+        TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP: Viewport options
+        TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: Underground view
+        TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP: Minimap
+        TOOLBAR_GUI_DROPDOWN_VIEW_GRID: Grid
+        TOOLBAR_GUI_DROPDOWN_VIEW_UNDERWATER: Underwater view
+        TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_RIDES: Wireframe rides
+        TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_SCENERY: Wireframe scenery
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_PEOPLE: Hide people
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SUPPORTS: Hide supports
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SURFACES: Hide horizontal surfaces
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_FOUNDATIONS: Hide vertical foundations
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_RIDES: Show height markers on rides
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_PATHS: Show height markers on paths
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_TERRAIN: Show height markers on terrain
+        TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_OUT: Zoom out
+        TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_IN: Zoom in
+        TOOLBAR_GUI_SCENERY: Scenery
+        TOOLBAR_GUI_TOOLTIP_SCENERY: Build scenery items in your park
+        TOOLBAR_GUI_PATH_OBJECTS: Path Objects
+        TOOLBAR_GUI_TOOLTIP_PATH_OBJECTS: Build path objects in your park
+        TOOLBAR_GUI_STAFF: Staff
+        TOOLBAR_GUI_TOOLTIP_STAFF: Hire and dismiss staff
+        TOOLBAR_GUI_INBOX: Inbox
+        TOOLBAR_GUI_TOOLTIP_INBOX: View all your messages
+        TOOLBAR_GUI_PARK: Park Management
+        TOOLBAR_GUI_TOOLTIP_PARK: Manage your park's details
+        BOTTOMBAR_GUESTCOUNT:
+            one: '%1% guest'
+            other: '%1% guests'
+        NO_NAME: Unknown
+        DEFAULT_SCENARIO_NAME: Unnamed
+        DEFAULT_SCENARIO_DESCR: This scenario has no description.
+        RETURN_CAPTION: Return?
+        RETURN_MESSAGE: Return to the main menu?
+        ERROR_MESSAGE_HEADING_BUILD: This can not be placed here…
+        ERROR_MESSAGE_HEADING_REMOVE: This can not be removed…
+        ERROR_MESSAGE_HEADING_COST: 'Expected cost:'
+        ERROR_MESSAGE_HEADING_RETURN: 'Expected return:'
+        ERROR_MESSAGE_UNREMOVABLE: This object can not be removed.
+        ERROR_MESSAGE_UNOWNED_LAND: You do not own the land!
+        ERROR_MESSAGE_EXPENSIVE: You need at least %1%.
+        ERROR_MESSAGE_BAD_LOCATION: Unsuited location.
+        ERROR_MESSAGE_SLOPE: Can not be built on a slope.
+        ERROR_MESSAGE_UNDERGROUND: Can not be built underground.
+        ERROR_MESSAGE_OCCUPIED: Something is in the way!
+        ERROR_MESSAGE_PAUSED: Not allowed while the game is paused.
+        PERSON_STATUS_WANDER: Wandering
+        PERSON_STATUS_HEADING_TO_RIDE: Heading to %s
+        PERSON_STATUS_GOING_HOME: Going home
+        PERSON_STATUS_INSPECTING: Inspecting %s
+        PERSON_STATUS_REPAIRING: Repairing %s
+        PERSON_STATUS_WATERING: Watering the flowerbeds
+        PERSON_STATUS_EMPTYING: Emptying the bins
+        PERSON_STATUS_SWEEPING: Sweeping the paths
+        GUEST_INFO_NAUSEA: Nausea
+        STAFF_MANAGEMENT_TITLE: Staff
+        STAFF_SALARY: 'Daily salary: %1%'
+        STAFF_DISMISS: Dismiss
+        STAFF_HIRE: Hire
+        STAFF_NAME_MECHANIC: Mechanic %d
     ice-cream-stall:
         NAME_INSTANCE1: "The Ice Palace"
         NAME_INSTANCE2: "Soda Shack"
