@@ -174,7 +174,7 @@ strings:
 
         # Entity remove button strings.
         ENTITY_REMOVE: "Remove"
-        ENTITY_REMOVE_TOOLTIP: "Remove this?"
+        ENTITY_REMOVE_TOOLTIP: "Remove this ride"
 
         # Entity remove window strings.
         ENTITY_REMOVE_CAPTION: "Remove"
@@ -285,6 +285,158 @@ strings:
         STAFF_DISMISS: Dismiss
         STAFF_HIRE: Hire
         STAFF_NAME_MECHANIC: Mechanic %d
+        STAFF_NAME_HANDYMAN: Handyman %d
+        STAFF_NAME_GUARD: Guard %d
+        STAFF_NAME_ENTERTAINER: Entertainer %d
+        STAFF_CATEGORY_MECHANICS: Mechanics (%1%)
+        STAFF_CATEGORY_HANDYMEN: Handymen (%1%)
+        STAFF_CATEGORY_GUARDS: Guards (%1%)
+        STAFF_CATEGORY_ENTERTAINERS: Entertainers (%1%)
+        STAFF_TITLE_NAME: Name
+        STAFF_TITLE_STATUS: Status
+        RIDE_SELECT_CUSTOM_DESIGN: Design custom track…
+        RIDE_SELECT_NO_DESIGNS: No saved track designs
+        RIDE_MANAGER_ENTRANCE_FEE_TEXT: 'Entrance fee:'
+        RIDE_MANAGER_RIDE_NAME_TEXT: 'Name:'
+        RIDE_MANAGER_RELIABILITY: 'Reliability: %.1f%%'
+        RIDE_MANAGER_BROKEN_DOWN: Broken down
+        RIDE_MANAGER_MAINTENANCE_TEXT: 'Maintenance interval (minutes):'
+        RIDE_MANAGER_MAINTENANCE_NEVER: Never
+        RIDE_MANAGER_MAX_IDLE_TEXT: 'Maximum idle duration (seconds):'
+        RIDE_MANAGER_MIN_IDLE_TEXT: 'Minimum idle duration (seconds):'
+        RIDE_MANAGER_EXCITEMENT: 'Excitement rating:'
+        RIDE_MANAGER_INTENSITY: 'Intensity rating:'
+        RIDE_MANAGER_NAUSEA: 'Nausea rating:'
+        RIDE_MANAGER_RATING_VERY_LOW: '%.2f (very low)'
+        RIDE_MANAGER_RATING_LOW: '%.2f (low)'
+        RIDE_MANAGER_RATING_MEDIUM: '%.2f (medium)'
+        RIDE_MANAGER_RATING_HIGH: '%.2f (high)'
+        RIDE_MANAGER_RATING_VERY_HIGH: '%.2f (very high)'
+        RIDE_MANAGER_RATING_EXTREME: '%.2f (extreme)'
+        RIDE_MANAGER_RATING_NOT_YET_CALCULATED: ???
+        GENTLE_THRILL_RIDES_MANAGER_TITLE: '%1% "%2%"'
+        GENTLE_RIDES_MANAGER_TITLE: Gentle Ride
+        THRILL_RIDES_MANAGER_TITLE: Thrill Ride
+        GENTLE_THRILL_RIDES_MANAGER_MONTHLY_COST_TEXT: 'Monthly cost:'
+        GENTLE_THRILL_RIDES_MANAGER_CYCLES_TEXT: 'Number of cycles:'
+        FENCE_TYPE_WOOD: Wooden fence
+        FENCE_TYPE_HEDGE: Conifer hedge
+        FENCE_TYPE_BRICK: Brick wall
+        SCENERY_TITLE: Scenery
+        SCENERY_ROTATE_POS: Rotate item counter-clockwise
+        SCENERY_ROTATE_NEG: Rotate item clockwise
+        SCENERY_CATEGORY_TREES: Trees
+        SCENERY_CATEGORY_FLOWERBEDS: Flowerbeds
+        SCENERY_CATEGORY_FOUNTAINS: Fountains
+        PATH_OBJECTS_TITLE: Path Objects
+        PATH_OBJECTS_BENCH: Place benches
+        PATH_OBJECTS_BIN: Place litter bins
+        PATH_OBJECTS_LAMP: Place lamps
+        TERRAFORM_OWNER_UNCHANGED_TEXT: Don’t change tile ownership
+        TERRAFORM_OWNER_NONE_TEXT: Make land unowned
+        TERRAFORM_OWNER_PARK_TEXT: Make land owned by park
+        TERRAFORM_OWNER_SALE_TEXT: Mark land as for sale
+        PARK_MANAGEMENT_TAB_GENERAL: General
+        PARK_MANAGEMENT_TAB_GENERAL_TOOLTIP: Manage general park settings
+        PARK_MANAGEMENT_TAB_GUESTS: Guests
+        PARK_MANAGEMENT_TAB_GUESTS_TOOLTIP: Show number of guests in the park over time
+        PARK_MANAGEMENT_TAB_RATING: Rating
+        PARK_MANAGEMENT_TAB_RATING_TOOLTIP: Show the park rating over time
+        PARK_MANAGEMENT_TAB_OBJECTIVE: Objective
+        PARK_MANAGEMENT_TAB_OBJECTIVE_TOOLTIP: View the scenario objective
+        PARK_MANAGEMENT_TAB_AWARDS: Awards
+        PARK_MANAGEMENT_TAB_AWARDS_TOOLTIP: View awards your park has received
+        PARK_MANAGEMENT_RATING: 'Park Rating: %1%'
+        PARK_MANAGEMENT_NO_AWARDS: The park did not receive any awards recently.
+        PARK_MANAGEMENT_PARKNAME: 'Park name:'
+        PARK_MANAGEMENT_ENTRANCE_FEE: 'Entrance fee:'
+        PARK_MANAGEMENT_MAX_GUESTS: 'Maximum guest count:'
+        PARK_MANAGEMENT_SOLVED: 'Please enter your name:'
+        PARK_MANAGEMENT_OBJECTIVE_GUESTS: 'Required guests:'
+        PARK_MANAGEMENT_OBJECTIVE_RATING: 'Required park rating:'
+        PARK_MANAGEMENT_OBJECTIVE_PARK_VALUE: 'Required park value:'
+        PARK_MANAGEMENT_OBJECTIVE_DROP_POLICY: 'Park closes when objective is not met for:'
+        PARK_MANAGEMENT_OBJECTIVE_DATE: 'Objective must be met by:'
+        PARK_MANAGEMENT_OBJECTIVE_DATE_NOT_EXACT: Objective may be met at any time
+        MINIMAP_TITLE: Minimap
+        FINANCES_MAX_LOAN: Maximum Loan
+        FINANCES_CURRENT_LOAN: Current Loan
+        FINANCES_LOAN_INTEREST: Loan Interest
+        FINANCES_LOAN_INTEREST_VALUE: '%.1f%% per year'
+        FINANCES_CASH: Cash
+        FINANCES_PARK_VALUE: Park value
+        FINANCES_COMPANY_VALUE: Company value
+        FINANCES_PARK_VALUE_VALUE: 'Park value: %1%'
+        INBOX_TITLE: Inbox
+        MESSAGE_NEW_RIDE: 'A new ride is now available: %1%'
+        MESSAGE_SCENARIO_WON: Congratulations, you have won the scenario!
+        MESSAGE_SCENARIO_LOST: You have lost the scenario. May you be more lucky when you try again.
+        MESSAGE_BROKEN_DOWN: '%1% is broken down.'
+        MESSAGE_REPAIRED: '%1% has been repaired.'
+        MESSAGE_CRASH_NO_DEAD: '%1% crashed!'
+        MESSAGE_CRASH_WITH_DEAD:
+            one: '%2% guest died when %1% crashed!'
+            other: '%2% guests died when %1% crashed!'
+        MESSAGE_BAD_RATING:
+            one: The park rating is critically low. The park will be closed in %1% week if the rating does not improve.
+            other: The park rating is critically low. The park will be closed in %1% weeks if the rating does not improve.
+        MESSAGE_GUEST_LOST: '%1% is lost and cannot find the park exit.'
+        MESSAGE_COMPLAIN_QUEUE: The queue line for %1% is very long.
+        MESSAGE_COMPLAIN_HUNGRY: Many guests are hungry and don’t know where they may buy food.
+        MESSAGE_COMPLAIN_THIRSTY: Many guests are thirsty and don’t know where they may buy something to drink.
+        MESSAGE_COMPLAIN_TOILET: Many guests are in need of a toilet and don’t know where to find one.
+        MESSAGE_COMPLAIN_LITTER: The guests complain about the littered paths in the park.
+        MESSAGE_COMPLAIN_VANDALISM: The guests complain about the numerous vandalized objects in the park.
+        MESSAGE_CHEAP_FEE: The guests declare that the entrance fee is surprisingly cheap.
+        MESSAGE_AWARD_WON: 'The park has won an award: %1%'
+        MESSAGE_NEGATIVE_AWARD: 'The park has received a negative award: %1%'
+        COASTER_MANAGER_NUMBER_TRAINS:
+            one: '%1% train'
+            other: '%1% trains'
+        COASTER_MANAGER_NUMBER_CARS:
+            one: '%1% car'
+            other: '%1% cars'
+        COASTER_MANAGER_EDIT: Edit track
+        COASTER_MANAGER_SAVE_DESIGN: Save track design
+        COASTER_MANAGER_NO_GRAPHS_YET: No measurements yet
+        COASTER_MANAGER_GRAPH_SPEED: Speed
+        COASTER_MANAGER_GRAPH_VERT_G: Vertical G
+        COASTER_MANAGER_GRAPH_HORZ_G: Horizontal G
+        COASTER_MANAGER_GRAPH_TOOLTIP_SPEED: Show speed graph
+        COASTER_MANAGER_GRAPH_TOOLTIP_VERT_G: Show vertical G forces graph
+        COASTER_MANAGER_GRAPH_TOOLTIP_HORZ_G: Show horizontal G forces graph
+        ENTITY_REMOVE_COST: 'Return: %1%'
+        PLACE_ENTRANCE: Place Entrance
+        PLACE_ENTRANCE_TOOLTIP: Place the ride's entrance
+        PLACE_EXIT: Place Exit
+        PLACE_EXIT_TOOLTIP: Place the ride's exit
+        CHOOSE_ENTRANCE: Entrance Style
+        CHOOSE_ENTRANCE_TOOLTIP: Change the ride's entrance's style
+        CHOOSE_EXIT: Exit Style
+        CHOOSE_EXIT_TOOLTIP: Change the ride's exit's style
+        RIDE_BUILD_TITLEBAR_SHOP: Place shop
+        RIDE_BUILD_TITLEBAR_GENTLE: Place gentle ride
+        RIDE_BUILD_TITLEBAR_THRILL: Place thrill ride
+        RIDE_BUILD_ROTATE_TOOLTIP: Click to rotate the ride
+        RIDE_BUILD_DISPLAY_TOOLTIP: A picture of the ride you are buying
+        RIDE_BUILD_NAME_TEXT: Buying a %1%
+        RIDE_BUILD_COST_TEXT: Cost %1%
+        SCENARIO_SELECT_TITLE: Select Scenario
+        SCENARIO_SELECT_NO_MISSIONS: No missions have been loaded.
+        SCENARIO_SELECT_UNLOCK:
+            one: Complete %1% more scenario in this mission to unlock this scenario.
+            other: Complete %1% more scenarios in this mission to unlock this scenario.
+        SCENARIO_SELECT_SOLVED: Completed by %1% on %2% with a company value of %3%
+        LOADSAVE_LOAD: Load
+        LOADSAVE_SAVE: Save
+        LOADSAVE_CANCEL: Cancel
+        LOADSAVE_DELETE: Delete
+        LOADSAVE_COLUMN_FILE: Filename
+        LOADSAVE_COLUMN_TIME: Date Saved
+        LOADSAVE_COLUMN_NAME: Scenario
+        LOADSAVE_CONFIRM_TITLE: Confirm
+        LOADSAVE_CONFIRM_OVERWRITE: Are you sure you want to overwrite this saved game?
+        LOADSAVE_CONFIRM_DELETE: Are you sure you want to delete this saved game?
     ice-cream-stall:
         NAME_INSTANCE1: "The Ice Palace"
         NAME_INSTANCE2: "Soda Shack"
@@ -316,7 +468,103 @@ strings:
         DESCRIPTION_RECOLOUR2: "-"
         DESCRIPTION_RECOLOUR3: "-"
         NAME_ITEM1: "Toilet"
+        NAME_ITEM2: '-'
     basic-coaster:
         NAME_INSTANCE: "Crazy Roller"
         NAME_TYPE: "Basic Rollercoaster"
         DESCRIPTION_TYPE: "Basic steel rollercoaster ride"
+    park-entrance-generic:
+        NAME: Generic Park Entrance
+    flowers1:
+        NAME: Flowerbed 1
+    flowers2:
+        NAME: Flowerbed 2
+    flowers3:
+        NAME: Flowerbed 3
+    tree1:
+        NAME: Tree 1
+    tree2:
+        NAME: Tree 2
+    tree3:
+        NAME: Tree 3
+    fountain1:
+        NAME: Fountain 1
+    mission-official-easy:
+        NAME: Official Easy
+        DESCR: A pack of easy scenarios provided by the FreeRCT Development Team.
+    scenario-emerald-expanses:
+        NAME: Emerald Expanses
+        DESCR: Who could behold these vast green lands and not be moved by their beauty? Within the forested confines of their gentle hills, an amusement park is waiting to be developed.
+    scenario-rugged-ravine:
+        NAME: Rugged Ravine
+        DESCR: A canyon, carved into the countryside by a long dried up river, is the setting for this theme park.
+    atm:
+        NAME_INSTANCE1: Cashpoint
+        NAME_INSTANCE2: Cash Machine
+        NAME_TYPE: ATM
+        DESCRIPTION_TYPE: Allows guests to withdraw more money when they run out.
+        DESCRIPTION_RECOLOUR1: Walls
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+        NAME_ITEM1: Cash
+        NAME_ITEM2: '-'
+    entrance-generic:
+        NAME: Generic Entrance
+        DESCRIPTION_RECOLOUR1: '-'
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+    exit-generic:
+        NAME: Generic Exit
+        DESCRIPTION_RECOLOUR1: '-'
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+    entrance-alt:
+        NAME: Alternative Entrance
+        DESCRIPTION_RECOLOUR1: Walls
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+    exit-alt:
+        NAME: Alternative Exit
+        DESCRIPTION_RECOLOUR1: Walls
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+    spooky-manor:
+        NAME_INSTANCE1: Palace of Fear
+        NAME_INSTANCE2: Aisles of Darkness
+        NAME_TYPE: Spooky Manor
+        DESCRIPTION_TYPE: A dark, creepy mansion that terrifies any guest brave enough to enter it.
+        DESCRIPTION_RECOLOUR1: Walls
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+    ship-swing:
+        NAME_INSTANCE1: Keelhauler
+        NAME_INSTANCE2: Pirates Ahoy
+        NAME_TYPE: Ship Swing
+        DESCRIPTION_TYPE: A ship swinging back and forth.
+        DESCRIPTION_RECOLOUR1: '-'
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+    spiral-slide:
+        NAME_INSTANCE1: Round & Round
+        NAME_INSTANCE2: Dizziness
+        NAME_TYPE: Spiral Slide
+        DESCRIPTION_TYPE: A slide in the shape of a spiral built around a tower encasing the stairwell.
+        DESCRIPTION_RECOLOUR1: Walls 1
+        DESCRIPTION_RECOLOUR2: Walls 2
+        DESCRIPTION_RECOLOUR3: Slide
+    top-spin:
+        NAME_INSTANCE1: Head-Over-Heels
+        NAME_INSTANCE2: Over the Top
+        NAME_TYPE: Top Spin
+        DESCRIPTION_TYPE: A gondola rotating around its axis while being swung back and forth.
+        DESCRIPTION_RECOLOUR1: Gondola 1
+        DESCRIPTION_RECOLOUR2: Gondola 2
+        DESCRIPTION_RECOLOUR3: Constraints
+    chair-swing:
+        NAME_INSTANCE1: Unchained
+        NAME_INSTANCE2: Swinging
+        NAME_TYPE: Chair Swing
+        DESCRIPTION_TYPE: Eight chairs suspended on long chains fastened to a spinning disk.
+        DESCRIPTION_RECOLOUR1: Construction
+        DESCRIPTION_RECOLOUR2: Roof
+        DESCRIPTION_RECOLOUR3: Base
