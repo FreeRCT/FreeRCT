@@ -161,7 +161,7 @@ strings:
         # Setting gui strings.
         SETTING_TITLE: "Indstillinger"
         SETTING_LANGUAGE: "Skift sprog"
-        SETTING_LANGUAGE_TOOLTIP: "SKift sproget i spillet"
+        SETTING_LANGUAGE_TOOLTIP: "Skift sproget i spillet"
 
 
         DATETIME_FORMAT: '%Y-%m-%d, %I:%M:%S %p'
