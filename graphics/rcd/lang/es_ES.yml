@@ -84,8 +84,8 @@ strings:
 
         PATH_GUI_FORWARD: "Adelante"
         PATH_GUI_BACKWARD: "Atrás"
-        PATH_GUI_FORWARD_TIP: "Move a tile forward"
-        PATH_GUI_BACKWARD_TIP: "Move a tile backward"
+        PATH_GUI_FORWARD_TIP: "Mover una ficha hacia delante"
+        PATH_GUI_BACKWARD_TIP: "Mover una ficha hacia atrás"
 
         PATH_GUI_NW_DIRECTION_TIP: "Construye un camino en dirección noroeste"
         PATH_GUI_NE_DIRECTION_TIP: "Construye un camino en dirección noreste"
@@ -139,7 +139,7 @@ strings:
         FINANCES_FOOD_SALES_TEXT: "Venta de comida/bebida"
         FINANCES_FOOD_STOCK_TEXT: "Stock de comida/bebida"
         FINANCES_STAFF_WAGES_TEXT: "Salarios"
-        FINANCES_MARKETING_TEXT: "Marketing"
+        FINANCES_MARKETING_TEXT: "Marketing (Mercadotecnia)"
         FINANCES_RESEARCH_TEXT: "Investigación"
         FINANCES_LOAN_INTEREST_TEXT: "Intereses de préstamos"
         FINANCES_TOTAL_TEXT: "Total"
@@ -173,8 +173,263 @@ strings:
         TOOLBAR_GUI_DROPDOWN_SPEED: Velocidad
         MAIN_MENU_NEW_GAME: Nueva Partida
         TOOLBAR_GUI_DROPDOWN_SPEED_PAUSE: Pausa
-        TITLEBAR_TIP: Haz click en la barra de título para abrir la ventana y arrástrala para mover la ventana
+        TITLEBAR_TIP: Haz clic en la barra de título para subir la ventana; arrastra la barra de título para moverla
         TOOLBAR_GUI_DROPDOWN_VIEW_UNDERWATER: Vista bajo el agua
+        DATE_FORMAT: '%1% %2%, Año %3%'
+        OBJECTIVE_TIMEOUT_BEFORE: Este objetivo debe alcanzarse antes del %1%.
+        OBJECTIVE_TIMEOUT_EXACT: Este objetivo debe cumplirse el %1 %.
+        OBJECTIVETEXT_GUESTS:
+            one: Ten al menos un %1% de visitajtes en tu parque.
+            other: Ten al menos %1% visitantes en tu parque.
+        OBJECTIVETEXT_PARK_RATING: Alcanzar una calificación de parque de al menos el 1 %.
+        OBJECTIVETEXT_PARK_VALUE: Alcanzar un valor de parque de al menos el 1 %.
+        RESOLUTION: '%1%x%2%'
+        GUEST_NAME: Invitado %1%
+        NR_DAYS:
+            one: '%1% día'
+            other: '%1% días'
+        APPLY: Aplicar
+        DECREASE_BUTTON: '-'
+        INCREASE_BUTTON: +
+        TOOLBAR_GUI_DROPDOWN_MAIN: Menú
+        TOOLBAR_GUI_DROPDOWN_SPEED_1: 1×
+        TOOLBAR_GUI_DROPDOWN_SPEED_2: 2×
+        TOOLBAR_GUI_DROPDOWN_SPEED_4: 4×
+        TOOLBAR_GUI_DROPDOWN_SPEED_8: 8×
+        TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP: Opciones de campo de visión
+        TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: Vista desde el subsuelo
+        TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP: Minimapa
+        TOOLBAR_GUI_DROPDOWN_VIEW_GRID: Cuadrícula
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_PEOPLE: Ocultar personas
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SUPPORTS: Ocultar soportes
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SURFACES: Ocultar superficies horizontales
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_FOUNDATIONS: Ocultar los cimientos verticales
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_RIDES: Mostrar los indicadores de altura en las atracciones
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_PATHS: Mostrar marcadores de altura en los caminos
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_TERRAIN: Mostrar marcadores de altura en el terreno
+        TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_OUT: Alejar
+        TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_IN: Acercar
+        TOOLBAR_GUI_FENCE: Construir una valla
+        TOOLBAR_GUI_TOOLTIP_FENCE: Construye vallas en tu parque
+        TOOLBAR_GUI_SCENERY: Paisaje
+        TOOLBAR_GUI_TOOLTIP_SCENERY: Crea elementos decorativos para tu parque
+        TOOLBAR_GUI_PATH_OBJECTS: Indicadores de ruta
+        TOOLBAR_GUI_TOOLTIP_PATH_OBJECTS: Crea indicadores de ruta en tu parque
+        TOOLBAR_GUI_STAFF: Personal
+        NOT_AVAILABLE: n/d
+        DATETIME_FORMAT: '%d.%m.%Y, %H:%M:%S'
+        TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_RIDES: Planos de atracciones
+        TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_SCENERY: Esquema del entorno
+        TOOLBAR_GUI_TOOLTIP_STAFF: Contratar y despedir personal
+        TOOLBAR_GUI_INBOX: Bandeja de entrada
+        TOOLBAR_GUI_TOOLTIP_INBOX: Ver todos tus mensajes
+        TOOLBAR_GUI_PARK: Gestión del parque
+        TOOLBAR_GUI_TOOLTIP_PARK: Gestiona los datos de tu parque
+        BOTTOMBAR_GUESTCOUNT:
+            one: '%1% invitado'
+            other: '%1% invitados'
+        NO_NAME: Desconocido
+        DEFAULT_SCENARIO_NAME: Sin nombre
+        DEFAULT_SCENARIO_DESCR: Este escenario no tiene descripción.
+        RETURN_CAPTION: ¿Volver?
+        RETURN_MESSAGE: ¿Volver al menú principal?
+        ERROR_MESSAGE_HEADING_BUILD: Esto no se puede poner aquí…
+        ERROR_MESSAGE_HEADING_REMOVE: Esto no se puede eliminar…
+        ERROR_MESSAGE_HEADING_COST: 'Coste previsto:'
+        ERROR_MESSAGE_HEADING_RETURN: 'Rentabilidad esperada:'
+        ERROR_MESSAGE_UNREMOVABLE: Este objeto no se puede eliminar.
+        ERROR_MESSAGE_UNOWNED_LAND: ¡La tierra no es tuya!
+        ERROR_MESSAGE_EXPENSIVE: Necesitas al menos el %1%.
+        ERROR_MESSAGE_BAD_LOCATION: Ubicación inadecuada.
+        ERROR_MESSAGE_SLOPE: No se puede construir en una pendiente.
+        ERROR_MESSAGE_UNDERGROUND: No se puede construir bajo tierra.
+        ERROR_MESSAGE_OCCUPIED: ¡Hay algo que estorba!
+        ERROR_MESSAGE_PAUSED: No está permitido mientras el juego está en pausa.
+        PERSON_STATUS_WANDER: Deambulando
+        PERSON_STATUS_HEADING_TO_RIDE: De camino a %s
+        PERSON_STATUS_GOING_HOME: De regreso a casa
+        PERSON_STATUS_INSPECTING: Inspeccionando %s
+        PERSON_STATUS_REPAIRING: Reparando %s
+        PERSON_STATUS_WATERING: Riegan los parterres
+        PERSON_STATUS_EMPTYING: Vaciar las papeleras
+        PERSON_STATUS_SWEEPING: Barrer los caminos
+        GUEST_INFO_MONEY_SPENT: Dinero en efectivo gastado
+        GUEST_INFO_NAUSEA: Náuseas
+        STAFF_MANAGEMENT_TITLE: Personal
+        STAFF_SALARY: 'Salario diario: %1%'
+        STAFF_DISMISS: Descartar
+        STAFF_HIRE: Contratar
+        STAFF_NAME_MECHANIC: Mecánico %d
+        STAFF_NAME_HANDYMAN: Manitas %d
+        STAFF_NAME_GUARD: Vigilante %d
+        STAFF_NAME_ENTERTAINER: Artista %d
+        STAFF_CATEGORY_MECHANICS: Mecánicos (1%)
+        STAFF_CATEGORY_HANDYMEN: Manitas (1%)
+        STAFF_CATEGORY_GUARDS: Vigilantes (%1%)
+        STAFF_CATEGORY_ENTERTAINERS: Artistas (%1%)
+        STAFF_TITLE_NAME: Nombre
+        STAFF_TITLE_STATUS: Estado
+        PATH_GUI_BULLDOZER_TIP: Haz clic aquí para eliminar la última ruta generada y recuperar tu dinero (funciona hasta que cierres la ventana)
+        PATH_GUI_NORMAL_PATH: Sendero normal
+        PATH_GUI_QUEUE_PATH: Caminos o rutas de espera
+        PATH_GUI_SINGLE: Individual
+        PATH_GUI_DIRECTIONAL: Direccional
+        PATH_GUI_SINGLE_TIP: Colocar una sola ruta
+        PATH_GUI_DIRECTIONAL_TIP: Empezar a trazar la ruta
+        RIDE_SELECT_THRILL: Atracciones emocionantes
+        RIDE_SELECT_THRILL_TOOLTIP: Haz clic para ver los tipos de atracciones emocionantes disponibles
+        RIDE_SELECT_CUSTOM_DESIGN: Diseña una pista personalizada…
+        RIDE_SELECT_NO_DESIGNS: Sin diseños de pistas guardados
+        RIDE_MANAGER_ENTRANCE_FEE_TEXT: 'Precio de la entrada:'
+        RIDE_MANAGER_RIDE_NAME_TEXT: 'Nombre:'
+        RIDE_MANAGER_RELIABILITY: 'Fiabilidad: %.1f%%'
+        RIDE_MANAGER_BROKEN_DOWN: Desglosado
+        RIDE_MANAGER_MAINTENANCE_TEXT: 'Intervalo de mantenimiento (minutos):'
+        RIDE_MANAGER_MAINTENANCE_NEVER: Nunca
+        RIDE_MANAGER_MAX_IDLE_TEXT: 'Duración máxima de inactividad (segundos):'
+        RIDE_MANAGER_MIN_IDLE_TEXT: 'Duración mínima de inactividad (segundos):'
+        RIDE_MANAGER_EXCITEMENT: 'Nivel de emoción:'
+        RIDE_MANAGER_INTENSITY: 'Nivel de intensidad:'
+        RIDE_MANAGER_NAUSEA: 'Nivel de náuseas:'
+        RIDE_MANAGER_RATING_VERY_LOW: '%.2f (muy bajo)'
+        RIDE_MANAGER_RATING_LOW: '%.2f (bajo)'
+        RIDE_MANAGER_RATING_MEDIUM: '%.2f (medio)'
+        RIDE_MANAGER_RATING_HIGH: '%.2f (alto)'
+        RIDE_MANAGER_RATING_VERY_HIGH: '%.2f (muy alto)'
+        RIDE_MANAGER_RATING_EXTREME: '%.2f (extremo)'
+        RIDE_MANAGER_RATING_NOT_YET_CALCULATED: ???
+        GENTLE_THRILL_RIDES_MANAGER_TITLE: '%1% "%2%"'
+        GENTLE_RIDES_MANAGER_TITLE: Un viaje tranquilo
+        THRILL_RIDES_MANAGER_TITLE: Aventura emocionante
+        GENTLE_THRILL_RIDES_MANAGER_MONTHLY_COST_TEXT: 'Coste mensual:'
+        GENTLE_THRILL_RIDES_MANAGER_CYCLES_TEXT: 'Número de vueltas:'
+        FENCE_TITLE: Construir vallas
+        FENCE_TYPE_WOOD: Valla de madera
+        FENCE_TYPE_HEDGE: Setos de coníferas
+        FENCE_TYPE_BRICK: Pared de ladrillo
+        SCENERY_TITLE: Paisaje
+        SCENERY_ROTATE_POS: Girar el objeto en sentido antihorario
+        SCENERY_ROTATE_NEG: Girar el elemento en el sentido de las agujas del reloj
+        SCENERY_CATEGORY_TREES: Árboles
+        SCENERY_CATEGORY_FLOWERBEDS: Parterres
+        SCENERY_CATEGORY_FOUNTAINS: Fuentes
+        PATH_OBJECTS_TITLE: Objetos de ruta
+        PATH_OBJECTS_BENCH: Colocar bancos
+        PATH_OBJECTS_BIN: Colocar papeleras
+        PATH_OBJECTS_LAMP: Coloca las farolas
+        TERRAFORM_OWNER_UNCHANGED_TEXT: No cambie la propiedad del terreno
+        TERRAFORM_OWNER_NONE_TEXT: Hacer que la tierra no tenga dueño
+        TERRAFORM_OWNER_PARK_TEXT: Hacer que el terreno sea propiedad del parque
+        TERRAFORM_OWNER_SALE_TEXT: Marcar el terreno como en venta
+        PARK_MANAGEMENT_TAB_GENERAL: General
+        PARK_MANAGEMENT_TAB_GENERAL_TOOLTIP: Gestionar la configuración general del parque
+        PARK_MANAGEMENT_TAB_GUESTS: Visitantes
+        PARK_MANAGEMENT_TAB_GUESTS_TOOLTIP: Mostrar el número de visitantes en el parque a lo largo del tiempo
+        PARK_MANAGEMENT_TAB_RATING: Clasificación
+        PARK_MANAGEMENT_TAB_RATING_TOOLTIP: Mostrar la calificación del parque a lo largo del tiempo
+        PARK_MANAGEMENT_TAB_OBJECTIVE: Objetivo
+        PARK_MANAGEMENT_TAB_OBJECTIVE_TOOLTIP: Ver los objetivos del escenario
+        PARK_MANAGEMENT_TAB_AWARDS: Premios
+        PARK_MANAGEMENT_TAB_AWARDS_TOOLTIP: Vea los premios que ha recibido su parque
+        PARK_MANAGEMENT_RATING: 'Calificación del parque: %1%'
+        PARK_MANAGEMENT_NO_AWARDS: El parque no ha recibido ningún premio recientemente.
+        PARK_MANAGEMENT_PARKNAME: 'Nombre del parque:'
+        PARK_MANAGEMENT_ENTRANCE_FEE: 'Precio de la entrada:'
+        PARK_MANAGEMENT_MAX_GUESTS: 'Número máximo de invitados:'
+        PARK_MANAGEMENT_SOLVED: 'Por favor, introduzca su nombre:'
+        PARK_MANAGEMENT_OBJECTIVE_GUESTS: 'Invitados requeridos:'
+        PARK_MANAGEMENT_OBJECTIVE_RATING: 'Calificación requerida del parque:'
+        PARK_MANAGEMENT_OBJECTIVE_PARK_VALUE: 'Valor requerido del parque:'
+        PARK_MANAGEMENT_OBJECTIVE_DROP_POLICY: 'El parque cerrará si no se alcanza el objetivo:'
+        PARK_MANAGEMENT_OBJECTIVE_DATE: 'El objetivo debe cumplirse mediante:'
+        PARK_MANAGEMENT_OBJECTIVE_DATE_NOT_EXACT: El objetivo puede cumplirse en cualquier momento
+        MINIMAP_TITLE: Minimapa
+        FINANCES_MAX_LOAN: Importe máximo del préstamo
+        FINANCES_CURRENT_LOAN: Préstamo actual
+        FINANCES_LOAN_INTEREST: Intereses del préstamo
+        FINANCES_LOAN_INTEREST_VALUE: '%.1f%% por año'
+        FINANCES_CASH: Efectivo
+        FINANCES_PARK_VALUE: Valor del parque
+        FINANCES_COMPANY_VALUE: Valor de la empresa
+        FINANCES_PARK_VALUE_VALUE: 'Valor del parque: %1%'
+        INBOX_TITLE: Bandeja de entrada
+        MESSAGE_NEW_RIDE: 'Ahora hay nuevas atracciones: %1%'
+        MESSAGE_SCENARIO_WON: ¡Enhorabuena, has ganado el escenario!
+        MESSAGE_SCENARIO_LOST: Has perdido el escenario. Ojalá tengas más suerte la próxima vez que lo intentes.
+        MESSAGE_BROKEN_DOWN: '%1% se desglosa.'
+        MESSAGE_REPAIRED: '%1% ha sido reparado.'
+        MESSAGE_CRASH_NO_DEAD: ¡%1% se ha bloqueado!
+        MESSAGE_CRASH_WITH_DEAD:
+            one: ¡El invitado %2% murió cuando %1% falló!
+            other: ¡El 2% de los invitados murieron cuando el 1% falló!
+        MESSAGE_BAD_RATING:
+            one: La calificación del parque es críticamente baja. El parque será cerrado en %1% semana si la calificación no mejora.
+            other: La valoración del parque es muy baja. El parque cerrará en %1% semanas si la valoración no mejora.
+        MESSAGE_GUEST_LOST: '%1% se ha perdido y no encuentra la salida del parque.'
+        MESSAGE_COMPLAIN_QUEUE: La cola para %1% es muy larga.
+        MESSAGE_COMPLAIN_HUNGRY: Muchos visitantes tienen hambre y no saben dónde pueden comprar comida.
+        MESSAGE_COMPLAIN_THIRSTY: Muchos visitantes tienen sed y no saben dónde pueden comprar algo de beber.
+        MESSAGE_COMPLAIN_TOILET: Muchos visitantes necesitan ir al baño y no saben dónde encontrarlo.
+        MESSAGE_COMPLAIN_LITTER: Los visitantes se quejan de que los senderos del parque están llenos de basura.
+        MESSAGE_COMPLAIN_VANDALISM: Los visitantes se quejan de los numerosos objetos destrozados que hay en el parque.
+        MESSAGE_CHEAP_FEE: Los visitabtes afirman que el precio de la entrada es sorprendentemente barato.
+        MESSAGE_AWARD_WON: 'El parque ha ganado un premio: %1%'
+        MESSAGE_NEGATIVE_AWARD: 'El parque ha recibido un premio negativo: %1%'
+        COASTER_MANAGER_NUMBER_TRAINS:
+            one: '%1% tren'
+            other: '%1% trenes'
+        COASTER_MANAGER_NUMBER_CARS:
+            one: '%1% coche'
+            other: '%1% coches'
+        COASTER_MANAGER_EDIT: Editar pista
+        COASTER_MANAGER_SAVE_DESIGN: Guardar el diseño de la pista
+        COASTER_MANAGER_NO_GRAPHS_YET: Aún no se han tomado medidas
+        COASTER_MANAGER_GRAPH_SPEED: Velocidad
+        COASTER_MANAGER_GRAPH_VERT_G: Fuerza G vertical
+        COASTER_MANAGER_GRAPH_HORZ_G: Fuerza G horizontal
+        COASTER_MANAGER_GRAPH_TOOLTIP_SPEED: Mostrar gráfico de velocidad
+        COASTER_MANAGER_GRAPH_TOOLTIP_VERT_G: Mostrar el gráfico de fuerzas G verticales
+        COASTER_MANAGER_GRAPH_TOOLTIP_HORZ_G: Mostrar el gráfico de fuerzas G horizontales
+        ENTITY_REMOVE: Quitar
+        ENTITY_REMOVE_TOOLTIP: Eliminar esta atracción
+        ENTITY_REMOVE_CAPTION: Eliminar
+        ENTITY_REMOVE_MESSAGE: ¿Quieres eliminar %1%?
+        ENTITY_REMOVE_COST: 'Devolución: %1%'
+        ENTITY_REMOVE_YES: Sí
+        ENTITY_REMOVE_NO: No
+        PLACE_ENTRANCE: Entrada al recinto
+        PLACE_ENTRANCE_TOOLTIP: Sitúa la entrada de la atracción
+        PLACE_EXIT: Lugar de salida
+        PLACE_EXIT_TOOLTIP: Coloca la salida de la atracción
+        CHOOSE_ENTRANCE: Estilo de la entrada
+        CHOOSE_ENTRANCE_TOOLTIP: Cambiar el estilo de la entrada de la atracción
+        CHOOSE_EXIT: Estilo de la salida
+        CHOOSE_EXIT_TOOLTIP: Cambiar el estilo de la salida de la atracción
+        RIDE_BUILD_TITLEBAR_SHOP: Tienda local
+        RIDE_BUILD_TITLEBAR_GENTLE: Ruta tranquila
+        RIDE_BUILD_TITLEBAR_THRILL: Atracción emocionante
+        RIDE_BUILD_ROTATE_TOOLTIP: Haz clic para girar la atracción
+        RIDE_BUILD_DISPLAY_TOOLTIP: Una imagen de la atracción que vas a comprar
+        RIDE_BUILD_NAME_TEXT: Comprando un %1%
+        RIDE_BUILD_COST_TEXT: Precio %1%
+        SETTING_RESOLUTION: Cambiar la resolución
+        SETTING_RESOLUTION_TOOLTIP: Cambiar la resolución de la pantalla del juego
+        SCENARIO_SELECT_TITLE: Selecciona un escenario
+        SCENARIO_SELECT_NO_MISSIONS: No se ha cargado ninguna misión.
+        SCENARIO_SELECT_UNLOCK:
+            one: Completa el escenario «%1% más» en esta misión para desbloquear este escenario.
+            other: Completa un 1 % más de escenarios en esta misión para desbloquear este escenario.
+        SCENARIO_SELECT_SOLVED: Finalizado por %1% el %2%, con un valor de la empresa del %3%
+        LOADSAVE_LOAD: Cargar
+        LOADSAVE_SAVE: Guardar
+        LOADSAVE_CANCEL: Cancelar
+        LOADSAVE_DELETE: Borrar
+        LOADSAVE_COLUMN_FILE: Nombre del archivo
+        LOADSAVE_COLUMN_TIME: Fecha de almacenamiento
+        LOADSAVE_COLUMN_NAME: Escenario
+        LOADSAVE_CONFIRM_TITLE: Confirmar
+        LOADSAVE_CONFIRM_OVERWRITE: ¿Estás seguro de que quieres sobrescribir esta partida guardada?
+        LOADSAVE_CONFIRM_DELETE: ¿Estás seguro de que quieres borrar esta partida guardada?
     snack-shop:
         NAME_INSTANCE1: "El Snacker feliz"
         NAME_INSTANCE2: "El Palacio de la Pizza"
@@ -183,7 +438,124 @@ strings:
         NAME_ITEM1: "Galletas"
         NAME_ITEM2: "Pizza"
 
+        DESCRIPTION_RECOLOUR1: '-'
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
     basic-coaster:
         NAME_INSTANCE: "Montaña rusa loca"
         NAME_TYPE: "Montaña rusa básica"
         DESCRIPTION_TYPE: "Montaña rusa básica hecha de metal"
+    ice-cream-stall:
+        NAME_INSTANCE1: El palacio de hielo
+        NAME_INSTANCE2: Bebidas fresquitas
+        NAME_TYPE: Puesto de helados
+        DESCRIPTION_TYPE: Compra bebidas refrescantes y helados
+        DESCRIPTION_RECOLOUR1: Color de la copa
+        DESCRIPTION_RECOLOUR2: Color del puesto de helados
+        DESCRIPTION_RECOLOUR3: '-'
+        NAME_ITEM1: Helado de vainilla
+        NAME_ITEM2: Bebida fresca
+    toilet:
+        NAME_ITEM2: '-'
+        NAME_INSTANCE1: Aseo
+        NAME_INSTANCE2: Baño
+        NAME_TYPE: Aseo
+        DESCRIPTION_TYPE: ¿Lo necesitas ya? Ve rápidamente
+        DESCRIPTION_RECOLOUR1: Color del aseo
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+        NAME_ITEM1: Aseo
+    atm:
+        NAME_INSTANCE1: Cajero automático
+        NAME_INSTANCE2: Cajero automático
+        NAME_TYPE: ATM
+        DESCRIPTION_TYPE: Permite a los visitantes retirar más dinero cuando se les acaba.
+        DESCRIPTION_RECOLOUR1: Muros
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+        NAME_ITEM1: Dinero
+        NAME_ITEM2: '-'
+    entrance-generic:
+        NAME: Entrada normal
+        DESCRIPTION_RECOLOUR1: '-'
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+    exit-generic:
+        NAME: Salida normal
+        DESCRIPTION_RECOLOUR1: '-'
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+    entrance-alt:
+        NAME: Entrada alternativa
+        DESCRIPTION_RECOLOUR1: Muros
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+    exit-alt:
+        NAME: Salida alternativa
+        DESCRIPTION_RECOLOUR1: Paredes
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+    spooky-manor:
+        NAME_INSTANCE1: El Palacio del Miedo
+        NAME_INSTANCE2: Pasillos de la oscuridad
+        NAME_TYPE: La Mansión Encantada
+        DESCRIPTION_TYPE: Una mansión oscura y espeluznante que aterroriza a cualquier visitante lo suficientemente valiente como para entrar en ella.
+        DESCRIPTION_RECOLOUR1: Paredes
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+    ship-swing:
+        NAME_INSTANCE1: Pasar por la quilla
+        NAME_INSTANCE2: ¡Piratas a la vista!
+        NAME_TYPE: Barco pirata
+        DESCRIPTION_TYPE: Un barco que se balancea de un lado a otro.
+        DESCRIPTION_RECOLOUR1: '-'
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+    spiral-slide:
+        NAME_INSTANCE1: Vueltas y vueltas
+        NAME_INSTANCE2: Mareo
+        NAME_TYPE: Tobogán en espiral
+        DESCRIPTION_TYPE: Un tobogán con forma de espiral construido alrededor de una torre que alberga la escalera.
+        DESCRIPTION_RECOLOUR1: Paredes 1
+        DESCRIPTION_RECOLOUR2: Paredes 2
+        DESCRIPTION_RECOLOUR3: Deslizar
+    top-spin:
+        NAME_INSTANCE2: Exagerado
+        NAME_TYPE: Top Spin
+        DESCRIPTION_TYPE: Una góndola que gira sobre su propio eje mientras se balancea de un lado a otro.
+        DESCRIPTION_RECOLOUR1: Góndola 1
+        DESCRIPTION_RECOLOUR2: Góndola 2
+        DESCRIPTION_RECOLOUR3: Restricciones
+    chair-swing:
+        NAME_INSTANCE1: Sin restricciones
+        NAME_INSTANCE2: Balanceo
+        NAME_TYPE: Las Sillas Voladoras
+        DESCRIPTION_TYPE: Ocho sillas suspendidas de largas cadenas sujetas a un disco giratorio.
+        DESCRIPTION_RECOLOUR1: Construcción
+        DESCRIPTION_RECOLOUR2: Techo
+        DESCRIPTION_RECOLOUR3: Base
+    park-entrance-generic:
+        NAME: Acceso básico del parque
+    flowers1:
+        NAME: Parterre 1
+    flowers2:
+        NAME: Parterre 2
+    flowers3:
+        NAME: Parterre 3
+    tree1:
+        NAME: Árbol 1
+    tree2:
+        NAME: Árbol 2
+    tree3:
+        NAME: Árbol 3
+    fountain1:
+        NAME: Fuente 1
+    mission-official-easy:
+        NAME: Fácil por defecto
+        DESCR: Un conjunto de escenarios sencillos proporcionados por el equipo de desarrollo de FreeRCT.
+    scenario-emerald-expanses:
+        NAME: Extensiones esmeralda
+        DESCR: ¿Quién podría contemplar estas vastas tierras verdes y no sentirse conmovido por su belleza? Entre las laderas boscosas de sus suaves colinas, un parque de atracciones espera a ser construido.
+    scenario-rugged-ravine:
+        NAME: Barranco escarpado
+        DESCR: Un cañón, excavado en el campo por un río que hace tiempo que se secó, es el escenario de este parque temático.
