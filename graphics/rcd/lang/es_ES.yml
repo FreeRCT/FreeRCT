@@ -526,6 +526,7 @@ strings:
         DESCRIPTION_RECOLOUR1: Góndola 1
         DESCRIPTION_RECOLOUR2: Góndola 2
         DESCRIPTION_RECOLOUR3: Restricciones
+        NAME_INSTANCE1: Perdidamente
     chair-swing:
         NAME_INSTANCE1: Sin restricciones
         NAME_INSTANCE2: Balanceo
