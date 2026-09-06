@@ -18,7 +18,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v7
 
     - name: Install dependencies
       run: |
@@ -97,7 +97,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v7
 
     - name: Install dependencies
       run: |
@@ -140,12 +140,12 @@ jobs:
         echo "::endgroup::"
 
     - name: Upload package (DEB)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v7
       with:
         name: 'FreeRCT Debian+Ubuntu ${{ matrix.config }} Package (${{ matrix.compiler }})'
         path: ${{ github.workspace }}/build/bundles/*.deb*
     - name: Upload package (TXZ)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v7
       with:
         name: 'FreeRCT ${{ matrix.config }} Tarball (${{ matrix.compiler }})'
         path: ${{ github.workspace }}/build/bundles/*.tar.xz*
@@ -170,7 +170,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v7
 
     - name: Prepare cache key
       id: key
@@ -178,7 +178,7 @@ jobs:
         echo "::set-output name=image::$ImageOS-$ImageVersion"
 
     - name: Enable vcpkg cache
-      uses: actions/cache@v2
+      uses: actions/cache@v5
       with:
         path: /usr/local/share/vcpkg/installed
         key: ${{ steps.key.outputs.image }}-vcpkg-${{ matrix.arch }}
@@ -231,7 +231,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v7
 
     - name: Prepare cache key
       id: key
@@ -243,7 +243,7 @@ jobs:
         Write-Output "::set-output name=image::$env:ImageOS-$env:ImageVersion-${{ hashFiles('./src/CMakeLists.txt', './.github/workflows/ci-build.yml') }}"
 
     - name: Enable vcpkg cache
-      uses: actions/cache@v2
+      uses: actions/cache@v5
       with:
         path: vcpkg/installed
         key: ${{ steps.key.outputs.image }}-vcpkg-${{ matrix.arch }}
@@ -292,12 +292,12 @@ jobs:
         echo "::endgroup::"
 
     - name: Upload package (EXE)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v7
       with:
         name: 'FreeRCT Windows ${{ matrix.arch }} ${{ matrix.config }} Installer'
         path: ${{ github.workspace }}/build/bundles/*.exe*
     - name: Upload package (ZIP)
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v7
       with:
         name: 'FreeRCT Windows ${{ matrix.arch }} ${{ matrix.config }} Zip'
         path: ${{ github.workspace }}/build/bundles/*.zip*
