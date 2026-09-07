@@ -185,10 +185,10 @@ jobs:
 
     - name: Prepare vcpkg
       run: |
+        vcpkg install --triplet=${{ matrix.arch }}-osx-dynamic glew  # Must come first
         vcpkg install --triplet=${{ matrix.arch }}-osx-dynamic \
           libpng \
           glfw3 \
-          glew \
           freetype-gl \
           zlib \
           # EOF
@@ -251,6 +251,7 @@ jobs:
     - name: Prepare vcpkg
       shell: bash
       run: |
+        choco install nsis -y
         vcpkg install --disable-metrics --triplet=${{ matrix.arch }}-windows-static \
           libpng \
           glfw3 \
