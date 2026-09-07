@@ -1,5 +1,9 @@
 name: CI
 
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   pull_request:
   push:
@@ -191,7 +195,7 @@ jobs:
           glfw3 \
           zlib \
           # EOF
-        brew install freetype-gl
+        brew install freetype
 
     - name: Install GCC problem matcher
       uses: ammaraskar/gcc-problem-matcher@master
