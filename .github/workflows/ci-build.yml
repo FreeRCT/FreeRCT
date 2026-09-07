@@ -185,8 +185,8 @@ jobs:
 
     - name: Prepare vcpkg
       run: |
-        vcpkg install --triplet=${{ matrix.arch }}-osx-dynamic glew  # Must come first
         vcpkg install --triplet=${{ matrix.arch }}-osx-dynamic \
+          glew \
           libpng \
           glfw3 \
           freetype-gl \
