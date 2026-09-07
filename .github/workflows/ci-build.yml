@@ -175,7 +175,7 @@ jobs:
     - name: Prepare cache key
       id: key
       run: |
-        echo "::set-output name=image::$ImageOS-$ImageVersion"
+        echo "::set-output name=image::$ImageOS-$ImageVersion-${{ hashFiles('./src/CMakeLists.txt', './.github/workflows/ci-build.yml') }}"
 
     - name: Enable vcpkg cache
       uses: actions/cache@v5
