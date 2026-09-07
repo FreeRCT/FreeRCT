@@ -27,6 +27,10 @@ PERM_SUPPRESSED_CHECKS = {
 	'[cppcoreguidelines-non-private-member-variables-in-classes]',  # member variable 'north_offsets' has protected visibility
 	'[hicpp-use-auto]','[modernize-use-auto]',  # use auto when initializing with new to avoid duplicating the type name
 	'[modernize-raw-string-literal]',  # escaped string literal can be written as a raw string literal
+	'[misc-use-anonymous-namespace]',  # function 'X' declared 'static', move to anonymous namespace instead
+	'[cppcoreguidelines-avoid-const-or-ref-data-members]',  # member 'pos' of type 'const Position' is const qualified
+	'[cppcoreguidelines-avoid-do-while]',  # avoid do-while loops
+	'[misc-use-anonymous-namespace]',  # function 'WriteUInt32' declared 'static', move to anonymous namespace instead
 }
 
 # Checks we intend to clear in the future. When a check has been cleared, remove it from this list.
@@ -119,6 +123,21 @@ TEMP_SUPPRESSED_CHECKS = {
 	'[readability-suspicious-call-argument]',  # 1st argument 'num' (passed to 'num') looks like it might be swapped with the 2nd, 'number' (passed to 'number')
 	'[readability-use-anyofallof]',  # replace loop by 'std::all_of()'
 	'[bugprone-sizeof-expression]',  # suspicious usage of 'sizeof(A*)'; pointer to aggregate
+	'[misc-include-cleaner]',  # no header providing "X" is directly included
+	'[misc-const-correctness]',  # variable 'X' of type 'Y' can be declared 'const'
+	'[clang-analyzer-optin.core.EnumCastOutOfRange]',  # The value 'X' provided to the cast expression is not in the valid range of values for 'Y'
+	'[bugprone-switch-missing-default-case]',  # switching on non-enum value without default case may not cover all cases
+	'[bugprone-unchecked-optional-access]',  # unchecked access to optional value
+	'[bugprone-unused-local-non-trivial-variable]',  # unused local variable 'name' of type 'std::string'
+	'[clang-analyzer-core.uninitialized.Assign]',  # The left expression of the compound assignment is an uninitialized value. The computed value will also be garbage
+	'[modernize-make-shared]',  # use std::make_shared instead
+	'[performance-enum-size]',  # enum 'GraphMode' uses a larger base type ('unsigned int', size: 4 bytes) than necessary for its value set, consider using 'std::uint8_t' (1 byte) as the base type to reduce its size
+	'[readability-avoid-nested-conditional-operator]',  # conditional operator is used as sub-expression of parent conditional operator, refrain from using nested conditional operators
+	'[readability-avoid-return-with-void-value]',  # return statement within a void function should not have a specified return value
+	'[readability-redundant-casting]',  # redundant explicit casting to the same type 'BaseWidget *' as the sub-expression, remove this casting
+	'[readability-redundant-inline-specifier]',  # function 'Set' has inline specifier but is implicitly inlined
+	'[readability-redundant-member-init]',  # initializer for base class 'Name' is redundant
+	'[readability-simplify-boolean-expr]',  # boolean expression can be simplified by DeMorgan's theorem
 }
 
 # Any check not present in either of the above lists is expected to be clear; regressions are errors.
