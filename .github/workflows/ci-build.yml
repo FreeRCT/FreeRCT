@@ -10,6 +10,7 @@ on:
     branches:
     - master
     - release/*
+    - ci-macos-freetype  # NOCOM remove
 
 jobs:
   clang-tidy:
@@ -194,18 +195,8 @@ jobs:
           libpng \
           glfw3 \
           zlib \
+          freetype-gl[core] \
           # EOF
-
-        # Build and install freetype-gl from source
-        git clone https://github.com/rougier/freetype-gl.git /tmp/freetype-gl
-        cd /tmp/freetype-gl
-        mkdir build && cd build
-        cmake .. \
-          -DCMAKE_INSTALL_PREFIX=/usr/local \
-          -DGLEW_INCLUDE_DIR=/usr/local/share/vcpkg/installed/${{ matrix.arch }}-osx-dynamic/include \
-          -DGLEW_LIBRARY=/usr/local/share/vcpkg/installed/${{ matrix.arch }}-osx-dynamic/lib/libGLEW.dylib
-        make -j $(sysctl -n hw.logicalcpu)
-        make install
 
     - name: Install GCC problem matcher
       uses: ammaraskar/gcc-problem-matcher@master
@@ -221,7 +212,6 @@ jobs:
           -DCMAKE_OSX_ARCHITECTURES=${{ matrix.full_arch }} \
           -DVCPKG_TARGET_TRIPLET=${{ matrix.arch }}-osx-dynamic \
           -DCMAKE_TOOLCHAIN_FILE=/usr/local/share/vcpkg/scripts/buildsystems/vcpkg.cmake \
-          -DCMAKE_PREFIX_PATH=/usr/local \
           $rel \
           # EOF
         echo "::endgroup::"
