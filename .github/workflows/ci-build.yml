@@ -11,7 +11,7 @@ jobs:
   clang-tidy:
     name: Clang-Tidy
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     env:
       CC: clang
       CXX: clang++
@@ -33,7 +33,7 @@ jobs:
           libglew-dev \
           libfreetype-dev \
           zlib1g-dev \
-          python-yaml \
+          python3-yaml \
           clang-tidy \
           # EOF
         echo "::endgroup::"
@@ -90,7 +90,7 @@ jobs:
           cxxcompiler: g++
           config: Debug
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     env:
       CC: ${{ matrix.compiler }}
       CXX: ${{ matrix.cxxcompiler }}
