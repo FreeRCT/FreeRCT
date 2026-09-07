@@ -189,9 +189,9 @@ jobs:
           glew \
           libpng \
           glfw3 \
-          freetype-gl \
           zlib \
           # EOF
+        brew install freetype-gl
 
     - name: Install GCC problem matcher
       uses: ammaraskar/gcc-problem-matcher@master
