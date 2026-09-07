@@ -84,7 +84,7 @@ void RcdFileCollection::ScanDirectories()
  */
 void RcdFileCollection::ScanDirectory(const std::string &dir, int recursion_depth)
 {
-	std::string canonical_path = std::filesystem::canonical(dir);
+	std::string canonical_path = std::filesystem::canonical(dir).string();
 	if (canonical_path.compare(0, 5, "/proc") == 0 || canonical_path.compare(0, 4, "/dev") == 0) {
 		return;  // Special system path, ignore.
 	}
