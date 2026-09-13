@@ -105,17 +105,19 @@ IF(NOT MSVC)
 
 	list(APPEND DOCFILES
 	     "data_format"
-		 "manual"
+		 "rcdgen_markup"
 		 "savegame"
 		 "savegame_history"
+		 "track_designs"
 	)
 
 	# Warning: assumes rst2html exists
 	FOREACH(DOCFILE ${DOCFILES})
 		add_custom_target("${DOCFILE}.html"
-		                  COMMAND rst2html ${DOCFILE}.rst ${DOCFILE}.html
+		                  COMMAND rst2html ../developer_documentation/${DOCFILE}.rst ${DOCFILE}.html
 		                  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/doc"
 		)
+		add_dependencies(doc "${DOCFILE}.html")
 	ENDFOREACH()
 
 ENDIF()
