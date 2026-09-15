@@ -202,6 +202,13 @@ void RideSelectGui::DrawWidget(WidgetNumber wid_num, const BaseWidget *wid) cons
 			for (uint i = 0; i <= ride_type->designs.size() && lines > 0; ++i) {
 				if (counter >= start) {
 					lines--;
+					if(ride_type->designs.size() < 1) {
+						Point32 img_rect(this->GetWidgetScreenX(wid), this->GetWidgetScreenY(wid));
+						img_rect.x += 256;
+						img_rect.y += 32;
+						_video.BlitImage(img_rect, ride_type->GetView(1));
+					}
+					
 					DrawString(i == ride_type->designs.size() ? _language.GetSgText(i == 0 ? GUI_RIDE_SELECT_NO_DESIGNS : GUI_RIDE_SELECT_CUSTOM_DESIGN) :
 							ride_type->designs.at(i).name, (this->current_design == i) ? TEXT_WHITE : TEXT_BLACK, rect.x, rect.y, wid->pos.width);
 					rect.y += GetTextHeight();
