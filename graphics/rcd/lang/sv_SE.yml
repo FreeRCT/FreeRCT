@@ -51,13 +51,13 @@ strings:
         TOOLBAR_GUI_DROPDOWN_SPEED_8: "8×"
         TOOLBAR_GUI_DROPDOWN_VIEW: "Vy"
         TOOLBAR_GUI_DROPDOWN_VIEW_TOOLTIP: "Vyinställningar"
-        TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: "Undergjordsvy"
+        TOOLBAR_GUI_DROPDOWN_VIEW_UNDERGROUND: "Underjordsvy"
         TOOLBAR_GUI_DROPDOWN_VIEW_MINIMAP: "Karta"
 
         TOOLBAR_GUI_PATHS: "Gångvägar"
         TOOLBAR_GUI_TOOLTIP_BUILD_PATHS: "Bygg gångvägar och köer"
         TOOLBAR_GUI_RIDE_SELECT: "Köp åkattraktion"
-        TOOLBAR_GUI_TOOLTIP_RIDE_SELECT: "Köp en ny åkakktraktion för din park"
+        TOOLBAR_GUI_TOOLTIP_RIDE_SELECT: "Köp en ny åkattraktion till din park"
         TOOLBAR_GUI_FENCE: "Bygg staket"
         TOOLBAR_GUI_TOOLTIP_FENCE: "Bygg staket i din park"
         TOOLBAR_GUI_SCENERY: "Dekorationer"
@@ -66,12 +66,12 @@ strings:
         TOOLBAR_GUI_TOOLTIP_PATH_OBJECTS: "Bygg vägföremål i din park"
         TOOLBAR_GUI_TERRAFORM: "Landskapsmåleri"
         TOOLBAR_GUI_TOOLTIP_TERRAFORM: "Ändra landskapet"
-        TOOLBAR_GUI_FINANCES: "Ekonimi"
+        TOOLBAR_GUI_FINANCES: "Ekonomi"
         TOOLBAR_GUI_TOOLTIP_FINANCES: "Hantera företagets ekonomi"
         TOOLBAR_GUI_STAFF: "Personal"
         TOOLBAR_GUI_TOOLTIP_STAFF: "Anställ och avskeda personal"
         TOOLBAR_GUI_INBOX: "Inkorg"
-        TOOLBAR_GUI_TOOLTIP_INBOX: "Visa alla dina meddeladen"
+        TOOLBAR_GUI_TOOLTIP_INBOX: "Visa alla dina meddelanden"
 
         BOTTOMBAR_GUESTCOUNT:
             one: "%1% gäst"
@@ -101,7 +101,7 @@ strings:
         ERROR_MESSAGE_SLOPE: "Kan inte byggas på en sluttning."
         ERROR_MESSAGE_UNDERGROUND: "Kan inte byggas under jorden."
         ERROR_MESSAGE_OCCUPIED: "Något är i vägen!"
-        ERROR_MESSAGE_PAUSED: "Inte tillåtet medans spelet är pausat."
+        ERROR_MESSAGE_PAUSED: "Inte tillåtet medan spelet är pausat."
 
         # Person status strings.
         PERSON_STATUS_WANDER: "Strövar"
@@ -156,9 +156,9 @@ strings:
         PATH_GUI_SLOPE_FLAT_TIP: "Bygg väg vågrätt"
         PATH_GUI_SLOPE_UP_TIP: "Bygg väg uppåt"
 
-        PATH_GUI_FORWARD: "Frammåt"
+        PATH_GUI_FORWARD: "Framåt"
         PATH_GUI_BACKWARD: "Bakåt"
-        PATH_GUI_FORWARD_TIP: "Flytta en vägbit frammåt"
+        PATH_GUI_FORWARD_TIP: "Flytta en vägbit framåt"
         PATH_GUI_BACKWARD_TIP: "Flytta en vägbit bakåt"
 
         PATH_GUI_NW_DIRECTION_TIP: "Bygg väg i nordvästra riktningen"
@@ -216,7 +216,7 @@ strings:
         SHOP_MANAGER_SELLING_PRICE_TEXT: "Försäljningspris"
         SHOP_MANAGER_ITEMS_SOLD_TEXT: "Föremål sålda"
         SHOP_MANAGER_ITEM_PROFIT_TEXT: "Föremålsvinst"
-        SHOP_MANAGER_SELL_PROFIT_TEXT: "Försälningsvinst"
+        SHOP_MANAGER_SELL_PROFIT_TEXT: "Försäljningsvinst"
         SHOP_MANAGER_SHOP_COST_TEXT: "Personalkostnad"
         SHOP_MANAGER_TOTAL_PROFIT_TEXT: "Total vinst"
 
@@ -248,7 +248,7 @@ strings:
         # Finances gui strings.
         FINANCES_TITLE: "Hantera ekonomin"
         FINANCES_RIDE_CONSTRUCTION_TEXT: "Konstruktion av åkattraktioner"
-        FINANCES_RIDE_RUNNING_TEXT: "Åkattraktion driftkostnader"
+        FINANCES_RIDE_RUNNING_TEXT: "Driftkostnader för åkattraktioner"
         FINANCES_LAND_PURCHASE_TEXT: "Köp av land"
         FINANCES_LANDSCAPING_TEXT: "Landskapsmåleri"
         FINANCES_PARK_TICKETS_TEXT: "Entrébiljetter för parken"
@@ -312,10 +312,10 @@ strings:
         COASTER_MANAGER_EDIT: "Redigera spår"
         COASTER_MANAGER_NO_GRAPHS_YET: "Inga mätningar än"
         COASTER_MANAGER_GRAPH_SPEED: "Hastighet"
-        COASTER_MANAGER_GRAPH_VERT_G: "Verikal G-kraft"
+        COASTER_MANAGER_GRAPH_VERT_G: "Vertikal G-kraft"
         COASTER_MANAGER_GRAPH_HORZ_G: "Horisontell G-kraft"
         COASTER_MANAGER_GRAPH_TOOLTIP_SPEED: "Visa hastighetsgraf"
-        COASTER_MANAGER_GRAPH_TOOLTIP_VERT_G: "Visa verikala G-kraft grafen"
+        COASTER_MANAGER_GRAPH_TOOLTIP_VERT_G: "Visa den vertikala G-kraftsgrafen"
         COASTER_MANAGER_GRAPH_TOOLTIP_HORZ_G: "Visa horisontella G-kraft grafen"
 
         # Entity remove button strings.
@@ -349,8 +349,8 @@ strings:
 
         # Money symbols.
         MONEY_CURRENCY_SYMBOL: "$"
-        MONEY_THOUSANDS_SEPARATOR: ","
-        MONEY_DECIMAL_SEPARATOR: "."
+        MONEY_THOUSANDS_SEPARATOR: " "
+        MONEY_DECIMAL_SEPARATOR: ","
 
         # Setting gui strings.
         SETTING_TITLE: "Inställningar"
@@ -359,11 +359,109 @@ strings:
         SETTING_RESOLUTION: "Byt upplösning"
         SETTING_RESOLUTION_TOOLTIP: "Byt spelets upplösning"
 
+        NOT_AVAILABLE: ej tillgängligt
+        DATETIME_FORMAT: '%Y-%m-%d, %H:%M:%S'
+        DATE_FORMAT: '%2% %1% %3%'
+        OBJECTIVE_TIMEOUT_BEFORE: Detta mål måste uppnås före %1%.
+        OBJECTIVE_TIMEOUT_EXACT: Detta mål måste uppnås vid %1%.
+        OBJECTIVE_TIMEOUT_NONE: Detta mål kan uppnås när som helst.
+        OBJECTIVE_STRICT: Detta mål måste vara uppnått hela tiden!
+        OBJECTIVETEXT_NONE: Ha kul!
+        OBJECTIVETEXT_GUESTS:
+            one: Ha minst %1% gäst i din park.
+            other: Ha minst %1% gäster i din park.
+        OBJECTIVETEXT_PARK_RATING: Uppnå ett parkbetyg på minst %1%.
+        OBJECTIVETEXT_PARK_VALUE: Uppnå ett parkvärde på minst %1%.
+        GUEST_NAME: Gäst %1%
+        NR_DAYS:
+            one: '%1% dag'
+            other: '%1% dagar'
+        APPLY: Verkställ
+        MAIN_MENU_LAUNCH_EDITOR: Redigerare
+        TOOLBAR_GUI_DROPDOWN_VIEW_GRID: Rutnät
+        TOOLBAR_GUI_DROPDOWN_VIEW_UNDERWATER: Undervattensvy
+        TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_RIDES: Trådmodell för åkattraktioner
+        TOOLBAR_GUI_DROPDOWN_VIEW_WIRE_SCENERY: Trådmodell för dekorationer
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_PEOPLE: Dölj personer
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SUPPORTS: Dölj stöd
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_SURFACES: Dölj horisontella ytor
+        TOOLBAR_GUI_DROPDOWN_VIEW_HIDE_FOUNDATIONS: Dölj vertikala fundament
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_RIDES: Visa höjdmarkeringar på åkattraktioner
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_PATHS: Visa höjdmarkeringar på gångvägar
+        TOOLBAR_GUI_DROPDOWN_VIEW_HEIGHT_TERRAIN: Visa höjdmarkeringar på terrängen
+        TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_OUT: Zooma ut
+        TOOLBAR_GUI_DROPDOWN_VIEW_ZOOM_IN: Zooma in
+        TOOLBAR_GUI_PARK: Parkhantering
+        TOOLBAR_GUI_TOOLTIP_PARK: Hantera parkens uppgifter
+        NO_NAME: Okänd
+        DEFAULT_SCENARIO_NAME: Namnlös
+        DEFAULT_SCENARIO_DESCR: Detta scenario saknar beskrivning.
+        PERSON_STATUS_GOING_HOME: På väg hem
+        RIDE_SELECT_CUSTOM_DESIGN: Skapa egen banlayout…
+        RIDE_SELECT_NO_DESIGNS: Inga sparade banlayouter
+        RIDE_MANAGER_RIDE_NAME_TEXT: 'Namn:'
+        SCENERY_TITLE: Dekorationer
+        SCENERY_ROTATE_POS: Rotera föremålet moturs
+        SCENERY_ROTATE_NEG: Rotera föremålet medurs
+        SCENERY_CATEGORY_TREES: Träd
+        SCENERY_CATEGORY_FLOWERBEDS: Blomsterrabatter
+        SCENERY_CATEGORY_FOUNTAINS: Fontäner
+        PATH_OBJECTS_TITLE: Gångvägsföremål
+        PATH_OBJECTS_BENCH: Placera bänkar
+        PATH_OBJECTS_BIN: Placera papperskorgar
+        PATH_OBJECTS_LAMP: Placera lampor
+        TERRAFORM_OWNER_UNCHANGED_TEXT: Ändra inte ägandet av rutan
+        TERRAFORM_OWNER_NONE_TEXT: Gör marken oägd
+        TERRAFORM_OWNER_PARK_TEXT: Gör marken parkägd
+        TERRAFORM_OWNER_SALE_TEXT: Markera mark som till salu
+        PARK_MANAGEMENT_TAB_GENERAL: Allmänt
+        PARK_MANAGEMENT_TAB_GENERAL_TOOLTIP: Hantera parkens allmänna inställningar
+        PARK_MANAGEMENT_TAB_GUESTS: Gäster
+        PARK_MANAGEMENT_TAB_GUESTS_TOOLTIP: Visa antalet gäster i parken över tid
+        PARK_MANAGEMENT_TAB_RATING: Betyg
+        PARK_MANAGEMENT_TAB_RATING_TOOLTIP: Visa parkens betyg över tid
+        PARK_MANAGEMENT_TAB_OBJECTIVE: Mål
+        PARK_MANAGEMENT_TAB_OBJECTIVE_TOOLTIP: Visa scenariots mål
+        PARK_MANAGEMENT_TAB_AWARDS: Utmärkelser
+        PARK_MANAGEMENT_TAB_AWARDS_TOOLTIP: Visa utmärkelser som din park har fått
+        PARK_MANAGEMENT_RATING: 'Parkbetyg: %1%'
+        PARK_MANAGEMENT_NO_AWARDS: Parken har inte fått några utmärkelser på sistone.
+        PARK_MANAGEMENT_PARKNAME: 'Parknamn:'
+        PARK_MANAGEMENT_ENTRANCE_FEE: 'Entréavgift:'
+        PARK_MANAGEMENT_MAX_GUESTS: 'Högsta antal gäster:'
+        PARK_MANAGEMENT_SOLVED: 'Ange ditt namn:'
+        PARK_MANAGEMENT_OBJECTIVE_GUESTS: 'Krävda gäster:'
+        PARK_MANAGEMENT_OBJECTIVE_RATING: 'Krävt parkbetyg:'
+        PARK_MANAGEMENT_OBJECTIVE_PARK_VALUE: 'Krävt parkvärde:'
+        PARK_MANAGEMENT_OBJECTIVE_DROP_POLICY: 'Parken stänger när målet inte har uppnåtts under:'
+        PARK_MANAGEMENT_OBJECTIVE_DATE: 'Målet måste uppnås senast:'
+        PARK_MANAGEMENT_OBJECTIVE_DATE_NOT_EXACT: Målet kan uppnås när som helst
+        FINANCES_PARK_VALUE: Parkvärde
+        FINANCES_COMPANY_VALUE: Företagsvärde
+        FINANCES_PARK_VALUE_VALUE: 'Parkvärde: %1%'
+        COASTER_MANAGER_SAVE_DESIGN: Spara banlayout
+        ENTITY_REMOVE_COST: 'Återbetalning: %1%'
+        SCENARIO_SELECT_TITLE: Välj scenario
+        SCENARIO_SELECT_NO_MISSIONS: Inga uppdrag har lästs in.
+        SCENARIO_SELECT_UNLOCK:
+            one: Slutför %1% scenario till i uppdraget för att låsa upp det här scenariot.
+            other: Slutför %1% scenarier till i uppdraget för att låsa upp det här scenariot.
+        SCENARIO_SELECT_SOLVED: Slutfört av %1% den %2% med företagsvärdet %3%
+        LOADSAVE_LOAD: Ladda
+        LOADSAVE_SAVE: Spara
+        LOADSAVE_CANCEL: Avbryt
+        LOADSAVE_DELETE: Ta bort
+        LOADSAVE_COLUMN_FILE: Filnamn
+        LOADSAVE_COLUMN_TIME: Sparat datum
+        LOADSAVE_COLUMN_NAME: Scenario
+        LOADSAVE_CONFIRM_TITLE: Bekräfta
+        LOADSAVE_CONFIRM_OVERWRITE: Vill du verkligen skriva över det här sparade spelet?
+        LOADSAVE_CONFIRM_DELETE: Vill du verkligen ta bort det här sparade spelet?
     ice-cream-stall:
         NAME_INSTANCE1: "Ispalatset"
         # The triple l is intentional as the original name spells cool with 3 o's
         # so I tried emulating that
-        NAME_INSTANCE2: "Kallla drycker"
+        NAME_INSTANCE2: "Kalla drycker"
         NAME_TYPE: "Glasstånd"
         DESCRIPTION_TYPE: "Butik som säljer drycker och glass"
         DESCRIPTION_RECOLOUR1: "Bägarfärg"
@@ -373,7 +471,7 @@ strings:
         NAME_ITEM2: "Frisk dryck"
 
     snack-shop:
-        NAME_INSTANCE1: "Den glada snackern"
+        NAME_INSTANCE1: "Den glada snackbaren"
         NAME_INSTANCE2: "Pizzapalatset"
         NAME_TYPE: "Snacksbutik"
         DESCRIPTION_TYPE: "Butik där du kan köpa goda kakor"
@@ -392,6 +490,7 @@ strings:
         DESCRIPTION_RECOLOUR2: "-"
         DESCRIPTION_RECOLOUR3: "-"
         NAME_ITEM1: "Toalett"
+        NAME_ITEM2: '-'
     basic-coaster:
         NAME_INSTANCE: "Galen berg-och-dalbana"
         NAME_TYPE: "Enkel berg-och-dalbana"
@@ -409,12 +508,12 @@ strings:
         DESCRIPTION_RECOLOUR3: "-"
     entrance-alt:
         NAME: "Alternativ ingång"
-        DESCRIPTION_RECOLOUR1: "Walls"
+        DESCRIPTION_RECOLOUR1: "Väggar"
         DESCRIPTION_RECOLOUR2: "-"
         DESCRIPTION_RECOLOUR3: "-"
     exit-alt:
         NAME: "Alternativ utgång"
-        DESCRIPTION_RECOLOUR1: "Walls"
+        DESCRIPTION_RECOLOUR1: "Väggar"
         DESCRIPTION_RECOLOUR2: "-"
         DESCRIPTION_RECOLOUR3: "-"
 
@@ -430,7 +529,7 @@ strings:
         NAME_INSTANCE1: "Kölhalaren"
         NAME_INSTANCE2: "Pirater ohoj"
         NAME_TYPE: "Gungande skepp"
-        DESCRIPTION_TYPE: "Ett skäpp som gungar fram och tillbaka."
+        DESCRIPTION_TYPE: "Ett skepp som gungar fram och tillbaka."
         DESCRIPTION_RECOLOUR1: "-"
         DESCRIPTION_RECOLOUR2: "-"
         DESCRIPTION_RECOLOUR3: "-"
@@ -451,3 +550,46 @@ strings:
         NAME: "Träd 3"
     fountain1:
         NAME: "Fontän 1"
+    atm:
+        NAME_INSTANCE1: Uttagsautomat
+        NAME_INSTANCE2: Bankomat
+        NAME_TYPE: Bankomat
+        DESCRIPTION_TYPE: Gör att gäster kan ta ut mer pengar när de har slut på dem.
+        DESCRIPTION_RECOLOUR1: Väggar
+        DESCRIPTION_RECOLOUR2: '-'
+        DESCRIPTION_RECOLOUR3: '-'
+        NAME_ITEM1: Kontanter
+        NAME_ITEM2: '-'
+    spiral-slide:
+        NAME_INSTANCE1: Runt runt
+        NAME_INSTANCE2: Yrsel
+        NAME_TYPE: Spiralrutschkana
+        DESCRIPTION_TYPE: En rutschkana formad som en spiral, byggd runt ett torn som omsluter trapphuset.
+        DESCRIPTION_RECOLOUR1: Väggar 1
+        DESCRIPTION_RECOLOUR2: Väggar 2
+        DESCRIPTION_RECOLOUR3: Rutschkana
+    top-spin:
+        NAME_INSTANCE1: Huvudstupa
+        NAME_INSTANCE2: På topp
+        NAME_TYPE: Top Spin
+        DESCRIPTION_TYPE: En gondol som roterar runt sin axel samtidigt som den svängs fram och tillbaka.
+        DESCRIPTION_RECOLOUR1: Gondol 1
+        DESCRIPTION_RECOLOUR2: Gondol 2
+        DESCRIPTION_RECOLOUR3: Säkerhetsbyglar
+    chair-swing:
+        NAME_INSTANCE1: Obunden
+        NAME_INSTANCE2: Gungande
+        NAME_TYPE: Kedjegunga
+        DESCRIPTION_TYPE: Åtta stolar upphängda i långa kedjor som är fästa vid en roterande skiva.
+        DESCRIPTION_RECOLOUR1: Konstruktion
+        DESCRIPTION_RECOLOUR2: Tak
+        DESCRIPTION_RECOLOUR3: Bas
+    mission-official-easy:
+        NAME: Officiell – lätt
+        DESCR: En samling enkla scenarier från FreeRCT:s utvecklingsteam.
+    scenario-emerald-expanses:
+        NAME: Smaragdvidder
+        DESCR: Vem kan se dessa vidsträckta gröna marker utan att röras av deras skönhet? Bland de skogklädda, mjuka kullarna väntar en nöjespark på att byggas.
+    scenario-rugged-ravine:
+        NAME: Karg ravin
+        DESCR: En kanjon, som en uttorkad flod en gång skar genom landskapet, är platsen för denna nöjespark.
