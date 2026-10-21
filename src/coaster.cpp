@@ -824,6 +824,7 @@ void CoasterTrain::OnAnimate(int delay)
 				is_inside_station = true;
 			}
 			if (is_inside_station) {
+				this->speed = 0;
 				this->station_policy = other_train_in_station_front ? TSP_IN_STATION_BACK : TSP_IN_STATION_FRONT;
 			}
 		}
